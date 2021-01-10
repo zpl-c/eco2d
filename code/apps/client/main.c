@@ -1,5 +1,8 @@
 #include "raylib.h"
 
+// #define LIBRG_IMPL
+#include "librg.h"
+
 int main(void)
 {
     // Initialization

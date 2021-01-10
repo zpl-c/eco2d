@@ -28,4 +28,6 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(eco2d code/apps/client/main.c)
 
+include_directories(eco2d code/vendors)
+
 target_link_libraries(eco2d raylib)
