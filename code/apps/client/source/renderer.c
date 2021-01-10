@@ -1,9 +1,9 @@
+#include "system.h"
 #include "renderer.h"
 #include "raylib.h"
-#include "zpl.h"
 
-const zpl_u32 screenWidth = 800;
-const zpl_u32 screenHeight = 450;
+const uint16_t screenWidth = 800;
+const uint16_t screenHeight = 450;
 
 void gfx_init() {
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
@@ -13,7 +13,6 @@ void gfx_init() {
 void gfx_shutdown() {
     CloseWindow();
 }
-
 
 void gfx_render() {
     BeginDrawing();
