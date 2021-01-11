@@ -1,7 +1,7 @@
 #include "options.h"
 #include "world.h"
 #include "blocks.h"
-#include "zpl.h"
+#include <stdio.h>
 
 void generate_minimap(int32_t seed, int32_t world_size) {
     world_init(seed, world_size, world_size);
@@ -9,10 +9,10 @@ void generate_minimap(int32_t seed, int32_t world_size) {
     uint32_t len = world_buf(&world, NULL);
     for (int i=0; i<len; i++) {
         if (i > 0 && i % world_size == 0) {
-            zpl_printf("\n");
+            putc('\n', stdout);
         }
-        zpl_printf("%c", blocks_get_symbol(world[i]));
+        putc(blocks_get_symbol(world[i]), stdout);
     }
-    zpl_printf("\n");
+    putc('\n', stdout);
     world_destroy();
 }
