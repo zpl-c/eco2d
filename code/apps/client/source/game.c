@@ -6,7 +6,7 @@ void game_init() {
 }
 
 void game_shutdown() {
-    platform_shutdown();
+    //
 }
 
 uint8_t game_is_running() {

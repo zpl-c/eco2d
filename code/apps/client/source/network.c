@@ -1,4 +1,3 @@
-#define ZPL_IMPL
 #include "zpl.h"
 
 #define LIBRG_IMPL
