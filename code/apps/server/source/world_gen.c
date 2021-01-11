@@ -56,7 +56,27 @@ static WORLD_BLOCK_OBSERVER(shaper_noise80) {
     uint32_t x = block_idx % world_width;
     uint32_t y = block_idx / world_width;
 
-    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.8)
+    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.80)
+        return shaper(id, block_idx);
+    else
+        return BLOCK_INVALID;
+}
+
+static WORLD_BLOCK_OBSERVER(shaper_noise50) {
+    uint32_t x = block_idx % world_width;
+    uint32_t y = block_idx / world_width;
+
+    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.50)
+        return shaper(id, block_idx);
+    else
+        return BLOCK_INVALID;
+}
+
+static WORLD_BLOCK_OBSERVER(shaper_noise33) {
+    uint32_t x = block_idx % world_width;
+    uint32_t y = block_idx / world_width;
+
+    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.33)
         return shaper(id, block_idx);
     else
         return BLOCK_INVALID;
@@ -80,7 +100,7 @@ int32_t world_gen() {
 
     // hills
     world_fill_rect_anchor(wall_id, 14, 21, 8, 8, 0.5f, 0.5f, shaper_noise80);
-    world_fill_rect_anchor(wall_id, 14, 21, 4, 4, 0.5f, 0.5f, shaper_noise80);
+    world_fill_rect_anchor(wall_id, 14, 21, 4, 4, 0.5f, 0.5f, shaper_noise50);
 
 
     return WORLD_ERROR_NONE;
