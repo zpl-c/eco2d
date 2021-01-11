@@ -5,7 +5,9 @@ static uint8_t *world = NULL;
 static uint32_t world_size = 0;
 static uint32_t world_width = 0;
 
-int32_t world_gen(int32_t seed, uint8_t width, uint8_t height) {
+static int32_t world_gen(int32_t seed);
+
+int32_t world_init(int32_t seed, uint8_t width, uint8_t height) {
     if (world) {
         world_destroy();
     }
@@ -16,7 +18,7 @@ int32_t world_gen(int32_t seed, uint8_t width, uint8_t height) {
     if (!world) {
         return WORLD_ERROR_OUTOFMEM;
     }
-    return WORLD_ERROR_NONE;
+    return world_gen(seed);
 }
 
 int32_t world_destroy(void) {
@@ -31,4 +33,10 @@ uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
     *ptr = world;
     if (width) *width = world_width;
     return world_size;
+}
+
+static int32_t world_gen(int32_t seed) {
+    // TODO: perform world gen
+
+    return WORLD_ERROR_NONE;
 }
