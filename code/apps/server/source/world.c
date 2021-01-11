@@ -2,23 +2,27 @@
 #include "zpl.h"
 
 static uint8_t *world = NULL;
+static uint32_t world_seed = 0;
 static uint32_t world_size = 0;
 static uint32_t world_width = 0;
 static uint32_t world_height = 0;
+
+int32_t world_gen();
 
 int32_t world_init(int32_t seed, uint8_t width, uint8_t height) {
     if (world) {
         world_destroy();
     }
-    world_size = width*height;
+    world_seed = seed;
     world_width = width;
     world_height = height;
+    world_size = width*height;
     world = zpl_malloc(sizeof(uint8_t)*world_size);
 
     if (!world) {
         return WORLD_ERROR_OUTOFMEM;
     }
-    return world_gen(world, world_size, world_width, world_height, seed);
+    return world_gen();
 }
 
 int32_t world_destroy(void) {

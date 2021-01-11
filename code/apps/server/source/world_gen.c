@@ -1,11 +1,15 @@
 #include "world.h"
 #include "blocks.h"
+#include "perlin.h"
 #include "zpl.h"
 
 #include <math.h>
 
 #define WORLD_BLOCK_OBSERVER(name) uint32_t name(uint32_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
+
+#define WORLD_PERLIN_FREQ    1.0
+#define WORLD_PERLIN_OCTAVES 1
 
 static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
@@ -16,7 +20,10 @@ static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uin
 
             if (proc) {
                 uint32_t new_id = (*proc)(id, i);
-                id = (new_id != BLOCK_INVALID) ? new_id : id;
+                if (new_id != BLOCK_INVALID) {
+                    id = new_id;
+                }
+                else continue;
             }
 
             world[i] = id;
@@ -45,7 +52,17 @@ static WORLD_BLOCK_OBSERVER(shaper) {
     return id;
 }
 
-int32_t world_gen(int32_t seed) {
+static WORLD_BLOCK_OBSERVER(shaper_noise80) {
+    uint32_t x = block_idx % world_width;
+    uint32_t y = block_idx / world_width;
+
+    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.8)
+        return shaper(id, block_idx);
+    else
+        return BLOCK_INVALID;
+}
+
+int32_t world_gen() {
     // TODO: perform world gen
     // atm, we will fill the world with ground and surround it by walls
     uint32_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
@@ -62,8 +79,8 @@ int32_t world_gen(int32_t seed) {
     world_fill_rect_anchor(watr_id, 8, 8, 4, 4, 0.5f, 0.5f, NULL);
 
     // hills
-    world_fill_rect_anchor(wall_id, 14, 21, 8, 8, 0.5f, 0.5f, shaper);
-    world_fill_rect_anchor(wall_id, 14, 21, 4, 4, 0.5f, 0.5f, shaper);
+    world_fill_rect_anchor(wall_id, 14, 21, 8, 8, 0.5f, 0.5f, shaper_noise80);
+    world_fill_rect_anchor(wall_id, 14, 21, 4, 4, 0.5f, 0.5f, shaper_noise80);
 
 
     return WORLD_ERROR_NONE;
