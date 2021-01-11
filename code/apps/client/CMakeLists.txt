@@ -24,18 +24,18 @@ add_library(client-common STATIC
   source/game.c
 
   header/network.h
-  header/renderer.h
+  header/platform.h
   header/game.h
 )
 
 add_executable(eco2d-client
   source/main.c
-  source/renderer_raylib.c
+  source/platform_raylib.c
 )
 
 add_executable(eco2d-cli
   source/main.c
-  source/renderer_text.c
+  source/platform_text.c
 )
 
 include_directories(header/)

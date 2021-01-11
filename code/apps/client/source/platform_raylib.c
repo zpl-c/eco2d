@@ -1,23 +1,23 @@
-#include "renderer.h"
+#include "platform.h"
 #include "raylib.h"
 
 const uint16_t screenWidth = 800;
 const uint16_t screenHeight = 450;
 
-void gfx_init() {
+void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d - client");
     SetTargetFPS(60);
 }
 
-void gfx_shutdown() {
+void platform_shutdown() {
     CloseWindow();
 }
 
-uint8_t gfx_is_running() {
+uint8_t platform_is_running() {
     return !WindowShouldClose();
 }
 
-void gfx_render() {
+void platform_render() {
     BeginDrawing();
     ClearBackground(RAYWHITE);
     DrawText("NOBODY EXPECTS SPANISH INQUISITION!", 190, 200, 20, RED);
