@@ -9,7 +9,7 @@ static uint32_t world_height = 0;
 
 int32_t world_gen();
 
-int32_t world_init(int32_t seed, uint8_t width, uint8_t height) {
+int32_t world_init(int32_t seed, uint32_t width, uint32_t height) {
     if (world) {
         world_destroy();
     }

@@ -47,6 +47,9 @@ static WORLD_BLOCK_OBSERVER(shaper) {
         if (kind == BLOCK_KIND_WALL && kind == old_kind) {
             return blocks_find(biome, BLOCK_KIND_HILL);
         }
+        if (kind == BLOCK_KIND_HILL && kind == old_kind) {
+            return blocks_find(biome, BLOCK_KIND_HILL_SNOW);
+        }
     }
 
     return id;
@@ -89,16 +92,15 @@ int32_t world_gen() {
     world_fill_rect(grnd_id, 1, 1, world_width-2, world_height-2, NULL);
 
     // water
-    for (int i=0; i<RAND_RANGE(0, 8); i++) {
+    for (int i=0; i<RAND_RANGE(0, 12); i++) {
         world_fill_rect_anchor(watr_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise33);
     }
 
-    // hills
-    world_fill_rect_anchor(wall_id, 14+RAND_RANGE(-10, 10), 21+RAND_RANGE(-10, 10), 8+RAND_RANGE(-2,4), 8+RAND_RANGE(-2,4), 0.5f, 0.5f, shaper_noise80);
-    world_fill_rect_anchor(wall_id, 14+RAND_RANGE(-10, 10), 21+RAND_RANGE(-10, 10), 4+RAND_RANGE(-2,4), 4+RAND_RANGE(-2,4), 0.5f, 0.5f, shaper_noise50);
+    const uint32_t HILLS_SIZE = 21;
 
-    for (int i=0; i<RAND_RANGE(8, 24); i++) {
-        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), 4+RAND_RANGE(-2,4), 4+RAND_RANGE(-2,4), 0.5f, 0.5f, shaper_noise50);
+    // hills
+    for (int i=0; i<RAND_RANGE(8, 224); i++) {
+        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise33);
     }
 
     return WORLD_ERROR_NONE;

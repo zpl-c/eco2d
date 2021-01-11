@@ -6,6 +6,7 @@ typedef enum {
     BLOCK_KIND_WATER,
     BLOCK_KIND_WALL,
     BLOCK_KIND_HILL,
+    BLOCK_KIND_HILL_SNOW,
     BLOCK_KIND_HOLE,
 } block_kind;
 
