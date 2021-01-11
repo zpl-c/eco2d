@@ -1,18 +1,19 @@
 #include "options.h"
-#include "perlin.h"
+#include "world.h"
+#include "blocks.h"
 #include "zpl.h"
 
 #define TEST_MAP_DIM 32
-#define TEST_MAP_DEPTH 18
-
-static char *map_pattern = "~~..,,oo---OO^^^@@";
 
 void generate_minimap(int32_t seed) {
-    for (uint32_t y=0; y<TEST_MAP_DIM; y++) {
-        for (uint32_t x=0; x<TEST_MAP_DIM; x++) {
-            double sample = perlin_fbm(seed, x, y, 1.0, 1) * TEST_MAP_DEPTH;
-            zpl_printf("%c", map_pattern[(uint32_t)sample]);
+    world_init(seed, TEST_MAP_DIM, TEST_MAP_DIM);
+    uint8_t *world;
+    uint32_t len = world_buf(&world, NULL);
+    for (int i=0; i<len; i++) {
+        if (i > 0 && i % TEST_MAP_DIM == 0) {
+            zpl_printf("\n");
         }
-        zpl_printf("\n");
+        zpl_printf("%c", blocks_get_symbol(world[i]));
     }
+    world_destroy();
 }
