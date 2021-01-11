@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
         zpl_random rnd={0};
         zpl_random_init(&rnd);
         seed = zpl_random_gen_u32(&rnd);
+        zpl_printf("Seed: %lld\n", seed);
     }
 
     if (zpl_opts_has_arg(&opts, "preview-map")) {
