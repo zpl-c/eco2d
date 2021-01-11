@@ -71,12 +71,16 @@ static WORLD_BLOCK_OBSERVER(shaper_noise33) {
     return world_perlin_cond(block_idx, 0.33) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
 
+#define RAND_RANGE(x,y) (x + (uint32_t)rand()%(y-(x)))
+
 int32_t world_gen() {
     // TODO: perform world gen
     // atm, we will fill the world with ground and surround it by walls
     uint32_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
     uint32_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
     uint32_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+
+    srand(world_seed);
 
     // walls
     world_fill_rect(wall_id, 0, 0, world_width, world_height, NULL);
@@ -85,12 +89,17 @@ int32_t world_gen() {
     world_fill_rect(grnd_id, 1, 1, world_width-2, world_height-2, NULL);
 
     // water
-    world_fill_rect_anchor(watr_id, 8, 8, 4, 4, 0.5f, 0.5f, NULL);
+    for (int i=0; i<RAND_RANGE(0, 8); i++) {
+        world_fill_rect_anchor(watr_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise33);
+    }
 
     // hills
-    world_fill_rect_anchor(wall_id, 14, 21, 8, 8, 0.5f, 0.5f, shaper_noise80);
-    world_fill_rect_anchor(wall_id, 14, 21, 4, 4, 0.5f, 0.5f, shaper_noise50);
+    world_fill_rect_anchor(wall_id, 14+RAND_RANGE(-10, 10), 21+RAND_RANGE(-10, 10), 8+RAND_RANGE(-2,4), 8+RAND_RANGE(-2,4), 0.5f, 0.5f, shaper_noise80);
+    world_fill_rect_anchor(wall_id, 14+RAND_RANGE(-10, 10), 21+RAND_RANGE(-10, 10), 4+RAND_RANGE(-2,4), 4+RAND_RANGE(-2,4), 0.5f, 0.5f, shaper_noise50);
 
+    for (int i=0; i<RAND_RANGE(8, 24); i++) {
+        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), 4+RAND_RANGE(-2,4), 4+RAND_RANGE(-2,4), 0.5f, 0.5f, shaper_noise50);
+    }
 
     return WORLD_ERROR_NONE;
 }
