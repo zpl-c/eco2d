@@ -22,6 +22,7 @@ endif()
 add_library(client-common STATIC
   source/network.c
   source/game.c
+  source/main.c
 
   header/network.h
   header/platform.h
@@ -29,12 +30,10 @@ add_library(client-common STATIC
 )
 
 add_executable(eco2d-client
-  source/main.c
   source/platform_raylib.c
 )
 
 add_executable(eco2d-cli
-  source/main.c
   source/platform_text.c
 )
 
