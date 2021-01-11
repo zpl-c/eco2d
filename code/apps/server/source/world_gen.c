@@ -52,34 +52,23 @@ static WORLD_BLOCK_OBSERVER(shaper) {
     return id;
 }
 
-static WORLD_BLOCK_OBSERVER(shaper_noise80) {
+static uint8_t world_perlin_cond(uint32_t block_idx, double chance) {
     uint32_t x = block_idx % world_width;
     uint32_t y = block_idx / world_width;
 
-    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.80)
-        return shaper(id, block_idx);
-    else
-        return BLOCK_INVALID;
+    return perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
+}
+
+static WORLD_BLOCK_OBSERVER(shaper_noise80) {
+    return world_perlin_cond(block_idx, 0.80) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
 
 static WORLD_BLOCK_OBSERVER(shaper_noise50) {
-    uint32_t x = block_idx % world_width;
-    uint32_t y = block_idx / world_width;
-
-    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.50)
-        return shaper(id, block_idx);
-    else
-        return BLOCK_INVALID;
+    return world_perlin_cond(block_idx, 0.50) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
 
 static WORLD_BLOCK_OBSERVER(shaper_noise33) {
-    uint32_t x = block_idx % world_width;
-    uint32_t y = block_idx / world_width;
-
-    if (perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < 0.33)
-        return shaper(id, block_idx);
-    else
-        return BLOCK_INVALID;
+    return world_perlin_cond(block_idx, 0.33) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
 
 int32_t world_gen() {
