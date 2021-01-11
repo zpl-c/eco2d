@@ -34,3 +34,5 @@ uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
     if (width) *width = world_width;
     return world_size;
 }
+
+#include "world_gen.c"

@@ -4,7 +4,6 @@ add_executable(eco2d-server
   source/perlin.c
   source/options.c
   source/world.c
-  source/world_gen.c
   source/blocks.c
 
   header/network.h
