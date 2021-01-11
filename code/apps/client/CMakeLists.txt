@@ -19,16 +19,33 @@ if (NOT raylib_FOUND)
     endif()
 endif()
 
-add_executable(eco2d-client
-  source/main.c
+add_library(client-common STATIC
   source/network.c
-  source/renderer.c
   source/game.c
 
-  header/renderer.h
   header/network.h
+  header/renderer.h
   header/game.h
 )
 
+add_executable(eco2d-client
+  source/main.c
+  source/renderer_raylib.c
+)
+
+add_executable(eco2d-cli
+  source/main.c
+  source/renderer_text.c
+)
+
 include_directories(header/)
-target_link_libraries(eco2d-client raylib)
+target_link_libraries(eco2d-client raylib client-common)
+target_link_libraries(eco2d-cli client-common)
+
+if (WIN32)
+    target_link_libraries(eco2d-cli winmm)
+    target_link_libraries(eco2d-client winmm)
+elseif (UNIX)
+    target_link_libraries(eco2d-cli pthread m dl)
+    target_link_libraries(eco2d-client pthread m dl)
+endif()

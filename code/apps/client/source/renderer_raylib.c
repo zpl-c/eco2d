@@ -1,4 +1,3 @@
-#include "system.h"
 #include "renderer.h"
 #include "raylib.h"
 
@@ -12,6 +11,10 @@ void gfx_init() {
 
 void gfx_shutdown() {
     CloseWindow();
+}
+
+uint8_t gfx_is_running() {
+    return !WindowShouldClose();
 }
 
 void gfx_render() {

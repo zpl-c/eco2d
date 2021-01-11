@@ -9,6 +9,9 @@ void game_shutdown() {
     gfx_shutdown();
 }
 
+uint8_t game_is_running() {
+    return gfx_is_running();
+}
 
 void game_input() {
 

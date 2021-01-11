@@ -1,10 +1,12 @@
+#define ZPL_IMPL
+#include "zpl.h"
 #include "game.h"
 
 int main(void)
 {
     game_init();
 
-    while (!WindowShouldClose())
+    while (game_is_running())
     {
         game_input();
         game_update();
