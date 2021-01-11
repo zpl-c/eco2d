@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.0)
 project(eco2d)
 
 set(CMAKE_C_STANDARD 11)
