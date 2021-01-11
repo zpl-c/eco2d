@@ -6,7 +6,7 @@ const uint16_t screenWidth = 800;
 const uint16_t screenHeight = 450;
 
 void gfx_init() {
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    InitWindow(screenWidth, screenHeight, "eco2d - client");
     SetTargetFPS(60);
 }
 

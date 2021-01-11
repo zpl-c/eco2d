@@ -4,7 +4,7 @@ int main(void)
 {
     game_init();
 
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
         game_input();
         game_update();
