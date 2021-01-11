@@ -15,5 +15,6 @@ void generate_minimap(int32_t seed) {
         }
         zpl_printf("%c", blocks_get_symbol(world[i]));
     }
+    zpl_printf("\n");
     world_destroy();
 }
