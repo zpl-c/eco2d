@@ -10,4 +10,4 @@
 int32_t world_gen(int32_t seed, uint8_t width, uint8_t height);
 int32_t world_destroy(void);
 
-uint32_t world_buf(uint8_t const **ptr);
+uint32_t world_buf(uint8_t const **ptr, uint32_t *width);
