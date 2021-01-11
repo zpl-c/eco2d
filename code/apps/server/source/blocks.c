@@ -40,3 +40,11 @@ char blocks_get_symbol(uint8_t id) {
 uint32_t blocks_get_flags(uint8_t id) {
     return blocks[id].flags;
 }
+
+uint32_t blocks_get_biome(uint8_t id) {
+    return blocks[id].biome;
+}
+
+uint32_t blocks_get_kind(uint8_t id) {
+    return blocks[id].kind;
+}

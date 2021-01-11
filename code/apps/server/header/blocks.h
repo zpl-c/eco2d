@@ -16,3 +16,5 @@ char *blocks_get_name(uint8_t id);
 uint8_t blocks_get_tex_id(uint8_t id);
 char blocks_get_symbol(uint8_t id);
 uint32_t blocks_get_flags(uint8_t id);
+uint32_t blocks_get_biome(uint8_t id);
+uint32_t blocks_get_kind(uint8_t id);
