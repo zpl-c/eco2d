@@ -6,7 +6,7 @@
 #define BLOCK_NAMELEN 80
 
 typedef struct {
-    uint32_t id;
+    uint8_t id;
     char name[BLOCK_NAMELEN];
     uint32_t flags;
 } block;
@@ -16,11 +16,11 @@ static uint32_t blocks_count = 0;
 
 int blocks_comparer(void const *a, void const *b) {
     block *ba = (block*)a;
-    uint32_t bb = *(uint32_t*)b;
+    uint8_t bb = *(uint8_t*)b;
     return ba->id < bb ? -1 : ba->id > bb;
 }
 
-static block *blocks_find(uint32_t id) {
+static block *blocks_find(uint8_t id) {
     ZPL_ASSERT_NOT_NULL(blocks);
     int32_t index = zpl_binary_search((void*)blocks, blocks_count, sizeof(block), (void*)&id, blocks_comparer);
     ZPL_ASSERT_MSG(index != -1, "block could not be found");
@@ -39,12 +39,12 @@ int32_t blocks_destroy(void) {
     return BLOCKS_ERROR_NONE;
 }
 
-char *blocks_get_name(uint32_t id) {
+char *blocks_get_name(uint8_t id) {
     ZPL_ASSERT_NOT_NULL(blocks);
     return blocks_find(id)->name;
 }
 
-uint32_t blocks_get_flags(uint32_t id) {
+uint32_t blocks_get_flags(uint8_t id) {
     ZPL_ASSERT_NOT_NULL(blocks);
     return blocks_find(id)->flags;
 }
