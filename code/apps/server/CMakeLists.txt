@@ -10,7 +10,6 @@ add_executable(eco2d-server
   header/perlin.h
   header/options.h
   header/world.h
-  header/world_gen.h
   header/blocks.h
   header/blocks_info.h
 )
