@@ -7,7 +7,7 @@
 
 typedef struct {
     uint8_t tex_id;
-    const char *name;
+    char *name;
     uint32_t flags;
     uint32_t kind;
     uint32_t biome;

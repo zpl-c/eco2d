@@ -4,6 +4,7 @@
 #include "zpl.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 #define WORLD_BLOCK_OBSERVER(name) uint32_t name(uint32_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
@@ -14,9 +15,9 @@ typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
-            if (cx < 0 || cx >= world_width) continue;
-            if (cy < 0 || cy >= world_height) continue;
-            uint32_t i = (cy*world_width) + cx;
+            if (cx < 0 || cx >= world.width) continue;
+            if (cy < 0 || cy >= world.height) continue;
+            uint32_t i = (cy*world.width) + cx;
 
             if (proc) {
                 uint32_t new_id = (*proc)(id, i);
@@ -26,7 +27,7 @@ static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uin
                 else continue;
             }
 
-            world[i] = id;
+            world.data[i] = id;
         }
     }
 }
@@ -34,9 +35,9 @@ static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uin
 static void world_fill_circle(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
-            if (cx < 0 || cx >= world_width) continue;
-            if (cy < 0 || cy >= world_height) continue;
-            uint32_t i = (cy*world_width) + cx;
+            if (cx < 0 || cx >= world.width) continue;
+            if (cy < 0 || cy >= world.height) continue;
+            uint32_t i = (cy*world.width) + cx;
 
             if (proc) {
                 uint32_t new_id = (*proc)(id, i);
@@ -46,7 +47,7 @@ static void world_fill_circle(uint32_t id, uint32_t x, uint32_t y, uint32_t w, u
                 else continue;
             }
 
-            world[i] = id;
+            world.data[i] = id;
         }
     }
 }
@@ -60,8 +61,8 @@ static void world_fill_rect_anchor(uint32_t id, uint32_t x, uint32_t y, uint32_t
 static WORLD_BLOCK_OBSERVER(shaper) {
     uint32_t biome = blocks_get_biome(id);
     uint32_t kind = blocks_get_kind(id);
-    uint32_t old_biome = blocks_get_biome(world[block_idx]);
-    uint32_t old_kind = blocks_get_kind(world[block_idx]);
+    uint32_t old_biome = blocks_get_biome(world.data[block_idx]);
+    uint32_t old_kind = blocks_get_kind(world.data[block_idx]);
 
     if (biome == old_biome) {
         if (kind == BLOCK_KIND_WALL && kind == old_kind) {
@@ -76,10 +77,10 @@ static WORLD_BLOCK_OBSERVER(shaper) {
 }
 
 static uint8_t world_perlin_cond(uint32_t block_idx, double chance) {
-    uint32_t x = block_idx % world_width;
-    uint32_t y = block_idx / world_width;
+    uint32_t x = block_idx % world.width;
+    uint32_t y = block_idx / world.width;
 
-    return perlin_fbm(world_seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
+    return perlin_fbm(world.seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
 }
 
 static WORLD_BLOCK_OBSERVER(shaper_noise80) {
@@ -107,24 +108,24 @@ int32_t world_gen() {
     uint32_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
     uint32_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
 
-    srand(world_seed);
+    srand(world.seed);
 
     // walls
-    world_fill_rect(wall_id, 0, 0, world_width, world_height, NULL);
+    world_fill_rect(wall_id, 0, 0, world.width, world.height, NULL);
 
     // ground
-    world_fill_rect(grnd_id, 1, 1, world_width-2, world_height-2, NULL);
+    world_fill_rect(grnd_id, 1, 1, world.width-2, world.height-2, NULL);
 
     // water
     for (int i=0; i<RAND_RANGE(0, 12); i++) {
-        world_fill_rect_anchor(watr_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise33);
+        world_fill_rect_anchor(watr_id, RAND_RANGE(0, world.width), RAND_RANGE(0, world.height), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise33);
     }
 
     const uint32_t HILLS_SIZE = 21;
 
     // hills
     for (int i=0; i<RAND_RANGE(8, 224); i++) {
-        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world_width), RAND_RANGE(0, world_height), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise33);
+        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world.width), RAND_RANGE(0, world.height), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise33);
     }
 
     return WORLD_ERROR_NONE;

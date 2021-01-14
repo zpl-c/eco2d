@@ -1,42 +1,46 @@
 #include "world.h"
 #include "zpl.h"
 
-static uint8_t *world = NULL;
-static uint32_t world_seed = 0;
-static uint32_t world_size = 0;
-static uint32_t world_width = 0;
-static uint32_t world_height = 0;
+typedef struct {
+    uint8_t *data;
+    uint32_t seed;
+    uint32_t size;
+    uint32_t width;
+    uint32_t height;
+} world_data;
+
+static world_data world = {0};
 
 int32_t world_gen();
 
 int32_t world_init(int32_t seed, uint32_t width, uint32_t height) {
-    if (world) {
+    if (world.data) {
         world_destroy();
     }
-    world_seed = seed;
-    world_width = width;
-    world_height = height;
-    world_size = width*height;
-    world = zpl_malloc(sizeof(uint8_t)*world_size);
+    world.seed = seed;
+    world.width = width;
+    world.height = height;
+    world.size = width*height;
+    world.data = zpl_malloc(sizeof(uint8_t)*world.size);
 
-    if (!world) {
+    if (!world.data) {
         return WORLD_ERROR_OUTOFMEM;
     }
     return world_gen();
 }
 
 int32_t world_destroy(void) {
-    zpl_mfree(world);
-    world = NULL;
+    zpl_mfree(world.data);
+    zpl_memset(&world, 0, sizeof(world));
     return WORLD_ERROR_NONE;
 }
 
 uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
-    ZPL_ASSERT_NOT_NULL(world);
+    ZPL_ASSERT_NOT_NULL(world.data);
     ZPL_ASSERT_NOT_NULL(ptr);
-    *ptr = world;
-    if (width) *width = world_width;
-    return world_size;
+    *ptr = world.data;
+    if (width) *width = world.width;
+    return world.size;
 }
 
 #include "world_gen.c"
