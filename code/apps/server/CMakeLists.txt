@@ -15,4 +15,9 @@ add_executable(eco2d-server
 )
 
 include_directories(eco2d-server header)
-target_link_libraries(eco2d-server raylib)
+
+if (WIN32)
+    target_link_libraries(eco2d-server winmm)
+elseif (UNIX)
+    target_link_libraries(eco2d-server pthread m dl)
+endif()
