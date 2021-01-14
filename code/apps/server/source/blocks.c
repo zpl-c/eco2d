@@ -3,12 +3,11 @@
 
 // todo: csv parsing + utils
 
-#define BLOCK_NAMELEN 80
 #define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 
 typedef struct {
     uint8_t tex_id;
-    char name[BLOCK_NAMELEN];
+    const char *name;
     uint32_t flags;
     uint32_t kind;
     uint32_t biome;

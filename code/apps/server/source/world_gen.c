@@ -31,6 +31,26 @@ static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uin
     }
 }
 
+static void world_fill_circle(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
+    for (uint32_t cy=y; cy<y+h; cy++) {
+        for (uint32_t cx=x; cx<x+w; cx++) {
+            if (cx < 0 || cx >= world_width) continue;
+            if (cy < 0 || cy >= world_height) continue;
+            uint32_t i = (cy*world_width) + cx;
+
+            if (proc) {
+                uint32_t new_id = (*proc)(id, i);
+                if (new_id != BLOCK_INVALID) {
+                    id = new_id;
+                }
+                else continue;
+            }
+
+            world[i] = id;
+        }
+    }
+}
+
 static void world_fill_rect_anchor(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, float ax, float ay, world_block_observer_proc *proc) {
     uint32_t w2 = (uint32_t)floorf(w*ax);
     uint32_t h2 = (uint32_t)floorf(h*ay);
@@ -72,6 +92,10 @@ static WORLD_BLOCK_OBSERVER(shaper_noise50) {
 
 static WORLD_BLOCK_OBSERVER(shaper_noise33) {
     return world_perlin_cond(block_idx, 0.33) ? shaper(id, block_idx) : BLOCK_INVALID;
+}
+
+static void world_fill_mountain(uint32_t x, uint32_t y) {
+
 }
 
 #define RAND_RANGE(x,y) (x + (uint32_t)rand()%(y-(x)))
