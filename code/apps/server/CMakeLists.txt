@@ -17,7 +17,9 @@ add_executable(eco2d-server
 include_directories(eco2d-server header)
 
 if (WIN32)
-    target_link_libraries(eco2d-server winmm)
+  target_link_libraries(eco2d-server winmm)
+elseif (APPLE)
+  target_link_libraries(eco2d-server pthread m dl)
 elseif (UNIX)
-    target_link_libraries(eco2d-server pthread m dl atomic)
+  target_link_libraries(eco2d-server pthread m dl atomic)
 endif()
