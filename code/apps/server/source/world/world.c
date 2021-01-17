@@ -1,6 +1,6 @@
 #include "zpl.h"
 #include "librg.h"
-#include "components.h"
+#include "components/general.h"
 #include "world/world.h"
 
 typedef struct {
@@ -69,7 +69,6 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     }
 
     world.ecs = ecs_init();
-    components_register(world.ecs);
 
     world.tracker = librg_world_create();
 
@@ -85,17 +84,17 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     librg_config_chunkamount_set(world.tracker, world_size, world_size, 1);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID);
 
+    ECS_IMPORT(world.ecs, Common);
+
     for (int i = 0; i < chunk_size * chunk_size; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
-        ecs_set(world.ecs, e, chunk, {
+        ecs_set(world.ecs, e, Chunk, {
             .x = i % chunk_size,
             .y = i / chunk_size,
         });
 
         librg_entity_track(world.tracker, e);
         librg_entity_chunk_set(world.tracker, e, i);
-
-        zpl_printf("creating chunk: #%lld %d %d\n", e, i % chunk_size, i / chunk_size);
     }
 
     // librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, world_write_update);

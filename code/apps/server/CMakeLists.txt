@@ -12,12 +12,16 @@ add_executable(eco2d-server
   header/world/world.h
   header/world/blocks.h
   header/world/blocks_info.h
+  header/components/general.h
+  header/components/net.h
 
   ../../vendors/cwpack/cwpack.c
   ../../vendors/cwpack/cwpack.h
 
   ../../vendors/flecs/flecs.c
   ../../vendors/flecs/flecs.h
+  ../../vendors/flecs/flecs_meta.c
+  ../../vendors/flecs/flecs_meta.h
 )
 
 include_directories(eco2d-server header)

@@ -9,8 +9,10 @@
 
 #include "system.h"
 #include "network.h"
-#include "components.h"
 #include "world/world.h"
+
+#include "components/general.h"
+#include "components/net.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
 #define NETWORK_MAX_CLIENTS 32
@@ -59,6 +61,9 @@ int32_t network_server_stop(void) {
 }
 
 int32_t network_server_tick(void) {
+    ECS_IMPORT(world_ecs(), Common);
+    ECS_IMPORT(world_ecs(), Net);
+
     ENetEvent event = {0};
     while (enet_host_service(server, &event, 1) > 0) {
         switch (event.type) {
@@ -67,8 +72,8 @@ int32_t network_server_tick(void) {
                 uint16_t peer_id = event.peer->incomingPeerID;
 
                 ecs_entity_t e = ecs_new(world_ecs(), 0);
-                ecs_set(world_ecs(), e, position, {0, 0});
-                ecs_set(world_ecs(), e, netclient, {peer_id});
+                ecs_set(world_ecs(), e, Position, {0, 0});
+                ecs_set(world_ecs(), e, NetClient, {peer_id});
 
                 event.peer->data = (void*)((uint32_t)e);
 

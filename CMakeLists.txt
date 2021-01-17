@@ -9,7 +9,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 
 include_directories(eco2d-cli code/vendors code/common)
 include_directories(eco2d-client code/vendors code/common)
-include_directories(eco2d-server code/vendors code/common)
+include_directories(eco2d-server code/vendors code/vendors/flecs code/common)
 
 add_subdirectory(code/apps/client)
 add_subdirectory(code/apps/server)
