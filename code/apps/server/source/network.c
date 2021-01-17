@@ -70,7 +70,7 @@ int32_t network_server_tick(void) {
                 ecs_set(world_ecs(), e, position, {0, 0});
                 ecs_set(world_ecs(), e, netclient, {peer_id});
 
-                event.peer->data = (void*)e;
+                event.peer->data = (void*)((uint32_t)e);
 
                 librg_entity_track(world_tracker(), e);
                 librg_entity_owner_set(world_tracker(), e, peer_id);
@@ -81,7 +81,7 @@ int32_t network_server_tick(void) {
             case ENET_EVENT_TYPE_DISCONNECT:
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 zpl_printf("[INFO] A user %d disconnected.\n", event.peer->incomingPeerID);
-                ecs_entity_t e = (ecs_entity_t)event.peer->data;
+                ecs_entity_t e = (ecs_entity_t)((uint32_t)event.peer->data);
                 librg_entity_untrack(world_tracker(), e);
                 ecs_delete(world_ecs(), e);
             } break;
