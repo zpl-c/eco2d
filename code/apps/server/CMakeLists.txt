@@ -15,6 +15,9 @@ add_executable(eco2d-server
 
   ../../vendors/cwpack/cwpack.c
   ../../vendors/cwpack/cwpack.h
+
+  ../../vendors/flecs/flecs.c
+  ../../vendors/flecs/flecs.h
 )
 
 include_directories(eco2d-server header)
