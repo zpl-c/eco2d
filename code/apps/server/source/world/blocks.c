@@ -1,5 +1,5 @@
-#include "blocks.h"
 #include "zpl.h"
+#include "world/blocks.h"
 
 // todo: csv parsing + utils
 

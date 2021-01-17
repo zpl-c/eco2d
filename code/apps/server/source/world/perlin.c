@@ -1,6 +1,7 @@
+#include <math.h>
+#include "world/perlin.h"
+
 // adapted from: https://gist.github.com/nowl/828013#gistcomment-2807232
-#include "perlin.h"
-#include "math.h"
 
 static const uint8_t PERLIN_PERM_TABLE[] = {
     208,34,231,213,32,248,233,56,161,78,24,140,71,48,140,254,245,255,247,247,40,

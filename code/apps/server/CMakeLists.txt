@@ -1,17 +1,17 @@
 add_executable(eco2d-server
   source/main.c
   source/network.c
-  source/perlin.c
-  source/options.c
-  source/world.c
-  source/blocks.c
+  source/utils/options.c
+  source/world/perlin.c
+  source/world/world.c
+  source/world/blocks.c
 
   header/network.h
-  header/perlin.h
-  header/options.h
-  header/world.h
-  header/blocks.h
-  header/blocks_info.h
+  header/utils/options.h
+  header/world/perlin.h
+  header/world/world.h
+  header/world/blocks.h
+  header/world/blocks_info.h
 )
 
 include_directories(eco2d-server header)

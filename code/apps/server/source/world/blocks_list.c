@@ -1,5 +1,5 @@
-#include "blocks.h"
 #include "atlas_shared.h"
+#include "world/blocks.h"
 
 static block blocks[] = {
     {.tex_id = ATLAS_XY(0, 0), .name = "base-ground", .flags = 0, .kind = BLOCK_KIND_GROUND, .biome = 0, .symbol = '.'},

@@ -1,15 +1,19 @@
 #define ZPL_IMPL
 #include "zpl.h"
 
-#define LIBRG_IMPL
-#define LIBRG_CUSTOM_ZPL
-#include "librg.h"
-
 #include "system.h"
-#include "options.h"
+#include "network.h"
+#include "utils/options.h"
 
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_WORLD_DIMS 32
+
+#define IF(call) do { \
+    if (call != 0) { \
+        zpl_printf("[ERROR] A call to a function %s failed\n", #call); \
+        return 1; \
+    } \
+} while (0)
 
 int main(int argc, char** argv) {
     zpl_opts opts={0};
@@ -42,6 +46,15 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    printf("hello world\n");
+    IF(network_init());
+    IF(network_server_start("0.0.0.0", 27000));
+
+    while (true) {
+        network_server_tick();
+    }
+
+    IF(network_server_stop());
+    IF(network_destroy());
+
     return 0;
 }

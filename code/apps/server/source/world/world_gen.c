@@ -1,10 +1,11 @@
-#include "world.h"
-#include "blocks.h"
-#include "perlin.h"
 #include "zpl.h"
 
 #include <math.h>
 #include <stdlib.h>
+
+#include "world/world.h"
+#include "world/blocks.h"
+#include "world/perlin.h"
 
 #define WORLD_BLOCK_OBSERVER(name) uint32_t name(uint32_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);

@@ -1,7 +1,8 @@
-#include "options.h"
-#include "world.h"
-#include "blocks.h"
 #include <stdio.h>
+
+#include "world/world.h"
+#include "world/blocks.h"
+#include "utils/options.h"
 
 void generate_minimap(int32_t seed, int32_t world_size) {
     world_init(seed, world_size, world_size);

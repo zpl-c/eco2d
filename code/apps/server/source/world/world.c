@@ -1,5 +1,5 @@
-#include "world.h"
 #include "zpl.h"
+#include "world/world.h"
 
 typedef struct {
     uint8_t *data;
