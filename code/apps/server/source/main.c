@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
         zpl_opts_print_help(&opts);
         return -1;
     }
+
     int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
     int32_t chunk_size = zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     int32_t chunk_amount = zpl_opts_integer(&opts, "chunk-amount", DEFAULT_CHUNK_AMOUNT);
@@ -47,12 +48,12 @@ int main(int argc, char** argv) {
     }
 
     if (zpl_opts_has_arg(&opts, "preview-map")) {
-        generate_minimap(seed, world_size);
+        generate_minimap(seed, chunk_size, chunk_amount);
         return 0;
     }
 
     zpl_printf("[INFO] Generating world of size: %d x %d\n", world_size, world_size);
-    IF(world_init(seed, world_size, world_size));
+    IF(world_init(seed, chunk_size, chunk_size, chunk_amount, chunk_amount));
 
     zpl_printf("[INFO] Initializing network...\n");
     IF(network_init());
@@ -68,3 +69,5 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+#include "packets/pkt_01_welcome.c"

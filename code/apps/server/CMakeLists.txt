@@ -12,6 +12,9 @@ add_executable(eco2d-server
   header/world/world.h
   header/world/blocks.h
   header/world/blocks_info.h
+
+  ../../vendors/cwpack/cwpack.c
+  ../../vendors/cwpack/cwpack.h
 )
 
 include_directories(eco2d-server header)
