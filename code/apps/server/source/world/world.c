@@ -108,6 +108,7 @@ int32_t world_destroy(void) {
     ecs_fini(world.ecs);
     zpl_mfree(world.data);
     zpl_memset(&world, 0, sizeof(world));
+    zpl_printf("[INFO] World was destroyed.\n");
     return WORLD_ERROR_NONE;
 }
 

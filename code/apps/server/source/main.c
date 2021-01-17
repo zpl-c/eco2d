@@ -5,6 +5,7 @@
 #include "network.h"
 #include "world/world.h"
 #include "utils/options.h"
+#include "signal_handling.h"
 
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_BLOCK_SIZE 64 /* amount of units within a block (single axis) */
@@ -17,6 +18,8 @@
         return 1; \
     } \
 } while (0)
+
+zpl_global zpl_b32 is_running = true;
 
 int main(int argc, char** argv) {
     zpl_opts opts={0};
@@ -55,6 +58,8 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    sighandler_register();
+
     zpl_printf("[INFO] Generating world of size: %d x %d\n", world_size, world_size);
     IF(world_init(seed, block_size, chunk_size, world_size));
 
@@ -62,16 +67,22 @@ int main(int argc, char** argv) {
     IF(network_init());
     IF(network_server_start("0.0.0.0", 27000));
 
-    while (true) {
+    while (is_running) {
         network_server_tick();
         world_update();
     }
 
+    zpl_printf("Bye!\n");
     IF(network_server_stop());
     IF(network_destroy());
     IF(world_destroy());
+    sighandler_unregister();
 
     return 0;
+}
+
+void platform_shutdown(void) {
+    is_running = false;
 }
 
 #include "packets/pkt_01_welcome.c"

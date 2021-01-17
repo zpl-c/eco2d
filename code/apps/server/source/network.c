@@ -27,7 +27,6 @@ int32_t network_init(void) {
 
 int32_t network_destroy(void) {
     enet_deinitialize();
-
     return 0;
 }
 
@@ -54,6 +53,7 @@ int32_t network_server_start(const char *host, uint16_t port) {
 }
 
 int32_t network_server_stop(void) {
+    zpl_printf("[INFO] Shutting down the ENet server...\n");
     zpl_timer_stop(&nettimer);
     enet_host_destroy(server);
     server = NULL;
@@ -61,34 +61,20 @@ int32_t network_server_stop(void) {
 }
 
 int32_t network_server_tick(void) {
-    ECS_IMPORT(world_ecs(), Common);
-    ECS_IMPORT(world_ecs(), Net);
-
     ENetEvent event = {0};
     while (enet_host_service(server, &event, 1) > 0) {
         switch (event.type) {
             case ENET_EVENT_TYPE_CONNECT: {
                 zpl_printf("[INFO] A new user %d connected.\n", event.peer->incomingPeerID);
                 uint16_t peer_id = event.peer->incomingPeerID;
-
-                ecs_entity_t e = ecs_new(world_ecs(), 0);
-                ecs_set(world_ecs(), e, Position, {0, 0});
-                ecs_set(world_ecs(), e, NetClient, {peer_id});
-
-                event.peer->data = (void*)((uint32_t)e);
-
-                librg_entity_track(world_tracker(), e);
-                librg_entity_owner_set(world_tracker(), e, peer_id);
-                librg_entity_chunk_set(world_tracker(), e, 1);
-                librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
-                librg_entity_userdata_set(world_tracker(), e, event.peer); /* save ptr to peer */
+                uint64_t ent_id = network_player_create(peer_id);
+                event.peer->data = (void*)((uint32_t)ent_id);
             } break;
             case ENET_EVENT_TYPE_DISCONNECT:
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 zpl_printf("[INFO] A user %d disconnected.\n", event.peer->incomingPeerID);
                 ecs_entity_t e = (ecs_entity_t)((uint32_t)event.peer->data);
-                librg_entity_untrack(world_tracker(), e);
-                ecs_delete(world_ecs(), e);
+                network_player_destroy(e);
             } break;
 
             case ENET_EVENT_TYPE_RECEIVE: {
@@ -138,4 +124,25 @@ void network_server_update(void *data) {
     //     ENetPacket *packet = enet_packet_create(buffer, buffer_length, ENET_PACKET_FLAG_RELIABLE);
     //     enet_peer_send(currentPeer, 0, packet);
     // }
+}
+
+uint64_t network_player_create(uint16_t peer_id) {
+    ECS_IMPORT(world_ecs(), Common);
+    ECS_IMPORT(world_ecs(), Net);
+
+    ecs_entity_t e = ecs_new(world_ecs(), 0);
+    ecs_set(world_ecs(), e, Position, {0, 0});
+    ecs_set(world_ecs(), e, NetClient, {peer_id});
+
+    librg_entity_track(world_tracker(), e);
+    librg_entity_owner_set(world_tracker(), e, peer_id);
+    librg_entity_chunk_set(world_tracker(), e, 1);
+    librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
+
+    return (uint64_t)e;
+}
+
+void network_player_destroy(uint64_t ent_id) {
+    librg_entity_untrack(world_tracker(), ent_id);
+    ecs_delete(world_ecs(), ent_id);
 }

@@ -23,12 +23,13 @@ add_library(client-common STATIC
   source/network.c
   source/game.c
   source/main.c
-  source/signal_handling.c
 
-  header/signal_handling.h
   header/network.h
   header/platform.h
   header/game.h
+
+  ../../common/signal_handling.c
+  ../../common/signal_handling.h
 )
 
 add_executable(eco2d-client

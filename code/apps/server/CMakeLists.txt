@@ -7,6 +7,7 @@ add_executable(eco2d-server
   source/world/blocks.c
 
   header/network.h
+  header/platform.h
   header/utils/options.h
   header/world/perlin.h
   header/world/world.h
@@ -22,6 +23,9 @@ add_executable(eco2d-server
   ../../vendors/flecs/flecs.h
   ../../vendors/flecs/flecs_meta.c
   ../../vendors/flecs/flecs_meta.h
+
+  ../../common/signal_handling.c
+  ../../common/signal_handling.h
 )
 
 include_directories(eco2d-server header)
