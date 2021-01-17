@@ -30,7 +30,6 @@ int32_t network_destroy(void) {
 
 int32_t network_server_start(const char *host, uint16_t port) {
     zpl_unused(host);
-    zpl_timer_start(&nettimer, NETWORK_UPDATE_DELAY);
 
     ENetAddress address = {0};
 
@@ -66,6 +65,8 @@ int32_t network_server_start(const char *host, uint16_t port) {
     // librg_event_set(server_world, LIBRG_WRITE_UPDATE, server_write_update);
     // librg_event_set(server_world, LIBRG_READ_UPDATE, server_read_update);
 
+    zpl_timer_start(&nettimer, NETWORK_UPDATE_DELAY);
+
     return 0;
 }
 
@@ -100,7 +101,7 @@ int32_t network_server_tick(void) {
             } break;
             case ENET_EVENT_TYPE_DISCONNECT:
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
-                zpl_printf("[INFO]  A user %d disconnected.\n", event.peer->incomingPeerID);
+                zpl_printf("[INFO] A user %d disconnected.\n", event.peer->incomingPeerID);
                 int64_t entity_id = event.peer->incomingPeerID;
                 // librg_entity_untrack(server_world, entity_id);
             } break;
