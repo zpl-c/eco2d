@@ -72,11 +72,11 @@ int main(int argc, char** argv) {
         world_update();
     }
 
-    zpl_printf("Bye!\n");
     IF(network_server_stop());
     IF(network_destroy());
     IF(world_destroy());
     sighandler_unregister();
+    zpl_printf("Bye!\n");
 
     return 0;
 }
