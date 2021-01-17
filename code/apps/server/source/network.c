@@ -28,6 +28,34 @@ int32_t network_destroy(void) {
     return 0;
 }
 
+int32_t server_write_update(librg_world *w, librg_event *e) {
+    int64_t owner_id = librg_event_owner_get(w, e);
+    int64_t entity_id = librg_event_entity_get(w, e);
+
+    return 0;
+
+    // /* prevent sending updates to users who own that entity */
+    // /* since they will be responsible on telling where that entity is supposed to be */
+    // if (librg_entity_owner_get(w, entity_id) == owner_id) {
+    //     return LIBRG_WRITE_REJECT;
+    // }
+
+    // /* read our current position */
+    // ENetPeer *peer = (ENetPeer *)librg_entity_userdata_get(w, entity_id);
+
+    // char *buffer = librg_event_buffer_get(w, e);
+    // size_t max_length = librg_event_size_get(w, e);
+
+    // /* check if we have enough space to write and valid position */
+    // if (sizeof(vec3) > max_length || !peer->data) {
+    //     return LIBRG_WRITE_REJECT;
+    // }
+
+    // /* write data and return how much we've written */
+    // memcpy(buffer, peer->data, sizeof(vec3));
+    // return sizeof(vec3);
+}
+
 int32_t network_server_start(const char *host, uint16_t port) {
     zpl_unused(host);
 
@@ -62,7 +90,7 @@ int32_t network_server_start(const char *host, uint16_t port) {
     librg_config_chunkamount_set(server_world, 9, 9, 9);
     librg_config_chunkoffset_set(server_world, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID);
 
-    // librg_event_set(server_world, LIBRG_WRITE_UPDATE, server_write_update);
+    librg_event_set(server_world, LIBRG_WRITE_UPDATE, server_write_update);
     // librg_event_set(server_world, LIBRG_READ_UPDATE, server_read_update);
 
     zpl_timer_start(&nettimer, NETWORK_UPDATE_DELAY);

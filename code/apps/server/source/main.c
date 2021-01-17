@@ -3,10 +3,12 @@
 
 #include "system.h"
 #include "network.h"
+#include "world/world.h"
 #include "utils/options.h"
 
 #define DEFAULT_WORLD_SEED 302097
-#define DEFAULT_WORLD_DIMS 32
+#define DEFAULT_CHUNK_SIZE 16
+#define DEFAULT_CHUNK_AMOUNT 8
 
 #define IF(call) do { \
     if (call != 0) { \
@@ -23,7 +25,8 @@ int main(int argc, char** argv) {
     zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "seed", "world seed", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "r", "random-seed", "generate random world seed", ZPL_OPTS_FLAG);
-    zpl_opts_add(&opts, "ws", "world-size", "world dimensions", ZPL_OPTS_INT);
+    zpl_opts_add(&opts, "cs", "chunk-size", "size of a single chunk", ZPL_OPTS_INT);
+    zpl_opts_add(&opts, "ca", "chunk-amount", "amount of chunks", ZPL_OPTS_INT);
     uint32_t ok = zpl_opts_compile(&opts, argc, argv);
 
     if (!ok) {
@@ -32,7 +35,9 @@ int main(int argc, char** argv) {
         return -1;
     }
     int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
-    int32_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_DIMS);
+    int32_t chunk_size = zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
+    int32_t chunk_amount = zpl_opts_integer(&opts, "chunk-amount", DEFAULT_CHUNK_AMOUNT);
+    int32_t world_size = chunk_size * chunk_amount;
 
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};
@@ -46,6 +51,10 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    zpl_printf("[INFO] Generating world of size: %d x %d\n", world_size, world_size);
+    IF(world_init(seed, world_size, world_size));
+
+    zpl_printf("[INFO] Initializing network...\n");
     IF(network_init());
     IF(network_server_start("0.0.0.0", 27000));
 
@@ -55,6 +64,7 @@ int main(int argc, char** argv) {
 
     IF(network_server_stop());
     IF(network_destroy());
+    IF(world_destroy());
 
     return 0;
 }
