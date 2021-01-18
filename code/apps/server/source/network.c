@@ -129,7 +129,6 @@ void network_server_update(void *data) {
 }
 
 uint64_t network_client_create(uint16_t peer_id) {
-    ECS_IMPORT(world_ecs(), General);
     ECS_IMPORT(world_ecs(), Controllers);
     ECS_IMPORT(world_ecs(), Net);
 
