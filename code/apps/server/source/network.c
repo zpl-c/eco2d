@@ -129,12 +129,14 @@ void network_server_update(void *data) {
 }
 
 uint64_t network_client_create(uint16_t peer_id) {
+    ECS_IMPORT(world_ecs(), General);
     ECS_IMPORT(world_ecs(), Controllers);
     ECS_IMPORT(world_ecs(), Net);
 
     ecs_entity_t e = ecs_new(world_ecs(), Player);
     ecs_add(world_ecs(), e, EcsClient);
     ecs_set(world_ecs(), e, ClientInfo, {peer_id});
+    ecs_set(world_ecs(), e, Drawable, {"player.png"});
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, peer_id);
