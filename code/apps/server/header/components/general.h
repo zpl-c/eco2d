@@ -13,8 +13,8 @@ ECS_STRUCT(Drawable, {
     uint16_t id;
 });
 
-typedef Vector2D Chunk;
-typedef Vector2D Position;
+ECS_ALIAS(Vector2D, Chunk);
+ECS_ALIAS(Vector2D, Position);
 
 typedef struct {
     ECS_DECLARE_COMPONENT(Chunk);
