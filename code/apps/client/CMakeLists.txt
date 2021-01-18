@@ -30,6 +30,9 @@ add_library(client-common STATIC
 
   ../../common/signal_handling.c
   ../../common/signal_handling.h
+
+  ../../common/assets.h
+  ../../common/assets.c
 )
 
 add_executable(eco2d-client

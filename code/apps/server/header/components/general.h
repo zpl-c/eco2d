@@ -2,13 +2,15 @@
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
 
+#include "assets.h"
+
 ECS_STRUCT(Vector2D, {
     int16_t x;
     int16_t y;
 });
 
 ECS_STRUCT(Drawable, {
-    char filename[80];
+    uint16_t id;
 });
 
 typedef Vector2D Chunk;

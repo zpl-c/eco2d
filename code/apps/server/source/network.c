@@ -136,7 +136,7 @@ uint64_t network_client_create(uint16_t peer_id) {
     ecs_entity_t e = ecs_new(world_ecs(), Player);
     ecs_add(world_ecs(), e, EcsClient);
     ecs_set(world_ecs(), e, ClientInfo, {peer_id});
-    ecs_set(world_ecs(), e, Drawable, {"player.png"});
+    ecs_set(world_ecs(), e, Drawable, {ASSET_PLAYER});
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, peer_id);

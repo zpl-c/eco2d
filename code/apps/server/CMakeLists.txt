@@ -29,6 +29,9 @@ add_executable(eco2d-server
 
   ../../common/signal_handling.c
   ../../common/signal_handling.h
+
+  ../../common/assets.h
+  ../../common/assets.c
 )
 
 include_directories(eco2d-server header)
