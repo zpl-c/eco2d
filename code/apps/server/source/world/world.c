@@ -69,6 +69,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     }
 
     world.ecs = ecs_init();
+    ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
 
     world.tracker = librg_world_create();
 
