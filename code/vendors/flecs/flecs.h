@@ -1,4 +1,10 @@
 #define flecs_STATIC
+/**
+ * @file flecs.h
+ * @brief Flecs public API.
+ *
+ * This file contains the public API for Flecs.
+ */
 
 #ifndef FLECS_H
 #define FLECS_H
@@ -343,7 +349,12 @@ typedef int32_t ecs_size_t;
 #endif
 
 #endif
-/* This is an implementation of a simple vector type. The vector is allocated in
+
+/**
+ * @file vector.h
+ * @brief Vector datastructure.
+ *
+ * This is an implementation of a simple vector type. The vector is allocated in
  * a single block of memory, with the element count, and allocated number of
  * elements encoded in the block. As this vector is used for user-types it has
  * been designed to support alignments higher than 8 bytes. This makes the size
@@ -864,7 +875,11 @@ private:
 #endif
 
 #endif
-/** This is an implementation of a paged sparse set that stores the payload in
+/**
+ * @file sparse.h
+ * @brief Sparse set datastructure.
+ *
+ * This is an implementation of a paged sparse set that stores the payload in
  * the sparse array.
  *
  * A sparse set has a dense and a sparse array. The sparse array is directly
@@ -1074,7 +1089,11 @@ FLECS_API void ecs_sparse_memory(
 #endif
 
 #endif
-/** Simple bitset implementation. The bitset allows for storage of arbitrary
+/**
+ * @file bitset.h
+ * @brief Bitset datastructure.
+ *
+ * Simple bitset implementation. The bitset allows for storage of arbitrary
  * numbers of bits.
  */
 
@@ -1141,7 +1160,11 @@ void ecs_bitset_swap(
 #endif
 
 #endif
-/** Key-value datastructure. The map allows for fast retrieval of a payload for
+/**
+ * @file map.h
+ * @brief Map datastructure.
+ *
+ * Key-value datastructure. The map allows for fast retrieval of a payload for
  * a 64-bit key. While it is not as fast as the sparse set, it is better at
  * handling randomly distributed values.
  *
@@ -1378,7 +1401,11 @@ private:
 #endif
 
 #endif
-/* Datastructure that stores N interleaved linked lists in an array. 
+/**
+ * @file switch_list.h
+ * @brief Interleaved linked list for storing mutually exclusive values.
+ *
+ * Datastructure that stores N interleaved linked lists in an array. 
  * This allows for efficient storage of elements with mutually exclusive values.
  * Each linked list has a header element which points to the index in the array
  * that stores the first node of the list. Each list node points to the next
@@ -1499,6 +1526,22 @@ extern "C" {
 #endif
 
 #endif
+/**
+ * @file strbuf.h
+ * @brief Utility for constructing strings.
+ *
+ * A buffer builds up a list of elements which individually can be up to N bytes
+ * large. While appending, data is added to these elements. More elements are
+ * added on the fly when needed. When an application calls ecs_strbuf_get, all
+ * elements are combined in one string and the element administration is freed.
+ *
+ * This approach prevents reallocs of large blocks of memory, and therefore
+ * copying large blocks of memory when appending to a large buffer. A buffer
+ * preallocates some memory for the element overhead so that for small strings
+ * there is hardly any overhead, while for large strings the overhead is offset
+ * by the reduced time spent on copying memory.
+ */
+ 
 #ifndef FLECS_STRBUF_H_
 #define FLECS_STRBUF_H_
 
@@ -1510,18 +1553,6 @@ extern "C" {
 #define ECS_STRBUF_INIT (ecs_strbuf_t){0}
 #define ECS_STRBUF_ELEMENT_SIZE (511)
 #define ECS_STRBUF_MAX_LIST_DEPTH (32)
-
-/* A buffer builds up a list of elements which individually can be up to N bytes
- * large. While appending, data is added to these elements. More elements are
- * added on the fly when needed. When an application calls ecs_strbuf_get, all
- * elements are combined in one string and the element administration is freed.
- *
- * This approach prevents reallocs of large blocks of memory, and therefore
- * copying large blocks of memory when appending to a large buffer. A buffer
- * preallocates some memory for the element overhead so that for small strings
- * there is hardly any overhead, while for large strings the overhead is offset
- * by the reduced time spent on copying memory.
- */
 
 typedef struct ecs_strbuf_element {
     bool buffer_embedded;
@@ -1668,6 +1699,18 @@ bool ecs_strbuf_list_appendstr(
 #endif
 
 #endif
+/**
+ * @file os_api.h
+ * @brief Operationg system abstractions.
+ *
+ * This file contains the operating system abstraction API. The flecs core 
+ * library avoids OS/runtime specific API calls as much as possible. Instead it
+ * provides an interface that can be implemented by applications.
+ *
+ * Examples for how to implement this interface can be found in the 
+ * examples/os_api folder.
+ */
+
 #ifndef FLECS_OS_API_H
 #define FLECS_OS_API_H
 
@@ -2174,10 +2217,10 @@ typedef void (*ecs_fini_action_t)(
     void *ctx);
 
 /**
- * @file api_defines.h
+ * @file api_types.h
  * @brief Supporting types for the public API.
  *
- * This file containstypes that are typically not used by an application but 
+ * This file contains types that are typically not used by an application but 
  * support the public API, and therefore must be exposed. This header should not
  * be included by itself.
  */
@@ -2411,13 +2454,18 @@ typedef void (*ecs_move_t)(
 #endif
 
 #endif
+/**
+ * @file api_support.h
+ * @brief Support functions and constants.
+ *
+ * Supporting types and functions that need to be exposed either in support of 
+ * the public API or for unit tests, but that may change between minor / patch 
+ * releases. 
+ */
+
 #ifndef FLECS_API_SUPPORT_H
 #define FLECS_API_SUPPORT_H
 
-
-/** Supporting types and functions that need to be exposed either in support of 
- * the public API or for unit tests, but that may change between minor / patch 
- * releases. */
 
 #ifdef __cplusplus
 extern "C" {
@@ -2672,7 +2720,12 @@ ecs_sig_t* ecs_query_get_sig(
 #endif
 
 #endif
-/** Internal utility functions for tracing, warnings and errors. */
+/**
+ * @file log.h
+ * @brief Internal logging API.
+ *
+ * Internal utility functions for tracing, warnings and errors. 
+ */
 
 #ifndef FLECS_LOG_H
 #define FLECS_LOG_H
@@ -2833,6 +2886,9 @@ void _ecs_parser_error(
 /**
  * @file type.h
  * @brief Type API.
+ *
+ * This API contains utilities for working with types. Types are vectors of
+ * component ids, and are used most prominently in the API to construct filters.
  */
 
 #ifndef FLECS_TYPE_H
@@ -3600,6 +3656,66 @@ void ecs_end_wait(
 FLECS_API
 void ecs_tracing_enable(
     int level);
+
+/** Measure frame time. 
+ * Frame time measurements measure the total time passed in a single frame, and 
+ * how much of that time was spent on systems and on merging.
+ *
+ * Frame time measurements add a small constant-time overhead to an application.
+ * When an application sets a target FPS, frame time measurements are enabled by
+ * default.
+ *
+ * @param world The world.
+ * @param enable Whether to enable or disable frame time measuring.
+ */
+FLECS_API void ecs_measure_frame_time(
+    ecs_world_t *world,
+    bool enable);
+
+/** Measure system time. 
+ * System time measurements measure the time spent in each system.
+ *
+ * System time measurements add overhead to every system invocation and 
+ * therefore have a small but measurable impact on application performance.
+ * System time measurements must be enabled before obtaining system statistics.
+ *
+ * @param world The world.
+ * @param enable Whether to enable or disable system time measuring.
+ */
+FLECS_API void ecs_measure_system_time(
+    ecs_world_t *world,
+    bool enable);   
+
+/** Set target frames per second (FPS) for application.
+ * Setting the target FPS ensures that ecs_progress is not invoked faster than
+ * the specified FPS. When enabled, ecs_progress tracks the time passed since
+ * the last invocation, and sleeps the remaining time of the frame (if any).
+ *
+ * This feature ensures systems are ran at a consistent interval, as well as
+ * conserving CPU time by not running systems more often than required.
+ *
+ * Note that ecs_progress only sleeps if there is time left in the frame. Both
+ * time spent in flecs as time spent outside of flecs are taken into
+ * account.
+ *
+ * @param world The world.
+ * @param fps The target FPS.
+ */
+FLECS_API
+void ecs_set_target_fps(
+    ecs_world_t *world,
+    FLECS_FLOAT fps);     
+
+/** Get current number of threads. */
+FLECS_API
+int32_t ecs_get_threads(
+    ecs_world_t *world);
+
+/** Get current thread index */
+FLECS_API
+int32_t ecs_get_thread_index(
+    ecs_world_t *world);
+
 
 /** @} */
 
@@ -5527,7 +5643,7 @@ void ecs_merge(
  * This operation is thread safe.
  * 
  * @param world The world.
- * @return true if the world was already in deferred mode, false if not.
+ * @return true if world changed from non-deferred mode to deferred mode.
  */
 FLECS_API
 bool ecs_defer_begin(
@@ -5559,17 +5675,119 @@ void ecs_set_automerge(
 
 /** @} */
 
+
+/**
+ * @defgroup table_functions Public table operations
+ * @{
+ */
+
+/** Find or create table with specified component string. 
+ * The provided string must be a comma-separated list of fully qualified 
+ * component identifiers. The returned table will have the specified components.
+ * Two lists that are the same but specify components in a different order will
+ * return the same table.
+ *
+ * @param world The world.
+ * @param type The components.
+ * @return The new or existing table, or NULL if the string contains an error.
+ */
+FLECS_API
+ecs_table_t* ecs_table_from_str(
+    ecs_world_t *world,
+    const char *type);
+
+/** Find or create table from type.
+ * Same as ecs_table_from_str, but provides the type directly.
+ *
+ * @param world The world.
+ * @param type The type.
+ * @return The new or existing table.
+ */
+FLECS_API
+ecs_table_t* ecs_table_from_type(
+    ecs_world_t *world,
+    ecs_type_t type);
+
+/** Get type for table.
+ *
+ * @param table The table.
+ * @return The type of the table.
+ */
+FLECS_API
+ecs_type_t ecs_table_get_type(
+    ecs_table_t *table);
+
+/** Insert record into table.
+ * This will create a new record for the table, which inserts a value for each
+ * component. An optional entity and record can be provided.
+ *
+ * If a non-zero entity id is provided, a record must also be provided and vice
+ * versa. The record must be created by the entity index. If the provided record 
+ * is not created for the specified entity, the behavior will be undefined.
+ *
+ * If the provided record is not managed by the entity index, the behavior will
+ * be undefined.
+ *
+ * The returned record contains a reference to the table and the table row. The
+ * data pointed to by the record is guaranteed not to move unless one or more
+ * rows are removed from this table. A row can be removed as result of a delete,
+ * or by adding/removing components from an entity stored in the table.
+ *
+ * @param world The world.
+ * @param table The table.
+ * @param entity The entity.
+ * @param record The entity-index record for the specified entity.
+ * @return A record containing the table and table row.
+ */
+FLECS_API
+ecs_record_t ecs_table_insert(
+    ecs_world_t *world,
+    ecs_table_t *table,
+    ecs_entity_t entity,
+    ecs_record_t *record);
+
+/** Returns the number of records in the table. 
+ * This operation returns the number of records that have been populated through
+ * the regular (entity) API as well as the number of records that have been
+ * inserted using the direct access API.
+ *
+ * @param world The world.
+ * @param table The table.
+ * @return The number of records in a table.
+ */
+FLECS_API
+int32_t ecs_table_count(
+    ecs_table_t *table);
+
+/** @} */
+
 /* Optional modules */
 #ifdef FLECS_SYSTEM
-#ifdef FLECS_SYSTEM
-#define FLECS_MODULE
+/**
+ * @file system.h
+ * @brief System module.
+ *
+ * The system module allows for creating and running systems. A system is a
+ * query in combination with a callback function. In addition systems have
+ * support for time management and can be monitored by the stats addon.
+ */
 
-#ifdef FLECS_MODULE
+#ifdef FLECS_SYSTEM
+
+#ifndef FLECS_MODULE
+#define FLECS_MODULE
+#endif
 
 /**
  * @file module.h
- * @brief Module API.
+ * @brief Module addon.
+ *
+ * The module addon allows for creating and importing modules. Flecs modules 
+ * enable applications to organize components and systems into reusable units of
+ * code that can easily be across projects.
  */
+
+#ifdef FLECS_MODULE
 
 #ifndef FLECS_MODULE_H
 #define FLECS_MODULE_H
@@ -5577,10 +5795,6 @@ void ecs_set_automerge(
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-//// Module API
-////////////////////////////////////////////////////////////////////////////////
 
 /** Import a module.
  * This operation will load a modules and store the public module handles in the
@@ -6036,8 +6250,26 @@ void FlecsSystemImport(
 #endif
 #endif
 #ifdef FLECS_PIPELINE
+/**
+ * @file pipeline.h
+ * @brief Pipeline module.
+ *
+ * The pipeline module provides support for running systems automatically and
+ * on multiple threads. A pipeline is a collection of tags that can be added to
+ * systems. When ran, a pipeline will query for all systems that have the tags
+ * that belong to a pipeline, and run them.
+ *
+ * The module defines a number of builtin tags (EcsPreUpdate, EcsOnUpdate, 
+ * EcsPostUpdate etc.) that are registered with the builtin pipeline. The 
+ * builtin pipeline is ran by default when calling ecs_progress(). An 
+ * application can set a custom pipeline with the ecs_set_pipeline function.
+ */
+
 #ifdef FLECS_PIPELINE
+
+#ifndef FLECS_SYSTEM
 #define FLECS_SYSTEM
+#endif
 
 
 #ifndef FLECS_PIPELINE_H
@@ -6046,10 +6278,6 @@ void FlecsSystemImport(
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
-//// Pipeline API
-////////////////////////////////////////////////////////////////////////////////
 
 #ifndef FLECS_LEGACY
 #define ECS_PIPELINE(world, name, ...) \
@@ -6099,26 +6327,6 @@ FLECS_API
 bool ecs_progress(
     ecs_world_t *world,
     FLECS_FLOAT delta_time);   
-
-/** Set target frames per second (FPS) for application.
- * Setting the target FPS ensures that ecs_progress is not invoked faster than
- * the specified FPS. When enabled, ecs_progress tracks the time passed since
- * the last invocation, and sleeps the remaining time of the frame (if any).
- *
- * This feature ensures systems are ran at a consistent interval, as well as
- * conserving CPU time by not running systems more often than required.
- *
- * Note that ecs_progress only sleeps if there is time left in the frame. Both
- * time spent in flecs as time spent outside of flecs are taken into
- * account.
- *
- * @param world The world.
- * @param fps The target FPS.
- */
-FLECS_API
-void ecs_set_target_fps(
-    ecs_world_t *world,
-    FLECS_FLOAT fps);
 
 /** Set time scale.
  * Increase or decrease simulation speed by the provided multiplier.
@@ -6179,17 +6387,6 @@ void ecs_set_threads(
     ecs_world_t *world,
     int32_t threads);
 
-/** Get current number of threads. */
-FLECS_API
-int32_t ecs_get_threads(
-    ecs_world_t *world);
-
-/** Get current thread index */
-FLECS_API
-int32_t ecs_get_thread_index(
-    ecs_world_t *world);
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //// Module
 ////////////////////////////////////////////////////////////////////////////////
@@ -6214,9 +6411,23 @@ void FlecsPipelineImport(
 #endif
 #endif
 #ifdef FLECS_TIMER
-#ifdef FLECS_STATS
+/**
+ * @file timer.h
+ * @brief Timer module.
+ *
+ * Timers can be used to trigger actions at periodic or one-shot intervals. They
+ * are typically used together with systems and pipelines.
+ */
+
+#ifdef FLECS_TIMER
+
+#ifndef FLECS_MODULE
 #define FLECS_MODULE
+#endif
+
+#ifndef FLECS_PIPELINE
 #define FLECS_PIPELINE
+#endif
 
 #ifndef FLECS_TIMER_H
 #define FLECS_TIMER_H
@@ -6427,12 +6638,12 @@ void FlecsTimerImport(
 
 /* Optional addons */
 #ifdef FLECS_BULK
-#ifdef FLECS_BULK
-
 /**
  * @file bulk.h
- * @brief Bulk API.
+ * @brief Bulk operations operate on all entities that match a provided filter.
  */
+
+#ifdef FLECS_BULK
 
 #ifndef FLECS_BULK_H
 #define FLECS_BULK_H
@@ -6566,6 +6777,11 @@ void ecs_bulk_delete(
 #endif
 #endif
 #ifdef FLECS_DBG
+/**
+ * @file dbg.h
+ * @brief The debug addon enables requesting internals from entities and tables.
+ */
+
 #ifdef FLECS_DBG
 
 #ifndef FLECS_DBG_H
@@ -6636,6 +6852,14 @@ void ecs_dbg_table(
 #ifdef FLECS_MODULE
 #endif
 #ifdef FLECS_QUEUE
+/**
+ * @file queue.h
+ * @brief Queue datastructure.
+ *
+ * The queue data structure implements a fixed-size ringbuffer. It is not used
+ * by the flecs core, but is used by flecs-hub modules.
+ */
+
 #ifdef FLECS_QUEUE
 
 #ifndef FLECS_QUEUE_H_
@@ -6718,12 +6942,21 @@ void ecs_queue_free(
 #endif
 #endif
 #ifdef FLECS_READER_WRITER
-#ifdef FLECS_READER_WRITER
-
 /**
- * @file serializer.h
- * @brief Blob serializer API.
+ * @file reader_writer.h
+ * @brief Blob serializer addon.
+ *
+ * The blos serializer addon allows an application to serialize the state of a 
+ * world to a blob (a flat byte buffer). The addon contains a reader and writer
+ * API. The reader reads from a world and serializes it to N fixed-size buffers.
+ * The writer reads from N fixed-size buffers and writes to the world.
+ *
+ * The current limitations of the serializer are:
+ * - only POD types
+ * - no support for switch types and component enabling/disabling
  */
+
+#ifdef FLECS_READER_WRITER
 
 #ifndef FLECS_READER_WRITER_H
 #define FLECS_READER_WRITER_H
@@ -6935,12 +7168,19 @@ int32_t ecs_writer_write(
 #endif
 #endif
 #ifdef FLECS_SNAPSHOT
-#ifdef FLECS_SNAPSHOT
-
 /**
  * @file snapshot.h
- * @brief Snapshot API.
+ * @brief Snapshot addon.
+ *
+ * A snapshot records the state of a world in a way so that it can be restored
+ * later. Snapshots work with POD components and non-POD components, provided
+ * that the appropriate lifecycle actions are registered for non-POD components.
+ *
+ * A snapshot is tightly coupled to a world. It is not possible to restore a
+ * snapshot from world A into world B.
  */
+
+#ifdef FLECS_SNAPSHOT
 
 #ifndef FLECS_SNAPSHOT_H
 #define FLECS_SNAPSHOT_H
@@ -7029,8 +7269,9 @@ void ecs_snapshot_free(
 
 #endif
 #endif
-
-/** Direct access API.
+/**
+ * @file direct_access.h
+ * @brief Low-level access to underlying data structures for best performance.
  *
  * This API allows for low-level direct access to tables and their columns. The
  * APIs primary intent is to provide fast primitives for new operations. It is
@@ -7044,90 +7285,6 @@ void ecs_snapshot_free(
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* These functions are part of the core and available even when the direct 
- * access API is not part of a custom build. */
-
-/** Find or create table with specified component string. 
- * The provided string must be a comma-separated list of fully qualified 
- * component identifiers. The returned table will have the specified components.
- * Two lists that are the same but specify components in a different order will
- * return the same table.
- *
- * @param world The world.
- * @param type The components.
- * @return The new or existing table, or NULL if the string contains an error.
- */
-FLECS_API
-ecs_table_t* ecs_table_from_str(
-    ecs_world_t *world,
-    const char *type);
-
-/** Find or create table from type.
- * Same as ecs_table_from_str, but provides the type directly.
- *
- * @param world The world.
- * @param type The type.
- * @return The new or existing table.
- */
-FLECS_API
-ecs_table_t* ecs_table_from_type(
-    ecs_world_t *world,
-    ecs_type_t type);
-
-/** Get type for table.
- *
- * @param table The table.
- * @return The type of the table.
- */
-FLECS_API
-ecs_type_t ecs_table_get_type(
-    ecs_table_t *table);
-
-/** Insert record into table.
- * This will create a new record for the table, which inserts a value for each
- * component. An optional entity and record can be provided.
- *
- * If a non-zero entity id is provided, a record must also be provided and vice
- * versa. The record must be created by the entity index. If the provided record 
- * is not created for the specified entity, the behavior will be undefined.
- *
- * If the provided record is not managed by the entity index, the behavior will
- * be undefined.
- *
- * The returned record contains a reference to the table and the table row. The
- * data pointed to by the record is guaranteed not to move unless one or more
- * rows are removed from this table. A row can be removed as result of a delete,
- * or by adding/removing components from an entity stored in the table.
- *
- * @param world The world.
- * @param table The table.
- * @param entity The entity.
- * @param record The entity-index record for the specified entity.
- * @return A record containing the table and table row.
- */
-FLECS_API
-ecs_record_t ecs_table_insert(
-    ecs_world_t *world,
-    ecs_table_t *table,
-    ecs_entity_t entity,
-    ecs_record_t *record);
-
-/** Returns the number of records in the table. 
- * This operation returns the number of records that have been populated through
- * the regular (entity) API as well as the number of records that have been
- * inserted using the direct access API.
- *
- * @param world The world.
- * @param table The table.
- * @return The number of records in a table.
- */
-FLECS_API
-int32_t ecs_table_count(
-    ecs_table_t *table);
-
-/* From here on functions are only available when the direct access API is part
- * of a (custom) build. */
 
 #ifdef FLECS_DIRECT_ACCESS
 
@@ -7440,13 +7597,19 @@ void ecs_record_move_to(
 
 #endif
 #ifdef FLECS_STATS
+/**
+ * @file stats.h
+ * @brief Statistics addon.
+ *
+ * The statistics addon enables an application to obtain detailed metrics about
+ * the storage, systems and operations of a world.
+ */
+
 #ifdef FLECS_STATS
-
-#define FLECS_SYSTEM
-
 
 #ifndef FLECS_STATS_H
 #define FLECS_STATS_H
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -7578,6 +7741,7 @@ FLECS_API void ecs_get_query_stats(
     ecs_query_t *query,
     ecs_query_stats_t *s);
 
+#ifdef FLECS_SYSTEM
 /** Get system statistics.
  * Obtain statistics for the provided system.
  *
@@ -7590,7 +7754,9 @@ FLECS_API bool ecs_get_system_stats(
     ecs_world_t *world,
     ecs_entity_t system,
     ecs_system_stats_t *stats);
+#endif
 
+#ifdef FLECS_PIPELINE
 /** Get pipeline statistics.
  * Obtain statistics for the provided pipeline.
  *
@@ -7603,41 +7769,14 @@ FLECS_API bool ecs_get_pipeline_stats(
     ecs_world_t *world,
     ecs_entity_t pipeline,
     ecs_pipeline_stats_t *stats);
-
-/** Measure frame time. 
- * Frame time measurements measure the total time passed in a single frame, and 
- * how much of that time was spent on systems and on merging.
- *
- * Frame time measurements add a small constant-time overhead to an application.
- * When an application sets a target FPS, frame time measurements are enabled by
- * default.
- *
- * @param world The world.
- * @param enable Whether to enable or disable frame time measuring.
- */
-FLECS_API void ecs_measure_frame_time(
-    ecs_world_t *world,
-    bool enable);
-
-/** Measure system time. 
- * System time measurements measure the time spent in each system.
- *
- * System time measurements add overhead to every system invocation and 
- * therefore have a small but measurable impact on application performance.
- * System time measurements must be enabled before obtaining system statistics.
- *
- * @param world The world.
- * @param enable Whether to enable or disable system time measuring.
- */
-FLECS_API void ecs_measure_system_time(
-    ecs_world_t *world,
-    bool enable);
+#endif
 
 FLECS_API void ecs_gauge_reduce(
     ecs_gauge_t *dst,
     int32_t t_dst,
     ecs_gauge_t *src,
     int32_t t_src);
+
 
 #ifdef __cplusplus
 }
@@ -7653,9 +7792,14 @@ FLECS_API void ecs_gauge_reduce(
 
 #ifndef FLECS_NO_CPP
 #ifndef FLECS_LEGACY
-#pragma once
+/**
+ * @file flecs.hpp
+ * @brief Flecs C++ API.
+ *
+ * This is a C++11 wrapper around the Flecs C API.
+ */
 
-/* Unstable API */
+#pragma once
 
 #include <string>
 #include <sstream>
