@@ -2,15 +2,13 @@
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
 
-#define DRAWABLE_MAX_FILENAME 80
-
 ECS_STRUCT(Vector2D, {
     int16_t x;
     int16_t y;
 });
 
 ECS_STRUCT(Drawable, {
-    char filename[DRAWABLE_MAX_FILENAME];
+    char filename[80];
 });
 
 typedef Vector2D Chunk;
