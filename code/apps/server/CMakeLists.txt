@@ -13,8 +13,11 @@ add_executable(eco2d-server
   header/world/world.h
   header/world/blocks.h
   header/world/blocks_info.h
-  header/components/general.h
+
   header/components/net.h
+  header/components/physics.h
+  header/components/general.h
+  header/components/controllers.h
 
   ../../vendors/cwpack/cwpack.c
   ../../vendors/cwpack/cwpack.h

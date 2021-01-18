@@ -12,6 +12,7 @@
 #include "world/world.h"
 
 #include "components/general.h"
+#include "components/controllers.h"
 #include "components/net.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
@@ -67,14 +68,15 @@ int32_t network_server_tick(void) {
             case ENET_EVENT_TYPE_CONNECT: {
                 zpl_printf("[INFO] A new user %d connected.\n", event.peer->incomingPeerID);
                 uint16_t peer_id = event.peer->incomingPeerID;
-                uint64_t ent_id = network_player_create(peer_id);
+                uint64_t ent_id = network_client_create(peer_id);
+                // TODO: Make sure ent_id does not get truncated with large entity numbers.
                 event.peer->data = (void*)((uint32_t)ent_id);
             } break;
             case ENET_EVENT_TYPE_DISCONNECT:
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 zpl_printf("[INFO] A user %d disconnected.\n", event.peer->incomingPeerID);
                 ecs_entity_t e = (ecs_entity_t)((uint32_t)event.peer->data);
-                network_player_destroy(e);
+                network_client_destroy(e);
             } break;
 
             case ENET_EVENT_TYPE_RECEIVE: {
@@ -126,13 +128,14 @@ void network_server_update(void *data) {
     // }
 }
 
-uint64_t network_player_create(uint16_t peer_id) {
-    ECS_IMPORT(world_ecs(), Common);
+uint64_t network_client_create(uint16_t peer_id) {
+    ECS_IMPORT(world_ecs(), General);
+    ECS_IMPORT(world_ecs(), Controllers);
     ECS_IMPORT(world_ecs(), Net);
 
-    ecs_entity_t e = ecs_new(world_ecs(), 0);
-    ecs_set(world_ecs(), e, Position, {0, 0});
-    ecs_set(world_ecs(), e, NetClient, {peer_id});
+    ecs_entity_t e = ecs_new(world_ecs(), Player);
+    ecs_add(world_ecs(), e, EcsClient);
+    ecs_set(world_ecs(), e, ClientInfo, {peer_id});
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, peer_id);
@@ -142,7 +145,7 @@ uint64_t network_player_create(uint16_t peer_id) {
     return (uint64_t)e;
 }
 
-void network_player_destroy(uint64_t ent_id) {
+void network_client_destroy(uint64_t ent_id) {
     librg_entity_untrack(world_tracker(), ent_id);
     ecs_delete(world_ecs(), ent_id);
 }

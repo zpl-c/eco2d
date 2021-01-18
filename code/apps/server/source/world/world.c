@@ -84,7 +84,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     librg_config_chunkamount_set(world.tracker, world_size, world_size, 1);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID);
 
-    ECS_IMPORT(world.ecs, Common);
+    ECS_IMPORT(world.ecs, General);
 
     for (int i = 0; i < chunk_size * chunk_size; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
