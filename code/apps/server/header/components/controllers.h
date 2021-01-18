@@ -42,7 +42,7 @@ static inline void ControllersImport(ecs_world_t *ecs) {
     ECS_TAG(ecs, EcsPlayer);
     ECS_TAG(ecs, EcsBuilder);
 
-    ECS_PREFAB(ecs, Base, general.Position, physics.Velocity, Input);
+    ECS_PREFAB(ecs, Base, general.Position, physics.Velocity, Input, EcsActor);
     ECS_TYPE(ecs, Player, INSTANCEOF | Base, SWITCH | physics.Movement, CASE | physics.Walking, EcsActor, EcsPlayer);
     ECS_TYPE(ecs, Builder, INSTANCEOF | Base, SWITCH | physics.Movement, CASE | physics.Flying, EcsActor, EcsBuilder);
 
