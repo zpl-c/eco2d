@@ -19,6 +19,12 @@ add_executable(eco2d-server
   header/components/general.h
   header/components/controllers.h
 
+  ../../common/signal_handling.c
+  ../../common/signal_handling.h
+
+  ../../common/assets.h
+  ../../common/assets.c
+
   ../../vendors/cwpack/cwpack.c
   ../../vendors/cwpack/cwpack.h
 
@@ -26,12 +32,22 @@ add_executable(eco2d-server
   ../../vendors/flecs/flecs.h
   ../../vendors/flecs/flecs_meta.c
   ../../vendors/flecs/flecs_meta.h
-
-  ../../common/signal_handling.c
-  ../../common/signal_handling.h
-
-  ../../common/assets.h
-  ../../common/assets.c
+  ../../vendors/flecs/flecs_json.h
+  ../../vendors/flecs/flecs_json.c
+  ../../vendors/flecs/flecs_rest.h
+  ../../vendors/flecs/flecs_rest.c
+  ../../vendors/flecs/flecs_monitor.h
+  ../../vendors/flecs/flecs_monitor.c
+  ../../vendors/flecs/flecs_player.h
+  ../../vendors/flecs/flecs_player.c
+  ../../vendors/flecs/flecs_dash.h
+  ../../vendors/flecs/flecs_dash.c
+  ../../vendors/flecs/flecs_components_http.h
+  ../../vendors/flecs/flecs_components_http.c
+  ../../vendors/flecs/flecs_systems_civetweb.h
+  ../../vendors/flecs/flecs_systems_civetweb.c
+  ../../vendors/flecs/flecs_os_api_posix.h
+  ../../vendors/flecs/flecs_os_api_posix.c
 )
 
 include_directories(eco2d-server header)

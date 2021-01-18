@@ -1,0 +1,253 @@
+body {
+  font-family: Roboto,Noto Sans,Noto,sans-serif;
+  font-size: 1.0em;
+  font-size: 16px;
+  background-color: #37393E;
+  color: #eee;
+  margin: 0px;
+}
+
+#app {
+  position: relative;
+}
+
+div.sidebar {
+  position: absolute;
+  background-color: #1E2022;
+  top: 40px;
+  width: 70px;
+  height: calc(100vh - 50px);
+  padding-top: 12px;
+}
+
+div.sidebar-button-container {
+  position: relative;
+  height: 45px;
+  margin-bottom: 12px;
+}
+
+div.sidebar-button {
+  border-radius: 10px;
+  margin-left: 12px;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  text-align: center;
+}
+
+div.sidebar-selector {
+  position: absolute;
+  background-color: #5BE595;
+  top: 17px;
+  left: -5px;
+  height: 10px;
+  width: 4px;
+  border-radius: 0px 4px 4px 0px;
+  transition: left 100ms, height 150ms, top 150ms;
+}
+
+div.sidebar-selector-active {
+  top: 2.3px;
+  height: 40px;
+  left: 0px;
+}
+
+div.sidebar-selector-hover {
+  top: 12px;
+  height: 20px;
+  left: 0px;
+}
+
+img.sidebar-icon {
+  width: 40px;
+  height: 40px;
+  margin-top: 3;
+}
+
+div.content {
+  position: absolute;
+  width: calc(100% - 70px);
+  height: calc(100vh - 40px);
+  top: 40px;
+  left: 70px;
+  overflow-y: auto;
+}
+
+div.play-controls {
+  background-color: rgb(23, 24, 26);;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 40px;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+div.play-buttons {
+  position: relative;
+  width: 100px;
+  margin: 0 auto;
+  padding: 4px;
+}
+
+div.play-button img {
+  width: 30px;
+  height: 30px;
+  float: left;
+  cursor: pointer;
+  background-color: #37393E;
+  margin: 1px;  
+  border-radius: 2px;
+  transition: background-color 100ms;
+}
+
+div.player-active img {
+  background-color: #777;
+}
+
+div.perf-summary {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 200px;
+  height: 40px;
+}
+
+div.perf-clock {
+  position: relative;
+  float: left;
+  margin: 0 auto;
+  left: 10px;
+  top: -1px;
+
+  padding: 2px;
+  padding-left: 10px;
+  padding-right: 4px;
+  font-size: 18px;
+  
+  border-radius: 5px;
+  border-color: #37393E;
+  border-style: solid;
+  border-width: 1px;
+  
+  background-color: #000;
+  color: #777;
+}
+
+div.perf-clock-active {
+  color: #5BE595; 
+}
+
+div.perf-clock img {
+  position: relative;
+  top: 2px;
+  /* float: left; */
+
+  height: 17px;
+}
+
+div.perf-fps {
+  position: relative;
+  top: 7px;
+  right: 35px;
+  width: 80px;
+  background-color: #000;
+  border-color: #37393E;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  min-height: 25px;
+}
+
+span.perf-fps-value {
+  position: absolute;
+  border-radius: 5px;
+  background-color: #000;
+  font-size: 18px;  
+  padding: 2px;
+  padding-left: 8px;
+}
+
+span.perf-label {
+  position: absolute;
+  right: 0px;
+  background-color: #37393E;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  font-size: 12px;
+  padding: 5px;
+  padding-top: 6px;
+}
+
+span.perf-fps-ok {
+  color: #5BE595;
+}
+
+div.perf-load {
+  position: absolute;
+  right: 10px;
+  top: 7px;
+  height: 25px;
+  width: 130px;
+  
+  border-color: #37393E;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;   
+  background-color: #000;
+}
+
+div.perf-load svg {
+  position: absolute;
+  background-color: #000;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+div.metric-row:after {
+  position: relative;
+}
+
+div.metric-row:after {
+  content: "";
+  display: table;
+  clear: both;
+  margin: 0px;
+  padding: 0px;
+}
+
+div.metric-column {
+  float: left;
+  width: 10%;
+  min-width: 150px;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
+}
+
+div.metric {
+   background-color: #1E2022;
+   color: #eee;
+   font-size: 18px;
+   padding: 10px;
+   margin: 10px;
+
+   border-left-color: #181818;
+   border-left-style: solid;
+   border-left-width: 5px;
+}
+
+div.metric-content {
+  font-size: 36px;
+  color: #aaa;
+}
+
+div.metric-header {
+  text-transform: uppercase;
+}
+
+input {
+  -webkit-appearance: none; 
+  -moz-appearance: none;
+  border-style: none;
+  outline: none;
+  padding: 5px;
+}

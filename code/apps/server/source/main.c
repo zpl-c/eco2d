@@ -7,6 +7,11 @@
 #include "utils/options.h"
 #include "signal_handling.h"
 
+#include "flecs/flecs.h"
+#include "flecs/flecs_dash.h"
+#include "flecs/flecs_systems_civetweb.h"
+#include "flecs/flecs_os_api_posix.h"
+
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_BLOCK_SIZE 64 /* amount of units within a block (single axis) */
 #define DEFAULT_CHUNK_SIZE 3 /* amount of blocks within a chunk (single axis) */
@@ -59,9 +64,18 @@ int main(int argc, char** argv) {
     }
 
     sighandler_register();
+    posix_set_os_api();
 
     zpl_printf("[INFO] Generating world of size: %d x %d\n", world_size, world_size);
     IF(world_init(seed, block_size, chunk_size, world_size));
+
+    /* server dashboard */
+    {
+        ECS_IMPORT(world_ecs(), FlecsDash);
+        ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
+
+        ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
+    }
 
     zpl_printf("[INFO] Initializing network...\n");
     IF(network_init());
