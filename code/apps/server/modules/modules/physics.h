@@ -10,6 +10,7 @@ typedef struct {
     ECS_DECLARE_ENTITY(Walking);
     ECS_DECLARE_ENTITY(Flying);
     ECS_DECLARE_COMPONENT(Velocity);
+    ECS_DECLARE_ENTITY(MoveWalk);
 } Physics;
 
 #define PhysicsImportHandles(handles)\
@@ -17,5 +18,6 @@ typedef struct {
     ECS_IMPORT_ENTITY(handles, Walking);\
     ECS_IMPORT_ENTITY(handles, Flying);\
     ECS_IMPORT_COMPONENT(handles, Velocity);\
+    ECS_IMPORT_ENTITY(handles, MoveWalk);\
 
 void PhysicsImport(ecs_world_t *ecs);
