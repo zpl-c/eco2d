@@ -1,4 +1,5 @@
 file(GLOB MODULES header/modules/*.h source/modules/*.c)
+add_library(eco2d-server-modules STATIC ${MODULES})
 
 add_executable(eco2d-server
   source/main.c
@@ -14,10 +15,8 @@ add_executable(eco2d-server
   header/world/world.h
   header/world/blocks.h
   header/world/blocks_info.h
-
-  ${MODULES}
 )
 
 include_directories(eco2d-server header)
-target_link_libraries(eco2d-server eco2d-common flecs-bundle cwpack)
+target_link_libraries(eco2d-server eco2d-common eco2d-server-modules flecs-bundle cwpack)
 link_system_libs(eco2d-server)
