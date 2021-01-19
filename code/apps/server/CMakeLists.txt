@@ -1,4 +1,4 @@
-file(GLOB COMPONENTS header/components/*.h source/components/*.c)
+file(GLOB MODULES header/modules/*.h source/modules/*.c)
 
 add_executable(eco2d-server
   source/main.c
@@ -9,14 +9,13 @@ add_executable(eco2d-server
   source/world/blocks.c
 
   header/network.h
-  header/platform.h
   header/utils/options.h
   header/world/perlin.h
   header/world/world.h
   header/world/blocks.h
   header/world/blocks_info.h
 
-  ${COMPONENTS}
+  ${MODULES}
 )
 
 include_directories(eco2d-server header)

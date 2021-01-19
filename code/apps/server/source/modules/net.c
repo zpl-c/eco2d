@@ -1,4 +1,4 @@
-#include "components/net.h"
+#include "modules/net.h"
 
 void NetImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Net);

@@ -11,9 +11,9 @@
 #include "network.h"
 #include "world/world.h"
 
-#include "components/general.h"
-#include "components/controllers.h"
-#include "components/net.h"
+#include "modules/general.h"
+#include "modules/controllers.h"
+#include "modules/net.h"
 
 #include "assets.h"
 

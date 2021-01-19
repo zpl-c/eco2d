@@ -1,4 +1,4 @@
-#include "components/general.h"
+#include "modules/general.h"
 
 void GeneralImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, General);

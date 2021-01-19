@@ -1,4 +1,4 @@
-#include "components/physics.h"
+#include "modules/physics.h"
 
 void PhysicsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Physics);

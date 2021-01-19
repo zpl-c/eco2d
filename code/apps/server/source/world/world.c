@@ -1,6 +1,6 @@
 #include "zpl.h"
 #include "librg.h"
-#include "components/general.h"
+#include "modules/general.h"
 #include "world/world.h"
 
 typedef struct {

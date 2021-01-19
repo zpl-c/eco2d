@@ -1,7 +1,7 @@
-#include "components/controllers.h"
+#include "modules/controllers.h"
 
-#include "components/general.h"
-#include "components/physics.h"
+#include "modules/general.h"
+#include "modules/physics.h"
 
 void ControllersImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Controllers);

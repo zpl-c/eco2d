@@ -1,7 +1,7 @@
 #pragma once
 #include "flecs/flecs.h"
 
-#include "components/general.h"
+#include "modules/general.h"
 
 typedef Vector2D Velocity;
 
