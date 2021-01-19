@@ -15,6 +15,8 @@
 #include "components/controllers.h"
 #include "components/net.h"
 
+#include "assets.h"
+
 #define NETWORK_UPDATE_DELAY 0.100
 #define NETWORK_MAX_CLIENTS 32
 
