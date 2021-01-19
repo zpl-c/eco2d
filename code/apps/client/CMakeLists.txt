@@ -38,7 +38,7 @@ add_executable(eco2d-cli
 
 set(LIBS client-common cwpack eco2d-common)
 
-include_directories(header/)
+include_directories(header)
 target_link_libraries(eco2d-client raylib ${LIBS})
 target_link_libraries(eco2d-cli ${LIBS})
 
