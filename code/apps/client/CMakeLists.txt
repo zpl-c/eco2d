@@ -25,14 +25,7 @@ add_library(client-common STATIC
   source/main.c
 
   header/network.h
-  header/platform.h
   header/game.h
-
-  ../../common/signal_handling.c
-  ../../common/signal_handling.h
-
-  ../../common/assets.h
-  ../../common/assets.c
 )
 
 add_executable(eco2d-client
@@ -43,17 +36,11 @@ add_executable(eco2d-cli
   source/platform_text.c
 )
 
-include_directories(header/)
-target_link_libraries(eco2d-client raylib client-common)
-target_link_libraries(eco2d-cli client-common)
+set(LIBS client-common cwpack eco2d-common)
 
-if (WIN32)
-  target_link_libraries(eco2d-cli winmm)
-  target_link_libraries(eco2d-client winmm)
-elseif (APPLE)
-  target_link_libraries(eco2d-cli pthread m dl)
-  target_link_libraries(eco2d-client pthread m dl)
-elseif (UNIX)
-  target_link_libraries(eco2d-cli pthread m dl atomic)
-  target_link_libraries(eco2d-client pthread m dl atomic)
-endif()
+include_directories(header/)
+target_link_libraries(eco2d-client raylib ${LIBS})
+target_link_libraries(eco2d-cli ${LIBS})
+
+link_system_libs(eco2d-cli)
+link_system_libs(eco2d-client)
