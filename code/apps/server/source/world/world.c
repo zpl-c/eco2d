@@ -2,9 +2,6 @@
 #include "librg.h"
 #include "modules/general.h"
 #include "world/world.h"
-#include "flecs/flecs.h"
-#include "flecs/flecs_dash.h"
-#include "flecs/flecs_systems_civetweb.h"
 
 typedef struct {
     uint8_t *data;
@@ -73,16 +70,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
 
     world.ecs = ecs_init();
     ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
-    ecs_set_threads(world.ecs, 4);
-    ecs_set_target_fps(world.ecs, 60);
-
-    /* server dashboard */
-    {
-        ECS_IMPORT(world_ecs(), FlecsDash);
-        ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
-
-        ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
-    }
+    //ecs_set_threads(world.ecs, 4);
 
     world.tracker = librg_world_create();
 

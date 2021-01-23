@@ -1,7 +1,14 @@
 #include "modules/physics.h"
 
 void MoveWalk(ecs_iter_t *it) {
+    Position *p = ecs_column(it, Position, 1);
+    Velocity *v = ecs_column(it, Velocity, 2);
 
+    for (int i = 0; i < it->count; i++) {
+        // TODO: handle collisions
+        p[i].x += v[i].x * it->delta_time;
+        p[i].y += v[i].y * it->delta_time;
+    }
 }
 
 void PhysicsImport(ecs_world_t *ecs) {

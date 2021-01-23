@@ -3,7 +3,10 @@ project(eco2d)
 include(cmake/utils.cmake)
 
 set(CMAKE_C_STANDARD 11)
-setup_build_dirs()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 
 include_directories(code/common code/vendors code/vendors/flecs)
 

@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
         ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
 
         ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
+        ecs_set_target_fps(world_ecs(), 60);
     }
 
     zpl_printf("[INFO] Initializing network...\n");
