@@ -135,15 +135,15 @@ uint64_t network_client_create(uint16_t peer_id) {
     ECS_IMPORT(world_ecs(), Controllers);
     ECS_IMPORT(world_ecs(), Net);
 
-    ecs_entity_t e = ecs_new(world_ecs(), Player);
+    ecs_entity_t e = ecs_new(world_ecs(), 0);
     ecs_add(world_ecs(), e, EcsClient);
     ecs_set(world_ecs(), e, ClientInfo, {peer_id});
-    ecs_set(world_ecs(), e, Drawable, {ASSET_PLAYER});
+    ecs_set(world_ecs(), e, EcsName, {.alloc_value = zpl_bprintf("client_%d", peer_id) });
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, peer_id);
-    librg_entity_chunk_set(world_tracker(), e, 1);
     librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
+    // librg_entity_chunk_set(world_tracker(), e, 1);
 
     return (uint64_t)e;
 }
