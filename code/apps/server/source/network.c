@@ -70,7 +70,7 @@ int32_t network_server_tick(void) {
             case ENET_EVENT_TYPE_CONNECT: {
                 zpl_printf("[INFO] A new user %d connected.\n", event.peer->incomingPeerID);
                 uint16_t peer_id = event.peer->incomingPeerID;
-                uint64_t ent_id = network_client_create(peer_id);
+                uint64_t ent_id = network_client_create(event.peer);
                 // TODO: Make sure ent_id does not get truncated with large entity numbers.
                 event.peer->data = (void*)((uint32_t)ent_id);
             } break;
@@ -82,6 +82,16 @@ int32_t network_server_tick(void) {
             } break;
 
             case ENET_EVENT_TYPE_RECEIVE: {
+                pkt_header header = {0};
+                pkt_header_decode(&header, event.packet->data, event.packet->dataLength);
+
+                if (header.ok) {
+                    pkt_handlers[header.id].handler(&header);
+                } else {
+                    // error happened within top level packet flow
+                }
+
+
                 // /* handle a newly received event */
                 // librg_world_read(
                 //     world_tracker(),
@@ -151,4 +161,27 @@ uint64_t network_client_create(uint16_t peer_id) {
 void network_client_destroy(uint64_t ent_id) {
     librg_entity_untrack(world_tracker(), ent_id);
     ecs_delete(world_ecs(), ent_id);
+}
+
+static ENetPeer *network_enet_find_by_id(uint16_t peer_id) {
+    for (size_t i = 0; i < server->peerCount; ++i) {
+        ENetPeer *peer = &server->peers[i];
+        if (enet_peer_get_id(peer) == peer_id)
+            return peer;
+    }
+
+    return NULL;
+}
+
+static int32_t network_msg_send_raw(uint16_t peer_id, void *data, size_t datalen, uint32_t flags) {
+    ENetPacket *packet = enet_packet_create(data, datalen, flags);
+    enet_peer_send(network_enet_find_by_id(peer_id), 0, packet);
+}
+
+int32_t network_msg_send(uint16_t peer_id, void *data, size_t datalen) {
+    network_msg_send_raw(peer_id, data, datalen, ENET_PACKET_FLAG_RELIABLE);
+}
+
+int32_t network_msg_send_unreliable(uint16_t peer_id, void *data, size_t datalen) {
+    network_msg_send_raw(peer_id, data, datalen, 0);
 }

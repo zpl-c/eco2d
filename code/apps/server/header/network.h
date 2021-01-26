@@ -10,3 +10,6 @@ void    network_server_update(void *data);
 
 uint64_t network_client_create(uint16_t peer_id);
 void network_client_destroy(uint64_t ent_id);
+
+int32_t network_msg_send(uint16_t peer_id, void *data, size_t datalen);
+int32_t network_msg_send_unreliable(uint16_t peer_id, void *data, size_t datalen);
