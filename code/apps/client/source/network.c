@@ -8,6 +8,7 @@
 #include "librg.h"
 
 #include "network.h"
+#include "packets/packet.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
 
@@ -108,6 +109,15 @@ int32_t network_client_tick() {
             } break;
 
             case ENET_EVENT_TYPE_RECEIVE: {
+                pkt_header header = {0};
+                uint32_t ok = pkt_header_decode(&header, event.packet->data, event.packet->dataLength);
+                
+                if (ok && header.ok) {
+                    pkt_handlers[header.id].handler(&header);
+                } else {
+                    zpl_printf("[INFO] Server sent us an unsupported packet.\n");
+                }
+                
                 /* handle a newly received event */
                 // librg_world_read(
                 //     world,

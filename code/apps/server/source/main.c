@@ -99,5 +99,3 @@ int main(int argc, char** argv) {
 void platform_shutdown(void) {
     is_running = false;
 }
-
-#include "packets/pkt_01_welcome.c"

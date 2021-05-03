@@ -41,7 +41,7 @@ inline int32_t pkt_validate_eof_msg(cw_unpack_context *uc) {
 #endif
 
 #ifndef PKT_STRUCT_PTR
-#define PKT_STRUCT_PTR(a) (void*)a, (uint32_t)sizeof(*a)
+#define PKT_STRUCT_PTR(a) (void*)(a), (uint32_t)sizeof(*(a))
 #endif
 
 #ifndef PKT_FIELD
@@ -50,6 +50,10 @@ inline int32_t pkt_validate_eof_msg(cw_unpack_context *uc) {
 
 #ifndef PKT_END
 #define PKT_END .type = CWP_NOT_AN_ITEM
+#endif
+
+#ifndef PKT_IF
+#define PKT_IF(c) if (c < 0) return -1;
 #endif
 
 typedef struct pkt_desc {
