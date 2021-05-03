@@ -36,3 +36,22 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
 
     return pkt_validate_eof_msg(&uc);
 }
+
+int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size) {
+    uint8_t *blob = (uint8_t*)raw_blob;
+    for (pkt_desc *field = desc; field->type != 0; ++field) {
+        cw_unpack_next(uc);
+        if (uc->item.type != field->type) return -1; // unexpected field
+        switch (field->type) {
+            case CWP_ITEM_POSITIVE_INTEGER: {
+                zpl_memcopy(blob + field->offset, (uint8_t*)uc->item.as.u64, field->size);
+            }break;
+            default: {
+                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
+                return -1; // unsupported field
+            }break;
+        }
+    }
+    
+    return 0;
+}
