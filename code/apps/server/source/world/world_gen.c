@@ -100,7 +100,7 @@ static void world_fill_mountain(uint32_t x, uint32_t y) {
 
 }
 
-#define RAND_RANGE(x,y) (x + (uint32_t)rand()%(y-(x)))
+#define RAND_RANGE(x,y) (x + (int)rand()%(y-(x)))
 
 int32_t world_gen() {
     // TODO: perform world gen

@@ -1,6 +1,8 @@
 #pragma once
 #include "system.h"
 
+#define PKT_BUFSIZ 4096
+
 typedef enum {
     MSG_ID_01_WELCOME,
     MSG_ID_LIBRG_UPDATE,
@@ -33,3 +35,4 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen);
 PKT_HANDLER_PROC(pkt_01_welcome_handler);
 
 extern pkt_handler pkt_handlers[];
+extern uint8_t pkt_buffer[];

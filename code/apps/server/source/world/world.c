@@ -135,4 +135,12 @@ librg_world * world_tracker() {
     return world.tracker;
 }
 
+uint16_t world_chunk_size(void) {
+    return world.chunk_size;
+}
+
+uint16_t world_chunk_amount(void) {
+    return world.world_size;
+}
+
 #include "world_gen.c"

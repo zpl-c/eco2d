@@ -84,12 +84,14 @@ int32_t network_server_tick(void) {
 
             case ENET_EVENT_TYPE_RECEIVE: {
                 pkt_header header = {0};
-                pkt_header_decode(&header, event.packet->data, event.packet->dataLength);
+                uint32_t ok = pkt_header_decode(&header, event.packet->data, event.packet->dataLength);
 
-                if (header.ok) {
+                if (ok && header.ok) {
                     pkt_handlers[header.id].handler(&header);
                 } else {
-                    // error happened within top level packet flow
+                    zpl_printf("[INFO] User %d sent us a malformed packet.\n", event.peer->incomingPeerID);
+                    ecs_entity_t e = (ecs_entity_t)((uint32_t)event.peer->data);
+                    network_client_destroy(e);
                 }
 
 
@@ -101,7 +103,7 @@ int32_t network_server_tick(void) {
                 //     event.packet->dataLength,
                 //     NULL
                 // );
-
+ 
                 /* Clean up the packet now that we're done using it. */
                 enet_packet_destroy(event.packet);
             } break;

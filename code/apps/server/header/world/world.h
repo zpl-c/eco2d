@@ -17,3 +17,6 @@ int32_t world_update(void);
 uint32_t world_buf(uint8_t const **ptr, uint32_t *width);
 ecs_world_t * world_ecs(void);
 librg_world * world_tracker(void);
+
+uint16_t world_chunk_size(void);
+uint16_t world_chunk_amount(void);
