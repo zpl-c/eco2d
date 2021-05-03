@@ -9,6 +9,7 @@
 
 #include "system.h"
 #include "network.h"
+#include "packets/packet.h"
 #include "world/world.h"
 
 #include "modules/general.h"

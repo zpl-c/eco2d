@@ -1,0 +1,52 @@
+version(1);
+
+project_name = "eco2d";
+
+patterns =
+{
+    "*.c",
+    "*.cpp",
+    "*.jai",
+    "*.odin",
+    "*.zig",
+    "*.h",
+    "*.inc",
+    "*.bat",
+    "*.sh",
+    "*.4coder",
+    "*.txt",
+};
+
+blacklist_patterns =
+{
+    ".*",
+    "build/.*",
+};
+
+load_paths =
+{
+    {
+        { {"."}, .recursive = false, .relative = true }, .os = "win"
+    },
+    {
+        { {"code"}, .recursive = true, .relative = true }, .os = "win"
+    },
+};
+
+command_list =
+{
+    {
+        .name = "build",
+        .out = "*compilation*",
+        .footer_panel = true,
+        .save_dirty_files = true,
+        .cursor_at_end = false,
+        .cmd =
+        {
+            { "cmake --build build", .os = "win" },
+        },
+    },
+    
+};
+
+fkey_command[1] = "build";

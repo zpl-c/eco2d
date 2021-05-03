@@ -1,9 +1,10 @@
 #include "packet.h"
+#include "cwpack/cwpack.h"
 
 #define PKT_HEADER_ELEMENTS 2
 
 pkt_handler pkt_handlers[] = {
-    {.id = MSG_ID_01_WELCOME, .handler = pkt_01_welcome_handler},
+    {.id = MSG_ID_01_WELCOME, .handler = /*pkt_01_welcome_handler*/ NULL},
 };
 
 int32_t pkt_header_encode(pkt_header *table) {
@@ -28,7 +29,7 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
 
     cw_unpack_next(&uc);
     const void *packed_blob = uc.item.as.bin.start;
-    uin32_t packed_size = uc.item.as.bind.length;
+    uint32_t packed_size = uc.item.as.bin.length;
 
     table->id = pkt_id;
     table->data = packed_blob;

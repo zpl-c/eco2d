@@ -1,22 +1,22 @@
 #pragma once
 #include "system.h"
 
-#define PKT_HANDLER_PROC(name) int32_t name(pkt_header *header)
-typedef PKT_HANDLER_PROC(pkt_handler_proc);
-
 typedef enum {
     MSG_ID_01_WELCOME,
     MSG_ID_LIBRG_UPDATE,
     MSG_ID_FORCE_UINT16 = UINT16_MAX,
 } pkt_messages;
 
-typedef struct {
+typedef struct pkt_header {
     uint16_t id;
     uint16_t sender;
     uint8_t *data;
     uint32_t datalen;
     int8_t ok;
 } pkt_header;
+
+#define PKT_HANDLER_PROC(name) int32_t name(pkt_header *header)
+typedef PKT_HANDLER_PROC(pkt_handler_proc);
 
 typedef struct {
     uint16_t id;

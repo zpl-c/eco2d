@@ -1,4 +1,6 @@
 build
+build.bat
+work
 .vscode
 .ds_store
 

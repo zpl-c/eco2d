@@ -153,15 +153,15 @@ bool network_client_is_connected() {
     return peer ? enet_peer_get_state(peer) == ENET_PEER_STATE_CONNECTED : false;
 }
 
-static int32_t network_msg_send_raw(uint16_t /* peer_id */, void *data, size_t datalen, uint32_t flags) {
+static int32_t network_msg_send_raw(uint16_t  peer_id, void *data, size_t datalen, uint32_t flags) {
     ENetPacket *packet = enet_packet_create(data, datalen, flags);
     enet_peer_send(peer, 0, packet);
 }
 
-int32_t network_msg_send(uint16_t /* peer_id */, void *data, size_t datalen) {
+int32_t network_msg_send(uint16_t peer_id, void *data, size_t datalen) {
     network_msg_send_raw(0, data, datalen, ENET_PACKET_FLAG_RELIABLE);
 }
 
-int32_t network_msg_send_unreliable(uint16_t /* peer_id */, void *data, size_t datalen) {
+int32_t network_msg_send_unreliable(uint16_t peer_id, void *data, size_t datalen) {
     network_msg_send_raw(0, data, datalen, 0);
 }
