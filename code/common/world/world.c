@@ -59,8 +59,8 @@ int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t wo
     
     world.width = chunk_size * world_size;
     world.height = chunk_size * world_size;
-    world.size = world.width * world.height;
     world.block_size = block_size;
+    world.size = world.width * world.height;
        
     if (world.tracker != NULL) {
         librg_world_destroy(world.tracker);
@@ -88,7 +88,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     }
     
     world.seed = seed;
-    world_init_minimal(chunk_size, block_size, world_size, reader_proc, writer_proc);
+    world_init_minimal(block_size, chunk_size, world_size, reader_proc, writer_proc);
     world.data = zpl_malloc(sizeof(uint8_t)*world.size);
     
     if (!world.data) {

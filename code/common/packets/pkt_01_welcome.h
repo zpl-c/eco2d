@@ -1,8 +1,6 @@
 #pragma once
 #include "packet_utils.h"
 
-#define PKT_01_NUMBERS_SIZ 32
-
 typedef struct {
     uint16_t block_size;
     uint16_t chunk_size;

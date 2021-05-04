@@ -2,6 +2,7 @@
 #include "zpl.h"
 #include "system.h"
 #include "game.h"
+#include "utils/options.h"
 
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_BLOCK_SIZE 64 /* amount of units within a block (single axis) */
@@ -15,6 +16,7 @@ int main(int argc, char** argv)
     
     zpl_opts_add(&opts, "?", "help", "the HELP section", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "single-player", "play single-player game.", ZPL_OPTS_FLAG);
+    zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "seed", "world seed", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "r", "random-seed", "generate random world seed", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "bs", "block-size", "amount of units within a block (single axis)", ZPL_OPTS_INT);
@@ -40,6 +42,11 @@ int main(int argc, char** argv)
         zpl_random_init(&rnd);
         seed = zpl_random_gen_u32(&rnd);
         zpl_printf("Seed: %u\n", seed);
+    }
+    
+    if (zpl_opts_has_arg(&opts, "preview-map")) {
+        generate_minimap(seed, block_size, chunk_size, world_size);
+        return 0;
     }
     
     sighandler_register();

@@ -4,6 +4,7 @@ add_library(client-common STATIC
   source/network.c
   source/game.c
   source/main.c
+  source/utils/options.c
 
   header/network.h
 )

@@ -17,13 +17,6 @@
 #define DEFAULT_CHUNK_SIZE 3 /* amount of blocks within a chunk (single axis) */
 #define DEFAULT_WORLD_SIZE 8 /* amount of chunks within a world (single axis) */
 
-#define IF(call) do { \
-    if (call != 0) { \
-        zpl_printf("[ERROR] A call to a function %s failed\n", #call); \
-        return 1; \
-    } \
-} while (0)
-
 zpl_global zpl_b32 is_running = true;
 
 int main(int argc, char** argv) {
