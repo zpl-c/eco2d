@@ -45,8 +45,7 @@ int main(int argc, char** argv)
     sighandler_register();
     game_init(is_networked_play, seed, block_size, chunk_size, world_size);
         
-    while (game_is_running())
-    {
+    while (game_is_running()) {
         game_input();
         game_update();
         game_render();

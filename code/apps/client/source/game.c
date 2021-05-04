@@ -63,6 +63,10 @@ void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chu
     }
 }
 
+int8_t game_is_networked() {
+    return is_networked_play;
+}
+
 void game_shutdown() {
     if (is_networked_play) {
         network_client_disconnect();

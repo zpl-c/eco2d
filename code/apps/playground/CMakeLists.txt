@@ -1,5 +1,6 @@
 add_executable(playground
   source/main.c
+  source/game.c
 )
 
 include_directories(header ../modules ../common)

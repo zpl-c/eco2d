@@ -24,18 +24,6 @@
     } \
 } while (0)
 
-static WORLD_PKT_READER(mp_pkt_reader) {
-    pkt_header header = {0};
-    uint32_t ok = pkt_header_decode(&header, data, datalen);
-    
-    if (ok && header.ok) {
-        return pkt_handlers[header.id].handler(&header) >= 0;
-    } else {
-        zpl_printf("[warn] unknown packet id %d (header %d data %d)\n", header.id, ok, header.ok);
-    }
-    return -1;
-}
-
 zpl_global zpl_b32 is_running = true;
 
 int main(int argc, char** argv) {
@@ -74,36 +62,14 @@ int main(int argc, char** argv) {
         generate_minimap(seed, block_size, chunk_size, world_size);
         return 0;
     }
-
-    sighandler_register();
-    stdcpp_set_os_api();
-
-    zpl_printf("[INFO] Generating world of size: %d x %d\n", world_size, world_size);
-    IF(world_init(seed, block_size, chunk_size, world_size, mp_pkt_reader, mp_pkt_writer));
-
-    /* server dashboard */
-    {
-        ECS_IMPORT(world_ecs(), FlecsDash);
-        ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
-
-        ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
-        ecs_set_target_fps(world_ecs(), 60);
-    }
-
-    zpl_printf("[INFO] Initializing network...\n");
-    IF(network_init());
-    IF(network_server_start("0.0.0.0", 27000));
+    
+    game_init(1, seed, block_size, chunk_size, world_size);
 
     while (is_running) {
-        network_server_tick();
-        world_update();
+        game_update();
     }
-
-    IF(network_server_stop());
-    IF(network_destroy());
-    IF(world_destroy());
-    sighandler_unregister();
-    zpl_printf("Bye!\n");
+    
+    game_shutdown();
 
     return 0;
 }

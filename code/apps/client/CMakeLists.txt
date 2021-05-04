@@ -6,7 +6,6 @@ add_library(client-common STATIC
   source/main.c
 
   header/network.h
-  header/game.h
 )
 
 add_executable(eco2d-client

@@ -1,5 +1,6 @@
 #include "pkt_01_welcome.h"
 #include "world.h"
+#include "game.h"
 
 pkt_desc pkt_01_welcome_desc[] = {
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, block_size) },
@@ -21,6 +22,8 @@ int32_t pkt_01_welcome_handler(pkt_header *header) {
 
     zpl_printf("we received: block_size: %d, chunk_size: %d and world_size: %d\n", table.block_size, table.chunk_size, table.world_size);
     
-    world_init_minimal(table.block_size, table.chunk_size, table.world_size, NULL, NULL);
+    if (game_is_networked()) {
+        world_init_minimal(table.block_size, table.chunk_size, table.world_size, NULL, NULL);
+    }
     return 0;
 }

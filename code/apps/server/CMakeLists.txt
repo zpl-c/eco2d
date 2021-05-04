@@ -1,6 +1,7 @@
 add_executable(eco2d-server
   source/main.c
   source/network.c
+  source/game.c
   source/utils/options.c
 
   header/network.h
