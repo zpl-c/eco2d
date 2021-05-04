@@ -19,3 +19,4 @@ add_subdirectory(code/vendors)
 
 add_subdirectory(code/apps/client)
 add_subdirectory(code/apps/server)
+add_subdirectory(code/apps/playground)

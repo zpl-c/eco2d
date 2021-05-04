@@ -49,7 +49,11 @@ inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
 #endif
 
 #ifndef PKT_FIELD
-#define PKT_FIELD(k, t, a) .type = k, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a)
+#define PKT_FIELD(k, t, a) .type = k, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#endif
+
+#ifndef PKT_ARRAY
+#define PKT_ARRAY(t, a) .type = CWP_ITEM_BIN, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a[0])
 #endif
 
 #ifndef PKT_END
@@ -64,14 +68,15 @@ typedef struct pkt_desc {
     cwpack_item_types type;
     size_t offset;
     size_t size;
+    size_t it_size;
 } pkt_desc;
     
 int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
 
 inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args, void *raw_blob, uint32_t blob_size) {
     cw_unpack_context uc = {0};
-    pkt_unpack_msg(&uc, header, args);
-    pkt_unpack_struct(&uc, desc, header, raw_blob, blob_size);
+    PKT_IF(pkt_unpack_msg(&uc, header, args));
+    PKT_IF(pkt_unpack_struct(&uc, desc, raw_blob, blob_size));
     
     return pkt_validate_eof_msg(&uc);
 }
