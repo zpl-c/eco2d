@@ -3,6 +3,10 @@
 #include "packet.h"
 #include "cwpack/cwpack.h"
 
+#ifndef PKT_IF
+#define PKT_IF(c) if (c < 0) return -1;
+#endif
+
 inline void pkt_pack_msg(cw_pack_context *pc, uint32_t args) {
     cw_pack_context_init(pc, pkt_buffer, PKT_BUFSIZ, 0);
     cw_pack_array_size(pc, args);
@@ -35,6 +39,18 @@ inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
     return pc->current - pc->start; // NOTE(zaklaus): length
 }
 
+inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, size_t pkt_size, int8_t is_reliable) {
+    zpl_zero_item(pkt);
+    static uint8_t pkt_data[PKT_BUFSIZ] = {0};
+    zpl_memcopy(pkt_data, pkt_buffer, pkt_size);
+    
+    pkt->data = pkt_buffer;
+    pkt->datalen = pkt_header_encode(id, pkt_data, pkt_size);
+    pkt->is_reliable = is_reliable;
+    pkt->id = id;
+    return 0;
+}
+
 #ifndef PKT_OFFSETOF
 #if defined(_MSC_VER) || defined(ZPL_COMPILER_TINYC)
 #    define PKT_OFFSETOF(Type, element) ((size_t) & (((Type *)0)->element))
@@ -58,10 +74,6 @@ inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
 
 #ifndef PKT_END
 #define PKT_END .type = CWP_NOT_AN_ITEM
-#endif
-
-#ifndef PKT_IF
-#define PKT_IF(c) if (c < 0) return -1;
 #endif
 
 typedef struct pkt_desc {

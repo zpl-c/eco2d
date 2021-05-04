@@ -24,6 +24,16 @@
     } \
 } while (0)
 
+static WORLD_PKT_READER(mp_pkt_reader) {
+    // TODO(zaklaus): implement this
+    return -1;
+}
+
+static WORLD_PKT_WRITER(mp_pkt_writer) {
+    // TODO(zaklaus): implement this
+    return -1;
+}
+
 zpl_global zpl_b32 is_running = true;
 
 int main(int argc, char** argv) {
@@ -67,7 +77,7 @@ int main(int argc, char** argv) {
     stdcpp_set_os_api();
 
     zpl_printf("[INFO] Generating world of size: %d x %d\n", world_size, world_size);
-    IF(world_init(seed, block_size, chunk_size, world_size));
+    IF(world_init(seed, block_size, chunk_size, world_size, mp_pkt_reader, mp_pkt_writer));
 
     /* server dashboard */
     {

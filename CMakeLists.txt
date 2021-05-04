@@ -14,6 +14,7 @@ endif()
 
 include_directories(code/common code/vendors code/vendors/flecs)
 
+add_subdirectory(code/modules)
 add_subdirectory(code/common)
 add_subdirectory(code/vendors)
 

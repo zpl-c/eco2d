@@ -1,2 +1,8 @@
-file(GLOB_RECURSE SRCS *.h *.c packets/*.c)
+file(GLOB SRCS *.h *.c packets/*.c packets/*.h world/*.h)
+set(SRCS ${SRCS}
+	world/blocks.c
+	world/perlin.c
+	world/world.c
+)
+include_directories(../modules . world)
 add_library(eco2d-common STATIC ${SRCS})

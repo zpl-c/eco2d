@@ -14,6 +14,7 @@ typedef struct pkt_header {
     uint16_t sender;
     uint8_t *data;
     uint32_t datalen;
+    int8_t is_reliable;
     int8_t ok;
 } pkt_header;
 
@@ -25,6 +26,7 @@ typedef struct {
     pkt_handler_proc *handler;
 } pkt_handler;
 
+int32_t pkt_header_encode(pkt_messages id, void *data, size_t datalen);
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen);
 
 extern pkt_handler pkt_handlers[];

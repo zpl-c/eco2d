@@ -6,13 +6,18 @@
 #define PKT_HEADER_ELEMENTS 2
 
 pkt_handler pkt_handlers[] = {
-    #ifdef SERVER
-    #else
     {.id = MSG_ID_01_WELCOME, .handler = pkt_01_welcome_handler},
-    #endif
 };
 
 uint8_t pkt_buffer[PKT_BUFSIZ];
+
+int32_t pkt_header_encode(pkt_messages id, void *data, size_t datalen) {
+    cw_pack_context pc = {0};
+    pkt_pack_msg(&pc, PKT_HEADER_ELEMENTS);
+    cw_pack_unsigned(&pc, id);
+    cw_pack_bin(&pc, data, datalen);
+    return pkt_pack_msg_size(&pc);
+}
 
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     cw_unpack_context uc = {0};
@@ -34,7 +39,7 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     table->datalen = packed_size;
     table->ok = 1;
 
-    return pkt_validate_eof_msg(&uc);
+    return pkt_validate_eof_msg(&uc) != -1;
 }
 
 int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size) {

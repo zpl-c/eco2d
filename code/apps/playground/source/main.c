@@ -2,7 +2,10 @@
 #define ZPL_NANO
 #include <zpl.h>
 
-#include "mock.h"
+#define LIBRG_IMPL
+#define LIBRG_CUSTOM_ZPL
+#include "librg.h"
+
 #include "packets/packet.h"
 
 int32_t mock_pkt_decode(pkt_desc *desc, uint32_t args, size_t msg_size, void *data, uint32_t size) {
@@ -15,13 +18,9 @@ int32_t mock_pkt_decode(pkt_desc *desc, uint32_t args, size_t msg_size, void *da
 
 int main(void) {
     pkt_01_welcome test_data = {
-        .chunk_size = world_chunk_size(),
-        .chunk_amount = world_chunk_amount()
+        .chunk_size = 4,
+        .world_size = 8
     };
-    
-    for (int i = 0; i < 4; i += 1){
-        test_data.numbers[i] = i*2;
-    }
     
     size_t msg_size = pkt_01_welcome_encode(&test_data);
     pkt_01_welcome resp = {0};
@@ -29,7 +28,7 @@ int main(void) {
         zpl_printf("[err] oopsie!\n");
     }
     
-    zpl_printf("size %d, amt %d, num[1] %d struct %d msg %d\n", resp.chunk_size, resp.chunk_amount, resp.numbers[1], sizeof(pkt_01_welcome), msg_size);
+    zpl_printf("size %d, amt %d, struct %d msg %d\n", resp.chunk_size, resp.world_size, sizeof(pkt_01_welcome), msg_size);
     
     return 0;
 }

@@ -17,9 +17,9 @@ add_executable(eco2d-cli
   source/platform_text.c
 )
 
-set(LIBS client-common cwpack eco2d-common)
+set(LIBS client-common cwpack eco2d-common eco2d-modules flecs-bundle)
 
-include_directories(header)
+include_directories(header ../../modules)
 target_link_libraries(eco2d-client raylib ${LIBS})
 target_link_libraries(eco2d-cli ${LIBS})
 

@@ -4,10 +4,9 @@
 #define PKT_01_NUMBERS_SIZ 32
 
 typedef struct {
-    uint32_t chunk_size;
-    uint32_t chunk_amount;
-    uint16_t numbers[PKT_01_NUMBERS_SIZ];
-    pkt_header structs[64];
+    uint16_t block_size;
+    uint16_t chunk_size;
+    uint16_t world_size;
 } pkt_01_welcome;
 
 size_t pkt_01_welcome_encode(pkt_01_welcome *table);
