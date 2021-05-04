@@ -100,3 +100,9 @@ inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args,
     
     return pkt_validate_eof_msg(&uc);
 }
+
+inline size_t pkt_pack_desc_args(pkt_desc *desc) {
+    size_t cnt = 0;
+    for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field, ++cnt) {}
+    return cnt;
+}
