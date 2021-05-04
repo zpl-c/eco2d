@@ -14,10 +14,6 @@ pkt_handler pkt_handlers[] = {
 
 uint8_t pkt_buffer[PKT_BUFSIZ];
 
-int32_t pkt_header_encode(pkt_header *table) {
-    return 0;
-}
-
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     cw_unpack_context uc = {0};
     pkt_unpack_msg_raw(&uc, data, datalen, PKT_HEADER_ELEMENTS);
