@@ -25,14 +25,9 @@ typedef struct {
     pkt_handler_proc *handler;
 } pkt_handler;
 
-typedef struct {
-    uint32_t chunk_size;
-    uint32_t chunk_amount;
-} pkt_01_welcome;
-
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen);
-
-PKT_HANDLER_PROC(pkt_01_welcome_handler);
 
 extern pkt_handler pkt_handlers[];
 extern uint8_t pkt_buffer[];
+
+#include "packet_list.h"

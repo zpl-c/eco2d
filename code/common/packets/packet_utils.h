@@ -31,6 +31,10 @@ inline int32_t pkt_validate_eof_msg(cw_unpack_context *uc) {
     return 0;
 }
 
+inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
+    return pc->current - pc->start; // NOTE(zaklaus): length
+}
+
 #ifndef PKT_OFFSETOF
 #if defined(_MSC_VER) || defined(ZPL_COMPILER_TINYC)
 #    define PKT_OFFSETOF(Type, element) ((size_t) & (((Type *)0)->element))
@@ -63,3 +67,11 @@ typedef struct pkt_desc {
 } pkt_desc;
     
 int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
+
+inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args, void *raw_blob, uint32_t blob_size) {
+    cw_unpack_context uc = {0};
+    pkt_unpack_msg(&uc, header, args);
+    pkt_unpack_struct(&uc, desc, header, raw_blob, blob_size);
+    
+    return pkt_validate_eof_msg(&uc);
+}
