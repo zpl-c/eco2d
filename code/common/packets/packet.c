@@ -5,7 +5,10 @@
 #define PKT_HEADER_ELEMENTS 2
 
 pkt_handler pkt_handlers[] = {
+    #ifdef SERVER
+    #else
     {.id = MSG_ID_01_WELCOME, .handler = pkt_01_welcome_handler},
+    #endif
 };
 
 uint8_t pkt_buffer[PKT_BUFSIZ];
