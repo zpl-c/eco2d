@@ -1,10 +1,10 @@
-#include "packet.h"
-#include "packet_utils.h"
+#include "pkt_01_welcome.h"
 
 pkt_desc pkt_01_welcome_desc[] = {
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, chunk_size) },
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, chunk_amount) },
     { PKT_ARRAY(pkt_01_welcome, numbers) },
+    { PKT_ARRAY(pkt_01_welcome, structs) },
     { PKT_END },
 };
 

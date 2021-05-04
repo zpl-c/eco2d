@@ -29,6 +29,7 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen);
 
 extern pkt_handler pkt_handlers[];
 extern uint8_t pkt_buffer[];
-extern uint8_t pkt_pack_buffer[];
 
-#include "packet_list.h"
+// NOTE(zaklaus): packets
+
+#include "pkt_01_welcome.h"

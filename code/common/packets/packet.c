@@ -1,5 +1,6 @@
 #include "packet.h"
 #include "packet_utils.h"
+#include "compress.h"
 #include "cwpack/cwpack.h"
 
 #define PKT_HEADER_ELEMENTS 2
@@ -12,7 +13,6 @@ pkt_handler pkt_handlers[] = {
 };
 
 uint8_t pkt_buffer[PKT_BUFSIZ];
-uint8_t pkt_pack_buffer[PKT_BUFSIZ];
 
 int32_t pkt_header_encode(pkt_header *table) {
     return 0;
@@ -52,8 +52,11 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
                 zpl_memcopy(blob + field->offset, (uint8_t*)&uc->item.as.u64, field->size);
             }break;
             case CWP_ITEM_BIN: {
-                if (uc->item.as.bin.length != field->size) return -1; // bin size mismatch
-                zpl_memcopy(blob + field->offset, (uint8_t*)uc->item.as.bin.start, uc->item.as.bin.length);
+                if (uc->item.as.bin.length >= PKT_BUFSIZ) return -1; // bin blob too big
+                static uint8_t bin_buf[PKT_BUFSIZ] = {0};
+                uint32_t actual_size = decompress_rle(uc->item.as.bin.start, uc->item.as.bin.length, bin_buf);
+                if (actual_size != field->size) return -1; // bin size mismatch
+                zpl_memcopy(blob + field->offset, bin_buf, actual_size);
             }break;
             default: {
                 zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
@@ -67,11 +70,13 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
 
 int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uint32_t blob_size) {
     uint8_t *blob = (uint8_t*)raw_blob;
-    zpl_zero_item(pkt_pack_buffer);
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
         switch (field->type) {
             case CWP_ITEM_BIN: {
-                cw_pack_bin(pc, blob + field->offset, field->size);
+                if (field->size >= PKT_BUFSIZ) return -1; // bin blob too big
+                static uint8_t bin_buf[PKT_BUFSIZ] = {0};
+                uint32_t size = compress_rle(blob + field->offset, field->size, bin_buf);
+                cw_pack_bin(pc, bin_buf, size);
             }break;
             case CWP_ITEM_POSITIVE_INTEGER: {
                 uint64_t num;
