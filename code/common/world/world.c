@@ -134,16 +134,16 @@ int32_t world_update() {
     return 0;
 }
 
-int32_t world_read(void* data, uint32_t datalen) {
+int32_t world_read(void* data, uint32_t datalen, void *udata) {
     if (world.reader_proc) {
-        return world.reader_proc(data, datalen);
+        return world.reader_proc(data, datalen, udata);
     }
     return -1;
 }
 
-int32_t world_write(pkt_header *pkt) {
+int32_t world_write(pkt_header *pkt, void *udata) {
     if (world.writer_proc) {
-        return world.writer_proc(pkt);
+        return world.writer_proc(pkt, udata);
     }
     return -1;
 }
@@ -164,11 +164,15 @@ librg_world * world_tracker() {
     return world.tracker;
 }
 
+uint16_t world_block_size(void) {
+    return world.block_size;
+}
+
 uint16_t world_chunk_size(void) {
     return world.chunk_size;
 }
 
-uint16_t world_chunk_amount(void) {
+uint16_t world_world_size(void) {
     return world.world_size;
 }
 

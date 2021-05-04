@@ -24,6 +24,15 @@
 static ENetHost *server = NULL;
 static zpl_timer nettimer = {0};
 
+WORLD_PKT_WRITER(mp_pkt_writer) {
+    if (pkt->is_reliable) {
+        return network_msg_send(udata, pkt->data, pkt->datalen);
+    }
+    else {
+        return network_msg_send_unreliable(udata, pkt->data, pkt->datalen);
+    }
+}
+
 int32_t network_init(void) {
     zpl_timer_set(&nettimer, NETWORK_UPDATE_DELAY, -1, network_server_update);
     return enet_initialize() != 0;
@@ -74,6 +83,9 @@ int32_t network_server_tick(void) {
                 uint64_t ent_id = network_client_create(event.peer);
                 // TODO: Make sure ent_id does not get truncated with large entity numbers.
                 event.peer->data = (void*)((uint32_t)ent_id);
+                
+                pkt_01_welcome table = {.block_size = world_block_size(), .chunk_size = world_chunk_size(), .world_size = world_world_size()};
+                pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, event.peer);
             } break;
             case ENET_EVENT_TYPE_DISCONNECT:
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
@@ -83,17 +95,11 @@ int32_t network_server_tick(void) {
             } break;
 
             case ENET_EVENT_TYPE_RECEIVE: {
-                pkt_header header = {0};
-                uint32_t ok = pkt_header_decode(&header, event.packet->data, event.packet->dataLength);
-
-                if (ok && header.ok) {
-                    pkt_handlers[header.id].handler(&header);
-                } else {
+                if (!world_read(event.packet->data, event.packet->dataLength, event.peer)) {
                     zpl_printf("[INFO] User %d sent us a malformed packet.\n", event.peer->incomingPeerID);
                     ecs_entity_t e = (ecs_entity_t)((uint32_t)event.peer->data);
                     network_client_destroy(e);
                 }
-
 
                 // /* handle a newly received event */
                 // librg_world_read(
@@ -143,18 +149,18 @@ void network_server_update(void *data) {
     // }
 }
 
-uint64_t network_client_create(uint16_t peer_id) {
+uint64_t network_client_create(ENetPeer *peer) {
     ECS_IMPORT(world_ecs(), General);
     ECS_IMPORT(world_ecs(), Controllers);
     ECS_IMPORT(world_ecs(), Net);
 
     ecs_entity_t e = ecs_new(world_ecs(), 0);
     ecs_add(world_ecs(), e, EcsClient);
-    ecs_set(world_ecs(), e, ClientInfo, {peer_id});
-    ecs_set(world_ecs(), e, EcsName, {.alloc_value = zpl_bprintf("client_%d", peer_id) });
+    ecs_set(world_ecs(), e, ClientInfo, {peer});
+    ecs_set(world_ecs(), e, EcsName, {.alloc_value = zpl_bprintf("client_%d", peer->incomingPeerID) });
 
     librg_entity_track(world_tracker(), e);
-    librg_entity_owner_set(world_tracker(), e, peer_id);
+    librg_entity_owner_set(world_tracker(), e, (int64_t)peer);
     librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
     // librg_entity_chunk_set(world_tracker(), e, 1);
 
@@ -166,25 +172,15 @@ void network_client_destroy(uint64_t ent_id) {
     ecs_delete(world_ecs(), ent_id);
 }
 
-static ENetPeer *network_enet_find_by_id(uint16_t peer_id) {
-    for (size_t i = 0; i < server->peerCount; ++i) {
-        ENetPeer *peer = &server->peers[i];
-        if (enet_peer_get_id(peer) == peer_id)
-            return peer;
-    }
-
-    return NULL;
-}
-
-static int32_t network_msg_send_raw(uint16_t peer_id, void *data, size_t datalen, uint32_t flags) {
+static int32_t network_msg_send_raw(ENetPeer *peer, void *data, size_t datalen, uint32_t flags) {
     ENetPacket *packet = enet_packet_create(data, datalen, flags);
-    enet_peer_send(network_enet_find_by_id(peer_id), 0, packet);
+    return enet_peer_send(peer, 0, packet);
 }
 
-int32_t network_msg_send(uint16_t peer_id, void *data, size_t datalen) {
-    network_msg_send_raw(peer_id, data, datalen, ENET_PACKET_FLAG_RELIABLE);
+int32_t network_msg_send(ENetPeer *peer, void *data, size_t datalen) {
+    return network_msg_send_raw(peer, data, datalen, ENET_PACKET_FLAG_RELIABLE);
 }
 
-int32_t network_msg_send_unreliable(uint16_t peer_id, void *data, size_t datalen) {
-    network_msg_send_raw(peer_id, data, datalen, 0);
+int32_t network_msg_send_unreliable(ENetPeer *peer, void *data, size_t datalen) {
+    return network_msg_send_raw(peer, data, datalen, 0);
 }

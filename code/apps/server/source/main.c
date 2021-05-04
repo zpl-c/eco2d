@@ -2,8 +2,8 @@
 #include "zpl.h"
 
 #include "system.h"
-#include "network.h"
 #include "world/world.h"
+#include "network.h"
 #include "utils/options.h"
 #include "signal_handling.h"
 
@@ -25,12 +25,14 @@
 } while (0)
 
 static WORLD_PKT_READER(mp_pkt_reader) {
-    // TODO(zaklaus): implement this
-    return -1;
-}
-
-static WORLD_PKT_WRITER(mp_pkt_writer) {
-    // TODO(zaklaus): implement this
+    pkt_header header = {0};
+    uint32_t ok = pkt_header_decode(&header, data, datalen);
+    
+    if (ok && header.ok) {
+        return pkt_handlers[header.id].handler(&header) >= 0;
+    } else {
+        zpl_printf("[warn] unknown packet id %d (header %d data %d)\n", header.id, ok, header.ok);
+    }
     return -1;
 }
 

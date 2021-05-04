@@ -51,6 +51,14 @@ inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, size_t pkt_size, i
     return 0;
 }
 
+extern int32_t world_write(pkt_header *pkt, void *udata);
+
+inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_reliable, void *udata) {
+    pkt_header pkt;
+    PKT_IF(pkt_prep_msg(&pkt, id, pkt_size, is_reliable));
+    return world_write(&pkt, udata);
+}
+
 #ifndef PKT_OFFSETOF
 #if defined(_MSC_VER) || defined(ZPL_COMPILER_TINYC)
 #    define PKT_OFFSETOF(Type, element) ((size_t) & (((Type *)0)->element))
