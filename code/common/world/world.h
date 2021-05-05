@@ -1,7 +1,7 @@
 #pragma once
 #include "system.h"
 #include "librg.h"
-#include "packets/packet.h"
+#include "packet.h"
 #include "flecs/flecs.h"
 
 #define WORLD_ERROR_NONE                +0x0000

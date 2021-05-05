@@ -1,9 +1,10 @@
 #include "game.h"
 #include "platform.h"
 #include "world/world.h"
-#include "packets/packet.h"
+#include "packet.h"
 #include "signal_handling.h"
 #include "network.h"
+#include "entity_view.h"
 
 #include "flecs/flecs.h"
 #include "flecs/flecs_dash.h"
@@ -41,6 +42,7 @@ static WORLD_PKT_WRITER(mp_pkt_writer) {
 void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
     is_networked_play = play_mode;
     platform_init();
+    entity_view_init();
     
     if (is_networked_play) {
         world_init_minimal(0, 0, 0, pkt_reader, mp_pkt_writer);
@@ -61,7 +63,7 @@ void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chu
         
         sp_player = player_spawn("unnamed");
         
-        pkt_01_welcome table = {.block_size = block_size, .chunk_size = chunk_size, .world_size = world_size};
+        pkt_01_welcome table = {.ent_id = 0, .block_size = block_size, .chunk_size = chunk_size, .world_size = world_size};
         pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, NULL);
     }
 }
@@ -71,6 +73,8 @@ int8_t game_is_networked() {
 }
 
 void game_shutdown() {
+    entity_view_free();
+
     if (is_networked_play) {
         network_client_disconnect();
         network_destroy();

@@ -6,7 +6,8 @@
 #define LIBRG_CUSTOM_ZPL
 #include "librg.h"
 
-#include "packets/packet.h"
+#include "packet.h"
+#include "game.h"
 
 int32_t mock_pkt_decode(pkt_desc *desc, uint32_t args, size_t msg_size, void *data, uint32_t size) {
     pkt_header header = {

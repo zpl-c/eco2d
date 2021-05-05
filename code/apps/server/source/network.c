@@ -9,7 +9,7 @@
 
 #include "system.h"
 #include "network.h"
-#include "packets/packet.h"
+#include "packet.h"
 #include "world/world.h"
 
 #include "player.h"
@@ -86,7 +86,7 @@ int32_t network_server_tick(void) {
                 // TODO: Make sure ent_id does not get truncated with large entity numbers.
                 event.peer->data = (void*)((uint32_t)ent_id);
                 
-                pkt_01_welcome table = {.block_size = world_block_size(), .chunk_size = world_chunk_size(), .world_size = world_world_size()};
+                pkt_01_welcome table = {.ent_id = ent_id, .block_size = world_block_size(), .chunk_size = world_chunk_size(), .world_size = world_world_size()};
                 pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, event.peer);
             } break;
             case ENET_EVENT_TYPE_DISCONNECT:

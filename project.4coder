@@ -15,6 +15,7 @@ patterns =
     "*.sh",
     "*.4coder",
     "*.txt",
+    "*.cmake",
 };
 
 blacklist_patterns =

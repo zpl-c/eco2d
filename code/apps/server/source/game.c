@@ -1,7 +1,7 @@
 #include "game.h"
 #include "platform.h"
 #include "world/world.h"
-#include "packets/packet.h"
+#include "packet.h"
 #include "signal_handling.h"
 #include "network.h"
 

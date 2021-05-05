@@ -34,4 +34,4 @@ extern uint8_t pkt_buffer[];
 
 // NOTE(zaklaus): packets
 
-#include "pkt_01_welcome.h"
+#include "packets/pkt_01_welcome.h"

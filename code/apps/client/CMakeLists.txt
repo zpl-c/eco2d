@@ -1,12 +1,16 @@
 include(FindRaylib.cmake)
 
+populate_pkt_srcs()
 add_library(client-common STATIC
-  source/network.c
-  source/game.c
-  source/main.c
-  source/utils/options.c
+    source/network.c
+    source/game.c
+    source/main.c
+	source/entity_view.c
+  
+    source/utils/options.c
 
-  header/network.h
+    header/network.h
+    ${PKT_SRCS}
 )
 
 add_executable(eco2d-client
@@ -17,6 +21,7 @@ add_executable(eco2d-cli
   source/platform_text.c
 )
 
+target_compile_definitions(client-common PRIVATE CLIENT)
 set(LIBS client-common cwpack eco2d-common eco2d-modules flecs-bundle)
 
 include_directories(header ../../modules)

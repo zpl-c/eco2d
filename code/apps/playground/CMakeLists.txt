@@ -1,6 +1,9 @@
+populate_pkt_srcs()
 add_executable(playground
-  source/main.c
-  source/game.c
+    source/main.c
+    source/game.c
+
+	${PKT_SRCS}
 )
 
 include_directories(header ../modules ../common)

@@ -1,6 +1,8 @@
 #include "platform.h"
 #include "raylib.h"
+#include "network.h"
 #include "game.h"
+#include "entity_view.h"
 
 const uint16_t screenWidth = 800;
 const uint16_t screenHeight = 450;
@@ -20,11 +22,13 @@ uint8_t platform_is_running() {
 
 void display_conn_status();
 
+void DEBUG_draw_entities(uint64_t key, entity_view data);
+
 void platform_render() {
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawText("NOBODY EXPECTS SPANISH INQUISITION!", 190, 200, 20, RED);
-    display_conn_status();    
+    entity_view_map(DEBUG_draw_entities);
+    display_conn_status();
     EndDrawing();
 }
 
@@ -38,4 +42,8 @@ void display_conn_status() {
     } else {
         DrawText("Connection: single-player", 5, 5, 12, BLUE);
     }
+}
+
+void DEBUG_draw_entities(uint64_t key, entity_view data) {
+    DrawCircle(data.X, data.Y, 15.0f, RAYWHITE);
 }

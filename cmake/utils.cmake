@@ -7,3 +7,7 @@ function(link_system_libs target_name)
         target_link_libraries(${target_name} pthread m dl atomic)
     endif()
 endfunction()
+
+macro(populate_pkt_srcs)
+	file(GLOB PKT_SRCS ../../common/packets/*.h ../../common/packets/*.c)
+endmacro()

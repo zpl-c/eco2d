@@ -1,4 +1,4 @@
-file(GLOB SRCS *.h *.c packets/*.c packets/*.h world/*.h)
+file(GLOB SRCS *.h *.c packets/*.h world/*.h)
 set(SRCS ${SRCS}
 	world/blocks.c
 	world/perlin.c

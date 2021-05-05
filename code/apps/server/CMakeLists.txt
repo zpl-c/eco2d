@@ -1,11 +1,14 @@
+populate_pkt_srcs()
 add_executable(eco2d-server
-  source/main.c
-  source/network.c
-  source/game.c
-  source/utils/options.c
+    source/main.c
+    source/network.c
+    source/game.c
+    source/utils/options.c
 
-  header/network.h
-  header/utils/options.h
+    header/network.h
+    header/utils/options.h
+
+	${PKT_SRCS}
 )
 
 include_directories(header ../../modules)

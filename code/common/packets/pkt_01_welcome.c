@@ -1,9 +1,14 @@
 #include "pkt_01_welcome.h"
 #include "packet_utils.h"
-#include "world.h"
+#include "world/world.h"
 #include "game.h"
 
+#ifdef CLIENT
+#include "entity_view.h"
+#endif
+
 pkt_desc pkt_01_welcome_desc[] = {
+    { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, ent_id) },
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, block_size) },
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, chunk_size) },
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_01_welcome, world_size) },
@@ -21,10 +26,13 @@ int32_t pkt_01_welcome_handler(pkt_header *header) {
     pkt_01_welcome table;
     PKT_IF(pkt_msg_decode(header, pkt_01_welcome_desc, pkt_pack_desc_args(pkt_01_welcome_desc), PKT_STRUCT_PTR(&table)));
 
-    zpl_printf("we received: block_size: %d, chunk_size: %d and world_size: %d\n", table.block_size, table.chunk_size, table.world_size);
-    
+    #ifdef CLIENT
     if (game_is_networked()) {
+        zpl_printf("[INFO] initializing read-only world view ...\n");
         world_init_minimal(table.block_size, table.chunk_size, table.world_size, NULL, NULL);
     }
+    
+    entity_view_update_or_create(table.ent_id, (entity_view){0});
+    #endif
     return 0;
 }

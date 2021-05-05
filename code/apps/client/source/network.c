@@ -8,7 +8,7 @@
 #include "librg.h"
 
 #include "network.h"
-#include "packets/packet.h"
+#include "packet.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
 
