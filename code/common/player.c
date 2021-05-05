@@ -6,19 +6,25 @@
 
 #include "modules/general.h"
 #include "modules/controllers.h"
+#include "modules/net.h"
 
 uint64_t player_spawn(char *name) {
     ECS_IMPORT(world_ecs(), General);
     ECS_IMPORT(world_ecs(), Controllers);
-    
+    ECS_IMPORT(world_ecs(), Net);
+
     ecs_entity_t e = ecs_new(world_ecs(), 0);
+
+    ecs_add(world_ecs(), e, EcsClient);
+    ecs_set(world_ecs(), e, ClientInfo, {0});
     ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
-    
+    ecs_set(world_ecs(), e, Input, {0});
+
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
     // librg_entity_chunk_set(world_tracker(), e, 1);
-    
+
     return (uint64_t)e;
 }
 

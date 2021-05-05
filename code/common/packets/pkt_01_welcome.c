@@ -1,5 +1,5 @@
-#include "pkt_01_welcome.h"
-#include "packet_utils.h"
+#include "packets/pkt_01_welcome.h"
+#include "packet.h"
 #include "world/world.h"
 #include "game.h"
 

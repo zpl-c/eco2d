@@ -1,7 +1,10 @@
 #include "zpl.h"
 #include "librg.h"
 #include "modules/general.h"
+#include "modules/net.h"
 #include "world/world.h"
+
+#include "packets/pkt_send_librg_update.h"
 
 typedef struct {
     uint8_t *data;
@@ -131,6 +134,30 @@ int32_t world_destroy(void) {
 
 int32_t world_update() {
     ecs_progress(world.ecs, 0);
+
+    ECS_IMPORT(world.ecs, Net);
+    ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo");
+
+    ecs_iter_t it = ecs_query_iter(query);
+    static char buffer[16000] = {0};
+    static int32_t datalen = 16000;
+
+    while (ecs_query_next(&it)) {
+        ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+
+        for (int i = 0; i < it.count; i++) {
+            datalen = 16000;
+            int32_t result = librg_world_write(world_tracker(), it.entities[i], buffer, &datalen, NULL);
+
+            if (result > 0) {
+                zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
+            } else if (result < 0) {
+                zpl_printf("[error] an error happened writing the world %d\n", result);
+            }
+
+            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen), 1, p[i].peer);
+        }
+    }
     return 0;
 }
 

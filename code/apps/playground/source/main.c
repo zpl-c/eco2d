@@ -8,6 +8,7 @@
 
 #include "packet.h"
 #include "game.h"
+#include "packets/pkt_01_welcome.h"
 
 int32_t mock_pkt_decode(pkt_desc *desc, uint32_t args, size_t msg_size, void *data, uint32_t size) {
     pkt_header header = {

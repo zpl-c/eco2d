@@ -1,12 +1,18 @@
-#include "packet.h"
 #include "packet_utils.h"
 #include "compress.h"
 #include "cwpack/cwpack.h"
+
+// NOTE(zaklaus): packets
+
+#include "packets/pkt_01_welcome.h"
+#include "packets/pkt_send_keystate.h"
+#include "packets/pkt_send_librg_update.h"
 
 #define PKT_HEADER_ELEMENTS 2
 
 pkt_handler pkt_handlers[] = {
     {.id = MSG_ID_01_WELCOME, .handler = pkt_01_welcome_handler},
+    {.id = MSG_ID_LIBRG_UPDATE, .handler = pkt_send_librg_update_handler},
 };
 
 uint8_t pkt_buffer[PKT_BUFSIZ];

@@ -1,4 +1,5 @@
 #pragma once
+#include "system.h"
 #include "packet_utils.h"
 
 typedef struct {
@@ -9,7 +10,7 @@ typedef struct {
 } pkt_01_welcome;
 
 size_t pkt_01_welcome_encode(pkt_01_welcome *table);
-extern pkt_desc pkt_01_welcome_desc[];
+pkt_desc pkt_01_welcome_desc[];
 
 PKT_HANDLER_PROC(pkt_01_welcome_handler);
 

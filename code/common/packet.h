@@ -6,6 +6,7 @@
 typedef enum {
     MSG_ID_01_WELCOME,
     MSG_ID_LIBRG_UPDATE,
+    MSG_ID_SEND_KEYSTATE,
     MSG_ID_FORCE_UINT16 = UINT16_MAX,
 } pkt_messages;
 
@@ -31,7 +32,3 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen);
 
 extern pkt_handler pkt_handlers[];
 extern uint8_t pkt_buffer[];
-
-// NOTE(zaklaus): packets
-
-#include "packets/pkt_01_welcome.h"

@@ -19,6 +19,7 @@
 #include "modules/net.h"
 
 #include "assets.h"
+#include "packets/pkt_01_welcome.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
 #define NETWORK_MAX_CLIENTS 32
@@ -154,7 +155,6 @@ void network_server_update(void *data) {
 uint64_t network_client_create(ENetPeer *peer) {
     ECS_IMPORT(world_ecs(), Net);
     ecs_entity_t e = (ecs_entity_t)player_spawn(zpl_bprintf("client_%d", peer->incomingPeerID));
-    ecs_add(world_ecs(), e, EcsClient);
     ecs_set(world_ecs(), e, ClientInfo, {(uintptr_t)peer});
 
     librg_entity_owner_set(world_tracker(), e, (int64_t)peer);

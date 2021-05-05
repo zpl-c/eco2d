@@ -39,6 +39,7 @@ void platform_render() {
     BeginDrawing();
     ClearBackground(BLACK);
     BeginMode2D(render_camera);
+    DrawRectangleV((Vector2){0,0}, (Vector2){40,40}, RED);
     entity_view_map(DEBUG_draw_entities);
     EndMode2D();
     display_conn_status();

@@ -12,13 +12,15 @@
 #include "flecs/flecs_systems_civetweb.h"
 #include "flecs/flecs_os_api_stdcpp.h"
 
+#include "packets/pkt_01_welcome.h"
+
 static int8_t is_networked_play;
 static uint64_t sp_player;
 
 static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
     uint32_t ok = pkt_header_decode(&header, data, datalen);
-    
+
     if (ok && header.ok) {
         return pkt_handlers[header.id].handler(&header) >= 0;
     } else {
@@ -45,7 +47,7 @@ void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chu
     platform_init();
     entity_view_init();
     camera_reset();
-    
+
     if (is_networked_play) {
         world_init_minimal(0, 0, 0, pkt_reader, mp_pkt_writer);
         network_init();
@@ -53,18 +55,18 @@ void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chu
     } else {
         stdcpp_set_os_api();
         world_init(seed, block_size, chunk_size, world_size, pkt_reader, sp_pkt_writer);
-        
+
         /* server dashboard */
         {
             ECS_IMPORT(world_ecs(), FlecsDash);
             ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
-            
+
             ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
             ecs_set_target_fps(world_ecs(), 60);
         }
-        
+
         sp_player = player_spawn("unnamed");
-        
+
         pkt_01_welcome table = {.ent_id = 0, .block_size = block_size, .chunk_size = chunk_size, .world_size = world_size};
         pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, NULL);
     }
