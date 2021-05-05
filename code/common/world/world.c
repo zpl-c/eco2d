@@ -29,34 +29,6 @@ static world_data world = {0};
 
 int32_t world_gen();
 
-int32_t world_write_update(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
-    int64_t entity_id = librg_event_entity_get(w, e);
-
-    return 0;
-
-    // /* prevent sending updates to users who own that entity */
-    // /* since they will be responsible on telling where that entity is supposed to be */
-    // if (librg_entity_owner_get(w, entity_id) == owner_id) {
-    //     return LIBRG_WRITE_REJECT;
-    // }
-
-    // /* read our current position */
-    // ENetPeer *peer = (ENetPeer *)librg_entity_userdata_get(w, entity_id);
-
-    // char *buffer = librg_event_buffer_get(w, e);
-    // size_t max_length = librg_event_size_get(w, e);
-
-    // /* check if we have enough space to write and valid position */
-    // if (sizeof(vec3) > max_length || !peer->data) {
-    //     return LIBRG_WRITE_REJECT;
-    // }
-
-    // /* write data and return how much we've written */
-    // memcpy(buffer, peer->data, sizeof(vec3));
-    // return sizeof(vec3);
-}
-
 int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t world_size, world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
     world.chunk_size = chunk_size;
     world.world_size = world_size;
@@ -104,7 +76,6 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     world.ecs = ecs_init();
     ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
-    //ecs_set_threads(world.ecs, 4);
     
     ECS_IMPORT(world.ecs, General);
 
@@ -119,9 +90,6 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
         librg_entity_chunk_set(world.tracker, e, i);
     }
 
-    // librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, world_write_update);
-    // librg_event_set(world.tracker, LIBRG_READ_UPDATE, server_read_update);
-    
     zpl_printf("[INFO] Created a new server world\n");
     
     return world_gen();

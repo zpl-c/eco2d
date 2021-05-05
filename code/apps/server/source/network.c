@@ -25,7 +25,6 @@
 #define NETWORK_MAX_CLIENTS 32
 
 static ENetHost *server = NULL;
-static zpl_timer nettimer = {0};
 
 WORLD_PKT_WRITER(mp_pkt_writer) {
     if (pkt->is_reliable) {
@@ -37,7 +36,6 @@ WORLD_PKT_WRITER(mp_pkt_writer) {
 }
 
 int32_t network_init(void) {
-    zpl_timer_set(&nettimer, NETWORK_UPDATE_DELAY, -1, network_server_update);
     return enet_initialize() != 0;
 }
 
@@ -63,14 +61,12 @@ int32_t network_server_start(const char *host, uint16_t port) {
     }
 
     zpl_printf("[INFO] Started an ENet server...\n");
-    zpl_timer_start(&nettimer, NETWORK_UPDATE_DELAY);
 
     return 0;
 }
 
 int32_t network_server_stop(void) {
     zpl_printf("[INFO] Shutting down the ENet server...\n");
-    zpl_timer_stop(&nettimer);
     enet_host_destroy(server);
     server = NULL;
     return 0;
@@ -104,15 +100,6 @@ int32_t network_server_tick(void) {
                     network_client_destroy(e);
                 }
 
-                // /* handle a newly received event */
-                // librg_world_read(
-                //     world_tracker(),
-                //     event.peer->incomingPeerID,
-                //     (char *)event.packet->data,
-                //     event.packet->dataLength,
-                //     NULL
-                // );
- 
                 /* Clean up the packet now that we're done using it. */
                 enet_packet_destroy(event.packet);
             } break;
@@ -121,35 +108,7 @@ int32_t network_server_tick(void) {
         }
     }
 
-    zpl_timer_update(&nettimer);
-
     return 0;
-}
-
-void network_server_update(void *data) {
-    // /* iterate peers and send them updates */
-    // ENetPeer *currentPeer;
-    // for (currentPeer = server->peers; currentPeer < &server->peers[server->peerCount]; ++currentPeer) {
-    //     if (currentPeer->state != ENET_PEER_STATE_CONNECTED) {
-    //         continue;
-    //     }
-
-    //     char buffer[1024] = {0};
-    //     size_t buffer_length = 1024;
-
-    //     /* serialize peer's the world view to a buffer */
-    //     librg_world_write(
-    //         world_tracker(),
-    //         currentPeer->incomingPeerID,
-    //         buffer,
-    //         &buffer_length,
-    //         NULL
-    //     );
-
-    //     /* create packet with actual length, and send it */
-    //     ENetPacket *packet = enet_packet_create(buffer, buffer_length, ENET_PACKET_FLAG_RELIABLE);
-    //     enet_peer_send(currentPeer, 0, packet);
-    // }
 }
 
 uint64_t network_client_create(ENetPeer *peer) {
