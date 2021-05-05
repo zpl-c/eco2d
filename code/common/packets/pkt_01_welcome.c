@@ -5,6 +5,7 @@
 
 #ifdef CLIENT
 #include "entity_view.h"
+#include "camera.h"
 #endif
 
 pkt_desc pkt_01_welcome_desc[] = {
@@ -33,6 +34,7 @@ int32_t pkt_01_welcome_handler(pkt_header *header) {
     }
     
     entity_view_update_or_create(table.ent_id, (entity_view){0});
+    camera_set_follow(table.ent_id);
     #endif
     return 0;
 }

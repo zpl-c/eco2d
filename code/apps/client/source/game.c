@@ -5,6 +5,7 @@
 #include "signal_handling.h"
 #include "network.h"
 #include "entity_view.h"
+#include "camera.h"
 
 #include "flecs/flecs.h"
 #include "flecs/flecs_dash.h"
@@ -43,6 +44,7 @@ void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chu
     is_networked_play = play_mode;
     platform_init();
     entity_view_init();
+    camera_reset();
     
     if (is_networked_play) {
         world_init_minimal(0, 0, 0, pkt_reader, mp_pkt_writer);

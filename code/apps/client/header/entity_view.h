@@ -5,8 +5,8 @@
 #include "zpl.h"
 
 typedef struct entity_view {
-    double X;
-    double Y;
+    double x;
+    double y;
 } entity_view;
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);

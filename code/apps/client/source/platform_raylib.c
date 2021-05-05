@@ -3,13 +3,21 @@
 #include "network.h"
 #include "game.h"
 #include "entity_view.h"
+#include "camera.h"
 
 const uint16_t screenWidth = 800;
 const uint16_t screenHeight = 450;
 
+static Camera2D render_camera;
+
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d - client");
     SetTargetFPS(60);
+    
+    render_camera.target = (Vector2){0.0f,0.0f};
+    render_camera.offset = (Vector2){screenWidth/2.0f, screenHeight/2.0f};
+    render_camera.rotation = 0.0f;
+    render_camera.zoom = 1.0f;
 }
 
 void platform_shutdown() {
@@ -25,9 +33,14 @@ void display_conn_status();
 void DEBUG_draw_entities(uint64_t key, entity_view data);
 
 void platform_render() {
+    camera game_camera = camera_get();
+    render_camera.target = (Vector2){game_camera.x, game_camera.y};
+
     BeginDrawing();
     ClearBackground(BLACK);
+    BeginMode2D(render_camera);
     entity_view_map(DEBUG_draw_entities);
+    EndMode2D();
     display_conn_status();
     EndDrawing();
 }
@@ -45,5 +58,5 @@ void display_conn_status() {
 }
 
 void DEBUG_draw_entities(uint64_t key, entity_view data) {
-    DrawCircle(data.X, data.Y, 15.0f, RAYWHITE);
+    DrawCircle(data.x, data.y, 15.0f, RAYWHITE);
 }
