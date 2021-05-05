@@ -29,6 +29,50 @@ static world_data world = {0};
 
 int32_t world_gen();
 
+int32_t tracker_read_create(librg_world *w, librg_event *e) {
+    int64_t owner_id = librg_event_owner_get(w, e);
+    int64_t entity_id = librg_event_entity_get(w, e);
+    zpl_printf("[INFO] An entity %d was created for owner: %d\n", (int)entity_id, (int)owner_id);
+    return 0;
+}
+
+int32_t tracker_read_remove(librg_world *w, librg_event *e) {
+    int64_t owner_id = librg_event_owner_get(w, e);
+    int64_t entity_id = librg_event_entity_get(w, e);
+    zpl_printf("[INFO] An entity %d was removed for owner: %d\n", (int)entity_id, (int)owner_id);
+    return 0;
+}
+
+int32_t tracker_read_update(librg_world *w, librg_event *e) {
+    // int64_t entity_id = librg_event_entity_get(w, e);
+    size_t actual_length = librg_event_size_get(w, e);
+    char *buffer = librg_event_buffer_get(w, e);
+    
+    return 0;
+}
+
+int32_t tracker_write_create(librg_world *w, librg_event *e) {
+    int64_t owner_id = librg_event_owner_get(w, e);
+    int64_t entity_id = librg_event_entity_get(w, e);
+    return 0;
+}
+
+int32_t tracker_write_remove(librg_world *w, librg_event *e) {
+    int64_t owner_id = librg_event_owner_get(w, e);
+    int64_t entity_id = librg_event_entity_get(w, e);
+    return 0;
+}
+
+int32_t tracker_write_update(librg_world *w, librg_event *e) {
+    // int64_t entity_id = librg_event_entity_get(w, e);
+#if 0
+    size_t actual_length = librg_event_size_get(w, e);
+    char *buffer = librg_event_buffer_get(w, e);
+#endif
+    
+    return 0;
+}
+
 int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t world_size, world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
     world.chunk_size = chunk_size;
     world.world_size = world_size;
@@ -56,6 +100,14 @@ int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t wo
     librg_config_chunksize_set(world.tracker, block_size * chunk_size, block_size * chunk_size, 1);
     librg_config_chunkamount_set(world.tracker, world_size, world_size, 1);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID);
+    
+    librg_event_set(world.tracker, LIBRG_READ_CREATE, tracker_read_create);
+    librg_event_set(world.tracker, LIBRG_READ_REMOVE, tracker_read_remove);
+    librg_event_set(world.tracker, LIBRG_READ_UPDATE, tracker_read_update);
+    
+    librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
+    librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);
+    librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
     
     return 0;
 }
@@ -106,7 +158,8 @@ int32_t world_destroy(void) {
 
 static void world_tracker_update(void) {
     if (world.tracker_update > zpl_time_rel_ms()) return;
-    world.tracker_update = zpl_time_rel_ms() + WORLD_TRACKER_UPDATE_MS;
+        world.tracker_update = zpl_time_rel_ms() + WORLD_TRACKER_UPDATE_MS;
+    
     ECS_IMPORT(world.ecs, Net);
     ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo");
     

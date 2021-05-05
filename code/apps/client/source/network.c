@@ -26,30 +26,6 @@ int32_t network_destroy() {
 
 }
 
-#if 0
-int32_t client_read_create(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
-    int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("[INFO] An entity %d was created for owner: %d\n", (int)entity_id, (int)owner_id);
-    return 0;
-}
-
-int32_t client_read_remove(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
-    int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("[INFO] An entity %d was removed for owner: %d\n", (int)entity_id, (int)owner_id);
-    return 0;
-}
-
-int32_t client_read_update(librg_world *w, librg_event *e) {
-    // int64_t entity_id = librg_event_entity_get(w, e);
-    size_t actual_length = librg_event_size_get(w, e);
-    char *buffer = librg_event_buffer_get(w, e);
-
-    return 0;
-}
-#endif
-
 int32_t network_client_connect(const char *hostname, uint16_t port) {
     ENetAddress address = {0}; address.port = port;
     enet_address_set_host(&address, hostname);
