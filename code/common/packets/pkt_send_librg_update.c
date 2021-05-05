@@ -16,6 +16,6 @@ int32_t pkt_send_librg_update_handler(pkt_header *header) {
 
     if (uc.item.type != CWP_ITEM_BIN)
         return -1;
-
+    
     return librg_world_read(world_tracker(), 1, uc.item.as.bin.start, uc.item.as.bin.length, NULL);
 }

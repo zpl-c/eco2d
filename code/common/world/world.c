@@ -15,6 +15,7 @@ typedef struct {
     uint16_t block_size;
     uint16_t chunk_size;
     uint16_t world_size;
+    uint64_t tracker_update;
     ecs_world_t *ecs;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
@@ -23,6 +24,8 @@ typedef struct {
 
 
 static world_data world = {0};
+
+#define WORLD_TRACKER_UPDATE_MS 100
 
 int32_t world_gen();
 
@@ -93,6 +96,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     world.seed = seed;
     world_init_minimal(block_size, chunk_size, world_size, reader_proc, writer_proc);
     world.data = zpl_malloc(sizeof(uint8_t)*world.size);
+    world.tracker_update = 0;
     
     if (!world.data) {
         return WORLD_ERROR_OUTOFMEM;
@@ -132,32 +136,38 @@ int32_t world_destroy(void) {
     return WORLD_ERROR_NONE;
 }
 
-int32_t world_update() {
-    ecs_progress(world.ecs, 0);
-
+static void world_tracker_update(void) {
+    if (world.tracker_update > zpl_time_rel_ms()) return;
+    world.tracker_update = zpl_time_rel_ms() + WORLD_TRACKER_UPDATE_MS;
     ECS_IMPORT(world.ecs, Net);
     ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo");
-
+    
     ecs_iter_t it = ecs_query_iter(query);
     static char buffer[16000] = {0};
     static int32_t datalen = 16000;
-
+    
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
-
+        
         for (int i = 0; i < it.count; i++) {
             datalen = 16000;
             int32_t result = librg_world_write(world_tracker(), it.entities[i], buffer, &datalen, NULL);
-
+            
             if (result > 0) {
                 zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
             } else if (result < 0) {
                 zpl_printf("[error] an error happened writing the world %d\n", result);
             }
-
+            
             pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen), 1, p[i].peer);
         }
     }
+}
+
+int32_t world_update() {
+    ecs_progress(world.ecs, 0);
+
+    world_tracker_update();
     return 0;
 }
 
