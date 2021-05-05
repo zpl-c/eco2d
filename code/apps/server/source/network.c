@@ -12,6 +12,8 @@
 #include "packets/packet.h"
 #include "world/world.h"
 
+#include "player.h"
+
 #include "modules/general.h"
 #include "modules/controllers.h"
 #include "modules/net.h"
@@ -150,26 +152,18 @@ void network_server_update(void *data) {
 }
 
 uint64_t network_client_create(ENetPeer *peer) {
-    ECS_IMPORT(world_ecs(), General);
-    ECS_IMPORT(world_ecs(), Controllers);
     ECS_IMPORT(world_ecs(), Net);
-
-    ecs_entity_t e = ecs_new(world_ecs(), 0);
+    ecs_entity_t e = (ecs_entity_t)player_spawn(zpl_bprintf("client_%d", peer->incomingPeerID));
     ecs_add(world_ecs(), e, EcsClient);
-    ecs_set(world_ecs(), e, ClientInfo, {peer});
-    ecs_set(world_ecs(), e, EcsName, {.alloc_value = zpl_bprintf("client_%d", peer->incomingPeerID) });
+    ecs_set(world_ecs(), e, ClientInfo, {(uintptr_t)peer});
 
-    librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, (int64_t)peer);
-    librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
-    // librg_entity_chunk_set(world_tracker(), e, 1);
 
     return (uint64_t)e;
 }
 
 void network_client_destroy(uint64_t ent_id) {
-    librg_entity_untrack(world_tracker(), ent_id);
-    ecs_delete(world_ecs(), ent_id);
+    player_despawn(ent_id);
 }
 
 static int32_t network_msg_send_raw(ENetPeer *peer, void *data, size_t datalen, uint32_t flags) {

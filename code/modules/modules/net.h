@@ -3,7 +3,7 @@
 #include "flecs/flecs_meta.h"
 
 ECS_STRUCT(ClientInfo, {
-    uint16_t peer_id;
+    uintptr_t peer;
 });
 
 typedef struct {

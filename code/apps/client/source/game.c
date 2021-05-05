@@ -11,6 +11,7 @@
 #include "flecs/flecs_os_api_stdcpp.h"
 
 static int8_t is_networked_play;
+static uint64_t sp_player;
 
 static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
@@ -58,6 +59,8 @@ void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chu
             ecs_set_target_fps(world_ecs(), 60);
         }
         
+        sp_player = player_spawn("unnamed");
+        
         pkt_01_welcome table = {.block_size = block_size, .chunk_size = chunk_size, .world_size = world_size};
         pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, NULL);
     }
@@ -72,6 +75,7 @@ void game_shutdown() {
         network_client_disconnect();
         network_destroy();
     } else {
+        player_despawn(sp_player);
         world_destroy();
     }
 }
