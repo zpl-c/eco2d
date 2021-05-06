@@ -26,6 +26,7 @@ int32_t network_destroy() {
 
 }
 
+
 int32_t network_client_connect(const char *hostname, uint16_t port) {
     ENetAddress address = {0}; address.port = port;
     enet_address_set_host(&address, hostname);

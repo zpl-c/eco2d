@@ -1,6 +1,7 @@
 #include "zpl.h"
 #include "camera.h"
 #include "entity_view.h"
+#include "game.h"
 
 static camera main_camera;
 
@@ -12,7 +13,7 @@ void camera_reset(void) {
 void camera_update(void) {
     switch (main_camera.mode) {
         case CAMERA_MODE_FOLLOW: {
-            entity_view *view = entity_view_get(main_camera.ent_id);
+            entity_view *view = entity_view_get(game_world_view_get_active(), main_camera.ent_id);
             if (!view) break;
             
             main_camera.x = view->x;

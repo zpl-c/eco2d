@@ -1,9 +1,11 @@
 #include "game.h"
+#include "zpl.h"
 #include "platform.h"
 #include "world/world.h"
 #include "packet.h"
 #include "signal_handling.h"
 #include "network.h"
+#include "world_view.h"
 #include "entity_view.h"
 #include "camera.h"
 
@@ -12,14 +14,18 @@
 #include "flecs/flecs_systems_civetweb.h"
 #include "flecs/flecs_os_api_stdcpp.h"
 
+#include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"
 
 static int8_t is_networked_play;
-static uint64_t sp_player;
+
+static world_view *world_viewers;
+static world_view *active_viewer;
 
 static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
     uint32_t ok = pkt_header_decode(&header, data, datalen);
+    header.udata = udata;
 
     if (ok && header.ok) {
         return pkt_handlers[header.id].handler(&header) >= 0;
@@ -30,7 +36,7 @@ static WORLD_PKT_READER(pkt_reader) {
 }
 
 static WORLD_PKT_WRITER(sp_pkt_writer) {
-    return world_read(pkt->data, pkt->datalen, NULL);
+    return world_read(pkt->data, pkt->datalen, 0);
 }
 
 static WORLD_PKT_WRITER(mp_pkt_writer) {
@@ -42,33 +48,57 @@ static WORLD_PKT_WRITER(mp_pkt_writer) {
     }
 }
 
-void game_init(int8_t play_mode, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
+void world_viewers_init(uint32_t num_viewers) {
+    zpl_buffer_init(world_viewers, zpl_heap(), num_viewers);
+    
+    for (uint32_t i = 0; i < num_viewers; i++) {
+        world_viewers[i] = world_view_create();
+    }
+}
+
+void world_viewers_destroy() {
+    for (uint32_t i = 0; i < zpl_buffer_count(world_viewers); i++) {
+        world_view_destroy(&world_viewers[i]);
+    }
+    zpl_buffer_free(world_viewers);
+}
+
+world_view *game_world_view_get(uint16_t idx) {
+    return &world_viewers[idx];
+}
+
+world_view *game_world_view_get_active(void) {
+    return active_viewer;
+}
+
+void flecs_dash_init() {
+    ECS_IMPORT(world_ecs(), FlecsDash);
+    ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
+    
+    ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
+    ecs_set_target_fps(world_ecs(), 60);
+}
+
+void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
     is_networked_play = play_mode;
     platform_init();
-    entity_view_init();
+    world_viewers_init(num_viewers);
+    active_viewer = &world_viewers[0];
     camera_reset();
 
     if (is_networked_play) {
-        world_init_minimal(0, 0, 0, pkt_reader, mp_pkt_writer);
+        world_setup_pkt_handlers(pkt_reader, mp_pkt_writer);
         network_init();
         network_client_connect("127.0.0.1", 27000);
     } else {
         stdcpp_set_os_api();
-        world_init(seed, block_size, chunk_size, world_size, pkt_reader, sp_pkt_writer);
-
-        /* server dashboard */
-        {
-            ECS_IMPORT(world_ecs(), FlecsDash);
-            ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
-
-            ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
-            ecs_set_target_fps(world_ecs(), 60);
-        }
-
-        sp_player = player_spawn("unnamed");
-
-        pkt_01_welcome table = {.ent_id = 0, .block_size = block_size, .chunk_size = chunk_size, .world_size = world_size};
-        pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, NULL);
+        world_setup_pkt_handlers(pkt_reader, sp_pkt_writer);
+        world_init(seed, block_size, chunk_size, world_size);
+        flecs_dash_init();
+    }
+    
+    for (uint32_t i = 0; i < num_viewers; i++) {
+        pkt_00_init_send(i);
     }
 }
 
@@ -77,13 +107,12 @@ int8_t game_is_networked() {
 }
 
 void game_shutdown() {
-    entity_view_free();
+    world_viewers_destroy();
 
     if (is_networked_play) {
         network_client_disconnect();
         network_destroy();
     } else {
-        player_despawn(sp_player);
         world_destroy();
     }
 }

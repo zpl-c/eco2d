@@ -39,13 +39,14 @@ inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
     return pc->current - pc->start; // NOTE(zaklaus): length
 }
 
-inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, size_t pkt_size, int8_t is_reliable) {
+inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, uint16_t view_id, size_t pkt_size, int8_t is_reliable) {
     zpl_zero_item(pkt);
     static uint8_t pkt_data[PKT_BUFSIZ] = {0};
     zpl_memcopy(pkt_data, pkt_buffer, pkt_size);
     
     pkt->data = pkt_buffer;
-    pkt->datalen = pkt_header_encode(id, pkt_data, pkt_size);
+    pkt->view_id = view_id;
+    pkt->datalen = pkt_header_encode(id, view_id, pkt_data, pkt_size);
     pkt->is_reliable = is_reliable;
     pkt->id = id;
     return 0;
@@ -53,9 +54,9 @@ inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, size_t pkt_size, i
 
 extern int32_t world_write(pkt_header *pkt, void *udata);
 
-inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_reliable, void *udata) {
+inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_reliable, uint16_t view_id, void *udata) {
     pkt_header pkt;
-    PKT_IF(pkt_prep_msg(&pkt, id, pkt_size, is_reliable));
+    PKT_IF(pkt_prep_msg(&pkt, id, view_id, pkt_size, is_reliable));
     return world_write(&pkt, udata);
 }
 

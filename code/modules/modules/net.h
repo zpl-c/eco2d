@@ -4,6 +4,7 @@
 
 ECS_STRUCT(ClientInfo, {
     uintptr_t peer;
+    uint16_t view_id;                                             
 });
 
 typedef struct {

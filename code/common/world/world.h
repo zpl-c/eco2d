@@ -17,8 +17,8 @@ typedef WORLD_PKT_READER(world_pkt_reader_proc);
 #define WORLD_PKT_WRITER(name) int32_t name(pkt_header *pkt, void *udata)
 typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 
-int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t world_size, world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc);
-int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size, world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc);
+void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc);
+int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size);
 int32_t world_destroy(void);
 int32_t world_update(void);
 int32_t world_read(void* data, uint32_t datalen, void *udata);

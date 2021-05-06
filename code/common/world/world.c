@@ -29,32 +29,9 @@ static world_data world = {0};
 
 int32_t world_gen();
 
-int32_t tracker_read_create(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
-    int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("[INFO] An entity %d was created for owner: %d\n", (int)entity_id, (int)owner_id);
-    return 0;
-}
-
-int32_t tracker_read_remove(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
-    int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("[INFO] An entity %d was removed for owner: %d\n", (int)entity_id, (int)owner_id);
-    return 0;
-}
-
-int32_t tracker_read_update(librg_world *w, librg_event *e) {
-    // int64_t entity_id = librg_event_entity_get(w, e);
-    size_t actual_length = librg_event_size_get(w, e);
-    char *buffer = librg_event_buffer_get(w, e);
-    
-    return 0;
-}
-
 int32_t tracker_write_create(librg_world *w, librg_event *e) {
     int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("let's add prtint here\n");
     return 0;
 }
 
@@ -74,11 +51,19 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     return 0;
 }
 
-int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t world_size, world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
+void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
+    world.reader_proc = reader_proc;
+    world.writer_proc = writer_proc;
+}
+
+int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
+    if (world.data) {
+        return 0;
+    }
+    
+    world.seed = seed;
     world.chunk_size = chunk_size;
     world.world_size = world_size;
-    if (reader_proc) world.reader_proc = reader_proc;
-    if (writer_proc) world.writer_proc = writer_proc;
     
     world.width = chunk_size * world_size;
     world.height = chunk_size * world_size;
@@ -88,7 +73,7 @@ int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t wo
     if (world.tracker == NULL) {
         world.tracker = librg_world_create();
     }
-
+    
     if (world.tracker == NULL) {
         zpl_printf("[ERROR] An error occurred while trying to create a server world.\n");
         return WORLD_ERROR_TRACKER_FAILED;
@@ -99,24 +84,10 @@ int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t wo
     librg_config_chunkamount_set(world.tracker, world_size, world_size, 1);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, 0);
     
-    librg_event_set(world.tracker, LIBRG_READ_CREATE, tracker_read_create);
-    librg_event_set(world.tracker, LIBRG_READ_REMOVE, tracker_read_remove);
-    librg_event_set(world.tracker, LIBRG_READ_UPDATE, tracker_read_update);
-    
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
     librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
     
-    return 0;
-}
-
-int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size, world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
-    if (world.data) {
-        return 0;
-    }
-    
-    world.seed = seed;
-    world_init_minimal(block_size, chunk_size, world_size, reader_proc, writer_proc);
     world.data = zpl_malloc(sizeof(uint8_t)*world.size);
     world.tracker_update = 0;
     
@@ -129,11 +100,11 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     ECS_IMPORT(world.ecs, General);
 
-    for (int i = 0; i < chunk_size * chunk_size; ++i) {
+    for (int i = 0; i < world_size * world_size; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
         ecs_set(world.ecs, e, Chunk, {
-            .x = i % chunk_size,
-            .y = i / chunk_size,
+            .x = i % world_size,
+            .y = i / world_size,
         });
 
         librg_entity_track(world.tracker, e);
@@ -162,15 +133,14 @@ static void world_tracker_update(void) {
     ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo");
     
     ecs_iter_t it = ecs_query_iter(query);
-    static char buffer[16000] = {0};
-    static int32_t datalen = 16000;
+    char buffer[8096] = {0};
     
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
         
         for (int i = 0; i < it.count; i++) {
-            datalen = 16000;
-            int32_t result = librg_world_write(world_tracker(), it.entities[i], buffer, &datalen, NULL);
+            size_t datalen = 8096;
+            int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
             
             if (result > 0) {
                 zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
@@ -178,7 +148,7 @@ static void world_tracker_update(void) {
                 zpl_printf("[error] an error happened writing the world %d\n", result);
             }
             
-            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen), 1, p[i].peer);
+            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen), 1, p[i].view_id, p[i].peer);
         }
     }
 }

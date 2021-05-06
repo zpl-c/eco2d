@@ -40,7 +40,7 @@ void platform_render() {
     ClearBackground(BLACK);
     BeginMode2D(render_camera);
     DrawRectangleV((Vector2){0,0}, (Vector2){40,40}, RED);
-    entity_view_map(DEBUG_draw_entities);
+    entity_view_map(&game_world_view_get_active()->entities, DEBUG_draw_entities);
     EndMode2D();
     display_conn_status();
     EndDrawing();

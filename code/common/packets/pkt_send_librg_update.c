@@ -1,6 +1,7 @@
 #include "packet_utils.h"
 #include "packets/pkt_send_librg_update.h"
 #include "world/world.h"
+#include "game.h"
 
 size_t pkt_send_librg_update_encode(void *data, int32_t data_length) {
     cw_pack_context pc = {0};
@@ -17,7 +18,9 @@ int32_t pkt_send_librg_update_handler(pkt_header *header) {
     if (uc.item.type != CWP_ITEM_BIN)
         return -1;
     
-    int32_t state = librg_world_read(world_tracker(), 1, uc.item.as.bin.start, uc.item.as.bin.length, NULL);
+    world_view *view = game_world_view_get(header->view_id);
+    
+    int32_t state = librg_world_read(view->tracker, header->view_id, uc.item.as.bin.start, uc.item.as.bin.length, NULL);
     if (state < 0) zpl_printf("[ERROR] world read error: %d\n", state);
     
     return state;
