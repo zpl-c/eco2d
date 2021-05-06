@@ -54,6 +54,7 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
 int32_t tracker_write_create(librg_world *w, librg_event *e) {
     int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
+    zpl_printf("let's add prtint here\n");
     return 0;
 }
 
@@ -83,14 +84,11 @@ int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t wo
     world.height = chunk_size * world_size;
     world.block_size = block_size;
     world.size = world.width * world.height;
-       
-    if (world.tracker != NULL) {
-        librg_world_destroy(world.tracker);
-        world.tracker = NULL;
+    
+    if (world.tracker == NULL) {
+        world.tracker = librg_world_create();
     }
-    
-    world.tracker = librg_world_create();
-    
+
     if (world.tracker == NULL) {
         zpl_printf("[ERROR] An error occurred while trying to create a server world.\n");
         return WORLD_ERROR_TRACKER_FAILED;
@@ -99,7 +97,7 @@ int32_t world_init_minimal(uint16_t block_size, uint16_t chunk_size, uint16_t wo
     /* config our world grid */
     librg_config_chunksize_set(world.tracker, block_size * chunk_size, block_size * chunk_size, 1);
     librg_config_chunkamount_set(world.tracker, world_size, world_size, 1);
-    librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID);
+    librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, 0);
     
     librg_event_set(world.tracker, LIBRG_READ_CREATE, tracker_read_create);
     librg_event_set(world.tracker, LIBRG_READ_REMOVE, tracker_read_remove);
