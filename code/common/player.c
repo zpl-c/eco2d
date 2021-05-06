@@ -19,11 +19,14 @@ uint64_t player_spawn(char *name) {
     ecs_set(world_ecs(), e, ClientInfo, {0});
     ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
     ecs_set(world_ecs(), e, Input, {0});
+    Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+    pos->x = rand()%100;
+    pos->y = rand()%100;
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
-    librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_chunkpos(world_tracker(), 0, 0, 0));
+    librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), pos->x, pos->y, 0));
 
     return (uint64_t)e;
 }

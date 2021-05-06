@@ -23,7 +23,7 @@ int32_t tracker_read_remove(librg_world *w, librg_event *e) {
 }
 
 int32_t tracker_read_update(librg_world *w, librg_event *e) {
-    // int64_t entity_id = librg_event_entity_get(w, e);
+    int64_t entity_id = librg_event_entity_get(w, e);
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     

@@ -77,6 +77,22 @@ inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_relia
 #define PKT_FIELD(k, t, a) .type = k, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
 #endif
 
+#ifndef PKT_UINT
+#define PKT_UINT(t, a) .type = CWP_ITEM_POSITIVE_INTEGER, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#endif
+
+#ifndef PKT_SINT
+#define PKT_SINT(t, a) .type = CWP_ITEM_NEGATIVE_INTEGER, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#endif
+
+#ifndef PKT_REAL
+#define PKT_REAL(t, a) .type = CWP_ITEM_DOUBLE, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#endif
+
+#ifndef PKT_HALF
+#define PKT_HALF(t, a) .type = CWP_ITEM_FLOAT, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#endif
+
 #ifndef PKT_ARRAY
 #define PKT_ARRAY(t, a) .type = CWP_ITEM_BIN, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a[0])
 #endif

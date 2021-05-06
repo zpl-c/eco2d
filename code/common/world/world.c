@@ -3,6 +3,7 @@
 #include "modules/general.h"
 #include "modules/net.h"
 #include "world/world.h"
+#include "entity_view.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -29,24 +30,38 @@ static world_data world = {0};
 
 int32_t world_gen();
 
+entity_view world_build_entity_view(int64_t e) {
+    ECS_IMPORT(world_ecs(), General);
+    entity_view view = {0};
+    
+    Position *pos = ecs_get(world_ecs(), e, Position);
+    view.x = pos->x;
+    view.y = pos->y;
+    
+    return view;
+}
+
 int32_t tracker_write_create(librg_world *w, librg_event *e) {
     int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
+    size_t actual_length = librg_event_size_get(w, e);
+    char *buffer = librg_event_buffer_get(w, e);
+    
+    entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
+    
     return 0;
 }
 
 int32_t tracker_write_remove(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
-    int64_t entity_id = librg_event_entity_get(w, e);
     return 0;
 }
 
 int32_t tracker_write_update(librg_world *w, librg_event *e) {
-    // int64_t entity_id = librg_event_entity_get(w, e);
-#if 0
+    int64_t entity_id = librg_event_entity_get(w, e);
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
-#endif
+    
+    entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
     
     return 0;
 }

@@ -3,6 +3,11 @@
 #include "flecs/flecs_meta.h"
 
 ECS_STRUCT(Vector2D, {
+    double x;
+    double y;
+});
+
+ECS_STRUCT(Chunk, {
     int16_t x;
     int16_t y;
 });
@@ -11,7 +16,6 @@ ECS_STRUCT(Drawable, {
     uint16_t id;
 });
 
-ECS_ALIAS(Vector2D, Chunk);
 ECS_ALIAS(Vector2D, Position);
 
 typedef struct {

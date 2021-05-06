@@ -66,6 +66,9 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
         if (uc->item.type != field->type) return -1; // unexpected field
         if (blob + field->offset + field->size > blob + blob_size) return -1; // field does not fit
         switch (field->type) {
+            case CWP_ITEM_NEGATIVE_INTEGER:
+            case CWP_ITEM_DOUBLE:
+            case CWP_ITEM_FLOAT:
             case CWP_ITEM_POSITIVE_INTEGER: {
                 zpl_memcopy(blob + field->offset, (uint8_t*)&uc->item.as.u64, field->size);
             }break;
@@ -100,6 +103,21 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
                 uint64_t num;
                 zpl_memcopy(&num, blob + field->offset, field->size);
                 cw_pack_unsigned(pc, num);
+            }break;
+            case CWP_ITEM_NEGATIVE_INTEGER: {
+                int64_t num;
+                zpl_memcopy(&num, blob + field->offset, field->size);
+                cw_pack_signed(pc, num);
+            }break;
+            case CWP_ITEM_DOUBLE: {
+                double num;
+                zpl_memcopy(&num, blob + field->offset, field->size);
+                cw_pack_double(pc, num);
+            }break;
+            case CWP_ITEM_FLOAT: {
+                float num;
+                zpl_memcopy(&num, blob + field->offset, field->size);
+                cw_pack_float(pc, num);
             }break;
             default: {
                 zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
