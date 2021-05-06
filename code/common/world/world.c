@@ -102,8 +102,8 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     }
     
     /* config our world grid */
-    librg_config_chunksize_set(world.tracker, block_size * chunk_size, block_size * chunk_size, 1);
-    librg_config_chunkamount_set(world.tracker, world_size, world_size, 1);
+    librg_config_chunksize_set(world.tracker, block_size * chunk_size, block_size * chunk_size, 0);
+    librg_config_chunkamount_set(world.tracker, world_size, world_size, 0);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, 0);
     
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
@@ -124,13 +124,13 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
 
     for (int i = 0; i < world_size * world_size; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
-        ecs_set(world.ecs, e, Chunk, {
-            .x = i % world_size,
-            .y = i / world_size,
-        });
-
+        Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
+        chunk->x = i % world_size - world_size/2;
+        chunk->y = i / world_size - world_size/2;
+        
+        librg_chunk chid = librg_chunk_from_chunkpos(world.tracker, chunk->x, chunk->y, 0);
         librg_entity_track(world.tracker, e);
-        librg_entity_chunk_set(world.tracker, e, i);
+        librg_entity_chunk_set(world.tracker, e, chid);
     }
 
     zpl_printf("[INFO] Created a new server world\n");

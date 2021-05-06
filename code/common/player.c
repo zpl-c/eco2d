@@ -25,12 +25,16 @@ uint64_t player_spawn(char *name) {
     ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
     ecs_set(world_ecs(), e, Input, {0});
     Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
-    pos->x = rand()%100;
-    pos->y = rand()%100;
+    uint16_t world_dim = world_block_size() * world_chunk_size() * world_world_size();
+    uint16_t half_world_dim = world_dim / 2;
+    pos->x=3*32*16;
+    pos->y=0;
+    /*pos->x = rand()%world_dim-half_world_dim;
+    pos->y = rand()%world_dim-half_world_dim;*/
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);
-    librg_entity_radius_set(world_tracker(), e, 2); /* 2 chunk radius visibility */
+    librg_entity_radius_set(world_tracker(), e, 4);
     librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), pos->x, pos->y, 0));
 
     return (uint64_t)e;

@@ -5,8 +5,8 @@
 #include "utils/options.h"
 
 #define DEFAULT_WORLD_SEED 302097
-#define DEFAULT_BLOCK_SIZE 64 /* amount of units within a block (single axis) */
-#define DEFAULT_CHUNK_SIZE 3 /* amount of blocks within a chunk (single axis) */
+#define DEFAULT_BLOCK_SIZE 16 /* amount of units within a block (single axis) */
+#define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
 #define DEFAULT_WORLD_SIZE 8 /* amount of chunks within a world (single axis) */
 
 int main(int argc, char** argv)

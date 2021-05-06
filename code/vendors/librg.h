@@ -19977,6 +19977,11 @@ librg_chunk librg_chunk_from_chunkpos(librg_world *world, int16_t chunk_x, int16
     int16_t chx = librg_util_chunkoffset_line(chunk_x, wld->chunkoffset.x, wld->worldsize.x);
     int16_t chy = librg_util_chunkoffset_line(chunk_y, wld->chunkoffset.y, wld->worldsize.y);
     int16_t chz = librg_util_chunkoffset_line(chunk_z, wld->chunkoffset.z, wld->worldsize.z);
+#define kk(aax,aay) (aax > -aay && aax < aay)
+#define ll(aax,aay) (aax <= -aay || aax >= aay)
+    zpl_printf("%d %d\n", chz, wld->worldsize.z);
+        if (ll(chx, wld->worldsize.x) || ll(chy, wld->worldsize.y) /*|| ll(chz, wld->worldsize.z)*/)
+        return LIBRG_CHUNK_INVALID;
 
     librg_chunk id = (chz * wld->worldsize.y * wld->worldsize.z) + (chy * wld->worldsize.y) + (chx);
 
@@ -19994,7 +19999,8 @@ int8_t librg_chunk_to_chunkpos(librg_world *world, librg_chunk id, int16_t *chun
     if (id < 0 || id > (wld->worldsize.x * wld->worldsize.y * wld->worldsize.z)) {
         return LIBRG_CHUNK_INVALID;
     }
-
+    
+    // TODO(zaklaus): fix ,calc here ok?
     int16_t z = (int16_t)(id / (wld->worldsize.z * wld->worldsize.y));
     int16_t r1 = (int16_t)(id % (wld->worldsize.z * wld->worldsize.y));
     int16_t y = r1 / wld->worldsize.y;
@@ -20463,13 +20469,15 @@ int32_t librg_world_fetch_ownerarray(librg_world *world, const int64_t *owner_id
 // !
 // =======================================================================//
 
-static LIBRG_ALWAYS_INLINE void librg_util_chunkrange(librg_world *w, librg_table_i64 *ch, int cx, int cy, int cz, int8_t radius) {
+static LIBRG_ALWAYS_INLINE void librg_util_chunkrange(librg_world_t *w, librg_table_i64 *ch, int cx, int cy, int cz, int8_t radius) {
     int radius2 = radius * radius;
-
+    
+    zpl_printf("========================\n");
     for (int z=-radius; z<=radius; z++) {
         for (int y=-radius; y<=radius; y++) {
             for (int x=-radius; x<=radius; x++) {
-                if(x*x+y*y+z*z <= radius2) {
+                if (kk(x, w->worldsize.x) && kk(y, w->worldsize.y) && kk(z, w->worldsize.z) )
+                    if(x*x+y*y+z*z <= radius2) {
                     librg_chunk id = librg_chunk_from_chunkpos(w, cx+x, cy+y, cz+z);
                     if (id != LIBRG_CHUNK_INVALID) librg_table_i64_set(ch, id, 1);
                 }
