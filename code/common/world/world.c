@@ -34,9 +34,20 @@ entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), General);
     entity_view view = {0};
     
-    Position *pos = ecs_get(world_ecs(), e, Position);
-    view.x = pos->x;
-    view.y = pos->y;
+    // TODO(zaklaus): branch out based on ECS tags
+    const Position *pos = ecs_get(world_ecs(), e, Position);
+    if (pos) {
+        view.kind = EKIND_PLAYER;
+        view.x = pos->x;
+        view.y = pos->y;
+    }
+    
+    const Chunk *chpos = ecs_get(world_ecs(), e, Chunk);
+    if (chpos) {
+        view.kind = EKIND_CHUNK;
+        view.x = chpos->x;
+        view.y = chpos->y;
+    }
     
     return view;
 }
@@ -47,9 +58,7 @@ int32_t tracker_write_create(librg_world *w, librg_event *e) {
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     
-    entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
-    
-    return 0;
+    return entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
 }
 
 int32_t tracker_write_remove(librg_world *w, librg_event *e) {
@@ -61,9 +70,7 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     
-    entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
-    
-    return 0;
+    return entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
 }
 
 void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
@@ -140,6 +147,8 @@ int32_t world_destroy(void) {
     return WORLD_ERROR_NONE;
 }
 
+#define WORLD_LIBRG_BUFSIZ 8192
+
 static void world_tracker_update(void) {
     if (world.tracker_update > zpl_time_rel_ms()) return;
         world.tracker_update = zpl_time_rel_ms() + WORLD_TRACKER_UPDATE_MS;
@@ -148,13 +157,13 @@ static void world_tracker_update(void) {
     ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo");
     
     ecs_iter_t it = ecs_query_iter(query);
-    char buffer[8096] = {0};
+    static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
     
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
         
         for (int i = 0; i < it.count; i++) {
-            size_t datalen = 8096;
+            size_t datalen = WORLD_LIBRG_BUFSIZ;
             int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
             
             if (result > 0) {

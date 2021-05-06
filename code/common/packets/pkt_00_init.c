@@ -31,7 +31,7 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     PKT_IF(pkt_msg_decode(header, pkt_00_init_desc, pkt_pack_desc_args(pkt_00_init_desc), PKT_STRUCT_PTR(&table)));
     
     uint64_t peer_id = (uint64_t)header->udata;
-    uint64_t ent_id = player_spawn(zpl_bprintf("client_%d", peer_id));
+    uint64_t ent_id = player_spawn(NULL);
     ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = ent_id, .view_id = header->view_id });
     pkt_01_welcome_send(peer_id, header->view_id, ent_id, world_block_size(), world_chunk_size(), world_world_size());
     return 0;

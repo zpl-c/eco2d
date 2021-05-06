@@ -6,7 +6,6 @@ add_library(client-common STATIC
     source/game.c
     source/main.c
 	source/camera.c
-	source/entity_view.c
 	source/world_view.c
   
     source/utils/options.c

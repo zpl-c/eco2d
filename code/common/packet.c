@@ -66,9 +66,15 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
         if (uc->item.type != field->type) return -1; // unexpected field
         if (blob + field->offset + field->size > blob + blob_size) return -1; // field does not fit
         switch (field->type) {
-            case CWP_ITEM_NEGATIVE_INTEGER:
-            case CWP_ITEM_DOUBLE:
-            case CWP_ITEM_FLOAT:
+            case CWP_ITEM_DOUBLE: {
+                zpl_memcopy(blob + field->offset, (uint8_t*)&uc->item.as.long_real, field->size);
+            }break;
+            case CWP_ITEM_FLOAT: {
+                zpl_memcopy(blob + field->offset, (uint8_t*)&uc->item.as.real, field->size);
+            } break;
+            case CWP_ITEM_NEGATIVE_INTEGER: {
+                zpl_memcopy(blob + field->offset, (uint8_t*)&uc->item.as.i64, field->size);
+            }break;
             case CWP_ITEM_POSITIVE_INTEGER: {
                 zpl_memcopy(blob + field->offset, (uint8_t*)&uc->item.as.u64, field->size);
             }break;

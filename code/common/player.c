@@ -7,6 +7,7 @@
 #include "modules/general.h"
 #include "modules/controllers.h"
 #include "modules/net.h"
+#include "zpl.h"
 
 uint64_t player_spawn(char *name) {
     ECS_IMPORT(world_ecs(), General);
@@ -14,6 +15,10 @@ uint64_t player_spawn(char *name) {
     ECS_IMPORT(world_ecs(), Net);
 
     ecs_entity_t e = ecs_new(world_ecs(), 0);
+    
+    if (!name) {
+        name = zpl_bprintf("player_%d", e);
+    }
 
     ecs_add(world_ecs(), e, EcsClient);
     ecs_set(world_ecs(), e, ClientInfo, {0});

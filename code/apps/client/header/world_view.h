@@ -7,6 +7,13 @@ typedef struct {
     uint64_t owner_id;
     entity_view_tbl entities;
     librg_world *tracker;
+    
+    uint32_t size;
+    uint32_t width;
+    uint32_t height;
+    uint16_t block_size;
+    uint16_t chunk_size;
+    uint16_t world_size;
 } world_view;
 
 world_view world_view_create(void);

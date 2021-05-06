@@ -39,7 +39,6 @@ void platform_render() {
     BeginDrawing();
     ClearBackground(BLACK);
     BeginMode2D(render_camera);
-    DrawRectangleV((Vector2){0,0}, (Vector2){40,40}, RED);
     entity_view_map(&game_world_view_get_active()->entities, DEBUG_draw_entities);
     EndMode2D();
     display_conn_status();
@@ -59,5 +58,13 @@ void display_conn_status() {
 }
 
 void DEBUG_draw_entities(uint64_t key, entity_view data) {
-    DrawCircle(data.x, data.y, 15.0f, RAYWHITE);
+    world_view *view = game_world_view_get_active();
+    
+    switch (data.kind) {
+        case EKIND_PLAYER: {
+            DrawCircle(data.x-8.0f, data.y-8.0f, 16.0f, RED);
+        }break;
+        
+        default:break;
+    }
 }
