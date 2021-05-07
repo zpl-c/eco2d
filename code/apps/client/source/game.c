@@ -17,7 +17,7 @@
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"
 
-static int8_t is_networked_play;
+static int8_t is_viewer_only;
 
 static world_view *world_viewers;
 static world_view *active_viewer;
@@ -80,13 +80,13 @@ void flecs_dash_init() {
 }
 
 void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
-    is_networked_play = play_mode;
+    is_viewer_only = play_mode;
     platform_init();
     world_viewers_init(num_viewers);
     active_viewer = &world_viewers[0];
     camera_reset();
 
-    if (is_networked_play) {
+    if (is_viewer_only) {
         world_setup_pkt_handlers(pkt_reader, mp_pkt_writer);
         network_init();
         network_client_connect("127.0.0.1", 27000);
@@ -103,13 +103,13 @@ void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t bl
 }
 
 int8_t game_is_networked() {
-    return is_networked_play;
+    return is_viewer_only;
 }
 
 void game_shutdown() {
     world_viewers_destroy();
 
-    if (is_networked_play) {
+    if (is_viewer_only) {
         network_client_disconnect();
         network_destroy();
     } else {
@@ -126,7 +126,7 @@ void game_input() {
 }
 
 void game_update() {
-    if (is_networked_play) network_client_tick();
+    if (is_viewer_only) network_client_tick();
     else world_update();
 }
 

@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     zpl_opts_init(&opts, zpl_heap(), argv[0]);
     
     zpl_opts_add(&opts, "?", "help", "the HELP section", ZPL_OPTS_FLAG);
-    zpl_opts_add(&opts, "s", "single-player", "play single-player game.", ZPL_OPTS_FLAG);
+    zpl_opts_add(&opts, "v", "viewer-only", "run viewer-only client", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "c", "viewer-count", "number of viewers (detachable clients)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "seed", "world seed", ZPL_OPTS_INT);
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
         return -1;
     }
     
-    int8_t is_networked_play = !zpl_opts_has_arg(&opts, "single-player");
+    int8_t is_viewer_only = zpl_opts_has_arg(&opts, "viewer-only");
     int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
     uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
     uint16_t block_size = zpl_opts_integer(&opts, "block-size", DEFAULT_BLOCK_SIZE);
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     }
     
     sighandler_register();
-    game_init(is_networked_play, num_viewers, seed, block_size, chunk_size, world_size);
+    game_init(is_viewer_only, num_viewers, seed, block_size, chunk_size, world_size);
         
     while (game_is_running()) {
         game_input();
