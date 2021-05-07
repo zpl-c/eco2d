@@ -4,15 +4,19 @@
 #include "modules/physics.h"
 #include "zpl.h"
 
+#define PLR_MOVE_SPEED 50.0
+#define PLR_MOVE_SPEED_MULT 4.0
+
 void MovementImpulse(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);
     Velocity *v = ecs_column(it, Velocity, 2);
     
     for (int i = 0; i < it->count; i++) {
-        if (zpl_abs(v[i].x) < 1000.0f)
-            v[i].x = in[i].x*1000.0;
-        if (zpl_abs(v[i].x) < 1000.0f)
-            v[i].y = in[i].y*1000.0;
+        double speed = PLR_MOVE_SPEED * (in[i].sprint ? PLR_MOVE_SPEED_MULT : 1.0);
+        if (zpl_abs(v[i].x) < speed)
+            v[i].x = in[i].x*speed;
+        if (zpl_abs(v[i].y) < speed)
+            v[i].y = in[i].y*speed;
     }
 }
 

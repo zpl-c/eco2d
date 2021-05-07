@@ -19979,7 +19979,8 @@ librg_chunk librg_chunk_from_chunkpos(librg_world *world, int16_t chunk_x, int16
     int16_t chz = librg_util_chunkoffset_line(chunk_z, wld->chunkoffset.z, wld->worldsize.z);
 #define kk(aax,aay) (aax > -aay && aax < aay)
 #define ll(aax,aay) (aax <= -aay || aax >= aay)
-        if (ll(chx, wld->worldsize.x) || ll(chy, wld->worldsize.y) /*|| ll(chz, wld->worldsize.z)*/)
+
+    if (ll(chx, wld->worldsize.x) || ll(chy, wld->worldsize.y) /*|| ll(chz, wld->worldsize.z)*/)
         return LIBRG_CHUNK_INVALID;
 
     librg_chunk id = (chz * wld->worldsize.y * wld->worldsize.z) + (chy * wld->worldsize.y) + (chx);

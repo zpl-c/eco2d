@@ -6,6 +6,7 @@ ECS_STRUCT(Input, {
     double x;
     double y;
     uint8_t use;
+    uint8_t sprint;
 });
 
 typedef struct {

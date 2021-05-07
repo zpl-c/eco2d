@@ -25,7 +25,7 @@ typedef struct {
 
 static world_data world = {0};
 
-#define WORLD_TRACKER_UPDATE_MS 100
+#define WORLD_TRACKER_UPDATE_MS 10
 
 int32_t world_gen();
 

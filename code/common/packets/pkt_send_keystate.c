@@ -7,14 +7,16 @@ pkt_desc pkt_send_keystate_desc[] = {
     { PKT_REAL(pkt_send_keystate, x) },
     { PKT_REAL(pkt_send_keystate, y) },
     { PKT_UINT(pkt_send_keystate, use) },
+    { PKT_UINT(pkt_send_keystate, sprint) },
     { PKT_END },
 };
 
 size_t pkt_send_keystate_send(uint16_t view_id,
                               double x,
                               double y,
-                              uint8_t use) {
-    pkt_send_keystate table = { .x = x, .y = y, .use = use };
+                              uint8_t use,
+                              uint8_t sprint) {
+    pkt_send_keystate table = { .x = x, .y = y, .use = use, .sprint = sprint };
     return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_send_keystate_encode(&table), 1, view_id, NULL);
 }
 
@@ -37,6 +39,7 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
         i->x = table.x;
         i->y = table.y;
         i->use = table.use;
+        i->sprint = table.sprint;
     }
 
     return 0;

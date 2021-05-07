@@ -53,7 +53,7 @@ void world_viewers_init(uint32_t num_viewers) {
     zpl_buffer_init(world_viewers, zpl_heap(), num_viewers);
     
     for (uint32_t i = 0; i < num_viewers; i++) {
-        world_viewers[i] = world_view_create(i);
+        zpl_buffer_append(world_viewers, world_view_create(i));
     }
 }
 
@@ -72,6 +72,10 @@ world_view *game_world_view_get_active(void) {
     return active_viewer;
 }
 
+void game_world_view_cycle_active(uint8_t dir) {
+    uint16_t idx = (uint16_t)(active_viewer - world_viewers);
+    game_world_view_set_active_by_idx((idx+dir)%zpl_buffer_count(world_viewers));
+}
 void game_world_view_set_active_by_idx(uint16_t idx) {
     ZPL_ASSERT(idx >= 0 && idx < zpl_buffer_count(world_viewers));
     game_world_view_set_active(&world_viewers[idx]);
@@ -146,6 +150,6 @@ void game_render() {
     platform_render();
 }
 
-void game_action_send_keystate(double x, double y, uint8_t use) {
-    pkt_send_keystate_send(active_viewer->view_id, x, y, use);
+void game_action_send_keystate(double x, double y, uint8_t use, uint8_t sprint) {
+    pkt_send_keystate_send(active_viewer->view_id, x, y, use, sprint);
 }

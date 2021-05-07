@@ -28,6 +28,7 @@ uint64_t player_spawn(char *name) {
     ecs_set(world_ecs(), e, Input, {0});
     ecs_set(world_ecs(), e, Velocity, {0});
     ecs_add(world_ecs(), e, Walking);
+    ecs_add(world_ecs(), e, Player);
     Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
     uint16_t world_dim = world_block_size() * world_chunk_size() * world_world_size();
     uint16_t half_world_dim = world_dim / 2;
