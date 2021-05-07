@@ -32,10 +32,8 @@ uint64_t player_spawn(char *name) {
     Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
     uint16_t world_dim = world_block_size() * world_chunk_size() * world_world_size();
     uint16_t half_world_dim = world_dim / 2;
-    pos->x=3*32*16;
-    pos->y=0;
-    /*pos->x = rand()%world_dim-half_world_dim;
-    pos->y = rand()%world_dim-half_world_dim;*/
+    pos->x=rand() % world_dim - half_world_dim;
+    pos->y=rand() % world_dim - half_world_dim;
 
     librg_entity_track(world_tracker(), e);
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);

@@ -3,7 +3,7 @@
 #include "entity_view.h"
 #include "game.h"
 
-#define CAMERA_LERP_FACTOR 0.06
+#define CAMERA_LERP_FACTOR 0.13
 
 static camera main_camera;
 
