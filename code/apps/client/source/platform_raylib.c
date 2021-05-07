@@ -1,5 +1,6 @@
 #include "platform.h"
 #include "raylib.h"
+#include "raymath.h"
 #include "network.h"
 #include "game.h"
 #include "entity_view.h"
@@ -73,6 +74,16 @@ void platform_input() {
         
         use = IsKeyPressed(KEY_SPACE);
         sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+        
+        // NOTE(zaklaus): NEW! mouse movement
+        if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+            Vector2 mouse_pos = GetMousePosition();
+            mouse_pos.x /= screenWidth;
+            mouse_pos.y /= screenHeight;
+            x = mouse_pos.x-0.5;
+            y = mouse_pos.y-0.5;
+        }
+        
         
         game_action_send_keystate(x, y, use, sprint);
     }
