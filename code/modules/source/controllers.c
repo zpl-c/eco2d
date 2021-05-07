@@ -4,16 +4,15 @@
 #include "modules/physics.h"
 #include "zpl.h"
 
-// TODO(zaklaus): move to physics
-#define CTRL_DRAG_FACTOR 0.20
-
 void MovementImpulse(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);
     Velocity *v = ecs_column(it, Velocity, 2);
     
     for (int i = 0; i < it->count; i++) {
-        v[i].x = zpl_lerp(v[i].x, in[i].x*1000, CTRL_DRAG_FACTOR);
-        v[i].y = zpl_lerp(v[i].y, in[i].y*1000, CTRL_DRAG_FACTOR);
+        if (zpl_abs(v[i].x) < 1000.0f)
+            v[i].x = in[i].x*1000.0;
+        if (zpl_abs(v[i].x) < 1000.0f)
+            v[i].y = in[i].y*1000.0;
     }
 }
 

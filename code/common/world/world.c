@@ -23,7 +23,6 @@ typedef struct {
     world_pkt_writer_proc *writer_proc;
 } world_data;
 
-
 static world_data world = {0};
 
 #define WORLD_TRACKER_UPDATE_MS 100
