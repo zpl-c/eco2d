@@ -36,6 +36,7 @@ load_paths =
 
 command_list =
 {
+    
     {
         .name = "build",
         .out = "*compilation*",
@@ -48,6 +49,19 @@ command_list =
         },
     },
     
+    {
+        .name = "run",
+        .out = "*console*",
+        .footer_panel = false,
+        .save_dirty_files = true,
+        .cursor_at_end = true,
+        .cmd =
+        {
+            { "run.bat", .os = "win" },
+        },
+    },
+    
 };
 
 fkey_command[1] = "build";
+fkey_command[2] = "run";
