@@ -13,3 +13,5 @@ void game_render();
 
 world_view *game_world_view_get_active(void);
 world_view *game_world_view_get(uint16_t idx);
+void game_world_view_set_active_by_idx(uint16_t idx);
+void game_world_view_set_active(world_view *view);

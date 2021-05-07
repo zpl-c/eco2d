@@ -37,5 +37,6 @@ int32_t pkt_01_welcome_handler(pkt_header *header) {
 
     zpl_printf("[INFO] initializing read-only world view ...\n");
     world_view_init(view, table.ent_id, table.block_size, table.chunk_size, table.world_size);
+    game_world_view_set_active(view);
     return 0;
 }

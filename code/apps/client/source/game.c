@@ -71,6 +71,16 @@ world_view *game_world_view_get_active(void) {
     return active_viewer;
 }
 
+void game_world_view_set_active_by_idx(uint16_t idx) {
+    ZPL_ASSERT(idx >= 0 && idx < zpl_buffer_count(world_viewers));
+    game_world_view_set_active(&world_viewers[idx]);
+}
+
+void game_world_view_set_active(world_view *view) {
+    active_viewer = view;
+    camera_set_follow(view->owner_id);
+}
+
 void flecs_dash_init() {
     ECS_IMPORT(world_ecs(), FlecsDash);
     ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
@@ -131,6 +141,7 @@ void game_update() {
 }
 
 void game_render() {
+    camera_update();
     platform_render();
 }
 
