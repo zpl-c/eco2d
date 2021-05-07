@@ -28,6 +28,14 @@ uint8_t platform_is_running() {
     return !WindowShouldClose();
 }
 
+void platform_input() {
+    float mouse_z = GetMouseWheelMove();
+    
+    if (mouse_z != 0.0f) {
+        render_camera.zoom = zpl_clamp(render_camera.zoom+mouse_z*0.04f, 0.01f, 1.0f);
+    }
+}
+
 void display_conn_status();
 
 void DEBUG_draw_entities(uint64_t key, entity_view data);

@@ -14,6 +14,10 @@ void platform_shutdown() {
     is_running = 0;
 }
 
+void platform_input() {
+    
+}
+
 uint8_t platform_is_running() {
     return is_running;
 }

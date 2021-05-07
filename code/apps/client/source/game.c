@@ -132,7 +132,7 @@ uint8_t game_is_running() {
 }
 
 void game_input() {
-
+    platform_input();
 }
 
 void game_update() {
