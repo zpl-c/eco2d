@@ -1,9 +1,10 @@
 #pragma once
 #include "flecs/flecs.h"
+#include "flecs/flecs_meta.h"
 
 #include "modules/general.h"
 
-typedef Vector2D Velocity;
+ECS_ALIAS(Vector2D, Velocity);
 
 typedef struct {
     ECS_DECLARE_TYPE(Movement);

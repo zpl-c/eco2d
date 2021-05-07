@@ -1,12 +1,22 @@
 #include "packet_utils.h"
 #include "packets/pkt_send_keystate.h"
+#include "modules/controllers.h"
+#include "world/world.h"
 
 pkt_desc pkt_send_keystate_desc[] = {
-    { PKT_FIELD(CWP_ITEM_DOUBLE, pkt_send_keystate, x) },
-    { PKT_FIELD(CWP_ITEM_DOUBLE, pkt_send_keystate, y) },
-    { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_send_keystate, use) },
+    { PKT_REAL(pkt_send_keystate, x) },
+    { PKT_REAL(pkt_send_keystate, y) },
+    { PKT_UINT(pkt_send_keystate, use) },
     { PKT_END },
 };
+
+size_t pkt_send_keystate_send(uint16_t view_id,
+                              double x,
+                              double y,
+                              uint8_t use) {
+    pkt_send_keystate table = { .x = x, .y = y, .use = use };
+    return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_send_keystate_encode(&table), 1, view_id, NULL);
+}
 
 size_t pkt_send_keystate_encode(pkt_send_keystate *table) {
     cw_pack_context pc = {0};
@@ -18,6 +28,16 @@ size_t pkt_send_keystate_encode(pkt_send_keystate *table) {
 int32_t pkt_send_keystate_handler(pkt_header *header) {
     pkt_send_keystate table;
     PKT_IF(pkt_msg_decode(header, pkt_send_keystate_desc, pkt_pack_desc_args(pkt_send_keystate_desc), PKT_STRUCT_PTR(&table)));
+    ecs_entity_t e = PKT_GET_ENT(header);
+    ecs_world_t *ecs = world_ecs();
+    
+    ECS_IMPORT(ecs, Controllers);
+    Input *i = ecs_get_mut(world_ecs(), e, Input, NULL);
+    if (i) {
+        i->x = table.x;
+        i->y = table.y;
+        i->use = table.use;
+    }
 
     return 0;
 }

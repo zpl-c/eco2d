@@ -15,6 +15,7 @@ pkt_handler pkt_handlers[] = {
     {.id = MSG_ID_00_INIT, .handler = pkt_00_init_handler},
     {.id = MSG_ID_01_WELCOME, .handler = pkt_01_welcome_handler},
     {.id = MSG_ID_LIBRG_UPDATE, .handler = pkt_send_librg_update_handler},
+    {.id = MSG_ID_SEND_KEYSTATE, .handler = pkt_send_keystate_handler},
 };
 
 uint8_t pkt_buffer[PKT_BUFSIZ];

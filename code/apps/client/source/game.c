@@ -16,6 +16,7 @@
 
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"
+#include "packets/pkt_send_keystate.h"
 
 static int8_t is_viewer_only;
 
@@ -36,7 +37,7 @@ static WORLD_PKT_READER(pkt_reader) {
 }
 
 static WORLD_PKT_WRITER(sp_pkt_writer) {
-    return world_read(pkt->data, pkt->datalen, 0);
+    return world_read(pkt->data, pkt->datalen, (void*)game_world_view_get_active()->owner_id);
 }
 
 static WORLD_PKT_WRITER(mp_pkt_writer) {
@@ -52,7 +53,7 @@ void world_viewers_init(uint32_t num_viewers) {
     zpl_buffer_init(world_viewers, zpl_heap(), num_viewers);
     
     for (uint32_t i = 0; i < num_viewers; i++) {
-        world_viewers[i] = world_view_create();
+        world_viewers[i] = world_view_create(i);
     }
 }
 
@@ -145,3 +146,6 @@ void game_render() {
     platform_render();
 }
 
+void game_action_send_keystate(double x, double y, uint8_t use) {
+    pkt_send_keystate_send(active_viewer->view_id, x, y, use);
+}

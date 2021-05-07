@@ -7,12 +7,12 @@
 #define PKT_IF(c) if (c < 0) return -1;
 #endif
 
-inline void pkt_pack_msg(cw_pack_context *pc, uint32_t args) {
+static inline void pkt_pack_msg(cw_pack_context *pc, uint32_t args) {
     cw_pack_context_init(pc, pkt_buffer, PKT_BUFSIZ, 0);
     cw_pack_array_size(pc, args);
 }
 
-inline int32_t pkt_unpack_msg(cw_unpack_context *uc, pkt_header *header, uint32_t args) {
+static inline int32_t pkt_unpack_msg(cw_unpack_context *uc, pkt_header *header, uint32_t args) {
     cw_unpack_context_init(uc, header->data, header->datalen, 0);
     
     cw_unpack_next(uc);
@@ -23,23 +23,23 @@ inline int32_t pkt_unpack_msg(cw_unpack_context *uc, pkt_header *header, uint32_
     return 0;
 }
 
-inline int32_t pkt_unpack_msg_raw(cw_unpack_context *uc, uint8_t *data, uint32_t datalen, uint32_t args) {
+static inline int32_t pkt_unpack_msg_raw(cw_unpack_context *uc, uint8_t *data, uint32_t datalen, uint32_t args) {
     pkt_header header = {.data = data, .datalen = datalen};
     return pkt_unpack_msg(uc, &header, args);
 }
 
-inline int32_t pkt_validate_eof_msg(cw_unpack_context *uc) {
+static inline int32_t pkt_validate_eof_msg(cw_unpack_context *uc) {
     if (uc->return_code != CWP_RC_OK) return -1; // unpacking failed somwwhere
     cw_unpack_next(uc);
     if (uc->return_code != CWP_RC_END_OF_INPUT) return -1; // not finished yet but should be?
     return 0;
 }
 
-inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
+static inline size_t pkt_pack_msg_size(cw_pack_context *pc) {
     return pc->current - pc->start; // NOTE(zaklaus): length
 }
 
-inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, uint16_t view_id, size_t pkt_size, int8_t is_reliable) {
+static inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, uint16_t view_id, size_t pkt_size, int8_t is_reliable) {
     zpl_zero_item(pkt);
     static uint8_t pkt_data[PKT_BUFSIZ] = {0};
     zpl_memcopy(pkt_data, pkt_buffer, pkt_size);
@@ -54,7 +54,7 @@ inline int32_t pkt_prep_msg(pkt_header *pkt, pkt_messages id, uint16_t view_id, 
 
 extern int32_t world_write(pkt_header *pkt, void *udata);
 
-inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_reliable, uint16_t view_id, void *udata) {
+static inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_reliable, uint16_t view_id, void *udata) {
     pkt_header pkt;
     PKT_IF(pkt_prep_msg(&pkt, id, view_id, pkt_size, is_reliable));
     return world_write(&pkt, udata);
@@ -101,6 +101,10 @@ inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t is_relia
 #define PKT_END .type = CWP_NOT_AN_ITEM
 #endif
 
+#ifndef PKT_GET_ENT
+#define PKT_GET_ENT(h) (ecs_entity_t)(h->udata)
+#endif
+
 typedef struct pkt_desc {
     cwpack_item_types type;
     size_t offset;
@@ -110,7 +114,7 @@ typedef struct pkt_desc {
     
 int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
 
-inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args, void *raw_blob, uint32_t blob_size) {
+static inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args, void *raw_blob, uint32_t blob_size) {
     cw_unpack_context uc = {0};
     PKT_IF(pkt_unpack_msg(&uc, header, args));
     PKT_IF(pkt_unpack_struct(&uc, desc, raw_blob, blob_size));
@@ -118,7 +122,7 @@ inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args,
     return pkt_validate_eof_msg(&uc);
 }
 
-inline size_t pkt_pack_desc_args(pkt_desc *desc) {
+static inline size_t pkt_pack_desc_args(pkt_desc *desc) {
     size_t cnt = 0;
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field, ++cnt) {}
     return cnt;

@@ -35,8 +35,9 @@ int32_t tracker_read_create(librg_world *w, librg_event *e) {
     return 0;
 }
 
-world_view world_view_create(void) {
+world_view world_view_create(uint16_t view_id) {
     world_view view = {0};
+    view.view_id = view_id;
     view.tracker = librg_world_create();
     entity_view_init(&view.entities);
     return view;

@@ -1,4 +1,6 @@
 #include "modules/physics.h"
+#include "world/world.h"
+#include "zpl.h"
 
 void MoveWalk(ecs_iter_t *it) {
     Position *p = ecs_column(it, Position, 1);
@@ -8,20 +10,21 @@ void MoveWalk(ecs_iter_t *it) {
         // TODO: handle collisions
         p[i].x += v[i].x * it->delta_time;
         p[i].y += v[i].y * it->delta_time;
+        librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
     }
 }
 
 void PhysicsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Physics);
     ecs_set_name_prefix(ecs, "Physics");
-
+    
     ECS_TAG(ecs, Walking);
     ECS_TAG(ecs, Flying);
     ECS_TYPE(ecs, Movement, Walking, Flying);
 
-    ECS_COMPONENT(ecs, Velocity);
+    ECS_META(ecs, Velocity);
 
-    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, general.Position, Velocity, SWITCH | Movement, CASE | Walking);
+    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, general.Position, Velocity);
 
     ECS_SET_TYPE(Movement);
     ECS_SET_ENTITY(Walking);

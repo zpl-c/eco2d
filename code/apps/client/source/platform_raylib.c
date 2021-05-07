@@ -34,6 +34,20 @@ void platform_input() {
     if (mouse_z != 0.0f) {
         render_camera.zoom = zpl_clamp(render_camera.zoom+mouse_z*0.04f, 0.01f, 1.0f);
     }
+    
+    // NOTE(zaklaus): keystate handling
+    {
+        double x=0.0, y=0.0;
+        uint8_t use;
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
+        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
+        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y -= 1.0f;
+        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y += 1.0f;
+        
+        use = IsKeyPressed(KEY_SPACE);
+        
+        pkt_send_keystate_send(game_world_view_get_active()->view_id, x, y, use);
+    }
 }
 
 void display_conn_status();
