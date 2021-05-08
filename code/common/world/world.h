@@ -18,7 +18,7 @@ typedef WORLD_PKT_READER(world_pkt_reader_proc);
 typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 
 void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc);
-int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size);
+int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount);
 int32_t world_destroy(void);
 int32_t world_update(void);
 int32_t world_read(void* data, uint32_t datalen, void *udata);
@@ -30,4 +30,5 @@ librg_world * world_tracker(void);
 
 uint16_t world_block_size(void);
 uint16_t world_chunk_size(void);
-uint16_t world_world_size(void);
+uint16_t world_chunk_amount(void);
+uint16_t world_dim(void);

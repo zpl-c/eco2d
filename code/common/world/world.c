@@ -15,7 +15,7 @@ typedef struct {
     uint32_t height;
     uint16_t block_size;
     uint16_t chunk_size;
-    uint16_t world_size;
+    uint16_t chunk_amount;
     uint64_t tracker_update;
     ecs_world_t *ecs;
     librg_world *tracker;
@@ -77,17 +77,17 @@ void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writ
     world.writer_proc = writer_proc;
 }
 
-int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
+int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount) {
     if (world.data) {
         return 0;
     }
     
     world.seed = seed;
     world.chunk_size = chunk_size;
-    world.world_size = world_size;
+    world.chunk_amount = chunk_amount;
     
-    world.width = chunk_size * world_size;
-    world.height = chunk_size * world_size;
+    world.width = chunk_size * chunk_amount;
+    world.height = chunk_size * chunk_amount;
     world.block_size = block_size;
     world.size = world.width * world.height;
     
@@ -102,7 +102,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     /* config our world grid */
     librg_config_chunksize_set(world.tracker, block_size * chunk_size, block_size * chunk_size, 0);
-    librg_config_chunkamount_set(world.tracker, world_size, world_size, 0);
+    librg_config_chunkamount_set(world.tracker, chunk_amount, chunk_amount, 0);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, 0);
     
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
@@ -121,11 +121,11 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     ECS_IMPORT(world.ecs, General);
 
-    for (int i = 0; i < world_size * world_size; ++i) {
+    for (int i = 0; i < chunk_amount * chunk_amount; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
         Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
-        chunk->x = i % world_size - world_size/2;
-        chunk->y = i / world_size - world_size/2;
+        chunk->x = i % chunk_amount - chunk_amount/2;
+        chunk->y = i / chunk_amount - chunk_amount/2;
         
         librg_chunk chid = librg_chunk_from_chunkpos(world.tracker, chunk->x, chunk->y, 0);
         librg_entity_track(world.tracker, e);
@@ -221,8 +221,12 @@ uint16_t world_chunk_size(void) {
     return world.chunk_size;
 }
 
-uint16_t world_world_size(void) {
-    return world.world_size;
+uint16_t world_chunk_amount(void) {
+    return world.chunk_amount;
+}
+
+uint16_t world_dim(void) {
+    return world.block_size * world.chunk_size * world.chunk_amount;
 }
 
 #include "world_gen.c"
