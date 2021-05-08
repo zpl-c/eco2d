@@ -14,9 +14,11 @@ typedef struct {
     ECS_DECLARE_ENTITY(EcsActor);
     ECS_DECLARE_ENTITY(EcsPlayer);
     ECS_DECLARE_ENTITY(EcsBuilder);
+    ECS_DECLARE_ENTITY(EcsDemoNPC);
     ECS_DECLARE_TYPE(Player);
     ECS_DECLARE_TYPE(Builder);
     ECS_DECLARE_ENTITY(MovementImpulse);
+    ECS_DECLARE_ENTITY(DemoNPCMoveAround);
 } Controllers;
 
 #define ControllersImportHandles(handles)\
@@ -26,6 +28,8 @@ typedef struct {
     ECS_IMPORT_ENTITY(handles, EcsActor);\
     ECS_IMPORT_ENTITY(handles, EcsPlayer);\
     ECS_IMPORT_ENTITY(handles, EcsBuilder);\
+    ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
     ECS_IMPORT_ENTITY(handles, MovementImpulse);\
+    ECS_IMPORT_ENTITY(handles, DemoNPCMoveAround);\
 
 void ControllersImport(ecs_world_t *ecs);

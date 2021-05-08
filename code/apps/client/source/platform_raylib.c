@@ -185,6 +185,15 @@ void DEBUG_draw_entities(uint64_t key, entity_view data) {
     float fixed_title_offset = 2;
     
     switch (data.kind) {
+        case EKIND_THING: {
+            double x = data.x;
+            double y = data.y;
+            const char *title = TextFormat("Thing %d", key);
+            int title_w = MeasureTextEco(title, font_size, font_spacing);
+            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, BLACK);
+            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, RAYWHITE, font_spacing); 
+            DrawCircleEco(x, y, size, BLUE);
+        }break;
         case EKIND_PLAYER: {
             double x = data.x;
             double y = data.y;

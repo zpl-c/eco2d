@@ -1,5 +1,6 @@
 #include "world_view.h"
 #include "librg.h"
+#include "zpl.h"
 
 int32_t tracker_read_remove(librg_world *w, librg_event *e) {
     int64_t owner_id = librg_event_owner_get(w, e);

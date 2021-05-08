@@ -30,14 +30,16 @@ int32_t world_gen();
 
 entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), General);
+    ECS_IMPORT(world_ecs(), Net);
     entity_view view = {0};
     
     // TODO(zaklaus): branch out based on ECS tags
     const Position *pos = ecs_get(world_ecs(), e, Position);
     if (pos) {
-        view.kind = EKIND_PLAYER;
+        view.kind = ecs_has(world_ecs(), e, EcsClient) ? EKIND_PLAYER : EKIND_THING;
         view.x = pos->x;
         view.y = pos->y;
+        return view;
     }
     
     const Chunk *chpos = ecs_get(world_ecs(), e, Chunk);
@@ -45,6 +47,7 @@ entity_view world_build_entity_view(int64_t e) {
         view.kind = EKIND_CHUNK;
         view.x = chpos->x;
         view.y = chpos->y;
+        return view;
     }
     
     return view;

@@ -5,6 +5,7 @@
 #include "packet.h"
 #include "signal_handling.h"
 #include "network.h"
+#include "entity.h"
 #include "world_view.h"
 #include "entity_view.h"
 #include "camera.h"
@@ -13,6 +14,10 @@
 #include "flecs/flecs_dash.h"
 #include "flecs/flecs_systems_civetweb.h"
 #include "flecs/flecs_os_api_stdcpp.h"
+
+#include "modules/general.h"
+#include "modules/physics.h"
+#include "modules/controllers.h"
 
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"
@@ -114,6 +119,23 @@ void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t bl
     
     for (uint32_t i = 0; i < num_viewers; i++) {
         pkt_00_init_send(i);
+    }
+    
+    // TODO(zaklaus): VERY TEMPORARY -- SPAWN SOME NPCS THAT RANDOMLY MOVE
+    for (int i = 0; i < 100; i++) {
+        ECS_IMPORT(world_ecs(), General);
+        ECS_IMPORT(world_ecs(), Controllers);
+        ECS_IMPORT(world_ecs(), Physics);
+        uint64_t e = entity_spawn(NULL);
+        ecs_add(world_ecs(), e, EcsDemoNPC);
+        Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+        uint16_t half_world_dim = world_dim() / 2;
+        pos->x=rand() % world_dim() - half_world_dim;
+        pos->y=rand() % world_dim() - half_world_dim;        
+        
+        Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
+        v->x = (rand()%3-1) * 100;
+        v->y = (rand()%3-1) * 100;
     }
 }
 

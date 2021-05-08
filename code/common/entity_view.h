@@ -8,6 +8,7 @@
 
 typedef enum {
     EKIND_PLAYER,
+    EKIND_THING,
     EKIND_CHUNK,
     FORCE_EKIND_UINT16 = UINT16_MAX
 } entity_kind;
