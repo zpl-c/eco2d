@@ -16,10 +16,11 @@ void MoveWalk(ecs_iter_t *it) {
         v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG);
         
         // NOTE(zaklaus): world bounds
-        /*{
-            double w = (double)world_world_size()*world_chunk_size()*world_block_size();;
+        {
+            double w = (double)world_dim()/2.0;
             p[i].x = zpl_clamp(p[i].x, -w, w);
-        }*/
+            p[i].y = zpl_clamp(p[i].y, -w, w);
+        }
         
         librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
     }

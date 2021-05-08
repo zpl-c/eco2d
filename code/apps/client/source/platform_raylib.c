@@ -149,7 +149,6 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
     int32_t y = data.y * view->chunk_size * view->block_size;
                     
     int32_t size = view->chunk_size * view->block_size;
-    int32_t half_size = size/2;
     int16_t block_size = view->block_size;
     int32_t half_block_size = block_size/2;
     int16_t offset = 10;
@@ -157,10 +156,10 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
   
     switch (data.kind) {
         case EKIND_CHUNK: {
-            DrawRectangleEco(x+offset-half_size, y+offset-half_size, size-offset, size-offset, LIME);
+            DrawRectangleEco(x+offset, y+offset, size-offset, size-offset, LIME);
             for (uint16_t i = 0; i < view->chunk_size*view->chunk_size; i++) {
-                int32_t bx = i % view->block_size * block_size + x - half_size + offset;
-                int32_t by = i / view->block_size * block_size + y - half_size + offset;
+                int32_t bx = i % view->block_size * block_size + x + offset;
+                int32_t by = i / view->block_size * block_size + y + offset;
                 DrawRectangleEco(bx+block_offset-half_block_size,
                                   by+block_offset-half_block_size,
                                   block_size-block_offset,
@@ -168,7 +167,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
                                   GREEN);
             }
             
-            DrawTextEco(TextFormat("%.01f %.01f", data.x, data.y), x-half_size+5, y-half_size+5, 65 , BLACK, 0.0); 
+            DrawTextEco(TextFormat("%.01f %.01f", data.x, data.y), x+5, y+5, 65 , BLACK, 0.0); 
         }break;
         
         default:break;
