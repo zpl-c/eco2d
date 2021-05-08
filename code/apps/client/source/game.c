@@ -120,25 +120,6 @@ void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t bl
     for (uint32_t i = 0; i < num_viewers; i++) {
         pkt_00_init_send(i);
     }
-    
-    // TODO(zaklaus): VERY TEMPORARY -- SPAWN SOME NPCS THAT RANDOMLY MOVE
-    {
-        ECS_IMPORT(world_ecs(), General);
-        ECS_IMPORT(world_ecs(), Controllers);
-        ECS_IMPORT(world_ecs(), Physics);
-        uint16_t half_world_dim = world_dim() / 2;
-        for (int i = 0; i < 100; i++) {
-            uint64_t e = entity_spawn(NULL);
-            ecs_add(world_ecs(), e, EcsDemoNPC);
-            Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
-            pos->x=rand() % world_dim() - half_world_dim;
-            pos->y=rand() % world_dim() - half_world_dim;        
-                    
-            Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
-            v->x = (rand()%3-1) * 100;
-            v->y = (rand()%3-1) * 100;
-        }
-    }
 }
 
 int8_t game_is_networked() {

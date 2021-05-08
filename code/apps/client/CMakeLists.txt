@@ -4,7 +4,6 @@ populate_pkt_srcs()
 add_library(client-common STATIC
     source/network.c
     source/game.c
-    source/main.c
 	source/camera.c
 	source/world_view.c
   
@@ -16,10 +15,12 @@ add_library(client-common STATIC
 
 add_executable(eco2d-client
   source/platform_raylib.c
+  source/main.c
 )
 
 add_executable(eco2d-cli
   source/platform_text.c
+  source/main.c
 )
 
 target_compile_definitions(client-common PRIVATE CLIENT)

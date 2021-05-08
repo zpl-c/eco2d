@@ -145,6 +145,7 @@ void display_conn_status() {
         }
     } else {
         DrawText("Connection: single-player", 5, 5, 12, BLUE);
+        //DrawText("Connection: ", 5, 5, 52, BLUE);
     }
     
     DrawFPS(0, 20);

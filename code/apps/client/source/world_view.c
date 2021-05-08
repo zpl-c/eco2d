@@ -55,7 +55,7 @@ void world_view_init(world_view *view, uint64_t ent_id, uint16_t block_size, uin
     
     librg_config_chunksize_set(view->tracker, block_size * chunk_size, block_size * chunk_size, 1);
     librg_config_chunkamount_set(view->tracker, chunk_amount, chunk_amount, 1);
-    librg_config_chunkoffset_set(view->tracker, LIBRG_OFFSET_MID, LIBRG_OFFSET_MID, 0);
+    librg_config_chunkoffset_set(view->tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, 0);
     
     librg_event_set(view->tracker, LIBRG_READ_CREATE, tracker_read_create);
     librg_event_set(view->tracker, LIBRG_READ_REMOVE, tracker_read_remove);

@@ -23,9 +23,9 @@ void HandleCollisions(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i++) {
         // NOTE(zaklaus): world bounds
         {
-            double w = (double)world_dim()/2.0;
-            p[i].x = zpl_clamp(p[i].x, -w+1, w-1);
-            p[i].y = zpl_clamp(p[i].y, -w+1, w-1);
+            double w = (double)world_dim();
+            p[i].x = zpl_clamp(p[i].x, 0, w-1);
+            p[i].y = zpl_clamp(p[i].y, 0, w-1);
         }
     }
 }

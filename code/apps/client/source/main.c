@@ -4,6 +4,15 @@
 #include "game.h"
 #include "utils/options.h"
 
+#include "flecs/flecs.h"
+#include "flecs/flecs_dash.h"
+#include "flecs/flecs_systems_civetweb.h"
+#include "flecs/flecs_os_api_stdcpp.h"
+
+#include "modules/general.h"
+#include "modules/physics.h"
+#include "modules/controllers.h"
+
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_BLOCK_SIZE 16 /* amount of units within a block (single axis) */
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
@@ -55,7 +64,27 @@ int main(int argc, char** argv)
     
     sighandler_register();
     game_init(is_viewer_only, num_viewers, seed, block_size, chunk_size, world_size, is_dash_enabled);
-        
+    
+    
+    // TODO(zaklaus): VERY TEMPORARY -- SPAWN SOME NPCS THAT RANDOMLY MOVE
+    {
+        ECS_IMPORT(world_ecs(), General);
+        ECS_IMPORT(world_ecs(), Controllers);
+        ECS_IMPORT(world_ecs(), Physics);
+        uint16_t half_world_dim = world_dim() / 2;
+        for (int i = 0; i < 100; i++) {
+            uint64_t e = entity_spawn(NULL);
+            ecs_add(world_ecs(), e, EcsDemoNPC);
+            Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+            pos->x=rand() % world_dim();
+            pos->y=rand() % world_dim();        
+            
+            Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
+            v->x = (rand()%3-1) * 100;
+            v->y = (rand()%3-1) * 100;
+        }
+    }
+    
     while (game_is_running()) {
         game_input();
         game_update();

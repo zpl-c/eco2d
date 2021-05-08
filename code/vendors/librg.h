@@ -19965,7 +19965,7 @@ void * librg_event_userdata_get(librg_world *world, librg_event *event) {
 LIBRG_ALWAYS_INLINE int16_t librg_util_chunkoffset_line(int16_t v, int16_t off, int16_t size) {
     int16_t o = 0;
     if (off == LIBRG_OFFSET_BEG) o = 0;
-    if (off == LIBRG_OFFSET_MID) o = (size/2);
+    if (off == LIBRG_OFFSET_MID) o = (size/2.0);
     if (off == LIBRG_OFFSET_END) o = (size-1);
     return v + o;
 }
@@ -20001,14 +20001,16 @@ int8_t librg_chunk_to_chunkpos(librg_world *world, librg_chunk id, int16_t *chun
     }
     
     // TODO(zaklaus): fix ,calc here ok?
-    int16_t z = (int16_t)(id / (wld->worldsize.z * wld->worldsize.y));
+    /*int16_t z = (int16_t)(id / (wld->worldsize.z * wld->worldsize.y));
     int16_t r1 = (int16_t)(id % (wld->worldsize.z * wld->worldsize.y));
     int16_t y = r1 / wld->worldsize.y;
-    int16_t x = r1 % wld->worldsize.y;
+    int16_t x = r1 % wld->worldsize.y;*/
+    int16_t y = id / wld->worldsize.x;
+    int16_t x = id % wld->worldsize.x;
 
-    *chunk_x = x - librg_util_chunkoffset_line(0, wld->chunkoffset.x, wld->worldsize.x);
-    *chunk_y = y - librg_util_chunkoffset_line(0, wld->chunkoffset.y, wld->worldsize.y);
-    *chunk_z = z - librg_util_chunkoffset_line(0, wld->chunkoffset.z, wld->worldsize.z);
+    if (chunk_x) *chunk_x = x - librg_util_chunkoffset_line(0, wld->chunkoffset.x, wld->worldsize.x);
+    if (chunk_y) *chunk_y = y - librg_util_chunkoffset_line(0, wld->chunkoffset.y, wld->worldsize.y);
+    //if (chunk_z) *chunk_z = z - librg_util_chunkoffset_line(0, wld->chunkoffset.z, wld->worldsize.z);
 
     return LIBRG_OK;
 }
