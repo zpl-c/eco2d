@@ -43,7 +43,7 @@ void PhysicsImport(ecs_world_t *ecs) {
     ECS_META(ecs, Velocity);
 
     ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, general.Position, Velocity);
-    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsOnValidate, general.Position);
+    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, general.Position);
 
     ECS_SET_TYPE(Movement);
     ECS_SET_ENTITY(Walking);
