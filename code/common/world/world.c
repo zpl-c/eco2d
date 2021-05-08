@@ -11,11 +11,10 @@ typedef struct {
     uint8_t *data;
     uint32_t seed;
     uint32_t size;
-    uint32_t width;
-    uint32_t height;
     uint16_t block_size;
     uint16_t chunk_size;
     uint16_t chunk_amount;
+    uint16_t dim;
     uint64_t tracker_update;
     ecs_world_t *ecs;
     librg_world *tracker;
@@ -86,10 +85,9 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     world.chunk_size = chunk_size;
     world.chunk_amount = chunk_amount;
     
-    world.width = chunk_size * chunk_amount;
-    world.height = chunk_size * chunk_amount;
     world.block_size = block_size;
-    world.size = world.width * world.height;
+    world.dim = (world.chunk_size * world.chunk_amount);;
+    world.size = world.dim * world.dim;
     
     if (world.tracker == NULL) {
         world.tracker = librg_world_create();
@@ -201,7 +199,7 @@ uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
     ZPL_ASSERT_NOT_NULL(world.data);
     ZPL_ASSERT_NOT_NULL(ptr);
     *ptr = world.data;
-    if (width) *width = world.width;
+    if (width) *width = world.dim;
     return world.size;
 }
 
