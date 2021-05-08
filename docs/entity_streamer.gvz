@@ -1,0 +1,49 @@
+digraph G {
+    label = "eco2d entity streaming model";
+	subgraph cluster_0 {
+		color=green;
+		node [style=filled,shape=box];
+		flecs, librg_world_write, cwpack_pack;
+		label = "host";
+		
+		librg_world_write->cwpack_pack;
+	}
+	
+	subgraph cluster_2 {
+		color=blue;
+	    node [style=filled,shape=box,label="Packet translation layer"];
+	    pkt;
+	    
+	    label = "communication";
+	    labelloc = "b";
+	    
+	    subgraph cluster_3 {
+	        color = lightgray;
+	        node [style=filled,shape=box,label="in-memory"];
+	        mem;
+	        node [style=filled,shape=box,label="enet"];
+	        enet;
+	        
+	        label = "Packet transmission";
+	        labelloc = "b";
+	    }
+	    
+	    pkt->mem;
+	    pkt->enet;
+	}
+
+	subgraph cluster_1 {
+		node [style=filled,shape=box];
+		librg_world_read, cwpack_unpack, raylib;
+		
+		label = "viewers";
+		color=red;
+		
+		cwpack_unpack->librg_world_read;
+		librg_world_read->raylib;
+	}
+	
+	flecs->librg_world_write;
+	cwpack_pack->pkt;
+    pkt->cwpack_unpack;
+}
