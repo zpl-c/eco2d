@@ -20,8 +20,8 @@ void MovementImpulse(ecs_iter_t *it) {
     }
 }
 
-#define DEMO_NPC_CHANGEDIR_FACTOR 0.03
-#define DEMO_NPC_MOVE_SPEED 100
+#define DEMO_NPC_CHANGEDIR_FACTOR 0.01
+#define DEMO_NPC_MOVE_SPEED 1000
 
 void DemoNPCMoveAround(ecs_iter_t *it) {
     Velocity *v = ecs_column(it, Velocity, 1);
