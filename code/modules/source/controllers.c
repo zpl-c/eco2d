@@ -13,9 +13,9 @@ void MovementImpulse(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         double speed = PLR_MOVE_SPEED * (in[i].sprint ? PLR_MOVE_SPEED_MULT : 1.0);
-        if (zpl_abs(v[i].x) < speed)
+        if (zpl_abs(v[i].x) < speed && in[i].x)
             v[i].x = in[i].x*speed;
-        if (zpl_abs(v[i].y) < speed)
+        if (zpl_abs(v[i].y) < speed && in[i].y)
             v[i].y = in[i].y*speed;
     }
 }

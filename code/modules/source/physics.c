@@ -2,14 +2,13 @@
 #include "world/world.h"
 #include "zpl.h"
 
-#define PHY_WALK_DRAG 0.02
+#define PHY_WALK_DRAG 0.12
 
 void MoveWalk(ecs_iter_t *it) {
     Position *p = ecs_column(it, Position, 1);
     Velocity *v = ecs_column(it, Velocity, 2);
 
     for (int i = 0; i < it->count; i++) {
-        // TODO: handle collisions
         p[i].x += v[i].x * it->delta_time;
         p[i].y += v[i].y * it->delta_time;
         v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG);
@@ -25,8 +24,8 @@ void HandleCollisions(ecs_iter_t *it) {
         // NOTE(zaklaus): world bounds
         {
             double w = (double)world_dim()/2.0;
-            p[i].x = zpl_clamp(p[i].x, -w, w);
-            p[i].y = zpl_clamp(p[i].y, -w, w);
+            p[i].x = zpl_clamp(p[i].x, -w+1, w-1);
+            p[i].y = zpl_clamp(p[i].y, -w+1, w-1);
         }
     }
 }
