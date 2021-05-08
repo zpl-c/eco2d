@@ -18,6 +18,7 @@ int main(int argc, char** argv)
     zpl_opts_add(&opts, "v", "viewer-only", "run viewer-only client", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "c", "viewer-count", "number of viewers (detachable clients)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
+    zpl_opts_add(&opts, "dd", "disable-dash", "disables flecs dash", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "seed", "world seed", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "r", "random-seed", "generate random world seed", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "bs", "block-size", "amount of units within a block (single axis)", ZPL_OPTS_INT);
@@ -33,6 +34,7 @@ int main(int argc, char** argv)
     }
     
     int8_t is_viewer_only = zpl_opts_has_arg(&opts, "viewer-only");
+    int8_t is_dash_enabled = !zpl_opts_has_arg(&opts, "disable-dash");
     int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
     uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
     uint16_t block_size = zpl_opts_integer(&opts, "block-size", DEFAULT_BLOCK_SIZE);
@@ -52,7 +54,7 @@ int main(int argc, char** argv)
     }
     
     sighandler_register();
-    game_init(is_viewer_only, num_viewers, seed, block_size, chunk_size, world_size);
+    game_init(is_viewer_only, num_viewers, seed, block_size, chunk_size, world_size, is_dash_enabled);
         
     while (game_is_running()) {
         game_input();
