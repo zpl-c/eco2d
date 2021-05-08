@@ -1,7 +1,7 @@
 #pragma once
 #include "system.h"
 
-#define PKT_BUFSIZ 16384
+#define PKT_BUFSIZ 4000000
 
 typedef enum {
     MSG_ID_00_INIT,

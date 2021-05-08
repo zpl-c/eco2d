@@ -148,7 +148,7 @@ int32_t world_destroy(void) {
     return WORLD_ERROR_NONE;
 }
 
-#define WORLD_LIBRG_BUFSIZ 8192
+#define WORLD_LIBRG_BUFSIZ 2000000
 
 static void world_tracker_update(uint8_t ticker, uint8_t freq, uint8_t radius) {
     if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;

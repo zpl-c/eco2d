@@ -20,7 +20,7 @@ void MovementImpulse(ecs_iter_t *it) {
     }
 }
 
-#define DEMO_NPC_CHANGEDIR_FACTOR 0.01
+#define DEMO_NPC_CHANGEDIR_FACTOR 0.1
 #define DEMO_NPC_MOVE_SPEED 1000
 
 void DemoNPCMoveAround(ecs_iter_t *it) {
