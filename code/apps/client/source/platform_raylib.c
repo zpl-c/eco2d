@@ -7,8 +7,8 @@
 #include "camera.h"
 #include "math.h"
 
-const uint16_t screenWidth = 1600;
-const uint16_t screenHeight = 900;
+uint16_t screenWidth = 1600;
+uint16_t screenHeight = 900;
 
 #define GFX_WORLD_SCALE 20.0f
 
@@ -51,7 +51,11 @@ void DrawRectangleEco(int posX, int posY, int width, int height, Color color)
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d - client");
+    SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_HIGHDPI|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
+    
+    screenWidth = GetScreenWidth();
+    screenHeight = GetScreenHeight();
     
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){screenWidth/2.0f, screenHeight/2.0f};
@@ -91,8 +95,11 @@ void platform_input() {
             Vector2 mouse_pos = GetMousePosition();
             mouse_pos.x /= screenWidth;
             mouse_pos.y /= screenHeight;
-            x = mouse_pos.x-0.5f;
-            y = mouse_pos.y-0.5f;
+            mouse_pos.x -= 0.5f;
+            mouse_pos.y -= 0.5f;
+            mouse_pos = Vector2Normalize(mouse_pos);
+            x = mouse_pos.x;
+            y = mouse_pos.y;
         }
         
         
