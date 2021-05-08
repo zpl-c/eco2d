@@ -1,5 +1,5 @@
 digraph G {
-    label = "eco2d entity streaming model";
+    label = "eco2d entity streaming model\n\nThe path from an entity living in a simulation to the rendered image on our screens...";
 	subgraph cluster_0 {
 		color=green;
 		node [style=filled,shape=box];
