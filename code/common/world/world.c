@@ -151,13 +151,14 @@ static void world_tracker_update(void) {
         world.tracker_update = zpl_time_rel_ms() + WORLD_TRACKER_UPDATE_MS;
     
     ECS_IMPORT(world.ecs, Net);
-    ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo");
+    ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo, general.Position");
     
     ecs_iter_t it = ecs_query_iter(query);
     static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
     
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+        Position *pos = ecs_column(&it, Position, 2);
         
         for (int i = 0; i < it.count; i++) {
             size_t datalen = WORLD_LIBRG_BUFSIZ;

@@ -21,7 +21,13 @@ void MoveWalk(ecs_iter_t *it) {
             p[i].x = zpl_clamp(p[i].x, -w, w);
             p[i].y = zpl_clamp(p[i].y, -w, w);
         }
-        
+    }
+}
+
+void UpdateTrackerPos(ecs_iter_t *it) {
+    Position *p = ecs_column(it, Position, 1);
+    
+    for (int i = 0; i < it->count; i++){
         librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
     }
 }
@@ -37,6 +43,7 @@ void PhysicsImport(ecs_world_t *ecs) {
     ECS_META(ecs, Velocity);
 
     ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, general.Position, Velocity);
+    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsOnValidate, general.Position);
 
     ECS_SET_TYPE(Movement);
     ECS_SET_ENTITY(Walking);
