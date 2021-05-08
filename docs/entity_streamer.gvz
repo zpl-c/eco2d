@@ -28,8 +28,8 @@ digraph G {
 	        labelloc = "b";
 	    }
 	    
-	    pkt->mem;
-	    pkt->enet;
+	    pkt->mem [style=dotted,dir=none];
+	    pkt->enet [style=dotted,dir=none];
 	}
 
 	subgraph cluster_1 {
