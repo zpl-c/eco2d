@@ -15,7 +15,7 @@ typedef struct {
     uint16_t chunk_size;
     uint16_t chunk_amount;
     uint16_t dim;
-    uint64_t tracker_update;
+    uint64_t tracker_update[3];
     ecs_world_t *ecs;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
@@ -24,7 +24,9 @@ typedef struct {
 
 static world_data world = {0};
 
-#define WORLD_TRACKER_UPDATE_MS 10
+#define WORLD_TRACKER_UPDATE_FAST_MS 10
+#define WORLD_TRACKER_UPDATE_NORMAL_MS 100
+#define WORLD_TRACKER_UPDATE_SLOW_MS 800
 
 int32_t world_gen();
 
@@ -111,7 +113,6 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
     
     world.data = zpl_malloc(sizeof(uint8_t)*world.size);
-    world.tracker_update = 0;
     
     if (!world.data) {
         return WORLD_ERROR_OUTOFMEM;
@@ -149,9 +150,9 @@ int32_t world_destroy(void) {
 
 #define WORLD_LIBRG_BUFSIZ 8192
 
-static void world_tracker_update(void) {
-    if (world.tracker_update > zpl_time_rel_ms()) return;
-        world.tracker_update = zpl_time_rel_ms() + WORLD_TRACKER_UPDATE_MS;
+static void world_tracker_update(uint8_t ticker, uint8_t freq, uint8_t radius) {
+    if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;
+        world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
     ECS_IMPORT(world.ecs, Net);
     ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo, general.Position");
@@ -165,6 +166,8 @@ static void world_tracker_update(void) {
         
         for (int i = 0; i < it.count; i++) {
             size_t datalen = WORLD_LIBRG_BUFSIZ;
+            
+            // TODO(zaklaus): push radius once librg patch comes in
             int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
             
             if (result > 0) {
@@ -181,7 +184,9 @@ static void world_tracker_update(void) {
 int32_t world_update() {
     ecs_progress(world.ecs, 0);
 
-    world_tracker_update();
+    world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
+    //world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
+    //world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
     return 0;
 }
 
