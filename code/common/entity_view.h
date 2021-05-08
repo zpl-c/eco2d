@@ -15,8 +15,8 @@ typedef enum {
 
 typedef struct entity_view {
     entity_kind kind;
-    double x;
-    double y;
+    float x;
+    float y;
 } entity_view;
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);

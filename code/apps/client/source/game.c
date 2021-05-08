@@ -174,6 +174,6 @@ void game_render() {
     platform_render();
 }
 
-void game_action_send_keystate(double x, double y, uint8_t use, uint8_t sprint) {
+void game_action_send_keystate(float x, float y, uint8_t use, uint8_t sprint) {
     pkt_send_keystate_send(active_viewer->view_id, x, y, use, sprint);
 }

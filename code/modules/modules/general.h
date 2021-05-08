@@ -3,8 +3,8 @@
 #include "flecs/flecs_meta.h"
 
 ECS_STRUCT(Vector2D, {
-    double x;
-    double y;
+    float x;
+    float y;
 });
 
 ECS_STRUCT(Chunk, {

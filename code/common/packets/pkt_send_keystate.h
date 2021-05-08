@@ -3,14 +3,14 @@
 #include "packet_utils.h"
 
 typedef struct {
-    double x;
-    double y;
+    float x;
+    float y;
     uint8_t use;
     uint8_t sprint;
 } pkt_send_keystate;
 size_t pkt_send_keystate_send(uint16_t view_id,
-                              double x,
-                              double y,
+                              float x,
+                              float y,
                               uint8_t use,
                               uint8_t sprint);
 size_t pkt_send_keystate_encode(pkt_send_keystate *table);

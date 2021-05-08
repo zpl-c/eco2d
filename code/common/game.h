@@ -20,4 +20,4 @@ void game_world_view_set_active(world_view *view);
 void game_world_view_cycle_active(uint8_t dir);
 
 //~ NOTE(zaklaus): viewer -> host actions
-void game_action_send_keystate(double x, double y, uint8_t use, uint8_t sprint);
+void game_action_send_keystate(float x, float y, uint8_t use, uint8_t sprint);

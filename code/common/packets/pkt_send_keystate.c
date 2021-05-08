@@ -12,8 +12,8 @@ pkt_desc pkt_send_keystate_desc[] = {
 };
 
 size_t pkt_send_keystate_send(uint16_t view_id,
-                              double x,
-                              double y,
+                              float x,
+                              float y,
                               uint8_t use,
                               uint8_t sprint) {
     pkt_send_keystate table = { .x = x, .y = y, .use = use, .sprint = sprint };

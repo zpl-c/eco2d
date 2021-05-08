@@ -5,11 +5,12 @@
 #include "game.h"
 #include "entity_view.h"
 #include "camera.h"
+#include "math.h"
 
 const uint16_t screenWidth = 1600;
 const uint16_t screenHeight = 900;
 
-#define GFX_WORLD_SCALE 20.0
+#define GFX_WORLD_SCALE 20.0f
 
 static Camera2D render_camera;
 
@@ -75,7 +76,7 @@ void platform_input() {
     
     // NOTE(zaklaus): keystate handling
     {
-        double x=0.0, y=0.0;
+        float x=0.0f, y=0.0f;
         uint8_t use, sprint;
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
         if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
@@ -90,8 +91,8 @@ void platform_input() {
             Vector2 mouse_pos = GetMousePosition();
             mouse_pos.x /= screenWidth;
             mouse_pos.y /= screenHeight;
-            x = mouse_pos.x-0.5;
-            y = mouse_pos.y-0.5;
+            x = mouse_pos.x-0.5f;
+            y = mouse_pos.y-0.5f;
         }
         
         
@@ -143,31 +144,27 @@ void display_conn_status() {
 }
 
 void DEBUG_draw_ground(uint64_t key, entity_view data) {
-    world_view *view = game_world_view_get_active();
-    
-    int32_t x = data.x * view->chunk_size * view->block_size;
-    int32_t y = data.y * view->chunk_size * view->block_size;
-                    
-    int32_t size = view->chunk_size * view->block_size;
-    int16_t block_size = view->block_size;
-    int32_t half_block_size = block_size/2;
-    int16_t offset = 10;
-    int16_t block_offset = 1;
-  
     switch (data.kind) {
         case EKIND_CHUNK: {
-            DrawRectangleEco(x+offset, y+offset, size-offset, size-offset, LIME);
-            for (uint16_t i = 0; i < view->chunk_size*view->chunk_size; i++) {
-                int32_t bx = i % view->block_size * block_size + x + offset;
-                int32_t by = i / view->block_size * block_size + y + offset;
-                DrawRectangleEco(bx+block_offset-half_block_size,
-                                  by+block_offset-half_block_size,
-                                  block_size-block_offset,
-                                  block_size-block_offset,
-                                  GREEN);
+            world_view *view = game_world_view_get_active();
+            int32_t size = view->chunk_size * view->block_size;
+            float block_size = view->block_size*0.70f;
+            int16_t chunk_size = view->chunk_size;
+            int16_t offset = 5;
+            float block_spacing = (float)block_size * (size/(float)(chunk_size*block_size));
+            float block_offset = size - block_spacing*chunk_size;
+            
+            double x = data.x * size + offset;
+            double y = data.y * size + offset;
+            DrawRectangleEco((int)x, (int)y, size-offset, size-offset, LIME);
+            
+            for (uint16_t i = 0; i < chunk_size*chunk_size; i++) {
+                int32_t bx = (float)(i % chunk_size) * block_spacing + (int16_t)x + block_offset;
+                int32_t by = (float)(i / chunk_size) * block_spacing + (int16_t)y + block_offset;
+                DrawRectangleEco(bx, by, block_size, block_size, GREEN);
             }
             
-            DrawTextEco(TextFormat("%.01f %.01f", data.x, data.y), x+5, y+5, 65 , BLACK, 0.0); 
+            DrawTextEco(TextFormat("%.01f %.01f", data.x, data.y), (int16_t)x+15, (int16_t)y+15, 65 , BLACK, 0.0); 
         }break;
         
         default:break;
@@ -179,7 +176,7 @@ static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b 
 void DEBUG_draw_entities(uint64_t key, entity_view data) {
     world_view *view = game_world_view_get_active();
     uint16_t size = 4;
-    uint16_t font_size = (uint16_t)lerp(4, 32, 0.5f / GFX_WORLD_SCALE/render_camera.zoom);
+    uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f / GFX_WORLD_SCALE/(float)render_camera.zoom);
     float font_spacing = 1.1f;
     float title_bg_offset = 4;
     float fixed_title_offset = 2;

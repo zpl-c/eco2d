@@ -3,8 +3,8 @@
 #include "flecs/flecs_meta.h"
 
 ECS_STRUCT(Input, {
-    double x;
-    double y;
+    float x;
+    float y;
     uint8_t use;
     uint8_t sprint;
 });
