@@ -67,7 +67,7 @@ uint8_t platform_is_running() {
 }
 
 void platform_input() {
-    float mouse_z = GetMouseWheelMove();
+    float mouse_z = (GetMouseWheelMove()*20.0f)/GFX_WORLD_SCALE;
     
     if (mouse_z != 0.0f) {
         render_camera.zoom = zpl_clamp(render_camera.zoom+mouse_z*0.04f, 0.2f/GFX_WORLD_SCALE, 320.0f/GFX_WORLD_SCALE);
