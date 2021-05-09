@@ -86,7 +86,7 @@ void game_world_view_set_active_by_idx(uint16_t idx) {
     game_world_view_set_active(&world_viewers[idx]);
 }
 
-void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_view value)) {
+void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_view * value)) {
     entity_view_map(&active_viewer->entities, map_proc);
 }
 
@@ -154,6 +154,8 @@ void game_update() {
         network_client_tick();
     }
     else world_update();
+    
+    game_world_cleanup_entities();
 }
 
 void game_render() {
@@ -162,4 +164,20 @@ void game_render() {
 
 void game_action_send_keystate(float x, float y, uint8_t use, uint8_t sprint) {
     pkt_send_keystate_send(active_viewer->view_id, x, y, use, sprint);
+}
+
+void game_world_cleanup_entities(void) {
+    for (int i = 0; i < zpl_buffer_count(world_viewers); i += 1){
+        entity_view_tbl *view = &world_viewers[i].entities;
+        
+        for (int j = 0; j < zpl_array_count(view->entries); j += 1){
+            entity_view *e = &view->entries[j];
+            if (e->tran_effect == ETRAN_REMOVE) {
+                entity_view_tbl_remove(view, e->ent_id);
+                j--;
+            } 
+        }
+        
+    }
+    
 }

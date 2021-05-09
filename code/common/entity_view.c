@@ -50,6 +50,18 @@ entity_view *entity_view_get(entity_view_tbl *map, uint64_t ent_id) {
     return entity_view_tbl_get(map, ent_id);
 }
 
-void entity_view_map(entity_view_tbl *map, void (*map_proc)(uint64_t key, entity_view value)) {
-    entity_view_tbl_map(map, map_proc);
+void entity_view_map(entity_view_tbl *map, void (*map_proc)(uint64_t key, entity_view * value)) {
+    entity_view_tbl_map_mut(map, map_proc);
+}
+
+void entity_view_mark_for_removal(entity_view_tbl *map, uint64_t ent_id) {
+    entity_view *view = entity_view_tbl_get(map, ent_id);
+    view->tran_effect = ETRAN_FADEOUT;
+    view->tran_time = 1.0f;
+}
+
+void entity_view_mark_for_fadein(entity_view_tbl *map, uint64_t ent_id) {
+    entity_view *view = entity_view_tbl_get(map, ent_id);
+    view->tran_effect = ETRAN_FADEIN;
+    view->tran_time = 0.0f;
 }

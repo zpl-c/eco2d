@@ -129,15 +129,17 @@ void platform_input() {
 
 void display_conn_status();
 
-void DEBUG_draw_entities(uint64_t key, entity_view data);
-void DEBUG_draw_ground(uint64_t key, entity_view data);
+void DEBUG_draw_entities(uint64_t key, entity_view * data);
+void DEBUG_draw_ground(uint64_t key, entity_view * data);
 
-void lerp_entity_positions(uint64_t key, entity_view data);
+void lerp_entity_positions(uint64_t key, entity_view * data);
+void do_entity_fadeinout(uint64_t key, entity_view * data);
 
 float zpl_lerp(float,float,float);
 
 void platform_render() {
     game_world_view_active_entity_map(lerp_entity_positions);
+    game_world_view_active_entity_map(do_entity_fadeinout);
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
     camera_update();
 
@@ -163,14 +165,13 @@ void display_conn_status() {
         }
     } else {
         DrawText("Connection: single-player", 5, 5, 12, BLUE);
-        //DrawText("Connection: ", 5, 5, 52, BLUE);
     }
     
     DrawFPS(0, 20);
 }
 
-void DEBUG_draw_ground(uint64_t key, entity_view data) {
-    switch (data.kind) {
+void DEBUG_draw_ground(uint64_t key, entity_view * data) {
+    switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
             int32_t size = view->chunk_size * view->block_size;
@@ -180,10 +181,10 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
             float block_spacing = (float)block_size * (size/(float)(chunk_size*block_size));
             float block_offset = size - block_spacing*chunk_size;
             
-            double x = data.x * size + offset;
-            double y = data.y * size + offset;
-            DrawRectangleEco((int)x-offset, (int)y-offset, size+offset, size+offset, BLACK);
-            DrawRectangleEco((int)x, (int)y, size-offset, size-offset, LIME);
+            float x = data->x * size + offset;
+            float y = data->y * size + offset;
+            DrawRectangleEco(x-offset, y-offset, size+offset, size+offset, ColorAlpha(BLACK, data->tran_time));
+            DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(LIME, data->tran_time));
             
 #if 0
             for (uint16_t i = 0; i < chunk_size*chunk_size; i++) {
@@ -193,7 +194,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
             }
 #endif
 
-            DrawTextEco(TextFormat("%.01f %.01f", data.x, data.y), (int16_t)x+15, (int16_t)y+15, 65 , BLACK, 0.0); 
+            DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 65 , ColorAlpha(BLACK, data->tran_time), 0.0); 
         }break;
         
         default:break;
@@ -202,32 +203,31 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
 
 static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
 
-void DEBUG_draw_entities(uint64_t key, entity_view data) {
-    world_view *view = game_world_view_get_active();
+void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     uint16_t size = 4;
     uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
     float font_spacing = 1.1f;
     float title_bg_offset = 4;
     float fixed_title_offset = 2;
     
-    switch (data.kind) {
+    switch (data->kind) {
         case EKIND_THING: {
-            double x = data.x;
-            double y = data.y;
+            float x = data->x;
+            float y = data->y;
             const char *title = TextFormat("Thing %d", key);
             int title_w = MeasureTextEco(title, font_size, font_spacing);
-            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, BLACK);
-            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, RAYWHITE, font_spacing); 
-            DrawCircleEco(x, y, size, BLUE);
+            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
+            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
+            DrawCircleEco(x, y, size, ColorAlpha(BLUE, data->tran_time));
         }break;
         case EKIND_PLAYER: {
-            double x = data.x;
-            double y = data.y;
+            float x = data->x;
+            float y = data->y;
             const char *title = TextFormat("Player %d", key);
             int title_w = MeasureTextEco(title, font_size, font_spacing);
-            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, BLACK);
-            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, RAYWHITE, font_spacing); 
-            DrawCircleEco(x, y, size, RED);
+            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
+            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
+            DrawCircleEco(x, y, size, ColorAlpha(RED, data->tran_time));
         }break;        
         default:break;
     }
@@ -246,5 +246,29 @@ void lerp_entity_positions(uint64_t key, entity_view data) {
         e->x = e->tx;
         e->y = e->ty;
 #endif
+    }
+}
+
+void do_entity_fadeinout(uint64_t key, entity_view * data) {
+    switch (data->tran_effect) {
+        case ETRAN_FADEIN: {
+            data->tran_time += GetFrameTime();
+            
+            if (data->tran_time > 1.0f) {
+                data->tran_effect = ETRAN_NONE;
+                data->tran_time = 1.0f;
+            }
+        }break;
+        
+        case ETRAN_FADEOUT: {
+            data->tran_time -= GetFrameTime();
+            
+            if (data->tran_time < 0.0f) {
+                data->tran_effect = ETRAN_REMOVE;
+                data->tran_time = 0.0f;
+            }
+        }break;
+        
+        default: break;
     }
 }

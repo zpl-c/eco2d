@@ -31,6 +31,8 @@ GitHub:
   https://github.com/zpl-c/zpl
 
 Version History:
+  14.1.0  - add hashtable map_mut method
+  14.0.1  - fix zpl_array_remove_at boundary bug
   14.0.0  - heap memory allocator analysis
 
   13.4.1  - adt optimizations
@@ -358,8 +360,8 @@ License:
 #define ZPL_H
 
 #define ZPL_VERSION_MAJOR 14
-#define ZPL_VERSION_MINOR 0
-#define ZPL_VERSION_PATCH 2
+#define ZPL_VERSION_MINOR 1
+#define ZPL_VERSION_PATCH 0
 #define ZPL_VERSION_PRE ""
 
  // file: zpl_hedley.h
@@ -4299,6 +4301,7 @@ License:
      PREFIX void ZPL_JOIN2(FUNC, grow)(NAME * h);                                                                       \
      PREFIX void ZPL_JOIN2(FUNC, rehash)(NAME * h, zpl_isize new_count);                                                    \
      PREFIX void ZPL_JOIN2(FUNC, map)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value));                                                    \
+     PREFIX void ZPL_JOIN2(FUNC, map_mut)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value));                                                    \
      PREFIX void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key);
 
      #define ZPL_TABLE_DEFINE(NAME, FUNC, VALUE)                                                                            \
@@ -4395,6 +4398,13 @@ License:
          ZPL_ASSERT_NOT_NULL(map_proc); \
          for (zpl_isize i = 0; i < zpl_array_count(h->entries); ++i) { \
              map_proc(h->entries[i].key, h->entries[i].value); \
+         } \
+     } \
+     void ZPL_JOIN2(FUNC, map_mut)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value)) {                                                    \
+         ZPL_ASSERT_NOT_NULL(h); \
+         ZPL_ASSERT_NOT_NULL(map_proc); \
+         for (zpl_isize i = 0; i < zpl_array_count(h->entries); ++i) { \
+             map_proc(h->entries[i].key, &h->entries[i].value); \
          } \
      } \
      \

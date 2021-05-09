@@ -34,4 +34,8 @@ void predict_receive_update(entity_view *d, entity_view *data) {
         data->tx = tx;
         data->ty = ty;
     }
+    
+    data->tran_effect = d->tran_effect;
+    data->tran_time = d->tran_time;
+    zpl_printf("? %f\n", d->tran_time);
 }

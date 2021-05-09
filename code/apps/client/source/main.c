@@ -16,7 +16,7 @@
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_BLOCK_SIZE 16 /* amount of units within a block (single axis) */
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
-#define DEFAULT_WORLD_SIZE 8 /* amount of chunks within a world (single axis) */
+#define DEFAULT_WORLD_SIZE 32 /* amount of chunks within a world (single axis) */
 
 int main(int argc, char** argv)
 {
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     uint16_t block_size = zpl_opts_integer(&opts, "block-size", DEFAULT_BLOCK_SIZE);
     uint16_t chunk_size = zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
-    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 100);
+    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 1000);
     
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};

@@ -8,7 +8,7 @@
 int32_t tracker_read_remove(librg_world *w, librg_event *e) {
     int64_t entity_id = librg_event_entity_get(w, e);
     world_view *view = (world_view*)librg_world_userdata_get(w);
-    entity_view_destroy(&view->entities, entity_id);
+    entity_view_mark_for_removal(&view->entities, entity_id);
     return 0;
 }
 
@@ -42,19 +42,17 @@ int32_t tracker_read_create(librg_world *w, librg_event *e) {
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     world_view *view = (world_view*)librg_world_userdata_get(w);
-#ifdef WORLD_LAYERING
-    if (view->active_layer_id != WORLD_TRACKER_LAYERS-1) {
-        // NOTE(zaklaus): reject updates from smaller layers
-        return 0;
-    }
-#endif
+
     entity_view data = entity_view_unpack_struct(buffer, actual_length);
+    data.ent_id = entity_id;
     data.layer_id = view->active_layer_id;
+    data.tran_time = 0.0f;
     if (data.flag & EFLAG_INTERP) {
         data.tx = data.x;
         data.ty = data.y;
     }
     entity_view_update_or_create(&view->entities, entity_id, data);
+    entity_view_mark_for_fadein(&view->entities, entity_id);
     return 0;
 }
 
