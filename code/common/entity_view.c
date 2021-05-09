@@ -5,8 +5,11 @@ ZPL_TABLE_DEFINE(entity_view_tbl, entity_view_tbl_, entity_view);
 
 pkt_desc pkt_entity_view_desc[] = {
     { PKT_UINT(entity_view, kind) },
-    { PKT_REAL(entity_view, x) },
-    { PKT_REAL(entity_view, y) },
+    { PKT_UINT(entity_view, flag) },
+    { PKT_HALF(entity_view, x) },
+    { PKT_HALF(entity_view, y) },
+    { PKT_HALF(entity_view, vx) },
+    { PKT_HALF(entity_view, vy) },
     { PKT_END }, 
 };
 
@@ -23,6 +26,7 @@ entity_view entity_view_unpack_struct(void *data, size_t len) {
     
     entity_view view = {0};
     pkt_unpack_struct(&uc, pkt_entity_view_desc, PKT_STRUCT_PTR(&view));
+    
     return view;
 }
 

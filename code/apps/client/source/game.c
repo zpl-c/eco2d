@@ -86,6 +86,10 @@ void game_world_view_set_active_by_idx(uint16_t idx) {
     game_world_view_set_active(&world_viewers[idx]);
 }
 
+void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_view value)) {
+    entity_view_map(&active_viewer->entities, map_proc);
+}
+
 void game_world_view_set_active(world_view *view) {
     active_viewer = view;
     camera_set_follow(view->owner_id);
@@ -146,12 +150,13 @@ void game_input() {
 }
 
 void game_update() {
-    if (is_viewer_only) network_client_tick();
+    if (is_viewer_only) {
+        network_client_tick();
+    }
     else world_update();
 }
 
 void game_render() {
-    camera_update();
     platform_render();
 }
 

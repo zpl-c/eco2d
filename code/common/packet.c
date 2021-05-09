@@ -135,3 +135,33 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
     
     return 0;
 }
+
+void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size) {
+    uint8_t *blob = (uint8_t*)raw_blob;
+    zpl_printf("{\n");
+    for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
+        zpl_printf("  \"%s\": ", field->name);
+        switch (field->type) {
+            case CWP_ITEM_BIN: {
+                // TODO(zaklaus): print memory dump as array of hex bytes
+            }break;
+            case CWP_ITEM_POSITIVE_INTEGER: {
+                zpl_printf("%u\n", *(uint64_t*)(blob + field->offset));
+            }break;
+            case CWP_ITEM_NEGATIVE_INTEGER: {
+                zpl_printf("%d\n", *(int64_t*)(blob + field->offset));
+            }break;
+            case CWP_ITEM_FLOAT: {
+                zpl_printf("%f\n", *(float*)(blob + field->offset));
+            }break;
+            case CWP_ITEM_DOUBLE: {
+                zpl_printf("%f\n", *(double*)(blob + field->offset));
+            }break;
+            default: {
+                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
+                return; // unsupported field
+            }break;
+        }
+    }
+    zpl_printf("}\n");
+}

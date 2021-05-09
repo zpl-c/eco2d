@@ -2,6 +2,7 @@
 #include "librg.h"
 #include "modules/general.h"
 #include "modules/net.h"
+#include "modules/physics.h"
 #include "world/world.h"
 #include "entity_view.h"
 
@@ -24,14 +25,11 @@ typedef struct {
 
 static world_data world = {0};
 
-#define WORLD_TRACKER_UPDATE_FAST_MS 10
-#define WORLD_TRACKER_UPDATE_NORMAL_MS 100
-#define WORLD_TRACKER_UPDATE_SLOW_MS 800
-
 int32_t world_gen();
 
 entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), General);
+    ECS_IMPORT(world_ecs(), Physics);
     ECS_IMPORT(world_ecs(), Net);
     entity_view view = {0};
     
@@ -41,7 +39,13 @@ entity_view world_build_entity_view(int64_t e) {
         view.kind = ecs_has(world_ecs(), e, EcsClient) ? EKIND_PLAYER : EKIND_THING;
         view.x = pos->x;
         view.y = pos->y;
-        return view;
+    }
+    
+    const Velocity *vel = ecs_get(world_ecs(), e, Velocity);
+    if (vel) {
+        view.flag |= EFLAG_INTERP;
+        view.vx = vel->x;
+        view.vy = vel->y;
     }
     
     const Chunk *chpos = ecs_get(world_ecs(), e, Chunk);
@@ -49,7 +53,6 @@ entity_view world_build_entity_view(int64_t e) {
         view.kind = EKIND_CHUNK;
         view.x = chpos->x;
         view.y = chpos->y;
-        return view;
     }
     
     return view;
@@ -91,7 +94,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     world.chunk_amount = chunk_amount;
     
     world.block_size = block_size;
-    world.dim = (world.chunk_size * world.chunk_amount);;
+    world.dim = (world.chunk_size * world.chunk_amount);
     world.size = world.dim * world.dim;
     
     if (world.tracker == NULL) {
@@ -104,8 +107,8 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     }
     
     /* config our world grid */
-    librg_config_chunksize_set(world.tracker, block_size * chunk_size, block_size * chunk_size, 0);
-    librg_config_chunkamount_set(world.tracker, chunk_amount, chunk_amount, 0);
+    librg_config_chunksize_set(world.tracker, block_size * world.chunk_size, block_size * world.chunk_size, 0);
+    librg_config_chunkamount_set(world.tracker, world.chunk_amount, world.chunk_amount, 0);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, 0);
     
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
@@ -120,10 +123,12 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     world.ecs = ecs_init();
     ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
+    int32_t world_build_status = world_gen();
+    ZPL_ASSERT(world_build_status >= 0);
     
     ECS_IMPORT(world.ecs, General);
 
-    for (int i = 0; i < chunk_amount * chunk_amount; ++i) {
+    for (int i = 0; i < world.chunk_amount * world.chunk_amount; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
         Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
         librg_entity_track(world.tracker, e);
@@ -133,7 +138,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
 
     zpl_printf("[INFO] Created a new server world\n");
     
-    return world_gen();
+    return world_build_status;
 }
 
 int32_t world_destroy(void) {
@@ -181,8 +186,8 @@ static void world_tracker_update(uint8_t ticker, uint8_t freq, uint8_t radius) {
 int32_t world_update() {
     ecs_progress(world.ecs, 0);
 
-    world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
-    //world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
+    //world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
+    world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
     //world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
     return 0;
 }

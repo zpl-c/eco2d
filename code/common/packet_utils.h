@@ -74,27 +74,27 @@ static inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t i
 #endif
 
 #ifndef PKT_FIELD
-#define PKT_FIELD(k, t, a) .type = k, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#define PKT_FIELD(k, t, a) .type = k, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a), .name = #a
 #endif
 
 #ifndef PKT_UINT
-#define PKT_UINT(t, a) .type = CWP_ITEM_POSITIVE_INTEGER, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#define PKT_UINT(t, a) .type = CWP_ITEM_POSITIVE_INTEGER, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a), .name = #a
 #endif
 
 #ifndef PKT_SINT
-#define PKT_SINT(t, a) .type = CWP_ITEM_NEGATIVE_INTEGER, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#define PKT_SINT(t, a) .type = CWP_ITEM_NEGATIVE_INTEGER, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a), .name = #a
 #endif
 
 #ifndef PKT_REAL
-#define PKT_REAL(t, a) .type = CWP_ITEM_DOUBLE, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#define PKT_REAL(t, a) .type = CWP_ITEM_DOUBLE, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a), .name = #a
 #endif
 
 #ifndef PKT_HALF
-#define PKT_HALF(t, a) .type = CWP_ITEM_FLOAT, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a)
+#define PKT_HALF(t, a) .type = CWP_ITEM_FLOAT, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a), .name = #a
 #endif
 
 #ifndef PKT_ARRAY
-#define PKT_ARRAY(t, a) .type = CWP_ITEM_BIN, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a[0])
+#define PKT_ARRAY(t, a) .type = CWP_ITEM_BIN, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a[0]), .name = #a
 #endif
 
 #ifndef PKT_END
@@ -106,6 +106,7 @@ static inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t i
 #endif
 
 typedef struct pkt_desc {
+    const char *name;
     cwpack_item_types type;
     size_t offset;
     size_t size;
@@ -127,3 +128,5 @@ static inline size_t pkt_pack_desc_args(pkt_desc *desc) {
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field, ++cnt) {}
     return cnt;
 }
+
+void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size);

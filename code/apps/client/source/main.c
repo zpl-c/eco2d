@@ -33,6 +33,7 @@ int main(int argc, char** argv)
     zpl_opts_add(&opts, "bs", "block-size", "amount of units within a block (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "cs", "chunk-size", "amount of blocks within a chunk (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "ws", "world-size", "amount of chunks within a world (single axis)", ZPL_OPTS_INT);
+    zpl_opts_add(&opts, "n", "npc-count", "amount of demo npcs to spawn", ZPL_OPTS_INT);
     
     uint32_t ok = zpl_opts_compile(&opts, argc, argv);
     
@@ -49,6 +50,7 @@ int main(int argc, char** argv)
     uint16_t block_size = zpl_opts_integer(&opts, "block-size", DEFAULT_BLOCK_SIZE);
     uint16_t chunk_size = zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
+    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 100);
     
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};
@@ -72,7 +74,7 @@ int main(int argc, char** argv)
         ECS_IMPORT(world_ecs(), Controllers);
         ECS_IMPORT(world_ecs(), Physics);
         uint16_t half_world_dim = world_dim() / 2;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < npc_count; i++) {
             uint64_t e = entity_spawn(NULL);
             ecs_add(world_ecs(), e, EcsDemoNPC);
             Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);

@@ -11,6 +11,10 @@
 #define WORLD_ERROR_INVALID_BUFFER      -0x0004
 #define WORLD_ERROR_TRACKER_FAILED      -0x0005
 
+#define WORLD_TRACKER_UPDATE_FAST_MS 10
+#define WORLD_TRACKER_UPDATE_NORMAL_MS 100
+#define WORLD_TRACKER_UPDATE_SLOW_MS 800
+
 #define WORLD_PKT_READER(name) int32_t name(void* data, uint32_t datalen, void *udata)
 typedef WORLD_PKT_READER(world_pkt_reader_proc);
 

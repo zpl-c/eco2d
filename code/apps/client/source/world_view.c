@@ -1,4 +1,6 @@
 #include "world_view.h"
+#include "entity_view.h"
+#include "prediction.h"
 #include "librg.h"
 #include "zpl.h"
 
@@ -19,6 +21,8 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
     world_view *view = (world_view*)librg_world_userdata_get(w);
     
     entity_view data = entity_view_unpack_struct(buffer, actual_length);
+    entity_view *d = entity_view_get(&view->entities, entity_id);
+    predict_receive_update(d, &data);
     entity_view_update_or_create(&view->entities, entity_id, data);
     return 0;
 }
@@ -32,6 +36,10 @@ int32_t tracker_read_create(librg_world *w, librg_event *e) {
     world_view *view = (world_view*)librg_world_userdata_get(w);
     
     entity_view data = entity_view_unpack_struct(buffer, actual_length);
+    if (data.flag & EFLAG_INTERP) {
+        data.tx = data.x;
+        data.ty = data.y;
+    }
     entity_view_update_or_create(&view->entities, entity_id, data);
     return 0;
 }

@@ -4,6 +4,7 @@
 #include "network.h"
 #include "game.h"
 #include "entity_view.h"
+#include "prediction.h"
 #include "camera.h"
 #include "math.h"
 
@@ -51,7 +52,7 @@ void DrawRectangleEco(int posX, int posY, int width, int height, Color color)
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d - client");
-    SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_HIGHDPI|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
     
     screenWidth = GetScreenWidth();
@@ -61,6 +62,17 @@ void platform_init() {
     render_camera.offset = (Vector2){screenWidth/2.0f, screenHeight/2.0f};
     render_camera.rotation = 0.0f;
     render_camera.zoom = 4.0f/GFX_WORLD_SCALE;
+    
+    // NOTE(zaklaus): Paint the screen before we load the game
+    // TODO(zaklaus): Render a cool loading screen background maybe? :wink: :wink:
+    
+    BeginDrawing();
+    ClearBackground(GetColor(0x222034));
+    
+    char const *loading_text = "zpl.eco2d is loading...";
+    int text_w = MeasureText(loading_text, 120);
+    DrawText(loading_text, GetScreenWidth()-text_w-15, GetScreenHeight()-135, 120, RAYWHITE);
+    EndDrawing();
 }
 
 void platform_shutdown() {
@@ -122,15 +134,20 @@ void display_conn_status();
 void DEBUG_draw_entities(uint64_t key, entity_view data);
 void DEBUG_draw_ground(uint64_t key, entity_view data);
 
+void lerp_entity_positions(uint64_t key, entity_view data);
+
 void platform_render() {
+    game_world_view_active_entity_map(lerp_entity_positions);
+    camera_update();
+
     camera game_camera = camera_get();
     render_camera.target = (Vector2){game_camera.x * GFX_WORLD_SCALE, game_camera.y * GFX_WORLD_SCALE};
 
     BeginDrawing();
-    ClearBackground(BLACK);
+    ClearBackground(GetColor(0x222034));
     BeginMode2D(render_camera);
-    entity_view_map(&game_world_view_get_active()->entities, DEBUG_draw_ground);
-    entity_view_map(&game_world_view_get_active()->entities, DEBUG_draw_entities);
+    game_world_view_active_entity_map(DEBUG_draw_ground);
+    game_world_view_active_entity_map(DEBUG_draw_entities);
     EndMode2D();
     display_conn_status();
     EndDrawing();
@@ -164,6 +181,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
             
             double x = data.x * size + offset;
             double y = data.y * size + offset;
+            DrawRectangleEco((int)x-offset, (int)y-offset, size+offset, size+offset, BLACK);
             DrawRectangleEco((int)x, (int)y, size-offset, size-offset, LIME);
             
             for (uint16_t i = 0; i < chunk_size*chunk_size; i++) {
@@ -209,5 +227,16 @@ void DEBUG_draw_entities(uint64_t key, entity_view data) {
             DrawCircleEco(x, y, size, RED);
         }break;        
         default:break;
+    }
+}
+
+void lerp_entity_positions(uint64_t key, entity_view data) {
+    world_view *view = game_world_view_get_active();
+    
+    if (data.flag == EFLAG_INTERP) {
+        entity_view *e = entity_view_get(&view->entities, key);
+        
+        e->x = smooth_val(e->x, e->tx, 0);
+        e->y = smooth_val(e->y, e->ty, 0);
     }
 }

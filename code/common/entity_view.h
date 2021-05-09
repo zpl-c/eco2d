@@ -7,16 +7,26 @@
 #include "packet_utils.h"
 
 typedef enum {
-    EKIND_PLAYER,
+    EKIND_PLAYER = 0,
     EKIND_THING,
     EKIND_CHUNK,
     FORCE_EKIND_UINT16 = UINT16_MAX
 } entity_kind;
 
+typedef enum {
+    EFLAG_INTERP = (1 << 0),
+    FORCE_EFLAG_UINT16 = UINT16_MAX
+} entity_flag;
+
 typedef struct entity_view {
     entity_kind kind;
+    entity_flag flag;
     float x;
     float y;
+    float vx;
+    float vy;
+    float tx;
+    float ty;
 } entity_view;
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);
