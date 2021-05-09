@@ -3,8 +3,8 @@
 #include "world/world.h"
 #include "game.h"
 
-#define PREDICT_SMOOTH_FACTOR_LO 0.80
-#define PREDICT_SMOOTH_FACTOR_HI 0.12
+#define PREDICT_SMOOTH_FACTOR_LO 0.10
+#define PREDICT_SMOOTH_FACTOR_HI 0.01
 
 static inline float map_factor(float x) {
     x = 1.0f - zpl_clamp01(x);

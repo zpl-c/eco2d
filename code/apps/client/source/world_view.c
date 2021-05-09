@@ -6,9 +6,7 @@
 #include "world/world.h"
 
 int32_t tracker_read_remove(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("[INFO] An entity %d was removed for owner: %d\n", (int)entity_id, (int)owner_id);
     world_view *view = (world_view*)librg_world_userdata_get(w);
     entity_view_destroy(&view->entities, entity_id);
     return 0;
@@ -40,9 +38,7 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
 }
 
 int32_t tracker_read_create(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
-    zpl_printf("[INFO] An entity %d was created for owner: %d\n", (int)entity_id, (int)owner_id);
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     world_view *view = (world_view*)librg_world_userdata_get(w);

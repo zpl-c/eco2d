@@ -10,20 +10,19 @@
 
 uint16_t screenWidth = 1600;
 uint16_t screenHeight = 900;
-
-#define GFX_WORLD_SCALE 20.0f
+float target_zoom = 4.0f;
 
 static Camera2D render_camera;
 
-void DrawTextEco(const char *text, int posX, int posY, int fontSize, Color color, float spacing) {
+void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
-        Vector2 position = { (float)posX * GFX_WORLD_SCALE, (float)posY * GFX_WORLD_SCALE };
+        Vector2 position = { (float)posX , (float)posY  };
         
         int defaultFontSize = 10;   // Default Font chars height in pixel
         int new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
         
-        DrawTextEx(GetFontDefault(), text, position, (float)fontSize * GFX_WORLD_SCALE, (float)new_spacing * GFX_WORLD_SCALE, color);
+        DrawTextEx(GetFontDefault(), text, position, (float)fontSize , (float)new_spacing , color);
     }
 }
 
@@ -40,13 +39,13 @@ int MeasureTextEco(const char *text, int fontSize, float spacing) {
     
     return (int)vec.x;
 }
-void DrawCircleEco(int centerX, int centerY, float radius, Color color)
+void DrawCircleEco(float centerX, float centerY, float radius, Color color)
 {
-    DrawCircleV((Vector2){ (float)centerX * GFX_WORLD_SCALE, (float)centerY * GFX_WORLD_SCALE }, radius * GFX_WORLD_SCALE, color);
+    DrawCircleV((Vector2){ (float)centerX , (float)centerY  }, radius , color);
 }
-void DrawRectangleEco(int posX, int posY, int width, int height, Color color)
+void DrawRectangleEco(float posX, float posY, int width, int height, Color color)
 {
-    DrawRectangleV((Vector2){ (float)posX * GFX_WORLD_SCALE, (float)posY * GFX_WORLD_SCALE }, (Vector2){ (float)width * GFX_WORLD_SCALE, (float)height * GFX_WORLD_SCALE }, color);
+    DrawRectangleV((Vector2){ (float)posX , (float)posY  }, (Vector2){ (float)width , (float)height  }, color);
 }
 
 
@@ -61,7 +60,7 @@ void platform_init() {
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){screenWidth/2.0f, screenHeight/2.0f};
     render_camera.rotation = 0.0f;
-    render_camera.zoom = 4.0f/GFX_WORLD_SCALE;
+    render_camera.zoom = 4.0f;
     
     // NOTE(zaklaus): Paint the screen before we load the game
     // TODO(zaklaus): Render a cool loading screen background maybe? :wink: :wink:
@@ -84,10 +83,10 @@ uint8_t platform_is_running() {
 }
 
 void platform_input() {
-    float mouse_z = (GetMouseWheelMove()*20.0f)/GFX_WORLD_SCALE;
+    float mouse_z = (GetMouseWheelMove()*0.5f);
     
     if (mouse_z != 0.0f) {
-        render_camera.zoom = zpl_clamp(render_camera.zoom+mouse_z*0.04f, 0.2f/GFX_WORLD_SCALE, 320.0f/GFX_WORLD_SCALE);
+        target_zoom = zpl_clamp(render_camera.zoom+mouse_z, 0.3f, 10.0f);
     }
     
     // NOTE(zaklaus): keystate handling
@@ -135,12 +134,15 @@ void DEBUG_draw_ground(uint64_t key, entity_view data);
 
 void lerp_entity_positions(uint64_t key, entity_view data);
 
+float zpl_lerp(float,float,float);
+
 void platform_render() {
     game_world_view_active_entity_map(lerp_entity_positions);
+    render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
     camera_update();
 
     camera game_camera = camera_get();
-    render_camera.target = (Vector2){game_camera.x * GFX_WORLD_SCALE, game_camera.y * GFX_WORLD_SCALE};
+    render_camera.target = (Vector2){game_camera.x, game_camera.y};
 
     BeginDrawing();
     ClearBackground(GetColor(0x222034));
@@ -183,12 +185,14 @@ void DEBUG_draw_ground(uint64_t key, entity_view data) {
             DrawRectangleEco((int)x-offset, (int)y-offset, size+offset, size+offset, BLACK);
             DrawRectangleEco((int)x, (int)y, size-offset, size-offset, LIME);
             
+#if 0
             for (uint16_t i = 0; i < chunk_size*chunk_size; i++) {
                 int32_t bx = (float)(i % chunk_size) * block_spacing + (int16_t)x + block_offset;
                 int32_t by = (float)(i / chunk_size) * block_spacing + (int16_t)y + block_offset;
                 DrawRectangleEco(bx, by, block_size, block_size, GREEN);
             }
-            
+#endif
+
             DrawTextEco(TextFormat("%.01f %.01f", data.x, data.y), (int16_t)x+15, (int16_t)y+15, 65 , BLACK, 0.0); 
         }break;
         
@@ -201,7 +205,7 @@ static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b 
 void DEBUG_draw_entities(uint64_t key, entity_view data) {
     world_view *view = game_world_view_get_active();
     uint16_t size = 4;
-    uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f / GFX_WORLD_SCALE/(float)render_camera.zoom);
+    uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
     float font_spacing = 1.1f;
     float title_bg_offset = 4;
     float fixed_title_offset = 2;

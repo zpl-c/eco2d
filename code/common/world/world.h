@@ -13,9 +13,9 @@
 
 #define WORLD_LAYERING 0
 #define WORLD_TRACKER_LAYERS 3
-#define WORLD_TRACKER_UPDATE_FAST_MS 10
-#define WORLD_TRACKER_UPDATE_NORMAL_MS 100
-#define WORLD_TRACKER_UPDATE_SLOW_MS 400
+#define WORLD_TRACKER_UPDATE_FAST_MS 100
+#define WORLD_TRACKER_UPDATE_NORMAL_MS 500
+#define WORLD_TRACKER_UPDATE_SLOW_MS 1000
 
 #define WORLD_PKT_READER(name) int32_t name(void* data, uint32_t datalen, void *udata)
 typedef WORLD_PKT_READER(world_pkt_reader_proc);

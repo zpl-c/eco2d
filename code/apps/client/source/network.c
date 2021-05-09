@@ -5,6 +5,7 @@
 
 #define LIBRG_IMPL
 #define LIBRG_CUSTOM_ZPL
+#define LIBRG_ENTITY_MAXCHUNKS 1
 #include "librg.h"
 
 #include "network.h"
