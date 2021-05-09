@@ -19,6 +19,7 @@ typedef struct {
     uint64_t tracker_update[3];
     uint8_t active_layer_id;
     ecs_world_t *ecs;
+    ecs_query_t *ecs_update;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
     world_pkt_writer_proc *writer_proc;
@@ -136,10 +137,13 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     world.ecs = ecs_init();
     ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
-    int32_t world_build_status = world_gen();
-    ZPL_ASSERT(world_build_status >= 0);
     
     ECS_IMPORT(world.ecs, General);
+    ECS_IMPORT(world.ecs, Net);
+    world.ecs_update = ecs_query_new(world.ecs, "Net.ClientInfo, general.Position");
+        
+    int32_t world_build_status = world_gen();
+    ZPL_ASSERT(world_build_status >= 0);
 
     for (int i = 0; i < world.chunk_amount * world.chunk_amount; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
@@ -169,10 +173,10 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;
         world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
+    ECS_IMPORT(world.ecs, General);
     ECS_IMPORT(world.ecs, Net);
-    ecs_query_t *query = ecs_query_new(world.ecs, "Net.ClientInfo, general.Position");
     
-    ecs_iter_t it = ecs_query_iter(query);
+    ecs_iter_t it = ecs_query_iter(world.ecs_update);
     static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
     world.active_layer_id = ticker;
     
