@@ -30,6 +30,7 @@ typedef struct entity_view {
     
     // NOTE(zaklaus): internals
     uint8_t layer_id;
+    uint64_t last_update;
 } entity_view;
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);

@@ -17,6 +17,7 @@ typedef struct {
     uint16_t chunk_amount;
     uint16_t dim;
     uint64_t tracker_update[3];
+    uint8_t active_layer_id;
     ecs_world_t *ecs;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
@@ -61,6 +62,12 @@ entity_view world_build_entity_view(int64_t e) {
 int32_t tracker_write_create(librg_world *w, librg_event *e) {
     int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
+#ifdef WORLD_LAYERING
+    if (world.active_layer_id != WORLD_TRACKER_LAYERS-1) {
+        // NOTE(zaklaus): reject updates from smaller layers
+        return LIBRG_WRITE_REJECT;
+    }
+#endif
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     
@@ -68,6 +75,12 @@ int32_t tracker_write_create(librg_world *w, librg_event *e) {
 }
 
 int32_t tracker_write_remove(librg_world *w, librg_event *e) {
+#ifdef WORLD_LAYERING
+    if (world.active_layer_id != WORLD_TRACKER_LAYERS-1) {
+        // NOTE(zaklaus): reject updates from smaller layers
+        return LIBRG_WRITE_REJECT;
+    }
+#endif
     return 0;
 }
 
@@ -161,6 +174,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     
     ecs_iter_t it = ecs_query_iter(query);
     static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
+    world.active_layer_id = ticker;
     
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
@@ -168,6 +182,11 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
         
         for (int i = 0; i < it.count; i++) {
             size_t datalen = WORLD_LIBRG_BUFSIZ;
+            
+            // TODO(zaklaus): SUPER TEMPORARY HOT !!! simulate variable radius queries
+            {
+                librg_entity_radius_set(world_tracker(), p[i].peer, radius);
+            }
             
             // TODO(zaklaus): push radius once librg patch comes in
             int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
@@ -186,9 +205,9 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
 int32_t world_update() {
     ecs_progress(world.ecs, 0);
 
-    //world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
+    world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
     world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
-    //world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
+    world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
     return 0;
 }
 

@@ -1,20 +1,15 @@
+#include "zpl.h"
 #include "world_view.h"
 #include "entity_view.h"
 #include "prediction.h"
 #include "librg.h"
-#include "zpl.h"
+#include "world/world.h"
 
 int32_t tracker_read_remove(librg_world *w, librg_event *e) {
     int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
     zpl_printf("[INFO] An entity %d was removed for owner: %d\n", (int)entity_id, (int)owner_id);
     world_view *view = (world_view*)librg_world_userdata_get(w);
-    entity_view *d = entity_view_get(&view->entities, entity_id);
-    if (d && d->layer_id < view->active_layer_id) {
-        // NOTE(zaklaus): reject updates from slower layers
-        return 0;
-    }
-
     entity_view_destroy(&view->entities, entity_id);
     return 0;
 }
@@ -27,11 +22,18 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
     
     entity_view data = entity_view_unpack_struct(buffer, actual_length);
     entity_view *d = entity_view_get(&view->entities, entity_id);
-    data.layer_id = view->active_layer_id;
-    if (d && d->layer_id < data.layer_id) {
+#if 1
+    if (d && d->layer_id < view->active_layer_id) {
+        if (zpl_time_rel_ms() - d->last_update > WORLD_TRACKER_UPDATE_NORMAL_MS) {
+            d->layer_id = zpl_min(WORLD_TRACKER_LAYERS-1, d->layer_id+1);
+        }
         // NOTE(zaklaus): reject updates from slower layers
-        return 0;
+        else return 0;
     }
+#endif
+    
+    data.last_update = zpl_time_rel_ms();
+    data.layer_id = view->active_layer_id;
     predict_receive_update(d, &data);
     entity_view_update_or_create(&view->entities, entity_id, data);
     return 0;
@@ -44,7 +46,12 @@ int32_t tracker_read_create(librg_world *w, librg_event *e) {
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     world_view *view = (world_view*)librg_world_userdata_get(w);
-    
+#ifdef WORLD_LAYERING
+    if (view->active_layer_id != WORLD_TRACKER_LAYERS-1) {
+        // NOTE(zaklaus): reject updates from smaller layers
+        return 0;
+    }
+#endif
     entity_view data = entity_view_unpack_struct(buffer, actual_length);
     data.layer_id = view->active_layer_id;
     if (data.flag & EFLAG_INTERP) {
