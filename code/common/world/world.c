@@ -152,7 +152,7 @@ int32_t world_destroy(void) {
 
 #define WORLD_LIBRG_BUFSIZ 2000000
 
-static void world_tracker_update(uint8_t ticker, uint8_t freq, uint8_t radius) {
+static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) {
     if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;
         world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
@@ -178,7 +178,7 @@ static void world_tracker_update(uint8_t ticker, uint8_t freq, uint8_t radius) {
                 zpl_printf("[error] an error happened writing the world %d\n", result);
             }
             
-            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen), 1, p[i].view_id, p[i].peer);
+            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen, ticker), 1, p[i].view_id, p[i].peer);
         }
     }
 }

@@ -27,6 +27,9 @@ typedef struct entity_view {
     float vy;
     float tx;
     float ty;
+    
+    // NOTE(zaklaus): internals
+    uint8_t layer_id;
 } entity_view;
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);

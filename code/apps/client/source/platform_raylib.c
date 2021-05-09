@@ -114,7 +114,6 @@ void platform_input() {
             y = mouse_pos.y;
         }
         
-        
         game_action_send_keystate(x, y, use, sprint);
     }
     
@@ -236,7 +235,12 @@ void lerp_entity_positions(uint64_t key, entity_view data) {
     if (data.flag == EFLAG_INTERP) {
         entity_view *e = entity_view_get(&view->entities, key);
         
-        e->x = smooth_val(e->x, e->tx, 0);
-        e->y = smooth_val(e->y, e->ty, 0);
+#if 1
+        e->x = smooth_val(e->x, e->tx, view->delta_time[e->layer_id]);
+        e->y = smooth_val(e->y, e->ty, view->delta_time[e->layer_id]);
+#else
+        e->x = e->tx;
+        e->y = e->ty;
+#endif
     }
 }
