@@ -211,7 +211,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
                 zpl_printf("[error] an error happened writing the world %d\n", result);
             }
             
-            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, (int32_t)datalen, ticker), 1, p[i].view_id, (void*)p[i].peer);
+            pkt_send_librg_update((void*)p[i].peer, p[i].view_id, ticker, buffer, datalen);
         }
     }
 }
