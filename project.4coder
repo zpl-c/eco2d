@@ -27,7 +27,7 @@ load_paths =
 {
     {{
         { ".", .recursive = false, .relative = true },
-        { "code/apps/client", .recursive = true, .relative = true },
+        { "code/game", .recursive = true, .relative = true },
         { "code/common", .recursive = true, .relative = true },
         { "code/modules", .recursive = true, .relative = true },
         { "code/vendors", .recursive = true, .relative = true },

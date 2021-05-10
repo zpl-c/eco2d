@@ -4,11 +4,17 @@
 #include "prediction.h"
 #include "librg.h"
 #include "world/world.h"
+#include "game.h"
 
 int32_t tracker_read_remove(librg_world *w, librg_event *e) {
     int64_t entity_id = librg_event_entity_get(w, e);
     world_view *view = (world_view*)librg_world_userdata_get(w);
-    entity_view_mark_for_removal(&view->entities, entity_id);
+    
+    if (view != game_world_view_get_active()) {
+        entity_view_destroy(&view->entities, entity_id);
+    } else {
+        entity_view_mark_for_removal(&view->entities, entity_id);
+    }
     return 0;
 }
 
