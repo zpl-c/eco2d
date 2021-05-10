@@ -15,14 +15,14 @@ pkt_desc pkt_entity_view_desc[] = {
 
 size_t entity_view_pack_struct(void *data, size_t len, entity_view view) {
     cw_pack_context pc = {0};
-    cw_pack_context_init(&pc, data, len, 0);
+    cw_pack_context_init(&pc, data, (unsigned long)len, 0);
     pkt_pack_struct(&pc, pkt_entity_view_desc, PKT_STRUCT_PTR(&view));
     return pc.current - pc.start;
 }
 
 entity_view entity_view_unpack_struct(void *data, size_t len) {
     cw_unpack_context uc = {0};
-    cw_unpack_context_init(&uc, data, len, 0);
+    cw_unpack_context_init(&uc, data, (unsigned long)len, 0);
     
     entity_view view = {0};
     pkt_unpack_struct(&uc, pkt_entity_view_desc, PKT_STRUCT_PTR(&view));
