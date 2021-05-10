@@ -90,8 +90,17 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     int64_t entity_id = librg_event_entity_get(w, e);
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
+    entity_view view = world_build_entity_view(entity_id);
     
-    return entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
+    // NOTE(zaklaus): exclude chunks from updates as they never move
+    // TODO(zaklaus): use dirty flag to send updates if chunk changes
+    {
+        if (view.kind == EKIND_CHUNK) {
+            return LIBRG_WRITE_REJECT;
+        }
+    }
+    
+    return entity_view_pack_struct(buffer, actual_length, view);
 }
 
 void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
