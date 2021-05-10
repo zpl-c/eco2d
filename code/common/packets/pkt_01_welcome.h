@@ -16,7 +16,7 @@ size_t pkt_01_welcome_send(uint64_t peer_id,
                            uint16_t chunk_size,
                            uint16_t world_size);
 size_t pkt_01_welcome_encode(pkt_01_welcome *table);
-pkt_desc pkt_01_welcome_desc[];
+extern pkt_desc pkt_01_welcome_desc[];
 
 PKT_HANDLER_PROC(pkt_01_welcome_handler);
 

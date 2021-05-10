@@ -14,7 +14,7 @@ size_t pkt_send_keystate_send(uint16_t view_id,
                               uint8_t use,
                               uint8_t sprint);
 size_t pkt_send_keystate_encode(pkt_send_keystate *table);
-pkt_desc pkt_send_keystate_desc[];
+extern pkt_desc pkt_send_keystate_desc[];
 
 PKT_HANDLER_PROC(pkt_send_keystate_handler);
 

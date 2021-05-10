@@ -17,7 +17,7 @@ world_view *game_world_view_get_active(void);
 world_view *game_world_view_get(uint16_t idx);
 void game_world_view_set_active_by_idx(uint16_t idx);
 void game_world_view_set_active(world_view *view);
-void game_world_view_cycle_active(uint8_t dir);
+void game_world_view_cycle_active(int8_t dir);
 void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_view * value));
 void game_world_cleanup_entities(void);
 

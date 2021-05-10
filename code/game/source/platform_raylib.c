@@ -15,6 +15,7 @@ float target_zoom = 4.0f;
 static Camera2D render_camera;
 
 void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
+#if 1
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         Vector2 position = { (float)posX , (float)posY  };
@@ -24,9 +25,11 @@ void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color c
         
         DrawTextEx(GetFontDefault(), text, position, (float)fontSize , (float)new_spacing , color);
     }
+#endif
 }
 
 int MeasureTextEco(const char *text, int fontSize, float spacing) {
+#if 1
     Vector2 vec = { 0.0f, 0.0f };
     
     // Check if default font has been loaded
@@ -38,6 +41,9 @@ int MeasureTextEco(const char *text, int fontSize, float spacing) {
     }
     
     return (int)vec.x;
+#else
+    return 0;
+#endif
 }
 void DrawCircleEco(float centerX, float centerY, float radius, Color color)
 {

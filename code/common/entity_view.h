@@ -48,7 +48,7 @@ typedef struct entity_view {
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);
 
-pkt_desc pkt_entity_view_desc[];
+extern pkt_desc pkt_entity_view_desc[];
 
 void entity_view_init(entity_view_tbl *map);
 void entity_view_free(entity_view_tbl *map);
