@@ -151,7 +151,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     
     ECS_IMPORT(world.ecs, General);
     ECS_IMPORT(world.ecs, Net);
-    world.ecs_update = ecs_query_new(world.ecs, "Net.ClientInfo, general.Position");
+    world.ecs_update = ecs_query_new(world.ecs, "net.ClientInfo, general.Position");
         
     int32_t world_build_status = world_gen();
     ZPL_ASSERT(world_build_status >= 0);
@@ -218,7 +218,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
 
 
 int32_t world_update() {
-    ecs_progress(world.ecs, platform_frametime());
+    ecs_progress(world.ecs, 0.0f);
 
     world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
     world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
