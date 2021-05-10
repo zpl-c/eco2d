@@ -92,7 +92,7 @@ void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
     
     if (mouse_z != 0.0f) {
-        target_zoom = zpl_clamp(render_camera.zoom+mouse_z, 0.3f, 10.0f);
+        target_zoom = zpl_clamp(target_zoom+mouse_z, 0.3f, 10.0f);
     }
     
     // NOTE(zaklaus): keystate handling
@@ -174,6 +174,7 @@ void display_conn_status() {
     }
     
     DrawFPS(0, 20);
+    DrawText(TextFormat("Zoom: %.02f", target_zoom), 0, 45, 20, WHITE);
 }
 
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
