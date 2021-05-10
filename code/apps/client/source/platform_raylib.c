@@ -233,18 +233,17 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     }
 }
 
-void lerp_entity_positions(uint64_t key, entity_view data) {
+void lerp_entity_positions(uint64_t key, entity_view *data) {
     world_view *view = game_world_view_get_active();
     
-    if (data.flag == EFLAG_INTERP) {
-        entity_view *e = entity_view_get(&view->entities, key);
+    if (data->flag == EFLAG_INTERP) {
         
 #if 1
-        e->x = smooth_val(e->x, e->tx, view->delta_time[e->layer_id]);
-        e->y = smooth_val(e->y, e->ty, view->delta_time[e->layer_id]);
+        data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
+        data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
 #else
-        e->x = e->tx;
-        e->y = e->ty;
+        data->x = data->tx;
+        data->y = data->ty;
 #endif
     }
 }

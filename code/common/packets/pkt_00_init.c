@@ -5,6 +5,7 @@
 #include "game.h"
 #include "entity_view.h"
 #include "camera.h"
+#include "player.h"
 
 #include "modules/net.h"
 

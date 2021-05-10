@@ -114,6 +114,7 @@ typedef struct pkt_desc {
 } pkt_desc;
     
 int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
+int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
 
 static inline int32_t pkt_msg_decode(pkt_header *header, pkt_desc* desc, uint32_t args, void *raw_blob, uint32_t blob_size) {
     cw_unpack_context uc = {0};

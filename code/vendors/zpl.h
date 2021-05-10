@@ -361,7 +361,7 @@ License:
 
 #define ZPL_VERSION_MAJOR 14
 #define ZPL_VERSION_MINOR 1
-#define ZPL_VERSION_PATCH 0
+#define ZPL_VERSION_PATCH 2
 #define ZPL_VERSION_PRE ""
 
  // file: zpl_hedley.h
@@ -2316,8 +2316,8 @@ License:
 #        define ZPL_DEF_INLINE
 #        define ZPL_IMPL_INLINE
 #    else
-#        define ZPL_DEF_INLINE ZPL_ALWAYS_INLINE
-#        define ZPL_IMPL_INLINE ZPL_INLINE
+#        define ZPL_DEF_INLINE static
+#        define ZPL_IMPL_INLINE static inline
 #    endif
 #endif
 
@@ -9961,13 +9961,16 @@ License:
 
          #define ZPL__FILE_STREAM_FD_MAGIC 37
 
-         ZPL_ALWAYS_INLINE zpl_file_descriptor zpl__file_stream_fd_make(zpl__memory_fd* d) {
+         ZPL_DEF_INLINE zpl_file_descriptor zpl__file_stream_fd_make(zpl__memory_fd* d);
+         ZPL_DEF_INLINE zpl__memory_fd *zpl__file_stream_from_fd(zpl_file_descriptor fd);
+
+         ZPL_IMPL_INLINE zpl_file_descriptor zpl__file_stream_fd_make(zpl__memory_fd* d) {
              zpl_file_descriptor fd = {0};
              fd.p = (void*)d;
              return fd;
          }
 
-         ZPL_ALWAYS_INLINE zpl__memory_fd *zpl__file_stream_from_fd(zpl_file_descriptor fd) {
+         ZPL_IMPL_INLINE zpl__memory_fd *zpl__file_stream_from_fd(zpl_file_descriptor fd) {
              zpl__memory_fd *d = (zpl__memory_fd*)fd.p;
              ZPL_ASSERT(d->magic == ZPL__FILE_STREAM_FD_MAGIC);
              return d;
@@ -17437,9 +17440,10 @@ License:
 
      static ZPL_ALWAYS_INLINE zpl_b32 zpl__json_is_assign_char(char c) { return !!zpl_strchr(":=|", c); }
      static ZPL_ALWAYS_INLINE zpl_b32 zpl__json_is_delim_char(char c) { return !!zpl_strchr(",|\n", c); }
+     ZPL_DEF_INLINE zpl_b32 zpl__json_validate_name(char const *str, char *err);
 
      #define jx(x) !zpl_char_is_hex_digit(str[x])
-     ZPL_ALWAYS_INLINE zpl_b32 zpl__json_validate_name(char const *str, char *err) {
+     ZPL_IMPL_INLINE zpl_b32 zpl__json_validate_name(char const *str, char *err) {
          while (*str) {
              /* todo: refactor name validation. */
              if ((str[0] == '\\' && !zpl_char_is_control(str[1])) &&

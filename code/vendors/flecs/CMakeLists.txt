@@ -1,3 +1,5 @@
+use_cxx11()
+
 file(GLOB SRCS *.h
 	flecs.c
 	flecs_json.c
@@ -11,4 +13,5 @@ file(GLOB SRCS *.h
 	flecs-os_api-stdcpp.cpp
 	flecs_components_http.c
 )
+
 add_library(flecs-bundle STATIC ${SRCS})

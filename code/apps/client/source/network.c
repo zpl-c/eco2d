@@ -10,6 +10,7 @@
 
 #include "network.h"
 #include "packet.h"
+#include "world/world.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
 

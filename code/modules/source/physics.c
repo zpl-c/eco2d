@@ -1,6 +1,6 @@
+#include "zpl.h"
 #include "modules/physics.h"
 #include "world/world.h"
-#include "zpl.h"
 
 #define PHY_WALK_DRAG 0.12
 

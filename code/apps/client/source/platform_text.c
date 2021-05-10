@@ -1,5 +1,4 @@
 #include "platform.h"
-#include "zpl.h"
 #include <stdio.h>
 
 uint8_t is_running;

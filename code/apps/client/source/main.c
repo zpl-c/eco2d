@@ -2,7 +2,9 @@
 #include "zpl.h"
 #include "system.h"
 #include "game.h"
+#include "entity.h"
 #include "utils/options.h"
+#include "signal_handling.h"
 
 #include "flecs/flecs.h"
 #include "flecs/flecs_dash.h"
