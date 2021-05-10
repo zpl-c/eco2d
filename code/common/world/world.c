@@ -62,7 +62,6 @@ entity_view world_build_entity_view(int64_t e) {
 }
 
 int32_t tracker_write_create(librg_world *w, librg_event *e) {
-    int64_t owner_id = librg_event_owner_get(w, e);
     int64_t entity_id = librg_event_entity_get(w, e);
 #ifdef WORLD_LAYERING
     if (world.active_layer_id != WORLD_TRACKER_LAYERS-1) {
@@ -73,10 +72,12 @@ int32_t tracker_write_create(librg_world *w, librg_event *e) {
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     
-    return entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
+    return (int32_t)entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
 }
 
 int32_t tracker_write_remove(librg_world *w, librg_event *e) {
+    zpl_unused(e);
+    zpl_unused(w);
 #ifdef WORLD_LAYERING
     if (world.active_layer_id != WORLD_TRACKER_LAYERS-1) {
         // NOTE(zaklaus): reject updates from smaller layers
@@ -100,7 +101,7 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
         }
     }
     
-    return entity_view_pack_struct(buffer, actual_length, view);
+    return (int32_t)entity_view_pack_struct(buffer, actual_length, view);
 }
 
 void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc) {
@@ -192,7 +193,6 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
-        Position *pos = ecs_column(&it, Position, 2);
         
         for (int i = 0; i < it.count; i++) {
             size_t datalen = WORLD_LIBRG_BUFSIZ;
@@ -211,7 +211,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
                 zpl_printf("[error] an error happened writing the world %d\n", result);
             }
             
-            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, datalen, ticker), 1, p[i].view_id, p[i].peer);
+            pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(buffer, (int32_t)datalen, ticker), 1, p[i].view_id, (void*)p[i].peer);
         }
     }
 }

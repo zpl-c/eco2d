@@ -7,13 +7,13 @@
 #include "world/blocks.h"
 #include "world/perlin.h"
 
-#define WORLD_BLOCK_OBSERVER(name) uint32_t name(uint32_t id, uint32_t block_idx)
+#define WORLD_BLOCK_OBSERVER(name) uint8_t name(uint8_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
 #define WORLD_PERLIN_FREQ    1.0
 #define WORLD_PERLIN_OCTAVES 1
 
-static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
+static void world_fill_rect(uint8_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
             if (cx < 0 || cx >= world.dim) continue;
@@ -21,7 +21,7 @@ static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uin
             uint32_t i = (cy*world.dim) + cx;
 
             if (proc) {
-                uint32_t new_id = (*proc)(id, i);
+                uint8_t new_id = (*proc)(id, i);
                 if (new_id != BLOCK_INVALID) {
                     id = new_id;
                 }
@@ -33,7 +33,7 @@ static void world_fill_rect(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uin
     }
 }
 
-static void world_fill_circle(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
+static void world_fill_circle(uint8_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
             if (cx < 0 || cx >= world.dim) continue;
@@ -41,7 +41,7 @@ static void world_fill_circle(uint32_t id, uint32_t x, uint32_t y, uint32_t w, u
             uint32_t i = (cy*world.dim) + cx;
 
             if (proc) {
-                uint32_t new_id = (*proc)(id, i);
+                uint8_t new_id = (*proc)(id, i);
                 if (new_id != BLOCK_INVALID) {
                     id = new_id;
                 }
@@ -53,7 +53,7 @@ static void world_fill_circle(uint32_t id, uint32_t x, uint32_t y, uint32_t w, u
     }
 }
 
-static void world_fill_rect_anchor(uint32_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, float ax, float ay, world_block_observer_proc *proc) {
+static void world_fill_rect_anchor(uint8_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, float ax, float ay, world_block_observer_proc *proc) {
     uint32_t w2 = (uint32_t)floorf(w*ax);
     uint32_t h2 = (uint32_t)floorf(h*ay);
     world_fill_rect(id, x-w2, y-h2, w, h, proc);
@@ -96,18 +96,20 @@ static WORLD_BLOCK_OBSERVER(shaper_noise33) {
     return world_perlin_cond(block_idx, 0.33) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
 
+#if 0
 static void world_fill_mountain(uint32_t x, uint32_t y) {
 
 }
+#endif
 
 #define RAND_RANGE(x,y) (x + (int)rand()%(y-(x)))
 
 int32_t world_gen() {
     // TODO: perform world gen
     // atm, we will fill the world with ground and surround it by walls
-    uint32_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
-    uint32_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
-    uint32_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    uint8_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
+    uint8_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
+    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
 
     srand(world.seed);
 
