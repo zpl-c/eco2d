@@ -21,6 +21,10 @@ uint8_t platform_is_running() {
     return is_running;
 }
 
+float platform_frametime() {
+    return 1.0f;
+}
+
 void platform_render() {
     zpl_printf("o");
     zpl_sleep_ms(1000);

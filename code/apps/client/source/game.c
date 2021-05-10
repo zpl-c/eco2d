@@ -100,7 +100,7 @@ void flecs_dash_init() {
     ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
     
     ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
-    ecs_set_target_fps(world_ecs(), 60);
+    // ecs_set_target_fps(world_ecs(), 60);
 }
 
 void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {

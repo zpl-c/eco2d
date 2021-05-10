@@ -248,6 +248,10 @@ void lerp_entity_positions(uint64_t key, entity_view *data) {
     }
 }
 
+float platform_frametime() {
+    return GetFrameTime();
+}
+
 void do_entity_fadeinout(uint64_t key, entity_view * data) {
     switch (data->tran_effect) {
         case ETRAN_FADEIN: {

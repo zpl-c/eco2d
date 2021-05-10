@@ -5,6 +5,7 @@
 #include "modules/physics.h"
 #include "world/world.h"
 #include "entity_view.h"
+#include "platform.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -206,8 +207,9 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     }
 }
 
+
 int32_t world_update() {
-    ecs_progress(world.ecs, 0);
+    ecs_progress(world.ecs, platform_frametime());
 
     world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
     world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
