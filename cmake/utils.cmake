@@ -9,7 +9,7 @@ function(link_system_libs target_name)
 endfunction()
 
 macro(populate_pkt_srcs)
-	file(GLOB PKT_SRCS ../../common/packets/*.h ../../common/packets/*.c)
+	file(GLOB PKT_SRCS ../common/packets/*.h ../common/packets/*.c)
 endmacro()
 
 

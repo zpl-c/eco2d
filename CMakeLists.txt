@@ -10,6 +10,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(/MP /W4)
 endif()
 
 include_directories(code/common code/vendors code/vendors/flecs)
@@ -18,4 +19,4 @@ add_subdirectory(code/modules)
 add_subdirectory(code/common)
 add_subdirectory(code/vendors)
 
-add_subdirectory(code/apps/client)
+add_subdirectory(code/game)
