@@ -11,6 +11,9 @@
 uint16_t screenWidth = 1600;
 uint16_t screenHeight = 900;
 float target_zoom = 4.0f;
+float zoom_overlay_tran = 0.0f;
+
+#define CAM_OVERLAY_ZOOM_LEVEL 0.80f
 
 static Camera2D render_camera;
 
@@ -151,6 +154,7 @@ void platform_render() {
 
     camera game_camera = camera_get();
     render_camera.target = (Vector2){game_camera.x, game_camera.y};
+    zoom_overlay_tran = zpl_lerp(zoom_overlay_tran, (target_zoom <= CAM_OVERLAY_ZOOM_LEVEL) ? 1.0f : 0.0f, GetFrameTime()*2.0f);
 
     BeginDrawing();
     ClearBackground(GetColor(0x222034));
@@ -178,30 +182,36 @@ void display_conn_status() {
 }
 
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
+    (void)key;
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
             int32_t size = view->chunk_size * view->block_size;
-            float block_size = view->block_size*0.70f;
-            int16_t chunk_size = view->chunk_size;
-            int16_t offset = 5;
-            float block_spacing = (float)block_size * (size/(float)(chunk_size*block_size));
-            float block_offset = size - block_spacing*chunk_size;
+            int16_t offset = 0;
             
             float x = data->x * size + offset;
             float y = data->y * size + offset;
-            DrawRectangleEco(x-offset, y-offset, size+offset, size+offset, ColorAlpha(BLACK, data->tran_time));
             DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(LIME, data->tran_time));
             
 #if 0
+            float block_size = view->block_size*0.70f;
+            int16_t chunk_size = view->chunk_size;
+            float block_spacing = (float)block_size * (size/(float)(chunk_size*block_size));
+            float block_offset = size - block_spacing*chunk_size;
+            
             for (uint16_t i = 0; i < chunk_size*chunk_size; i++) {
                 int32_t bx = (float)(i % chunk_size) * block_spacing + (int16_t)x + block_offset;
                 int32_t by = (float)(i / chunk_size) * block_spacing + (int16_t)y + block_offset;
                 DrawRectangleEco(bx, by, block_size, block_size, GREEN);
             }
 #endif
-
-            DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 65 , ColorAlpha(BLACK, data->tran_time), 0.0); 
+       
+            if (zoom_overlay_tran > 0.02f) {
+                DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV(key*x, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran));
+                
+                DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 65 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
+                
+            }
         }break;
         
         default:break;
@@ -241,6 +251,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
 }
 
 void lerp_entity_positions(uint64_t key, entity_view *data) {
+    (void)key;
     world_view *view = game_world_view_get_active();
     
     if (data->flag == EFLAG_INTERP) {
@@ -260,6 +271,7 @@ float platform_frametime() {
 }
 
 void do_entity_fadeinout(uint64_t key, entity_view * data) {
+    (void)key;
     switch (data->tran_effect) {
         case ETRAN_FADEIN: {
             data->tran_time += GetFrameTime();

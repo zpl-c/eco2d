@@ -4,8 +4,6 @@
 #define ZPL_PICO
 #include "zpl.h"
 
-#include "packet_utils.h"
-
 typedef enum {
     EKIND_PLAYER = 0,
     EKIND_THING,
@@ -47,8 +45,6 @@ typedef struct entity_view {
 } entity_view;
 
 ZPL_TABLE_DECLARE(, entity_view_tbl, entity_view_tbl_, entity_view);
-
-extern pkt_desc pkt_entity_view_desc[];
 
 void entity_view_init(entity_view_tbl *map);
 void entity_view_free(entity_view_tbl *map);
