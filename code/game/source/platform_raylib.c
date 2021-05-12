@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "math.h"
 #include "world/blocks.h"
+#include "assets.h"
 #include "utils/raylib_helpers.h"
 
 uint16_t screenWidth = 1600;
@@ -44,10 +45,12 @@ void platform_init() {
     EndDrawing();
     
     blocks_setup();
+    assets_setup();
 }
 
 void platform_shutdown() {
     blocks_destroy();
+    assets_destroy();
     CloseWindow();
 }
  

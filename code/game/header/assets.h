@@ -1,21 +1,28 @@
 #pragma once
 #include "system.h"
 
-typedef struct {
-    uint16_t id;
-    uint8_t kind;
-    char* filename;
-} asset_info;
+#define ASSET_INVALID 0xFF
 
-enum {
-    ASSET_KIND_IMAGE,
-    ASSET_KIND_SOUND,
-    ASSET_KIND_FORCE_8 = UINT8_MAX,
-};
-
-enum {
+typedef enum {
     ASSET_PLAYER,
-    ASSET_FORCE_16 = UINT16_MAX,
-};
+    ASSET_THING,
+    
+    MAX_ASSETS,
+    FORCE_ASSET_UINT16 = UINT16_MAX
+} asset_id;
 
-extern asset_info assets[];
+typedef enum {
+    AKIND_TEXTURE,
+    AKIND_SOUND,
+    
+    FORCE_AKIND_UINT8 = UINT8_MAX
+} asset_kind;
+
+int32_t assets_setup(void);
+void assets_destroy(void);
+
+uint16_t assets_find(asset_id id);
+
+asset_kind assets_get_kind(uint16_t id);
+void *assets_get_snd(uint16_t id);
+void *assets_get_tex(uint16_t id);

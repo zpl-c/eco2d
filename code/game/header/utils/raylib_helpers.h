@@ -53,3 +53,13 @@ static inline
 Image GetBlockImage(uint8_t id) {
     return *(Image*)blocks_get_img(id);
 }
+
+static inline
+Image GetSpriteImage(uint16_t id) {
+    return *(Image*)assets_get_tex(id);
+}
+
+static inline
+Sound GetSound(uint16_t id) {
+    return *(Sound*)assets_get_snd(id);
+}
