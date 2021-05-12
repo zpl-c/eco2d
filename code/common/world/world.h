@@ -44,6 +44,7 @@ void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writ
 int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount);
 int32_t world_destroy(void);
 int32_t world_update(void);
+
 int32_t world_read(void* data, uint32_t datalen, void *udata);
 int32_t world_write(pkt_header *pkt, void *udata);
 

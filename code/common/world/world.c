@@ -116,7 +116,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     /* config our world grid */
     librg_config_chunksize_set(world.tracker, block_size * world.chunk_size, block_size * world.chunk_size, 0);
     librg_config_chunkamount_set(world.tracker, world.chunk_amount, world.chunk_amount, 0);
-    librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, 0);
+    librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG);
     
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
     librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);

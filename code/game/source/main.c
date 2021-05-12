@@ -75,8 +75,7 @@ int main(int argc, char** argv)
         ECS_IMPORT(world_ecs(), General);
         ECS_IMPORT(world_ecs(), Controllers);
         ECS_IMPORT(world_ecs(), Physics);
-        uint16_t half_world_dim = world_dim() / 2;
-        for (int i = 0; i < npc_count; i++) {
+        for (uint32_t i = 0; i < npc_count; i++) {
             uint64_t e = entity_spawn(NULL);
             ecs_add(world_ecs(), e, EcsDemoNPC);
             Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);

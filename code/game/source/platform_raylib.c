@@ -7,6 +7,7 @@
 #include "prediction.h"
 #include "camera.h"
 #include "math.h"
+#include "utils/raylib_helpers.h"
 
 uint16_t screenWidth = 1600;
 uint16_t screenHeight = 900;
@@ -16,47 +17,6 @@ float zoom_overlay_tran = 0.0f;
 #define CAM_OVERLAY_ZOOM_LEVEL 0.80f
 
 static Camera2D render_camera;
-
-void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
-#if 1
-    // Check if default font has been loaded
-    if (GetFontDefault().texture.id != 0) {
-        Vector2 position = { (float)posX , (float)posY  };
-        
-        int defaultFontSize = 10;   // Default Font chars height in pixel
-        int new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
-        
-        DrawTextEx(GetFontDefault(), text, position, (float)fontSize , (float)new_spacing , color);
-    }
-#endif
-}
-
-int MeasureTextEco(const char *text, int fontSize, float spacing) {
-#if 1
-    Vector2 vec = { 0.0f, 0.0f };
-    
-    // Check if default font has been loaded
-    if (GetFontDefault().texture.id != 0) {
-        int defaultFontSize = 10;   // Default Font chars height in pixel
-        int new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
-        
-        vec = MeasureTextEx(GetFontDefault(), text, (float)fontSize, (float)new_spacing);
-    }
-    
-    return (int)vec.x;
-#else
-    return 0;
-#endif
-}
-void DrawCircleEco(float centerX, float centerY, float radius, Color color)
-{
-    DrawCircleV((Vector2){ (float)centerX , (float)centerY  }, radius , color);
-}
-void DrawRectangleEco(float posX, float posY, int width, int height, Color color)
-{
-    DrawRectangleV((Vector2){ (float)posX , (float)posY  }, (Vector2){ (float)width , (float)height  }, color);
-}
-
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d - client");

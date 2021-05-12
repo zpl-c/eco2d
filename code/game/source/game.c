@@ -23,7 +23,7 @@
 #include "packets/pkt_01_welcome.h"
 #include "packets/pkt_send_keystate.h"
 
-static int8_t is_viewer_only;
+static uint8_t game_mode;
 
 static world_view *world_viewers;
 static world_view *active_viewer;
@@ -42,10 +42,12 @@ static WORLD_PKT_READER(pkt_reader) {
 }
 
 static WORLD_PKT_WRITER(sp_pkt_writer) {
+    (void)udata;
     return world_read(pkt->data, pkt->datalen, (void*)game_world_view_get_active()->owner_id);
 }
 
 static WORLD_PKT_WRITER(mp_pkt_writer) {
+    (void)udata;
     if (pkt->is_reliable) {
         return network_msg_send(pkt->data, pkt->datalen);
     }
@@ -102,14 +104,14 @@ void flecs_dash_init() {
     ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
 }
 
-void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
-    is_viewer_only = play_mode;
+void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
+    game_mode = play_mode;
     platform_init();
     world_viewers_init(num_viewers);
     active_viewer = &world_viewers[0];
     camera_reset();
 
-    if (is_viewer_only) {
+    if (game_mode == GAMEKIND_CLIENT) {
         world_setup_pkt_handlers(pkt_reader, mp_pkt_writer);
         network_init();
         network_client_connect("127.0.0.1", 27000);
@@ -127,13 +129,13 @@ void game_init(int8_t play_mode, uint32_t num_viewers, int32_t seed, uint16_t bl
 }
 
 int8_t game_is_networked() {
-    return is_viewer_only;
+    return game_mode > 0;
 }
 
 void game_shutdown() {
     world_viewers_destroy();
 
-    if (is_viewer_only) {
+    if (game_mode == GAMEKIND_CLIENT) {
         network_client_disconnect();
         network_destroy();
     } else {
@@ -150,7 +152,7 @@ void game_input() {
 }
 
 void game_update() {
-    if (is_viewer_only) {
+    if (game_mode == GAMEKIND_CLIENT) {
         network_client_tick();
     }
     else world_update();
@@ -171,10 +173,9 @@ void game_world_cleanup_entities(void) {
         entity_view_tbl *view = &world_viewers[i].entities;
         
         for (int j = 0; j < zpl_array_count(view->entries); j += 1){
-            entity_view *e = &view->entries[j];
+            entity_view *e = &view->entries[j].value;
             if (e->tran_effect == ETRAN_REMOVE) {
                 entity_view_tbl_remove(view, e->ent_id);
-                j--;
             } 
         }
         

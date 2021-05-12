@@ -9,7 +9,7 @@ size_t pkt_send_librg_update(uint64_t peer_id,
                               uint8_t ticker,
                               void *data,
                               size_t datalen) {
-    return pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(data, (int32_t)datalen, ticker), 1, view_id, peer_id);
+    return pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(data, (int32_t)datalen, ticker), 1, view_id, (void*)peer_id);
 }
 
 size_t pkt_send_librg_update_encode(void *data, int32_t data_length, uint8_t layer_id) {
