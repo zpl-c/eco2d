@@ -5,30 +5,12 @@
 #include "modules/physics.h"
 #include "world/world.h"
 #include "entity_view.h"
+#include "worldgen/worldgen.h"
 #include "platform.h"
 
 #include "packets/pkt_send_librg_update.h"
 
-typedef struct {
-    uint8_t *data;
-    uint32_t seed;
-    uint32_t size;
-    uint16_t block_size;
-    uint16_t chunk_size;
-    uint16_t chunk_amount;
-    uint16_t dim;
-    uint64_t tracker_update[3];
-    uint8_t active_layer_id;
-    ecs_world_t *ecs;
-    ecs_query_t *ecs_update;
-    librg_world *tracker;
-    world_pkt_reader_proc *reader_proc;
-    world_pkt_writer_proc *writer_proc;
-} world_data;
-
 static world_data world = {0};
-
-int32_t world_gen();
 
 entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), General);
@@ -76,8 +58,8 @@ int32_t tracker_write_create(librg_world *w, librg_event *e) {
 }
 
 int32_t tracker_write_remove(librg_world *w, librg_event *e) {
-    zpl_unused(e);
-    zpl_unused(w);
+    (void)e;
+    (void)w;
 #ifdef WORLD_LAYERING
     if (world.active_layer_id != WORLD_TRACKER_LAYERS-1) {
         // NOTE(zaklaus): reject updates from smaller layers
@@ -153,7 +135,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     ECS_IMPORT(world.ecs, Net);
     world.ecs_update = ecs_query_new(world.ecs, "net.ClientInfo, general.Position");
         
-    int32_t world_build_status = world_gen();
+    int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
 
     for (int i = 0; i < world.chunk_amount * world.chunk_amount; ++i) {
@@ -211,7 +193,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
                 zpl_printf("[error] an error happened writing the world %d\n", result);
             }
             
-            pkt_send_librg_update((void*)p[i].peer, p[i].view_id, ticker, buffer, datalen);
+            pkt_send_librg_update((uint64_t)p[i].peer, p[i].view_id, ticker, buffer, datalen);
         }
     }
 }
@@ -271,5 +253,3 @@ uint16_t world_chunk_amount(void) {
 uint16_t world_dim(void) {
     return world.block_size * world.chunk_size * world.chunk_amount;
 }
-
-#include "world_gen.c"

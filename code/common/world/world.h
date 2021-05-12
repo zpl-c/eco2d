@@ -23,6 +23,23 @@ typedef WORLD_PKT_READER(world_pkt_reader_proc);
 #define WORLD_PKT_WRITER(name) int32_t name(pkt_header *pkt, void *udata)
 typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 
+typedef struct {
+    uint8_t *data;
+    uint32_t seed;
+    uint32_t size;
+    uint16_t block_size;
+    uint16_t chunk_size;
+    uint16_t chunk_amount;
+    uint16_t dim;
+    uint64_t tracker_update[3];
+    uint8_t active_layer_id;
+    ecs_world_t *ecs;
+    ecs_query_t *ecs_update;
+    librg_world *tracker;
+    world_pkt_reader_proc *reader_proc;
+    world_pkt_writer_proc *writer_proc;
+} world_data;
+
 void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writer_proc *writer_proc);
 int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount);
 int32_t world_destroy(void);
