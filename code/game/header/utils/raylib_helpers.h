@@ -50,6 +50,6 @@ void DrawRectangleEco(float posX, float posY, int width, int height, Color color
 }
 
 static inline
-Texture2D GetBlockTexture(uint8_t id) {
-    return *(Texture2D*)blocks_get_tex(id);
+Image GetBlockImage(uint8_t id) {
+    return *(Image*)blocks_get_img(id);
 }

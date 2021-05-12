@@ -14,7 +14,7 @@ typedef struct {
     char symbol;
     
     // NOTE(zaklaus): viewer data
-    Texture2D tex;
+    Image img;
 } block;
 
 #include "blocks_list.c"
@@ -24,17 +24,14 @@ int32_t blocks_setup(void) {
         block *b = &blocks[i];
         
         // TODO(zaklaus): introduce texgen
-        Image img = GenImageColor(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, RAYWHITE);
-        
-        b->tex = LoadTextureFromImage(img);
-        UnloadImage(img);
+        b->img = GenImageColor(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, RAYWHITE);
     }
     return 0;
 }
 
 void blocks_destroy(void) {
     for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
-        UnloadTexture(blocks[i].tex);
+        UnloadImage(blocks[i].img);
     }
 }
 
@@ -66,6 +63,6 @@ uint32_t blocks_get_kind(uint8_t id) {
     return blocks[id].kind;
 }
 
-void *blocks_get_tex(uint8_t id) {
-    return (void*)&blocks[id].tex;
+void *blocks_get_img(uint8_t id) {
+    return (void*)&blocks[id].img;
 }

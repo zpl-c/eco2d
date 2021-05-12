@@ -21,4 +21,4 @@ uint32_t blocks_get_biome(uint8_t id);
 uint32_t blocks_get_kind(uint8_t id);
 
 // NOTE(zaklaus): viewer-related functions
-void *blocks_get_tex(uint8_t id);
+void *blocks_get_img(uint8_t id);
