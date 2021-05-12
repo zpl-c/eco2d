@@ -104,7 +104,7 @@ void flecs_dash_init() {
     ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
 }
 
-void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
+void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
     game_mode = play_mode;
     platform_init();
     world_viewers_init(num_viewers);
@@ -118,7 +118,7 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
     } else {
         stdcpp_set_os_api();
         world_setup_pkt_handlers(pkt_reader, sp_pkt_writer);
-        world_init(seed, block_size, chunk_size, chunk_amount);
+        world_init(seed, chunk_size, chunk_amount);
         if (is_dash_enabled) flecs_dash_init();
         ecs_set_target_fps(world_ecs(), 60);
     }

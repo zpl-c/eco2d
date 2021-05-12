@@ -70,15 +70,14 @@ world_view world_view_create(uint16_t view_id) {
     return view;
 }
 
-void world_view_init(world_view *view, uint64_t ent_id, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount) {
+void world_view_init(world_view *view, uint64_t ent_id, uint16_t chunk_size, uint16_t chunk_amount) {
     view->owner_id = ent_id;
-    view->block_size = block_size;
     view->chunk_size = chunk_size;
     view->chunk_amount = chunk_amount;
-    view->dim = block_size * chunk_size * chunk_amount;
+    view->dim = WORLD_BLOCK_SIZE * chunk_size * chunk_amount;
     view->size = view->dim * view->dim;
     
-    librg_config_chunksize_set(view->tracker, block_size * chunk_size, block_size * chunk_size, 1);
+    librg_config_chunksize_set(view->tracker, WORLD_BLOCK_SIZE * chunk_size, WORLD_BLOCK_SIZE * chunk_size, 1);
     librg_config_chunkamount_set(view->tracker, chunk_amount, chunk_amount, 1);
     librg_config_chunkoffset_set(view->tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, 0);
     

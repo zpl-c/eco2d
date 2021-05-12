@@ -16,7 +16,6 @@
 #include "modules/controllers.h"
 
 #define DEFAULT_WORLD_SEED 302097
-#define DEFAULT_BLOCK_SIZE 16 /* amount of units within a block (single axis) */
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
 #define DEFAULT_WORLD_SIZE 32 /* amount of chunks within a world (single axis) */
 
@@ -32,7 +31,6 @@ int main(int argc, char** argv)
     zpl_opts_add(&opts, "ed", "enable-dash", "enables flecs dash", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "seed", "world seed", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "r", "random-seed", "generate random world seed", ZPL_OPTS_FLAG);
-    zpl_opts_add(&opts, "bs", "block-size", "amount of units within a block (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "cs", "chunk-size", "amount of blocks within a chunk (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "ws", "world-size", "amount of chunks within a world (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "n", "npc-count", "amount of demo npcs to spawn", ZPL_OPTS_INT);
@@ -49,7 +47,6 @@ int main(int argc, char** argv)
     int8_t is_dash_enabled = zpl_opts_has_arg(&opts, "enable-dash");
     int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
     uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
-    uint16_t block_size = zpl_opts_integer(&opts, "block-size", DEFAULT_BLOCK_SIZE);
     uint16_t chunk_size = zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
     uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 1000);
@@ -62,14 +59,13 @@ int main(int argc, char** argv)
     }
     
     if (zpl_opts_has_arg(&opts, "preview-map")) {
-        generate_minimap(seed, block_size, chunk_size, world_size);
+        generate_minimap(seed, WORLD_BLOCK_SIZE, chunk_size, world_size);
         return 0;
     }
     
     sighandler_register();
-    game_init(is_viewer_only, num_viewers, seed, block_size, chunk_size, world_size, is_dash_enabled);
-    
-    
+    game_init(is_viewer_only, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
+        
     // TODO(zaklaus): VERY TEMPORARY -- SPAWN SOME NPCS THAT RANDOMLY MOVE
     {
         ECS_IMPORT(world_ecs(), General);

@@ -91,7 +91,7 @@ void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writ
     world.writer_proc = writer_proc;
 }
 
-int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t chunk_amount) {
+int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     if (world.data) {
         return 0;
     }
@@ -100,7 +100,6 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     world.chunk_size = chunk_size;
     world.chunk_amount = chunk_amount;
     
-    world.block_size = block_size;
     world.dim = (world.chunk_size * world.chunk_amount);
     world.size = world.dim * world.dim;
     
@@ -114,7 +113,7 @@ int32_t world_init(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint1
     }
     
     /* config our world grid */
-    librg_config_chunksize_set(world.tracker, block_size * world.chunk_size, block_size * world.chunk_size, 0);
+    librg_config_chunksize_set(world.tracker, WORLD_BLOCK_SIZE * world.chunk_size, WORLD_BLOCK_SIZE * world.chunk_size, 0);
     librg_config_chunkamount_set(world.tracker, world.chunk_amount, world.chunk_amount, 0);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG);
     
@@ -238,10 +237,6 @@ librg_world * world_tracker() {
     return world.tracker;
 }
 
-uint16_t world_block_size(void) {
-    return world.block_size;
-}
-
 uint16_t world_chunk_size(void) {
     return world.chunk_size;
 }
@@ -251,5 +246,5 @@ uint16_t world_chunk_amount(void) {
 }
 
 uint16_t world_dim(void) {
-    return world.block_size * world.chunk_size * world.chunk_amount;
+    return WORLD_BLOCK_SIZE * world.chunk_size * world.chunk_amount;
 }

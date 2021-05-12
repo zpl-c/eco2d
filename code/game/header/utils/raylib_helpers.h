@@ -1,6 +1,7 @@
 #pragma once
 #include "system.h"
 #include "raylib.h"
+#include "world/blocks.h"
 
 static inline 
 void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
@@ -46,4 +47,9 @@ static inline
 void DrawRectangleEco(float posX, float posY, int width, int height, Color color)
 {
     DrawRectangleV((Vector2){ (float)posX , (float)posY  }, (Vector2){ (float)width , (float)height  }, color);
+}
+
+static inline
+Texture2D GetBlockTexture(uint8_t id) {
+    return *(Texture2D*)blocks_get_tex(id);
 }

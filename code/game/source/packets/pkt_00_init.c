@@ -34,6 +34,6 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     uint64_t peer_id = (uint64_t)header->udata;
     uint64_t ent_id = player_spawn(NULL);
     ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = ent_id, .view_id = header->view_id });
-    pkt_01_welcome_send(peer_id, header->view_id, ent_id, world_block_size(), world_chunk_size(), world_chunk_amount());
+    pkt_01_welcome_send(peer_id, header->view_id, ent_id, world_chunk_size(), world_chunk_amount());
     return 0;
 }

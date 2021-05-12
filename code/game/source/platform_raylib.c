@@ -7,6 +7,7 @@
 #include "prediction.h"
 #include "camera.h"
 #include "math.h"
+#include "world/blocks.h"
 #include "utils/raylib_helpers.h"
 
 uint16_t screenWidth = 1600;
@@ -41,9 +42,12 @@ void platform_init() {
     int text_w = MeasureText(loading_text, 120);
     DrawText(loading_text, GetScreenWidth()-text_w-15, GetScreenHeight()-135, 120, RAYWHITE);
     EndDrawing();
+    
+    blocks_setup();
 }
 
 void platform_shutdown() {
+    blocks_destroy();
     CloseWindow();
 }
  
@@ -146,11 +150,12 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
-            int32_t size = view->chunk_size * view->block_size;
+            int32_t size = view->chunk_size * WORLD_BLOCK_SIZE;
             int16_t offset = 0;
             
             float x = data->x * size + offset;
             float y = data->y * size + offset;
+                             
             DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(LIME, data->tran_time));
             
 #if 0

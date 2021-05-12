@@ -4,7 +4,6 @@
 
 typedef struct {
     uint64_t ent_id;
-    uint16_t block_size;
     uint16_t chunk_size;
     uint16_t world_size;
 } pkt_01_welcome;
@@ -12,7 +11,6 @@ typedef struct {
 size_t pkt_01_welcome_send(uint64_t peer_id,
                            uint16_t view_id,
                            uint64_t ent_id,
-                           uint16_t block_size,
                            uint16_t chunk_size,
                            uint16_t world_size);
 size_t pkt_01_welcome_encode(pkt_01_welcome *table);
