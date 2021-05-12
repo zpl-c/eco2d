@@ -3,6 +3,7 @@
 #include "world/world.h"
 #include "world/blocks.h"
 #include "raylib.h"
+#include "gen/texgen.h"
 
 #define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 
@@ -22,9 +23,7 @@ typedef struct {
 int32_t blocks_setup(void) {
     for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
         block *b = &blocks[i];
-        
-        // TODO(zaklaus): introduce texgen
-        b->img = GenImageColor(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, RAYWHITE);
+        b->img = texgen_build_block(b->biome, b->kind);
     }
     return 0;
 }

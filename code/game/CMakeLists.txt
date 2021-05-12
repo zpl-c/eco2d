@@ -26,6 +26,8 @@ add_executable(eco2d
 	source/world/perlin.c
 	source/world/world.c
 
+	source/gen/texgen.c
+
 	source/world/worldgen/worldgen_test.c
 
 	${PKT_SRCS}

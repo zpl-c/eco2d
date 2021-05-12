@@ -1,5 +1,6 @@
 #include "assets.h"
 #include "raylib.h"
+#include "gen/texgen.h"
 
 #define ASSETS_COUNT (sizeof(assets)/sizeof(asset))
 
@@ -23,10 +24,7 @@ int32_t assets_setup(void) {
         
         switch (b->kind) {
             case AKIND_TEXTURE: {
-                // TODO(zaklaus): introduce texgen
-                Image img = GenImageColor(1, 1, RAYWHITE);
-                b->tex = LoadTextureFromImage(img);
-                UnloadImage(img);
+                b->tex = texgen_build_sprite(b->id);
             }break;
             
             case AKIND_SOUND: {
