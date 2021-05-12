@@ -5,7 +5,7 @@
 #include "modules/physics.h"
 #include "world/world.h"
 #include "entity_view.h"
-#include "worldgen/worldgen.h"
+#include "world/worldgen/worldgen.h"
 #include "platform.h"
 
 #include "packets/pkt_send_librg_update.h"

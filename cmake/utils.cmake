@@ -8,11 +8,6 @@ function(link_system_libs target_name)
     endif()
 endfunction()
 
-macro(populate_pkt_srcs)
-	file(GLOB PKT_SRCS ../common/packets/*.h ../common/packets/*.c)
-endmacro()
-
-
 macro(use_cxx11)
     if (CMAKE_VERSION VERSION_LESS "3.1")
         if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

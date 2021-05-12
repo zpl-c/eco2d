@@ -3,7 +3,7 @@
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
 #include "librg.h"
-#include "world.h"
+#include "world/world.h"
 
 #include "modules/general.h"
 #include "modules/controllers.h"

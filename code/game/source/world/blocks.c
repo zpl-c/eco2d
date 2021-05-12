@@ -1,23 +1,25 @@
+#define ZPL_PICO
 #include "zpl.h"
 #include "world/blocks.h"
-
-// todo: csv parsing + utils
+#include "raylib.h"
 
 #define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 
 typedef struct {
-    uint8_t tex_id;
     char *name;
     uint32_t flags;
     uint32_t kind;
     uint32_t biome;
     char symbol;
+    
+    // NOTE(zaklaus): viewer data
+    Image tex;
 } block;
 
 #include "blocks_list.c"
 
 uint8_t blocks_find(uint32_t biome, uint32_t kind) {
-    for (int i=0; i<BLOCKS_COUNT; i++) {
+    for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
         if (blocks[i].biome == biome && blocks[i].kind == kind)
             return i;
     }
@@ -26,10 +28,6 @@ uint8_t blocks_find(uint32_t biome, uint32_t kind) {
 
 char *blocks_get_name(uint8_t id) {
     return blocks[id].name;
-}
-
-uint8_t blocks_get_tex_id(uint8_t id) {
-    return blocks[id].tex_id;
 }
 
 char blocks_get_symbol(uint8_t id) {
