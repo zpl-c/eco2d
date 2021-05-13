@@ -184,8 +184,8 @@ void debug_draw(void) {
     
     // NOTE(zaklaus): move debug ui
     if (is_handle_ctrl_held) {
-        debug_xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
-        debug_ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
+        debug_xpos = xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
+        debug_ypos = ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
         
         if (area == DAREA_PRESS) {
             is_handle_ctrl_held = 0;
