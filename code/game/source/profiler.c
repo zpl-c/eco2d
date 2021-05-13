@@ -6,7 +6,7 @@
 
 // NOTE(zaklaus): KEEP ORDER IN SYNC WITH profiler_kind ENUM !!!
 static profiler profilers[] = {
-    { .id = PROF_MAIN_LOOP, .name = "measured time" },
+    { .id = PROF_MAIN_LOOP, .name = "main loop" },
     { .id = PROF_WORLD_WRITE, .name = "world write" },
     { .id = PROF_RENDER, .name = "render" },
     { .id = PROF_UPDATE_SYSTEMS, .name = "update systems" },
