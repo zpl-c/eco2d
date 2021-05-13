@@ -203,10 +203,12 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_THING: {
             float x = data->x;
             float y = data->y;
+#if 0
             const char *title = TextFormat("Thing %d", key);
             int title_w = MeasureTextEco(title, font_size, font_spacing);
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
+#endif
             DrawCircleEco(x, y, size, ColorAlpha(BLUE, data->tran_time));
         }break;
         case EKIND_PLAYER: {
