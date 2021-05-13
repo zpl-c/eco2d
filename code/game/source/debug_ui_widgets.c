@@ -13,17 +13,15 @@ DrawFloat(float xpos, float ypos, float val) {
 }
 
 static inline debug_draw_result 
-DrawFormattedText(float xpos, float ypos, char const *text) {
-    assert(text);
-    UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
-    return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING};
-}
-
-static inline debug_draw_result 
 DrawColoredText(float xpos, float ypos, char const *text, Color color) {
     assert(text);
     UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, color);
     return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING};
+}
+
+static inline debug_draw_result 
+DrawFormattedText(float xpos, float ypos, char const *text) {
+    return DrawColoredText(xpos, ypos, text, RAYWHITE);
 }
 
 //~ NOTE(zaklaus): widgets

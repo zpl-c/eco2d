@@ -23,8 +23,12 @@ typedef struct {
 #define DBG_LIST_XPOS_OFFSET 10
 #define DBG_SHADOW_OFFSET_XPOS 1
 #define DBG_SHADOW_OFFSET_YPOS 1
+#define DBG_CTRL_HANDLE_DIM 10
 
 static uint8_t is_shadow_rendered;
+static uint8_t is_handle_ctrl_held;
+static float debug_xpos = DBG_START_XPOS;
+static float debug_ypos = DBG_START_YPOS;
 
 typedef struct debug_item {
     debug_kind kind;
@@ -168,8 +172,31 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
 }
 
 void debug_draw(void) {
-    debug_draw_list(items, DBG_START_XPOS+DBG_SHADOW_OFFSET_XPOS, DBG_START_YPOS+DBG_SHADOW_OFFSET_YPOS, 1); // NOTE(zaklaus): draw shadow
-    debug_draw_list(items, DBG_START_XPOS, DBG_START_YPOS, 0);
+    float xpos = debug_xpos;
+    float ypos = debug_ypos;
+    debug_area_status area = check_mouse_area(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
+    Color color = BLUE;
+    if (area == DAREA_HOVER) color = YELLOW;
+    if (area == DAREA_HELD) {
+        color = RED;
+        is_handle_ctrl_held = 1;
+    }
+    
+    // NOTE(zaklaus): move debug ui
+    if (is_handle_ctrl_held) {
+        debug_xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
+        debug_ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
+        
+        if (area == DAREA_PRESS) {
+            is_handle_ctrl_held = 0;
+        }
+    }
+    
+    DrawRectangle(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
+    xpos += 15;
+    
+    debug_draw_list(items, xpos+DBG_SHADOW_OFFSET_XPOS, ypos+DBG_SHADOW_OFFSET_YPOS, 1); // NOTE(zaklaus): draw shadow
+    debug_draw_list(items, xpos, ypos, 0);
 }
 
 debug_area_status check_mouse_area(float xpos, float ypos, float w, float h) {
