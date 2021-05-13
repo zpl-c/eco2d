@@ -63,6 +63,7 @@ void UIDrawText(const char *text, float posX, float posY, int fontSize, Color co
 int UIMeasureText(const char *text, int fontSize);
 
 #include "debug_ui_widgets.c"
+#include "debug_ui_actions.c"
 
 static debug_item items[] = {
     {
@@ -90,6 +91,11 @@ static debug_item items[] = {
             },
             //.is_collapsed = 1
         }
+    },
+    {
+        .kind = DITEM_BUTTON,
+        .name = "exit game",
+        .on_click = ActExitGame,
     },
     {.kind = DITEM_END},
 };
@@ -131,6 +137,21 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 assert(it->proc);
                 
                 debug_draw_result res = it->proc(it, xpos, ypos);
+                ypos = res.y;
+            }break;
+            
+            case DITEM_BUTTON: {
+                assert(it->on_click);
+                char const *text = TextFormat("> %s", it->name);
+                if (it->name_width == 0) {
+                    it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
+                }
+                Color color = RAYWHITE;
+                if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color)) {
+                    it->on_click();
+                }
+                
+                debug_draw_result res = DrawColoredText(xpos, ypos, text, color);
                 ypos = res.y;
             }break;
             

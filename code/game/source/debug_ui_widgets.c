@@ -19,6 +19,13 @@ DrawFormattedText(float xpos, float ypos, char const *text) {
     return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING};
 }
 
+static inline debug_draw_result 
+DrawColoredText(float xpos, float ypos, char const *text, Color color) {
+    assert(text);
+    UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, color);
+    return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING};
+}
+
 //~ NOTE(zaklaus): widgets
 
 static inline debug_draw_result 
