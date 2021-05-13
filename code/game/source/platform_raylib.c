@@ -133,11 +133,10 @@ void platform_render() {
         BeginMode2D(render_camera);
         game_world_view_active_entity_map(DEBUG_draw_ground);
         game_world_view_active_entity_map(DEBUG_draw_entities);
-        EndMode2D();
-        
+        EndMode2D();        
         display_conn_status();
-        debug_draw();
     }
+    debug_draw();
     EndDrawing();
 }
 
