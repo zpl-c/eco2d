@@ -169,6 +169,8 @@ void game_action_send_keystate(float x, float y, uint8_t use, uint8_t sprint) {
 }
 
 void game_world_cleanup_entities(void) {
+    // TODO(zaklaus): not the best approach to do a cleanup, let memory stay for a while as it might be reused later on anyway.
+#if 0
     for (int i = 0; i < zpl_buffer_count(world_viewers); i += 1){
         entity_view_tbl *view = &world_viewers[i].entities;
         
@@ -180,5 +182,5 @@ void game_world_cleanup_entities(void) {
         }
         
     }
-    
+#endif
 }
