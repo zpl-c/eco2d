@@ -202,7 +202,9 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
 
 
 int32_t world_update() {
-    ecs_progress(world.ecs, 0.0f);
+    profile (PROF_UPDATE_SYSTEMS) {
+        ecs_progress(world.ecs, 0.0f);
+    }
 
     world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
     world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);

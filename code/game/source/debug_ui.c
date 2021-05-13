@@ -86,7 +86,9 @@ static debug_item items[] = {
                 { .kind = DITEM_RAW, .val = PROF_MAIN_LOOP, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_WORLD_WRITE, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_RENDER, .proc = DrawProfilerDelta },
+                { .kind = DITEM_RAW, .val = PROF_UPDATE_SYSTEMS, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_ENTITY_LERP, .proc = DrawProfilerDelta },
+                { .kind = DITEM_RAW, .val = PROF_ENTITY_REMOVAL, .proc = DrawProfilerDelta },
                 { .kind = DITEM_END },
             },
             //.is_collapsed = 1

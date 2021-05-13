@@ -9,7 +9,9 @@ static profiler profilers[] = {
     { .id = PROF_MAIN_LOOP, .name = "measured time" },
     { .id = PROF_WORLD_WRITE, .name = "world write" },
     { .id = PROF_RENDER, .name = "render" },
+    { .id = PROF_UPDATE_SYSTEMS, .name = "update systems" },
     { .id = PROF_ENTITY_LERP, .name = "entity lerp" },
+    { .id = PROF_ENTITY_REMOVAL, .name = "entity removal" },
 };
 
 static_assert((sizeof(profilers)/sizeof(profilers[0])) == MAX_PROF, "mismatched profilers");
