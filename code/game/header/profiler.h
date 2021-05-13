@@ -3,6 +3,7 @@
 
 typedef enum {
     PROF_MAIN_LOOP,
+    
     PROF_WORLD_WRITE,
     PROF_RENDER,
     PROF_UPDATE_SYSTEMS,

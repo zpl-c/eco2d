@@ -197,3 +197,7 @@ void game_world_cleanup_entities(void) {
     }
 #endif
 }
+
+void game_request_close() {
+    platform_request_close();
+}
