@@ -29,6 +29,15 @@ DrawColoredText(float xpos, float ypos, char const *text, Color color) {
 //~ NOTE(zaklaus): widgets
 
 static inline debug_draw_result 
+DrawUnmeasuredTime(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    float total_time = profiler_delta(PROF_TOTAL_TIME);
+    float acc_time = profiler_delta(PROF_MAIN_LOOP);
+    
+    return DrawFormattedText(xpos, ypos, TextFormat("%.02f ms", (total_time-acc_time) * 1000.0f));
+}
+
+static inline debug_draw_result 
 DrawDeltaTime(debug_item *it, float xpos, float ypos) {
     (void)it;
     float dt = GetFrameTime();

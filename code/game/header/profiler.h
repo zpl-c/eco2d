@@ -2,6 +2,7 @@
 #include "system.h"
 
 typedef enum {
+    PROF_TOTAL_TIME,
     PROF_MAIN_LOOP,
     
     PROF_WORLD_WRITE,

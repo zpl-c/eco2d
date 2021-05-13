@@ -6,6 +6,7 @@
 
 // NOTE(zaklaus): KEEP ORDER IN SYNC WITH profiler_kind ENUM !!!
 static profiler profilers[] = {
+    { .id = PROF_TOTAL_TIME, .name = "measured time" },
     { .id = PROF_MAIN_LOOP, .name = "main loop" },
     { .id = PROF_WORLD_WRITE, .name = "world write" },
     { .id = PROF_RENDER, .name = "render" },
@@ -33,16 +34,21 @@ void profiler_stop(profiler_kind id) {
 
 void profiler_collate() {
     static double frame_counter = 0.0;
+    static uint64_t frames = 0;
     
     frame_counter += GetFrameTime();
+    frames++;
     
     if (frame_counter >= PROF_COLLATE_WINDOW) {
-        for (uint32_t i = 0; i < MAX_PROF; i += 1) {
+        profilers[PROF_TOTAL_TIME].delta_time = frame_counter / (double)frames;
+        
+        for (uint32_t i = PROF_MAIN_LOOP; i < MAX_PROF; i += 1) {
             profiler *p = &profilers[i];
             p->delta_time = p->num_invocations == 0 ? 0.0 : p->total_time / (double)p->num_invocations;
         }
         
         frame_counter = 0.0;
+        frames = 0;
     }
 }
 
