@@ -2,6 +2,7 @@
 #include "system.h"
 #include "raylib.h"
 #include "world/blocks.h"
+#include "assets.h"
 
 static inline 
 void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {

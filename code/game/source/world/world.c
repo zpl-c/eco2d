@@ -7,6 +7,7 @@
 #include "entity_view.h"
 #include "world/worldgen/worldgen.h"
 #include "platform.h"
+#include "profiler.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -165,34 +166,36 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;
         world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
-    ECS_IMPORT(world.ecs, General);
-    ECS_IMPORT(world.ecs, Net);
-    
-    ecs_iter_t it = ecs_query_iter(world.ecs_update);
-    static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
-    world.active_layer_id = ticker;
-    
-    while (ecs_query_next(&it)) {
-        ClientInfo *p = ecs_column(&it, ClientInfo, 1);
-        
-        for (int i = 0; i < it.count; i++) {
-            size_t datalen = WORLD_LIBRG_BUFSIZ;
+    profile(PROF_WORLD_WRITE) {
+        ECS_IMPORT(world.ecs, General);
+        ECS_IMPORT(world.ecs, Net);
             
-            // TODO(zaklaus): SUPER TEMPORARY HOT !!! simulate variable radius queries
-            {
-                librg_entity_radius_set(world_tracker(), p[i].peer, radius);
+        ecs_iter_t it = ecs_query_iter(world.ecs_update);
+        static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
+        world.active_layer_id = ticker;
+            
+        while (ecs_query_next(&it)) {
+            ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+                    
+            for (int i = 0; i < it.count; i++) {
+                size_t datalen = WORLD_LIBRG_BUFSIZ;
+                            
+                // TODO(zaklaus): SUPER TEMPORARY HOT !!! simulate variable radius queries
+                {
+                    librg_entity_radius_set(world_tracker(), p[i].peer, radius);
+                }
+                            
+                // TODO(zaklaus): push radius once librg patch comes in
+                int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
+                            
+                if (result > 0) {
+                    zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
+                } else if (result < 0) {
+                    zpl_printf("[error] an error happened writing the world %d\n", result);
+                }
+                            
+                pkt_send_librg_update((uint64_t)p[i].peer, p[i].view_id, ticker, buffer, datalen);
             }
-            
-            // TODO(zaklaus): push radius once librg patch comes in
-            int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
-            
-            if (result > 0) {
-                zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
-            } else if (result < 0) {
-                zpl_printf("[error] an error happened writing the world %d\n", result);
-            }
-            
-            pkt_send_librg_update((uint64_t)p[i].peer, p[i].view_id, ticker, buffer, datalen);
         }
     }
 }

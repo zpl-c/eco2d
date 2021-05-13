@@ -17,6 +17,8 @@ add_executable(eco2d
 	source/packet.c
 	source/player.c
 	source/signal_handling.c
+	source/profiler.c
+	source/debug_ui.c
   
 	source/utils/options.c
 

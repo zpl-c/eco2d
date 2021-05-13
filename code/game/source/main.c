@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "utils/options.h"
 #include "signal_handling.h"
+#include "profiler.h"
 
 #include "flecs/flecs.h"
 #include "flecs/flecs_dash.h"
@@ -85,9 +86,13 @@ int main(int argc, char** argv)
     }
     
     while (game_is_running()) {
-        game_input();
-        game_update();
-        game_render();
+        profile (PROF_MAIN_LOOP) {
+            game_input();
+            game_update();
+            game_render();
+        }
+        
+        profiler_collate();
     }
 
     game_shutdown();

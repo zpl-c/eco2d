@@ -9,6 +9,8 @@
 #include "math.h"
 #include "world/blocks.h"
 #include "assets.h"
+#include "profiler.h"
+#include "debug_ui.h"
 #include "utils/raylib_helpers.h"
 
 uint16_t screenWidth = 1600;
@@ -114,8 +116,10 @@ void do_entity_fadeinout(uint64_t key, entity_view * data);
 float zpl_lerp(float,float,float);
 
 void platform_render() {
-    game_world_view_active_entity_map(lerp_entity_positions);
-    game_world_view_active_entity_map(do_entity_fadeinout);
+    profile(PROF_ENTITY_LERP) {
+        game_world_view_active_entity_map(lerp_entity_positions);
+        game_world_view_active_entity_map(do_entity_fadeinout);
+    }
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
     camera_update();
 
@@ -124,12 +128,16 @@ void platform_render() {
     zoom_overlay_tran = zpl_lerp(zoom_overlay_tran, (target_zoom <= CAM_OVERLAY_ZOOM_LEVEL) ? 1.0f : 0.0f, GetFrameTime()*2.0f);
 
     BeginDrawing();
-    ClearBackground(GetColor(0x222034));
-    BeginMode2D(render_camera);
-    game_world_view_active_entity_map(DEBUG_draw_ground);
-    game_world_view_active_entity_map(DEBUG_draw_entities);
-    EndMode2D();
-    display_conn_status();
+    profile (PROF_RENDER) {
+        ClearBackground(GetColor(0x222034));
+        BeginMode2D(render_camera);
+        game_world_view_active_entity_map(DEBUG_draw_ground);
+        game_world_view_active_entity_map(DEBUG_draw_entities);
+        EndMode2D();
+        
+        display_conn_status();
+        debug_draw();
+    }
     EndDrawing();
 }
 
@@ -143,9 +151,6 @@ void display_conn_status() {
     } else {
         DrawText("Connection: single-player", 5, 5, 12, BLUE);
     }
-    
-    DrawFPS(0, 20);
-    DrawText(TextFormat("Zoom: %.02f", target_zoom), 0, 45, 20, WHITE);
 }
 
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
@@ -261,4 +266,8 @@ void do_entity_fadeinout(uint64_t key, entity_view * data) {
         
         default: break;
     }
+}
+
+float platform_zoom_get(void) {
+    return target_zoom;
 }
