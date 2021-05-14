@@ -88,7 +88,7 @@ static debug_item items[] = {
         .list = {
             .items = (debug_item[]) {
                 { .kind = DITEM_RAW, .val = PROF_MAIN_LOOP, .proc = DrawProfilerDelta },
-                { .kind = DITEM_TEXT, .name = "unmesasured time", .proc = DrawUnmeasuredTime },
+                { .kind = DITEM_TEXT, .name = "unmeasured time", .proc = DrawUnmeasuredTime },
                 { .kind = DITEM_RAW, .val = PROF_WORLD_WRITE, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_RENDER, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_UPDATE_SYSTEMS, .proc = DrawProfilerDelta },
