@@ -27,7 +27,6 @@ uint64_t player_spawn(char *name) {
     ecs_set(world_ecs(), e, Input, {0});
     ecs_add(world_ecs(), e, Player);
     Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
-    uint16_t half_world_dim = world_dim() / 2;
     pos->x=rand() % world_dim();
     pos->y=rand() % world_dim();
 

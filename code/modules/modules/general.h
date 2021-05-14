@@ -6,7 +6,7 @@
 ECS_STRUCT(Vector2D, {
     float x;
     float y;
-});
+           });
 
 ECS_STRUCT(Chunk, {
     int16_t x;

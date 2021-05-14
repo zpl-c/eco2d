@@ -5,7 +5,7 @@ Image texgen_build_block(uint32_t biome, uint32_t kind) {
     // TODO(zaklaus): 
     (void)biome;
     (void)kind;
-    return GenImageColor(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, RAYWHITE);
+    return GenImageWhiteNoise(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, 0.8f);
 }
 
 Texture2D texgen_build_sprite(asset_id id) {

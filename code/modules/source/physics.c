@@ -18,7 +18,7 @@ void MoveWalk(ecs_iter_t *it) {
 
 void HandleCollisions(ecs_iter_t *it) {
     Position *p = ecs_column(it, Position, 1);
-    Velocity *v = ecs_column(it, Velocity, 2);
+    //Velocity *v = ecs_column(it, Velocity, 2);
     
     for (int i = 0; i < it->count; i++) {
         // NOTE(zaklaus): world bounds

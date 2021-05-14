@@ -144,6 +144,13 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         librg_entity_track(world.tracker, e);
         librg_entity_chunk_set(world.tracker, e, i);
         librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
+        chunk->blocks = NULL;
+        
+        // TODO(zaklaus): populate chunks from worldgen
+        for (int j = 0; j < world.chunk_size * world.chunk_size; j += 1) {
+            uint8_t *c = ecs_vector_add(&chunk->blocks, uint8_t);
+            *c = 0;
+        }
     }
 
     zpl_printf("[INFO] Created a new server world\n");
