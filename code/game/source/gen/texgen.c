@@ -1,6 +1,8 @@
 #include "gen/texgen.h"
 #include "world/world.h"
 
+#include "texgen_data.c"
+
 Image texgen_build_block(uint32_t biome, uint32_t kind) {
     // TODO(zaklaus): 
     (void)biome;
