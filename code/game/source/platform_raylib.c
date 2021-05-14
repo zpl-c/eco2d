@@ -13,11 +13,11 @@
 #include "debug_ui.h"
 #include "utils/raylib_helpers.h"
 
-uint16_t screenWidth = 1600;
-uint16_t screenHeight = 900;
-float target_zoom = 4.0f;
-float zoom_overlay_tran = 0.0f;
-bool request_shutdown;
+static uint16_t screenWidth = 1600;
+static uint16_t screenHeight = 900;
+static float target_zoom = 4.0f;
+static float zoom_overlay_tran = 0.0f;
+static bool request_shutdown;
 
 #define CAM_OVERLAY_ZOOM_LEVEL 0.80f
 
