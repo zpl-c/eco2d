@@ -26,6 +26,7 @@ typedef struct {
 #define DBG_CTRL_HANDLE_DIM 10
 
 static uint8_t is_shadow_rendered;
+static uint8_t is_debug_open = 1;
 static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
@@ -96,7 +97,7 @@ static debug_item items[] = {
                 { .kind = DITEM_RAW, .val = PROF_ENTITY_REMOVAL, .proc = DrawProfilerDelta },
                 { .kind = DITEM_END },
             },
-            //.is_collapsed = 1
+            .is_collapsed = 1
         }
     },
     {
@@ -193,10 +194,26 @@ void debug_draw(void) {
     }
     
     DrawRectangle(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
-    xpos += 15;
     
-    debug_draw_list(items, xpos+DBG_SHADOW_OFFSET_XPOS, ypos+DBG_SHADOW_OFFSET_YPOS, 1); // NOTE(zaklaus): draw shadow
-    debug_draw_list(items, xpos, ypos, 0);
+    // NOTE(zaklaus): toggle debug ui
+    {
+        Color toggle_color = BLUE;
+        debug_area_status toggle_area = check_mouse_area(xpos, 15+ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
+        if (toggle_area == DAREA_HOVER) toggle_color = YELLOW;
+        if (toggle_area == DAREA_HELD) {
+            toggle_color = RED;
+        }
+        if (toggle_area == DAREA_PRESS) {
+            is_debug_open = !is_debug_open;
+        }
+        DrawPoly((Vector2){xpos+DBG_CTRL_HANDLE_DIM/2, ypos+15+DBG_CTRL_HANDLE_DIM/2}, 3, 7.5f,is_debug_open ? 0.0f : 180.0f, toggle_color);
+    }
+    
+    if (is_debug_open) {
+        xpos += 15;
+        debug_draw_list(items, xpos+DBG_SHADOW_OFFSET_XPOS, ypos+DBG_SHADOW_OFFSET_YPOS, 1); // NOTE(zaklaus): draw shadow
+        debug_draw_list(items, xpos, ypos, 0);
+    }
 }
 
 debug_area_status check_mouse_area(float xpos, float ypos, float w, float h) {
