@@ -209,7 +209,7 @@ void debug_draw(void) {
         if (area == DAREA_PRESS) {
             is_debug_open = !is_debug_open;
         }
-        DrawPoly((Vector2){xpos+DBG_CTRL_HANDLE_DIM/2, ypos+15+DBG_CTRL_HANDLE_DIM/2}, 3, 7.5f,is_debug_open ? 0.0f : 180.0f, color);
+        DrawPoly((Vector2){xpos+DBG_CTRL_HANDLE_DIM/2, ypos+15+DBG_CTRL_HANDLE_DIM/2}, 3, 6.0f,is_debug_open ? 0.0f : 180.0f, color);
     }
     
     if (is_debug_open) {
