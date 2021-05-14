@@ -175,38 +175,41 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
 void debug_draw(void) {
     float xpos = debug_xpos;
     float ypos = debug_ypos;
-    debug_area_status area = check_mouse_area(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
-    Color color = BLUE;
-    if (area == DAREA_HOVER) color = YELLOW;
-    if (area == DAREA_HELD) {
-        color = RED;
-        is_handle_ctrl_held = 1;
-    }
     
     // NOTE(zaklaus): move debug ui
-    if (is_handle_ctrl_held) {
-        debug_xpos = xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
-        debug_ypos = ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
-        
-        if (area == DAREA_PRESS) {
-            is_handle_ctrl_held = 0;
+    {
+        debug_area_status area = check_mouse_area(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
+        Color color = BLUE;
+        if (area == DAREA_HOVER) color = YELLOW;
+        if (area == DAREA_HELD) {
+            color = RED;
+            is_handle_ctrl_held = 1;
         }
+            
+        if (is_handle_ctrl_held) {
+            debug_xpos = xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
+            debug_ypos = ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
+                    
+            if (area == DAREA_PRESS) {
+                is_handle_ctrl_held = 0;
+            }
+        }
+            
+        DrawRectangle(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
     }
-    
-    DrawRectangle(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
     
     // NOTE(zaklaus): toggle debug ui
     {
-        Color toggle_color = BLUE;
-        debug_area_status toggle_area = check_mouse_area(xpos, 15+ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
-        if (toggle_area == DAREA_HOVER) toggle_color = YELLOW;
-        if (toggle_area == DAREA_HELD) {
-            toggle_color = RED;
+        Color color = BLUE;
+        debug_area_status area = check_mouse_area(xpos, 15+ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
+        if (area == DAREA_HOVER) color = YELLOW;
+        if (area == DAREA_HELD) {
+            color = RED;
         }
-        if (toggle_area == DAREA_PRESS) {
+        if (area == DAREA_PRESS) {
             is_debug_open = !is_debug_open;
         }
-        DrawPoly((Vector2){xpos+DBG_CTRL_HANDLE_DIM/2, ypos+15+DBG_CTRL_HANDLE_DIM/2}, 3, 7.5f,is_debug_open ? 0.0f : 180.0f, toggle_color);
+        DrawPoly((Vector2){xpos+DBG_CTRL_HANDLE_DIM/2, ypos+15+DBG_CTRL_HANDLE_DIM/2}, 3, 7.5f,is_debug_open ? 0.0f : 180.0f, color);
     }
     
     if (is_debug_open) {
