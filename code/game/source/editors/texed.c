@@ -147,8 +147,8 @@ void texed_run(void) {
         
         zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 25.0f);
         zpl_aabb2 oplist_pane = zpl_aabb2_cut_right(&screen, screenWidth / 2.0f);
-        zpl_aabb2 preview_window = zpl_aabb2_cut_top(&screen, (screen.max.y-screen.min.y) / 2.0f);
-        zpl_aabb2 property_pane = screen;
+        zpl_aabb2 property_pane = zpl_aabb2_cut_bottom(&screen, screenHeight / 2.0f);
+        zpl_aabb2 preview_window = screen;
         
         // NOTE(zaklaus): contract all panes for a clean UI separation
         oplist_pane = zpl_aabb2_contract(&oplist_pane, TD_UI_PADDING);
