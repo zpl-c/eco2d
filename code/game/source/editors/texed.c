@@ -241,7 +241,7 @@ void texed_swp_op(int idx, int idx2) {
     td_op tmp = ctx.ops[idx2];
     ctx.ops[idx2] = ctx.ops[idx];
     ctx.ops[idx] = tmp;
-    ctx.selected_op = idx2;
+    if (idx == ctx.selected_op) ctx.selected_op = idx2;
     texed_repaint_preview();
 }
 
