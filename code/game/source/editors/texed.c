@@ -36,7 +36,7 @@ typedef struct {
     union {
         float number;
         int pix;
-        char *str;
+        char str[400];
         Color color;
     };
 } td_param;
@@ -381,6 +381,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
             zpl_strcpy(filename, ctx.fileDialog.fileNameText);
             ctx.filepath = filename;
             load_pending = false;
+            texed_load();
         } else {
             ctx.fileDialog.fileDialogActive = true;
         }
@@ -407,7 +408,9 @@ void texed_draw_topbar(zpl_aabb2 r) {
     
     if (ctx.fileDialog.SelectFilePressed && save_as_pending) {
         ctx.fileDialog.SelectFilePressed = false;
-        zpl_strcpy(ctx.fileDialog.fileNameText, zpl_bprintf("%s.ecotex", ctx.fileDialog.fileNameText));
+        if (!IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
+            zpl_strcpy(ctx.fileDialog.fileNameText, zpl_bprintf("%s.ecotex", ctx.fileDialog.fileNameText));
+        }
         zpl_strcpy(filename, ctx.fileDialog.fileNameText);
         ctx.filepath = filename;
         save_as_pending = false;
@@ -429,12 +432,68 @@ void texed_swp_op(int idx, int idx2) {
     texed_repaint_preview();
 }
 
+#define ECOTEX_VERSION 1
+
+#define UNPACK(kind) cw_unpack_next(&uc); assert(uc.item.type == kind);
+
 void texed_load(void) {
-    // TODO(zaklaus): 
+    assert(ctx.filepath);
+    zpl_printf("Loading %s ...\n", ctx.filepath);
+    zpl_array_clear(ctx.ops);
+    
+    uint32_t size = 0;
+    uint8_t *databuf = LoadFileData(zpl_bprintf("art/%s", ctx.filepath), &size); 
+    
+    cw_unpack_context uc;
+    cw_unpack_context_init(&uc, databuf, (size_t)size, NULL);
+    
+    UNPACK(CWP_ITEM_POSITIVE_INTEGER);
+    assert(uc.item.as.u64 == ECOTEX_VERSION);
+    
+    UNPACK(CWP_ITEM_ARRAY);
+    int arrsize = (int)uc.item.as.array.size;
+    for (int i = 0; i < arrsize; i += 1) {
+        UNPACK(CWP_ITEM_POSITIVE_INTEGER);
+        int kind = (int)uc.item.as.u64;
+        texed_add_op(kind);
+        td_op *op = zpl_array_end(ctx.ops);
+        UNPACK(CWP_ITEM_BOOLEAN);
+        op->is_hidden = uc.item.as.boolean;
+        
+        UNPACK(CWP_ITEM_POSITIVE_INTEGER);
+        op->num_params = uc.item.as.u64;
+        op->params = zpl_malloc(sizeof(td_param)*op->num_params);
+        UNPACK(CWP_ITEM_BIN);
+        zpl_memcopy(op->params, uc.item.as.bin.start, uc.item.as.bin.length);
+    }
+    
+    assert(uc.return_code == CWP_RC_OK);
+    cw_unpack_next(&uc);
+    assert(uc.return_code == CWP_RC_END_OF_INPUT);
+    
+    texed_repaint_preview();
+    UnloadFileData(databuf);
 }
 
 void texed_save(void) {
     assert(ctx.filepath);
+    zpl_printf("Saving %s ...\n", ctx.filepath);
     
-    // TODO(zaklaus): 
+    static uint8_t databuf[400000] = {0};
+    
+    cw_pack_context pc;
+    cw_pack_context_init(&pc, databuf, sizeof(databuf), NULL);
+    
+    cw_pack_unsigned(&pc, ECOTEX_VERSION);
+    
+    cw_pack_array_size(&pc, zpl_array_count(ctx.ops));
+    for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
+        td_op *op = &ctx.ops[i];
+        cw_pack_unsigned(&pc, op->kind);
+        cw_pack_boolean(&pc, (bool)op->is_hidden);
+        cw_pack_unsigned(&pc, op->num_params);
+        cw_pack_bin(&pc, op->params, sizeof(td_param)*op->num_params);
+    }
+    
+    SaveFileData(zpl_bprintf("art/%s", ctx.filepath), databuf, pc.current - pc.start);
 }
