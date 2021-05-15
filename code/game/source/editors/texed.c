@@ -57,6 +57,7 @@ typedef enum {
     TOP_DITHER,
     TOP_LOAD_IMAGE,
     TOP_DRAW_TEXT,
+    TOP_RESIZE_IMAGE,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;

@@ -66,10 +66,19 @@ static td_op default_ops[] = {
             PARAM(TPARAM_INT, "size", "16"),
             PARAM(TPARAM_COLOR, "color", "ffffffff"),
         }
+    },
+    {
+        OP(TOP_RESIZE_IMAGE),
+        .num_params = 3,
+        .params = (td_param[]) {
+            PARAM(TPARAM_COORD, "w", "64"),
+            PARAM(TPARAM_COORD, "h", "64"),
+            PARAM(TPARAM_COORD, "mode (0=nearest,1=bicubic)", "0"),
+        }
     }
 };
 
 // NOTE(zaklaus): IMPORTANT !! keep these in sync
-static char const *add_op_list = "CLEAR SOLID;DRAW RECTANGLE;PLOT LINE;DITHER;LOAD IMAGE;DRAW TEXT";
+static char const *add_op_list = "NEW IMAGE;DRAW RECTANGLE;PLOT LINE;DITHER;LOAD IMAGE;DRAW TEXT;RESIZE IMAGE";
 
 #define DEF_OPS_LEN (int)(sizeof(default_ops) / (sizeof(default_ops[0])))

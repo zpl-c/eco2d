@@ -63,6 +63,16 @@ void texed_process_ops(void) {
                 Color color = op->params[4].color;
                 ImageDrawText(&ctx.img, str, x, y, size, color);
             }break;
+            case TOP_RESIZE_IMAGE: {
+                int w = op->params[0].i32;
+                int h = op->params[1].i32;
+                int mode = op->params[2].i32;
+                if (mode) {
+                    ImageResize(&ctx.img, w, h);
+                } else {
+                    ImageResizeNN(&ctx.img, w, h);
+                }
+            }break;
             default: {
                 zpl_printf("%s\n", "unsupported op!");
             }break;

@@ -1,7 +1,7 @@
 
 //~ NOTE(zaklaus): DATA SERIALISATION
 
-#define ECOTEX_VERSION 1
+#define ECOTEX_VERSION 2
 
 #define UNPACK(kind) cw_unpack_next(&uc); assert(uc.item.type == kind);
 
@@ -21,6 +21,9 @@ void texed_load(void) {
     
     UNPACK(CWP_ITEM_POSITIVE_INTEGER);
     int selected_op = (int)uc.item.as.u64;
+    
+    UNPACK(CWP_ITEM_FLOAT);
+    zoom = uc.item.as.real;
     
     UNPACK(CWP_ITEM_ARRAY);
     int arrsize = (int)uc.item.as.array.size;
@@ -75,6 +78,7 @@ void texed_save(void) {
     
     cw_pack_unsigned(&pc, ECOTEX_VERSION);
     cw_pack_unsigned(&pc, ctx.selected_op);
+    cw_pack_float(&pc, zoom);
     
     cw_pack_array_size(&pc, zpl_array_count(ctx.ops));
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
