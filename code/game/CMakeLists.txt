@@ -37,7 +37,7 @@ add_executable(eco2d
 )
 
 target_compile_definitions(eco2d PRIVATE CLIENT)
-include_directories(header ../modules)
+include_directories(header ../modules ../../art/gen)
 target_link_libraries(eco2d raylib cwpack eco2d-modules flecs-bundle)
 
 link_system_libs(eco2d)

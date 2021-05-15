@@ -33,10 +33,10 @@ typedef enum {
 
 typedef struct {
     td_param_kind kind;
+    char str[30];
     union {
-        float number;
-        int pix;
-        char str[400];
+        float flt;
+        int u32;
         Color color;
     };
 } td_param;
@@ -80,7 +80,7 @@ static td_op default_ops[] = {
         .params = (td_param[]) {
             {
                 .kind = TPARAM_COLOR,
-                .color = WHITE
+                .str = "ffffffff"
             }
         }
     },
@@ -90,23 +90,23 @@ static td_op default_ops[] = {
         .params = (td_param[]) {
             {
                 .kind = TPARAM_INT,
-                .pix = 0
+                .str = "0"
             },
             {
                 .kind = TPARAM_INT,
-                .pix = 0
+                .str = "0"
             },
             {
                 .kind = TPARAM_INT,
-                .pix = 10
+                .str = "10"
             },
             {
                 .kind = TPARAM_INT,
-                .pix = 10
+                .str = "10"
             },
             {
                 .kind = TPARAM_COLOR,
-                .color = RED
+                .str = "ff0000ff"
             },
             
         }
@@ -124,6 +124,7 @@ void texed_load(void);
 void texed_save(void);
 void texed_repaint_preview(void);
 void texed_process_ops(void);
+void texed_process_params(void);
 void texed_add_op(int idx);
 void texed_rem_op(int idx);
 void texed_swp_op(int idx, int idx2);
@@ -216,6 +217,7 @@ void texed_destroy(void) {
 void texed_repaint_preview(void) {
     UnloadTexture(ctx.tex);
     ImageClearBackground(&ctx.img, ColorAlpha(BLACK, 0.0f));
+    texed_process_params();
     texed_process_ops();
     ctx.tex = LoadTextureFromImage(ctx.img);
 }
@@ -263,13 +265,15 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     zpl_aabb2 export_code_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
     
     if (GuiButton(aabb2_ray(export_code_r), "BUILD TEXTURE")) {
-        
+        zpl_printf("Building texture %s.h ...\n", ctx.filepath);
+        ExportImageAsCode(ctx.img, zpl_bprintf("art/gen/%s.h", ctx.filepath));
     }
     
     zpl_aabb2 export_img_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
     
     if (GuiButton(aabb2_ray(export_img_r), "EXPORT AS IMAGE")) {
-        
+        zpl_printf("Exporting texture %s.png ...\n", ctx.filepath);
+        ExportImage(ctx.img, zpl_bprintf("art/gen/%s.png", ctx.filepath));
     }
     
     GuiSetState(GUI_STATE_NORMAL);
@@ -340,15 +344,45 @@ void texed_process_ops(void) {
             }break;
             case TOP_DRAW_RECT: {
                 ImageDrawRectangle(&ctx.img, 
-                                   op->params[0].pix,
-                                   op->params[1].pix,
-                                   op->params[2].pix,
-                                   op->params[3].pix,
+                                   op->params[0].u32,
+                                   op->params[1].u32,
+                                   op->params[2].u32,
+                                   op->params[3].u32,
                                    op->params[4].color);
             }break;
             default: {
                 zpl_printf("%s\n", "unsupported op!");
             }break;
+        }
+    }
+}
+
+void texed_process_params(void) {
+    for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
+        td_op *op = &ctx.ops[i];
+        if (op->is_hidden) continue;
+        
+        for (int j = 0; j < op->num_params; j += 1) {
+            td_param *p = &op->params[j];
+            
+            switch (p->kind) {
+                case TPARAM_FLOAT: {
+                    p->flt = (float)zpl_str_to_f64(p->str, NULL);
+                }break;
+                case TPARAM_INT: {
+                    p->u32 = (int)zpl_str_to_i64(p->str, NULL, 10);
+                }break;
+                case TPARAM_COLOR: {
+                    uint32_t color = (uint32_t)zpl_str_to_u64(p->str, NULL, 16);
+                    p->color = GetColor(color);
+                }break;
+                case TPARAM_STRING: {
+                    // NOTE(zaklaus): no-op
+                }break;
+                default: {
+                    zpl_printf("%s\n", "unsupported param!");
+                }break;
+            }
         }
     }
 }
