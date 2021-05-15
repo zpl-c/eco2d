@@ -19,6 +19,9 @@
 static uint16_t screenWidth = 1280;
 static uint16_t screenHeight = 720;
 static float zoom = 4.0f;
+static Texture2D checker_tex;
+static uint16_t old_screen_w;
+static uint16_t old_screen_h;
 
 #define TD_DEFAULT_IMG_WIDTH 64
 #define TD_DEFAULT_IMG_HEIGHT 64
@@ -128,33 +131,39 @@ Rectangle aabb2_ray(zpl_aabb2 r) {
 
 void texed_run(void) {
     InitWindow(screenWidth, screenHeight, "eco2d - texture editor");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
     
     texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
     
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
     
-    zpl_aabb2 screen = {
-        .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
-        .max = (zpl_vec2) {.x = screenWidth, .y = screenHeight},
-    };
-    
-    zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 25.0f);
-    zpl_aabb2 oplist_pane = zpl_aabb2_cut_right(&screen, screenWidth / 2.0f);
-    zpl_aabb2 preview_window = zpl_aabb2_cut_top(&screen, (screen.max.y-screen.min.y) / 2.0f);
-    zpl_aabb2 property_pane = screen;
-    
-    // NOTE(zaklaus): contract all panes for a clean UI separation
-    oplist_pane = zpl_aabb2_contract(&oplist_pane, TD_UI_PADDING);
-    preview_window = zpl_aabb2_contract(&preview_window, TD_UI_PADDING);
-    property_pane = zpl_aabb2_contract(&property_pane, TD_UI_PADDING);
-    
-    Rectangle preview_rect = aabb2_ray(preview_window);
-    Image checkerboard = GenImageChecked(preview_rect.width, preview_rect.height, 16, 16, BLACK, ColorAlpha(GRAY, 0.2f));
-    Texture2D checker_tex = LoadTextureFromImage(checkerboard);
-    UnloadImage(checkerboard);
-    
     while (!WindowShouldClose()) {
+        zpl_aabb2 screen = {
+            .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
+            .max = (zpl_vec2) {.x = GetScreenWidth(), .y = GetScreenHeight()},
+        };
+        
+        zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 25.0f);
+        zpl_aabb2 oplist_pane = zpl_aabb2_cut_right(&screen, screenWidth / 2.0f);
+        zpl_aabb2 preview_window = zpl_aabb2_cut_top(&screen, (screen.max.y-screen.min.y) / 2.0f);
+        zpl_aabb2 property_pane = screen;
+        
+        // NOTE(zaklaus): contract all panes for a clean UI separation
+        oplist_pane = zpl_aabb2_contract(&oplist_pane, TD_UI_PADDING);
+        preview_window = zpl_aabb2_contract(&preview_window, TD_UI_PADDING);
+        property_pane = zpl_aabb2_contract(&property_pane, TD_UI_PADDING);
+        
+        Rectangle preview_rect = aabb2_ray(preview_window);
+        
+        if (old_screen_w != GetScreenWidth() || old_screen_h != GetScreenHeight()) {
+            old_screen_w = GetScreenWidth();
+            old_screen_h = GetScreenHeight();
+            Image checkerboard = GenImageChecked(preview_rect.width, preview_rect.height, 16, 16, BLACK, ColorAlpha(GRAY, 0.2f));
+            checker_tex = LoadTextureFromImage(checkerboard);
+            UnloadImage(checkerboard);
+        }
+        
         BeginDrawing();
         ClearBackground(GetColor(0x222034));
         {
