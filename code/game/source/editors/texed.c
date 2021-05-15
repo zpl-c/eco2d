@@ -13,6 +13,9 @@
 #define GUI_FILE_DIALOG_IMPLEMENTATION
 #include "gui_file_dialog.h"
 
+#define GUI_TEXTBOX_EXTENDED_IMPLEMENTATION
+#include "gui_textbox_extended.h"
+
 static uint16_t screenWidth = 1280;
 static uint16_t screenHeight = 720;
 static float zoom = 4.0f;
@@ -24,6 +27,7 @@ static float zoom = 4.0f;
 
 typedef enum {
     TPARAM_FLOAT,
+    TPARAM_COORD,
     TPARAM_INT,
     TPARAM_COLOR,
     TPARAM_STRING,
@@ -52,6 +56,7 @@ typedef enum {
     TOP_DRAW_LINE,
     TOP_DITHER,
     TOP_LOAD_IMAGE,
+    TOP_DRAW_TEXT,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
@@ -125,6 +130,8 @@ void texed_run(void) {
     SetTargetFPS(60);
     
     texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
+    
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
     
     zpl_aabb2 screen = {
         .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
@@ -222,7 +229,7 @@ void texed_swp_op(int idx, int idx2) {
     td_op tmp = ctx.ops[idx2];
     ctx.ops[idx2] = ctx.ops[idx];
     ctx.ops[idx] = tmp;
-    
+    ctx.selected_op = idx2;
     texed_repaint_preview();
 }
 

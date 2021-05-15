@@ -38,13 +38,12 @@ void texed_load(void) {
         int parmarrsize = (int)uc.item.as.array.size;
         for (int j = 0; j < parmarrsize; j += 1) {
             td_param *p = &op->params[j];
-            UNPACK(CWP_ITEM_POSITIVE_INTEGER);
-            p->kind = (td_param_kind)uc.item.as.u64;
             UNPACK(CWP_ITEM_STR);
             zpl_memcopy(p->str, uc.item.as.str.start, uc.item.as.str.length);
             
             // NOTE(zaklaus): fix up other metadata
             p->name = default_ops[kind].params[j].name;
+            p->kind = default_ops[kind].params[j].kind;;
         }
     }
     
@@ -77,7 +76,6 @@ void texed_save(void) {
         cw_pack_array_size(&pc, op->num_params);
         for (int j = 0; j < op->num_params; j += 1) {
             td_param *p = &op->params[j];
-            cw_pack_unsigned(&pc, p->kind);
             cw_pack_str(&pc, p->str, zpl_strlen(p->str));
         }
     }

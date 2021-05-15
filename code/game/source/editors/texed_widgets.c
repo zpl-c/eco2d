@@ -182,7 +182,7 @@ void texed_draw_props_pane(zpl_aabb2 r) {
         
         switch (p->kind) {
             case TPARAM_COLOR: {
-                if (GuiTextBox(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
+                if (GuiTextBoxEx(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
                     p->edit_mode = true;
                 }
                 
@@ -198,9 +198,18 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                     }
                 }
             }break;
-            
+            case TPARAM_COORD: {
+                if (GuiValueBox(aabb2_ray(tbox_r), NULL, &p->i32, INT32_MIN, INT32_MAX, p->edit_mode)) {
+                    p->edit_mode = !p->edit_mode;
+                    
+                    if (!p->edit_mode) {
+                        sprintf(p->str, "%d", p->i32);
+                        texed_repaint_preview();
+                    }
+                };
+            }break;
             default: {
-                if (GuiTextBox(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
+                if (GuiTextBoxEx(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
                     p->edit_mode = !p->edit_mode;
                     
                     if (!p->edit_mode)
