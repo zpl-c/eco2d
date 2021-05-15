@@ -33,11 +33,15 @@ typedef enum {
 
 typedef struct {
     td_param_kind kind;
-    char str[30];
+    char const *name;
+    char str[1000];
+    bool edit_mode;
+    
     union {
         float flt;
         int u32;
         Color color;
+        char copy[4];
     };
 } td_param;
 
@@ -67,6 +71,7 @@ typedef struct {
     GuiFileDialogState fileDialog;
     
     td_op *ops; //< zpl_array
+    int selected_op;
 } td_ctx;
 
 static td_ctx ctx = {0};
@@ -80,6 +85,7 @@ static td_op default_ops[] = {
         .params = (td_param[]) {
             {
                 .kind = TPARAM_COLOR,
+                .name = "color",
                 .str = "ffffffff"
             }
         }
@@ -90,25 +96,29 @@ static td_op default_ops[] = {
         .params = (td_param[]) {
             {
                 .kind = TPARAM_INT,
+                .name = "x",
                 .str = "0"
             },
             {
                 .kind = TPARAM_INT,
+                .name = "y",
                 .str = "0"
             },
             {
                 .kind = TPARAM_INT,
+                .name = "w",
                 .str = "10"
             },
             {
                 .kind = TPARAM_INT,
+                .name = "h",
                 .str = "10"
             },
             {
                 .kind = TPARAM_COLOR,
+                .name = "color",
                 .str = "ff0000ff"
             },
-            
         }
     }
 };
@@ -130,6 +140,7 @@ void texed_rem_op(int idx);
 void texed_swp_op(int idx, int idx2);
 
 void texed_draw_oplist_pane(zpl_aabb2 r);
+void texed_draw_props_pane(zpl_aabb2 r);
 void texed_draw_topbar(zpl_aabb2 r);
 
 static inline
@@ -153,10 +164,6 @@ void texed_run(void) {
         .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
         .max = (zpl_vec2) {.x = screenWidth, .y = screenHeight},
     };
-    
-    // TODO(zaklaus): TEMP
-    texed_add_op(0);
-    texed_add_op(1);
     
     zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 25.0f);
     zpl_aabb2 oplist_pane = zpl_aabb2_cut_right(&screen, screenWidth / 2.0f);
@@ -186,6 +193,7 @@ void texed_run(void) {
             DrawAABB(oplist_pane, GetColor(0x425060));
             
             texed_draw_topbar(topbar);
+            texed_draw_props_pane(property_pane);
             texed_draw_oplist_pane(oplist_pane);
             
             if (ctx.fileDialog.fileDialogActive) GuiUnlock();
@@ -201,11 +209,11 @@ void texed_run(void) {
 void texed_new(int32_t w, int32_t h) {
     ctx.img = GenImageColor(w, h, WHITE);
     ctx.filepath = NULL;
+    ctx.selected_op = 0;
     zpl_array_init(ctx.ops, zpl_heap());
     texed_repaint_preview();
     
     ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
-    //zpl_strcpy(ctx.fileDialog.filterExt, ".ecotex");
 }
 
 void texed_destroy(void) {
@@ -236,6 +244,7 @@ void texed_add_op(int idx) {
     zpl_memcopy(op.params, dop->params, sizeof(td_param)*dop->num_params);
     
     zpl_array_append(ctx.ops, op);
+    ctx.selected_op = zpl_array_count(ctx.ops)-1;
     
     texed_repaint_preview();
 }
@@ -244,6 +253,10 @@ void texed_rem_op(int idx) {
     assert(idx >= 0 && idx < (int)zpl_array_count(ctx.ops));
     zpl_mfree(ctx.ops[idx].params);
     zpl_array_remove_at(ctx.ops, idx);
+    
+    if (idx == ctx.selected_op) {
+        if (idx > 0) ctx.selected_op -= 1;
+    }
     texed_repaint_preview();
 }
 
@@ -284,7 +297,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         zpl_aabb2_cut_top(&op_item_r, 2.5f);
         zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
         Rectangle list_item = aabb2_ray(op_item_r);
-        DrawRectangleRec(list_item, ColorAlpha(RED, 0.4f));
+        DrawRectangleRec(list_item, ColorAlpha(ctx.selected_op == i ? GREEN : RED, 0.4f));
         
         zpl_aabb2 swap_r = zpl_aabb2_cut_left(&op_item_r, 50.0f);
         Rectangle list_text = aabb2_ray(op_item_r);
@@ -314,6 +327,14 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
             texed_repaint_preview();
         }
         
+        if (ctx.selected_op != i) {
+            zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
+            
+            if (GuiButton(aabb2_ray(select_r), "SELECT")) {
+                ctx.selected_op = i;
+            }
+        }
+        
         GuiDrawText(ctx.ops[i].name, GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
     
@@ -322,6 +343,41 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         texed_add_op(add_op_dropbox_selected);
     }
 }
+
+void texed_draw_props_pane(zpl_aabb2 r) {
+    if (zpl_array_count(ctx.ops) == 0) {
+        GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+        GuiDrawText("No operation is selected!", GetTextBounds(LABEL, aabb2_ray(r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
+        GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+        return;
+    }
+    
+    td_op *op = &ctx.ops[ctx.selected_op];
+    Rectangle dims = aabb2_ray(r);
+    
+    zpl_aabb2 column_1_r = zpl_aabb2_cut_left(&r, dims.width/2.0f);
+    zpl_aabb2 column_2_r = r;
+    float prop_height = 40.0f;
+    int prop_column_treshold = (int)zpl_floor(dims.height / prop_height);
+    
+    for (int i = 0; i < op->num_params; i += 1) {
+        td_param *p = &op->params[i];
+        zpl_aabb2 *c = (i >= prop_column_treshold) ? &column_2_r : &column_1_r;
+        zpl_aabb2 item = zpl_aabb2_cut_top(c, prop_height);
+        zpl_aabb2 label_r = zpl_aabb2_cut_left(&item, dims.width/4.0f);
+        zpl_aabb2 tbox_r = item;
+        
+        GuiDrawText(zpl_bprintf("%s: ", p->name ? p->name : "prop"), GetTextBounds(LABEL, aabb2_ray(label_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
+        
+        if (GuiTextBox(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
+            p->edit_mode = !p->edit_mode;
+            
+            if (!p->edit_mode)
+                texed_repaint_preview();
+        }
+    }
+}
+
 static inline
 Rectangle aabb2_ray(zpl_aabb2 r) {
     return (Rectangle) {
@@ -452,7 +508,9 @@ void texed_draw_topbar(zpl_aabb2 r) {
     }
     
     zpl_aabb2 prj_name_r = zpl_aabb2_cut_right(&r, 200.0f);
+    GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
     GuiDrawText(zpl_bprintf("Project: %s", ctx.filepath ? ctx.filepath : "(unnamed)"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(BLACK, guiAlpha));
+    GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 }
 
 void texed_swp_op(int idx, int idx2) {
@@ -465,6 +523,8 @@ void texed_swp_op(int idx, int idx2) {
     
     texed_repaint_preview();
 }
+
+//~ NOTE(zaklaus): DATA SERIALISATION
 
 #define ECOTEX_VERSION 1
 
@@ -484,6 +544,9 @@ void texed_load(void) {
     UNPACK(CWP_ITEM_POSITIVE_INTEGER);
     assert(uc.item.as.u64 == ECOTEX_VERSION);
     
+    UNPACK(CWP_ITEM_POSITIVE_INTEGER);
+    int selected_op = (int)uc.item.as.u64;
+    
     UNPACK(CWP_ITEM_ARRAY);
     int arrsize = (int)uc.item.as.array.size;
     for (int i = 0; i < arrsize; i += 1) {
@@ -494,17 +557,27 @@ void texed_load(void) {
         UNPACK(CWP_ITEM_BOOLEAN);
         op->is_hidden = uc.item.as.boolean;
         
-        UNPACK(CWP_ITEM_POSITIVE_INTEGER);
+        UNPACK(CWP_ITEM_ARRAY);
         op->num_params = uc.item.as.u64;
         op->params = zpl_malloc(sizeof(td_param)*op->num_params);
-        UNPACK(CWP_ITEM_BIN);
-        zpl_memcopy(op->params, uc.item.as.bin.start, uc.item.as.bin.length);
+        int parmarrsize = (int)uc.item.as.array.size;
+        for (int j = 0; j < parmarrsize; j += 1) {
+            td_param *p = &op->params[j];
+            UNPACK(CWP_ITEM_POSITIVE_INTEGER);
+            p->kind = (td_param_kind)uc.item.as.u64;
+            UNPACK(CWP_ITEM_STR);
+            zpl_memcopy(p->str, uc.item.as.str.start, uc.item.as.str.length);
+            
+            // NOTE(zaklaus): fix up other metadata
+            p->name = default_ops[kind].params[j].name;
+        }
     }
     
     assert(uc.return_code == CWP_RC_OK);
     cw_unpack_next(&uc);
     assert(uc.return_code == CWP_RC_END_OF_INPUT);
     
+    ctx.selected_op = selected_op;
     texed_repaint_preview();
     UnloadFileData(databuf);
 }
@@ -519,14 +592,19 @@ void texed_save(void) {
     cw_pack_context_init(&pc, databuf, sizeof(databuf), NULL);
     
     cw_pack_unsigned(&pc, ECOTEX_VERSION);
+    cw_pack_unsigned(&pc, ctx.selected_op);
     
     cw_pack_array_size(&pc, zpl_array_count(ctx.ops));
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
         td_op *op = &ctx.ops[i];
         cw_pack_unsigned(&pc, op->kind);
         cw_pack_boolean(&pc, (bool)op->is_hidden);
-        cw_pack_unsigned(&pc, op->num_params);
-        cw_pack_bin(&pc, op->params, sizeof(td_param)*op->num_params);
+        cw_pack_array_size(&pc, op->num_params);
+        for (int j = 0; j < op->num_params; j += 1) {
+            td_param *p = &op->params[j];
+            cw_pack_unsigned(&pc, p->kind);
+            cw_pack_str(&pc, p->str, zpl_strlen(p->str));
+        }
     }
     
     SaveFileData(zpl_bprintf("art/%s", ctx.filepath), databuf, pc.current - pc.start);
