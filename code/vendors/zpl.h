@@ -31,6 +31,8 @@ GitHub:
   https://github.com/zpl-c/zpl
 
 Version History:
+  14.1.4  - Fix win32 missing CRITICAL_SECTION definition if
+  		- ZPL_NO_WINDOWS_H is defined
   14.1.0  - add hashtable map_mut method
   14.0.1  - fix zpl_array_remove_at boundary bug
   14.0.0  - heap memory allocator analysis
@@ -361,7 +363,7 @@ License:
 
 #define ZPL_VERSION_MAJOR 14
 #define ZPL_VERSION_MINOR 1
-#define ZPL_VERSION_PATCH 2
+#define ZPL_VERSION_PATCH 4
 #define ZPL_VERSION_PRE ""
 
  // file: zpl_hedley.h
@@ -7464,7 +7466,7 @@ License:
 
      typedef struct zpl_mutex {
      #if defined(ZPL_SYSTEM_WINDOWS)
-         CRITICAL_SECTION win32_critical_section;
+         zpl_u64 win32_critical_section[sizeof(zpl_usize) / 2 + 1];
      #else
          pthread_mutex_t pthread_mutex;
      #endif
@@ -16186,7 +16188,7 @@ License:
 
      void zpl_mutex_init(zpl_mutex *m) {
      #    if defined(ZPL_SYSTEM_WINDOWS)
-             InitializeCriticalSection(&m->win32_critical_section);
+             InitializeCriticalSection((CRITICAL_SECTION*)m->win32_critical_section);
      #    else
              pthread_mutex_init(&m->pthread_mutex, NULL);
      #    endif
@@ -16194,7 +16196,7 @@ License:
 
      void zpl_mutex_destroy(zpl_mutex *m) {
      #    if defined(ZPL_SYSTEM_WINDOWS)
-             DeleteCriticalSection(&m->win32_critical_section);
+             DeleteCriticalSection((CRITICAL_SECTION*)m->win32_critical_section);
      #    else
              pthread_mutex_destroy(&m->pthread_mutex);
      #    endif
@@ -16202,7 +16204,7 @@ License:
 
      void zpl_mutex_lock(zpl_mutex *m) {
      #    if defined(ZPL_SYSTEM_WINDOWS)
-             EnterCriticalSection(&m->win32_critical_section);
+             EnterCriticalSection((CRITICAL_SECTION*)m->win32_critical_section);
      #    else
              pthread_mutex_lock(&m->pthread_mutex);
      #    endif
@@ -16210,7 +16212,7 @@ License:
 
      zpl_b32 zpl_mutex_try_lock(zpl_mutex *m) {
      #    if defined(ZPL_SYSTEM_WINDOWS)
-             return TryEnterCriticalSection(&m->win32_critical_section);
+             return TryEnterCriticalSection((CRITICAL_SECTION*)m->win32_critical_section);
      #    else
              return pthread_mutex_trylock(&m->pthread_mutex);
      #    endif
@@ -16218,7 +16220,7 @@ License:
 
      void zpl_mutex_unlock(zpl_mutex *m) {
      #    if defined(ZPL_SYSTEM_WINDOWS)
-             LeaveCriticalSection(&m->win32_critical_section);
+             LeaveCriticalSection((CRITICAL_SECTION*)m->win32_critical_section);
      #    else
              pthread_mutex_unlock(&m->pthread_mutex);
      #    endif

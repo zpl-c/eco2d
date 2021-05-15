@@ -45,9 +45,9 @@ void DrawCircleEco(float centerX, float centerY, float radius, Color color)
 }
 
 static inline 
-void DrawRectangleEco(float posX, float posY, int width, int height, Color color)
+void DrawRectangleEco(float posX, float posY, float width, float height, Color color)
 {
-    DrawRectangleV((Vector2){ (float)posX , (float)posY  }, (Vector2){ (float)width , (float)height  }, color);
+    DrawRectangleV((Vector2){ (float)posX , (float)posY  }, (Vector2){ width , height  }, color);
 }
 
 static inline

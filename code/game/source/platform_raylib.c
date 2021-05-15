@@ -15,7 +15,7 @@
 
 static uint16_t screenWidth = 1600;
 static uint16_t screenHeight = 900;
-static float target_zoom = 4.0f;
+static float target_zoom = 1.5f;
 static float zoom_overlay_tran = 0.0f;
 static bool request_shutdown;
 
@@ -34,7 +34,7 @@ void platform_init() {
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){screenWidth/2.0f, screenHeight/2.0f};
     render_camera.rotation = 0.0f;
-    render_camera.zoom = 4.0f;
+    render_camera.zoom = 1.5f;
     
     // NOTE(zaklaus): Paint the screen before we load the game
     // TODO(zaklaus): Render a cool loading screen background maybe? :wink: :wink:
@@ -65,7 +65,7 @@ void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
     
     if (mouse_z != 0.0f) {
-        target_zoom = zpl_clamp(target_zoom+mouse_z, 0.3f, 10.0f);
+        target_zoom = zpl_clamp(target_zoom+mouse_z, 0.1f, 10.0f);
     }
     
     // NOTE(zaklaus): keystate handling
@@ -198,7 +198,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
 static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
 
 void DEBUG_draw_entities(uint64_t key, entity_view * data) {
-    uint16_t size = 4;
+    uint16_t size = 16;
     uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
     float font_spacing = 1.1f;
     float title_bg_offset = 4;
