@@ -182,13 +182,14 @@ void texed_draw_props_pane(zpl_aabb2 r) {
         
         switch (p->kind) {
             case TPARAM_COLOR: {
-                if (!p->edit_mode && GuiTextBox(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
+                if (GuiTextBox(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
                     p->edit_mode = true;
                 }
                 
                 if (p->edit_mode) {
-                    zpl_aabb2 ok_r = zpl_aabb2_cut_left(&tbox_r, 50.0f);
-                    p->color = GuiColorPicker(aabb2_ray(tbox_r), p->color);
+                    zpl_aabb2 extra_r = zpl_aabb2_add_bottom(&tbox_r, prop_height);
+                    zpl_aabb2 ok_r = zpl_aabb2_cut_left(&extra_r, 50.0f);
+                    p->color = GuiColorPicker(aabb2_ray(extra_r), p->color);
                     
                     if (GuiButton(aabb2_ray(ok_r), "OK")) {
                         p->edit_mode = false;

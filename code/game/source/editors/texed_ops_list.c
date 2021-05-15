@@ -1,138 +1,56 @@
 
+#define PARAM(k,n,v) { .kind = k, .name = n, .str = v }
+
 static td_op default_ops[] = {
     {
         OP(TOP_CLEAR),
         .num_params = 1,
         .params = (td_param[]) {
-            {
-                .kind = TPARAM_COLOR,
-                .name = "color",
-                .str = "ffffffff"
-            }
+            PARAM(TPARAM_COLOR, "color", "ffffffff"),
         }
     },
     {
         OP(TOP_DRAW_RECT),
         .num_params = 5,
         .params = (td_param[]) {
-            {
-                .kind = TPARAM_INT,
-                .name = "x",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "y",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "w",
-                .str = "10"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "h",
-                .str = "10"
-            },
-            {
-                .kind = TPARAM_COLOR,
-                .name = "color",
-                .str = "ff0000ff"
-            },
+            PARAM(TPARAM_INT, "x", "0"),
+            PARAM(TPARAM_INT, "y", "0"),
+            PARAM(TPARAM_INT, "w", "10"),
+            PARAM(TPARAM_INT, "h", "10"),
+            PARAM(TPARAM_COLOR, "color", "0"),
         }
     },
     {
         OP(TOP_DRAW_LINE),
         .num_params = 5,
         .params = (td_param[]) {
-            {
-                .kind = TPARAM_INT,
-                .name = "x1",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "y1",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "x2",
-                .str = "64"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "y2",
-                .str = "64"
-            },
-            {
-                .kind = TPARAM_COLOR,
-                .name = "color",
-                .str = "ffff00ff"
-            },
+            PARAM(TPARAM_INT, "x1", "0"),
+            PARAM(TPARAM_INT, "y1", "0"),
+            PARAM(TPARAM_INT, "x2", "64"),
+            PARAM(TPARAM_INT, "y2", "64"),
+            PARAM(TPARAM_COLOR, "color", "0"),
         }
     },
     {
         OP(TOP_DITHER),
         .num_params = 4,
         .params = (td_param[]) {
-            {
-                .kind = TPARAM_INT,
-                .name = "r_bpp",
-                .str = "8",
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "g_bpp",
-                .str = "8",
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "b_bpp",
-                .str = "8",
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "a_bpp",
-                .str = "8",
-            },
+            PARAM(TPARAM_INT, "r_bpp", "8"),
+            PARAM(TPARAM_INT, "g_bpp", "8"),
+            PARAM(TPARAM_INT, "b_bpp", "8"),
+            PARAM(TPARAM_INT, "a_bpp", "8"),
         }
     },
     {
         OP(TOP_LOAD_IMAGE),
         .num_params = 6,
         .params = (td_param[]) {
-            {
-                .kind = TPARAM_STRING,
-                .name = "src",
-                .str = ""
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "x",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "y",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "w",
-                .str = "-1"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "h",
-                .str = "-1"
-            },
-            {
-                .kind = TPARAM_COLOR,
-                .name = "tint",
-                .str = "ffffffff",
-            },
+            PARAM(TPARAM_STRING, "src", "art/natives/test.png"),
+            PARAM(TPARAM_INT, "x", "0"),
+            PARAM(TPARAM_INT, "y", "0"),
+            PARAM(TPARAM_INT, "w", "-1"),
+            PARAM(TPARAM_INT, "h", "-1"),
+            PARAM(TPARAM_COLOR, "tint", "ffffffff"),
         }
     }
 };
