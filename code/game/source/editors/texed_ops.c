@@ -34,8 +34,9 @@ void texed_process_ops(void) {
                             op->params[3].i32);
             }break;
             case TOP_LOAD_IMAGE: {
-                if (FileExists(op->params[0].str)) {
-                    Image img = LoadImage(op->params[0].str);
+                char const *str = zpl_bprintf("art/%s", op->params[0].str);
+                if (FileExists(str)) {
+                    Image img = LoadImage(str);
                     int x = op->params[1].i32;
                     int y = op->params[2].i32;
                     int w = op->params[3].i32;
@@ -52,7 +53,7 @@ void texed_process_ops(void) {
                     
                     UnloadImage(img);
                 } else {
-                    zpl_printf("TOP_LOAD_IMAGE: src %s not found!\n", op->params[0].str);
+                    zpl_printf("TOP_LOAD_IMAGE: src %s not found!\n", str);
                 }
             }break;
             case TOP_DRAW_TEXT: {
@@ -64,6 +65,7 @@ void texed_process_ops(void) {
                 ImageDrawText(&ctx.img, str, x, y, size, color);
             }break;
             case TOP_RESIZE_IMAGE: {
+                if (ctx.img.width == 0) break;
                 int w = op->params[0].i32;
                 int h = op->params[1].i32;
                 int mode = op->params[2].i32;

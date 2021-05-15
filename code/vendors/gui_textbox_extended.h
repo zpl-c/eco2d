@@ -640,7 +640,7 @@ RAYGUIDEF bool GuiTextBoxEx(Rectangle bounds, char *text, int textSize, bool edi
                 else if (IsKeyPressed(KEY_ENTER)) pressed = true;
                 else
                 {
-                    int key = GetKeyPressed();
+                    int key = GetCharPressed();
                     if ((key >= 32) && ((guiTextBoxState.cursor + 1) < textSize))
                     {
                         if ((guiTextBoxState.select != -1) && (guiTextBoxState.select != guiTextBoxState.cursor))

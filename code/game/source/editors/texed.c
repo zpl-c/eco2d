@@ -22,6 +22,7 @@ static float zoom = 4.0f;
 static Texture2D checker_tex;
 static uint16_t old_screen_w;
 static uint16_t old_screen_h;
+static bool is_loading_prj = false;
 
 #define TD_DEFAULT_IMG_WIDTH 64
 #define TD_DEFAULT_IMG_HEIGHT 64
@@ -162,6 +163,7 @@ void texed_run(void) {
             Image checkerboard = GenImageChecked(preview_rect.width, preview_rect.height, 16, 16, BLACK, ColorAlpha(GRAY, 0.2f));
             checker_tex = LoadTextureFromImage(checkerboard);
             UnloadImage(checkerboard);
+            ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
         }
         
         BeginDrawing();
@@ -206,6 +208,7 @@ void texed_destroy(void) {
 }
 
 void texed_repaint_preview(void) {
+    if (is_loading_prj) return;
     UnloadTexture(ctx.tex);
     texed_process_params();
     texed_process_ops();
@@ -247,8 +250,6 @@ void texed_rem_op(int idx) {
     zpl_mfree(ctx.ops[idx].params);
     zpl_array_remove_at(ctx.ops, idx);
     
-    if (idx == ctx.selected_op) {
-        if (idx > 0) ctx.selected_op -= 1;
-    }
+    if (zpl_array_count(ctx.ops) > 0 && idx <= ctx.selected_op) ctx.selected_op -= 1;
     texed_repaint_preview();
 }

@@ -48,7 +48,7 @@ static td_op default_ops[] = {
         OP(TOP_LOAD_IMAGE),
         .num_params = 6,
         .params = (td_param[]) {
-            PARAM(TPARAM_STRING, "src", "art/samples/test.png"),
+            PARAM(TPARAM_STRING, "src", "samples/test.png"),
             PARAM(TPARAM_COORD, "x", "0"),
             PARAM(TPARAM_COORD, "y", "0"),
             PARAM(TPARAM_COORD, "w", "-1"),
@@ -63,8 +63,8 @@ static td_op default_ops[] = {
             PARAM(TPARAM_STRING, "text", "hello world"),
             PARAM(TPARAM_COORD, "x", "0"),
             PARAM(TPARAM_COORD, "y", "0"),
-            PARAM(TPARAM_INT, "size", "16"),
-            PARAM(TPARAM_COLOR, "color", "ffffffff"),
+            PARAM(TPARAM_COORD, "size", "16"),
+            PARAM(TPARAM_COLOR, "color", PARAM_DEF_COLOR),
         }
     },
     {

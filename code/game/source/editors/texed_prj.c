@@ -8,6 +8,7 @@
 void texed_load(void) {
     assert(ctx.filepath);
     zpl_printf("Loading %s ...\n", ctx.filepath);
+    is_loading_prj = true;
     zpl_array_clear(ctx.ops);
     
     uint32_t size = 0;
@@ -63,6 +64,7 @@ void texed_load(void) {
     assert(uc.return_code == CWP_RC_END_OF_INPUT);
     
     ctx.selected_op = selected_op;
+    is_loading_prj = false;
     texed_repaint_preview();
     UnloadFileData(databuf);
 }

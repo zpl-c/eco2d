@@ -1,5 +1,7 @@
 static inline
 void int_to_hex_color(uint32_t color, char *text);
+static inline
+int GuiDropdownBoxEco(Rectangle bounds, char const *text, char const *caption, int *active, bool editMode);
 
 void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2 zoom_ctrl_r = zpl_aabb2_cut_left(&r, 150.0f);
@@ -83,7 +85,6 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         is_add_op_dropbox_open = true;
     }
     
-    
     GuiSetState(ctx.filepath ? GUI_STATE_NORMAL : GUI_STATE_DISABLED);
     
     zpl_aabb2 export_code_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
@@ -149,9 +150,13 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         GuiDrawText(ctx.ops[i].name, GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
     
-    if (is_add_op_dropbox_open && GuiDropdownBox(aabb2_ray(add_op_r), add_op_list, &add_op_dropbox_selected, true)) {
+    static int op_dropdown_state = 0;
+    
+    if (is_add_op_dropbox_open && (op_dropdown_state = GuiDropdownBoxEco(aabb2_ray(add_op_r), add_op_list, "ADD OPERATION", &add_op_dropbox_selected, true)) > 0) {
         is_add_op_dropbox_open = false;
-        texed_add_op(add_op_dropbox_selected);
+        if (op_dropdown_state < 2) {
+            texed_add_op(add_op_dropbox_selected);
+        }
     }
 }
 
@@ -180,23 +185,33 @@ void texed_draw_props_pane(zpl_aabb2 r) {
         
         GuiDrawText(zpl_bprintf("%s: ", p->name ? p->name : "prop"), GetTextBounds(LABEL, aabb2_ray(label_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
         
+        static bool is_color_editing = false;
+        if (is_color_editing) GuiLock();
+        
         switch (p->kind) {
             case TPARAM_COLOR: {
-                if (GuiTextBoxEx(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
+                if (is_color_editing) GuiUnlock();
+                if (GuiTextBoxEx(aabb2_ray(tbox_r), p->str, 1000, p->edit_mode)) {
                     p->edit_mode = true;
+                    is_color_editing = true;
                 }
                 
                 if (p->edit_mode) {
                     zpl_aabb2 extra_r = zpl_aabb2_add_bottom(&tbox_r, prop_height);
+                    DrawRectangleRec(aabb2_ray(extra_r), GRAY);
+                    
                     zpl_aabb2 ok_r = zpl_aabb2_cut_left(&extra_r, 50.0f);
                     p->color = GuiColorPicker(aabb2_ray(extra_r), p->color);
                     
                     if (GuiButton(aabb2_ray(ok_r), "OK")) {
+                        GuiUnlock();
                         p->edit_mode = false;
+                        is_color_editing = false;
                         int_to_hex_color(ColorToInt(p->color), p->str);
                         texed_repaint_preview();
                     }
                 }
+                if (is_color_editing) GuiLock();
             }break;
             case TPARAM_COORD: {
                 if (GuiValueBox(aabb2_ray(tbox_r), NULL, &p->i32, INT32_MIN, INT32_MAX, p->edit_mode)) {
@@ -209,7 +224,7 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                 };
             }break;
             default: {
-                if (GuiTextBoxEx(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
+                if (GuiTextBoxEx(aabb2_ray(tbox_r), p->str, 1000, p->edit_mode)) {
                     p->edit_mode = !p->edit_mode;
                     
                     if (!p->edit_mode)
@@ -217,6 +232,8 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                 }
             }break;
         };
+        
+        if (is_color_editing) GuiUnlock();
     }
 }
 
@@ -241,4 +258,127 @@ void int_to_hex_color(uint32_t value, char *string) {
     *buf = '\0';
     
     zpl_strrev(string);
+}
+
+
+// Dropdown Box control
+// NOTE: Returns mouse click
+static inline
+int GuiDropdownBoxEco(Rectangle bounds, char const *text, char const *caption, int *active, bool editMode)
+{
+    GuiControlState state = guiState;
+    int itemSelected = *active;
+    int itemFocused = -1;
+    
+    // Get substrings items from text (items pointers, lengths and count)
+    int itemsCount = 0;
+    const char **items = GuiTextSplit(text, &itemsCount, NULL);
+    
+    Rectangle boundsOpen = bounds;
+    boundsOpen.height = (itemsCount + 1)*(bounds.height + GuiGetStyle(DROPDOWNBOX, DROPDOWN_ITEMS_PADDING));
+    
+    Rectangle itemBounds = bounds;
+    
+    bool pressed = false;       // Check mouse button pressed
+    
+    // Update control
+    //--------------------------------------------------------------------
+    if ((state != GUI_STATE_DISABLED) && !guiLocked && (itemsCount > 1))
+    {
+        Vector2 mousePoint = GetMousePosition();
+        
+        if (editMode)
+        {
+            state = GUI_STATE_PRESSED;
+            
+            // Check if already selected item has been pressed again
+            if (CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) pressed = true;
+            
+            // Check focused and selected item
+            for (int i = 0; i < itemsCount; i++)
+            {
+                // Update item rectangle y position for next item
+                itemBounds.y += (bounds.height + GuiGetStyle(DROPDOWNBOX, DROPDOWN_ITEMS_PADDING));
+                
+                if (CheckCollisionPointRec(mousePoint, itemBounds))
+                {
+                    itemFocused = i;
+                    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+                    {
+                        itemSelected = i;
+                        pressed = true;     // Item selected, change to editMode = false
+                    }
+                    break;
+                }
+            }
+            
+            itemBounds = bounds;
+        }
+        else
+        {
+            if (CheckCollisionPointRec(mousePoint, bounds))
+            {
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                {
+                    pressed = true;
+                    state = GUI_STATE_PRESSED;
+                }
+                else state = GUI_STATE_FOCUSED;
+            }
+        }
+    }
+    //--------------------------------------------------------------------
+    
+    // Draw control
+    //--------------------------------------------------------------------
+    if (editMode) GuiPanel(boundsOpen);
+    
+    GuiDrawRectangle(bounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER + state*3)), guiAlpha), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BASE + state*3)), guiAlpha));
+    
+    GuiDrawText(caption, GetTextBounds(DEFAULT, bounds), GuiGetStyle(DROPDOWNBOX, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT + state*3)), guiAlpha));
+    
+    if (editMode)
+    {
+        // Draw visible items
+        for (int i = 0; i < itemsCount; i++)
+        {
+            // Update item rectangle y position for next item
+            itemBounds.y += (bounds.height + GuiGetStyle(DROPDOWNBOX, DROPDOWN_ITEMS_PADDING));
+            
+            if (i == itemSelected)
+            {
+                GuiDrawRectangle(itemBounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER_COLOR_PRESSED)), guiAlpha), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED)), guiAlpha));
+                GuiDrawText(items[i], GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(DROPDOWNBOX, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT_COLOR_PRESSED)), guiAlpha));
+            }
+            else if (i == itemFocused)
+            {
+                GuiDrawRectangle(itemBounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER_COLOR_FOCUSED)), guiAlpha), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED)), guiAlpha));
+                GuiDrawText(items[i], GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(DROPDOWNBOX, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT_COLOR_FOCUSED)), guiAlpha));
+            }
+            else GuiDrawText(items[i], GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(DROPDOWNBOX, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT_COLOR_NORMAL)), guiAlpha));
+        }
+    }
+    
+    // TODO: Avoid this function, use icon instead or 'v'
+    DrawTriangle(RAYGUI_CLITERAL(Vector2){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING), bounds.y + bounds.height/2 - 2 },
+                 RAYGUI_CLITERAL(Vector2){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING) + 5, bounds.y + bounds.height/2 - 2 + 5 },
+                 RAYGUI_CLITERAL(Vector2){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING) + 10, bounds.y + bounds.height/2 - 2 },
+                 Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT + (state*3))), guiAlpha));
+    
+    //GuiDrawText("v", RAYGUI_CLITERAL(Rectangle){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING), bounds.y + bounds.height/2 - 2, 10, 10 },
+    //            GUI_TEXT_ALIGN_CENTER, Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT + (state*3))), guiAlpha));
+    //--------------------------------------------------------------------
+    
+    Vector2 mousePoint = GetMousePosition();
+    
+    // Check if mouse has been pressed or released outside limits
+    if (!CheckCollisionPointRec(mousePoint, boundsOpen))
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+            return 2;
+        }
+    }
+    
+    *active = itemSelected;
+    return pressed;
 }
