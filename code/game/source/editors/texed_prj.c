@@ -33,7 +33,7 @@ void texed_load(void) {
         op->is_hidden = uc.item.as.boolean;
         
         UNPACK(CWP_ITEM_ARRAY);
-        op->num_params = uc.item.as.u64;
+        op->num_params = default_ops[kind].num_params;
         op->params = zpl_malloc(sizeof(td_param)*op->num_params);
         int parmarrsize = (int)uc.item.as.array.size;
         for (int j = 0; j < parmarrsize; j += 1) {
@@ -43,7 +43,15 @@ void texed_load(void) {
             
             // NOTE(zaklaus): fix up other metadata
             p->name = default_ops[kind].params[j].name;
-            p->kind = default_ops[kind].params[j].kind;;
+            p->kind = default_ops[kind].params[j].kind;
+        }
+        
+        // NOTE(zaklaus): resolve missing params
+        for (int j = parmarrsize; j < default_ops[kind].num_params; j += 1) {
+            td_param *p = &op->params[j];
+            p->name = default_ops[kind].params[j].name;
+            p->kind = default_ops[kind].params[j].kind;
+            zpl_strcpy(p->str, default_ops[kind].params[j].str);
         }
     }
     

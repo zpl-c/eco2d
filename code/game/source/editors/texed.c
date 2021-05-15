@@ -51,7 +51,7 @@ typedef struct {
 } td_param;
 
 typedef enum {
-    TOP_CLEAR,
+    TOP_NEW_IMAGE,
     TOP_DRAW_RECT,
     TOP_DRAW_LINE,
     TOP_DITHER,
@@ -184,7 +184,7 @@ void texed_new(int32_t w, int32_t h) {
     ctx.filepath = NULL;
     ctx.selected_op = 0;
     zpl_array_init(ctx.ops, zpl_heap());
-    texed_repaint_preview();
+    texed_add_op(TOP_NEW_IMAGE);
     
     ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
 }
@@ -197,7 +197,6 @@ void texed_destroy(void) {
 
 void texed_repaint_preview(void) {
     UnloadTexture(ctx.tex);
-    ImageClearBackground(&ctx.img, ColorAlpha(BLACK, 0.0f));
     texed_process_params();
     texed_process_ops();
     ctx.tex = LoadTextureFromImage(ctx.img);

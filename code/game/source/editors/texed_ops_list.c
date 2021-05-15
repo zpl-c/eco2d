@@ -4,9 +4,11 @@
 
 static td_op default_ops[] = {
     {
-        OP(TOP_CLEAR),
-        .num_params = 1,
+        OP(TOP_NEW_IMAGE),
+        .num_params = 3,
         .params = (td_param[]) {
+            PARAM(TPARAM_COORD, "w", "64"),
+            PARAM(TPARAM_COORD, "h", "64"),
             PARAM(TPARAM_COLOR, "color", "ffffffff"),
         }
     },

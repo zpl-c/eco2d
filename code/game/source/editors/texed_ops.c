@@ -6,8 +6,9 @@ void texed_process_ops(void) {
         zpl_printf("processing op: %s ... \n", op->name);
         
         switch (op->kind) {
-            case TOP_CLEAR: {
-                ImageClearBackground(&ctx.img, op->params[0].color);
+            case TOP_NEW_IMAGE: {
+                UnloadImage(ctx.img);
+                ctx.img = GenImageColor(op->params[0].i32, op->params[1].i32, op->params[2].color);
             }break;
             case TOP_DRAW_RECT: {
                 ImageDrawRectangle(&ctx.img, 
