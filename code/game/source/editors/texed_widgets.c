@@ -105,7 +105,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     
     // NOTE(zaklaus): operator list
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
-        zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 45.0f);
+        zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 22.5f);
         zpl_aabb2_cut_top(&op_item_r, 2.5f);
         zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
         Rectangle list_item = aabb2_ray(op_item_r);
@@ -115,14 +115,14 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         Rectangle list_text = aabb2_ray(op_item_r);
         
         zpl_aabb2_cut_right(&swap_r, 5.0f);
-        zpl_aabb2 swap_top = zpl_aabb2_cut_top(&swap_r, 20.0f);
+        zpl_aabb2 swap_top = zpl_aabb2_cut_left(&swap_r, aabb2_ray(swap_r).width/2.0f);
         zpl_aabb2 swap_bottom = swap_r;
         
-        if (i > 0 && GuiButton(aabb2_ray(swap_top), "UP")) {
+        if (i > 0 && GuiButton(aabb2_ray(swap_top), "#121#")) {
             texed_swp_op(i, i-1);
         }
         
-        if (i+1 < zpl_array_count(ctx.ops) && GuiButton(aabb2_ray(swap_bottom), "DOWN")) {
+        if (i+1 < zpl_array_count(ctx.ops) && GuiButton(aabb2_ray(swap_bottom), "#120#")) {
             texed_swp_op(i, i+1);
         }
         
