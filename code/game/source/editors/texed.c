@@ -39,7 +39,8 @@ typedef struct {
     
     union {
         float flt;
-        int u32;
+        uint32_t u32;
+        int32_t i32;
         Color color;
         char copy[4];
     };
@@ -49,6 +50,8 @@ typedef enum {
     TOP_CLEAR,
     TOP_DRAW_RECT,
     TOP_DRAW_LINE,
+    TOP_DITHER,
+    TOP_LOAD_IMAGE,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
@@ -78,55 +81,7 @@ static td_ctx ctx = {0};
 
 static char filename[200];
 
-static td_op default_ops[] = {
-    {
-        OP(TOP_CLEAR),
-        .num_params = 1,
-        .params = (td_param[]) {
-            {
-                .kind = TPARAM_COLOR,
-                .name = "color",
-                .str = "ffffffff"
-            }
-        }
-    },
-    {
-        OP(TOP_DRAW_RECT),
-        .num_params = 5,
-        .params = (td_param[]) {
-            {
-                .kind = TPARAM_INT,
-                .name = "x",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "y",
-                .str = "0"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "w",
-                .str = "10"
-            },
-            {
-                .kind = TPARAM_INT,
-                .name = "h",
-                .str = "10"
-            },
-            {
-                .kind = TPARAM_COLOR,
-                .name = "color",
-                .str = "ff0000ff"
-            },
-        }
-    }
-};
-
-// NOTE(zaklaus): IMPORTANT !! keep these in sync
-static char const *add_op_list = "CLEAR SOLID;DRAW RECTANGLE;PLOT LINE;DITHER";
-
-#define DEF_OPS_LEN (int)(sizeof(default_ops) / (sizeof(default_ops[0])))
+#include "texed_ops_list.c"
 
 void texed_new(int32_t w, int32_t h);
 void texed_destroy(void);
@@ -152,7 +107,18 @@ void DrawAABB(zpl_aabb2 rect, Color color) {
 }
 
 static inline
-Rectangle aabb2_ray(zpl_aabb2 r);
+Rectangle aabb2_ray(zpl_aabb2 r) {
+    return (Rectangle) {
+        .x = r.min.x,
+        .y = r.min.y,
+        .width = r.max.x-r.min.x,
+        .height = r.max.y-r.min.y
+    };
+}
+
+#include "texed_ops.c"
+#include "texed_prj.c"
+#include "texed_widgets.c"
 
 void texed_run(void) {
     InitWindow(screenWidth, screenHeight, "eco2d - texture editor");
@@ -249,270 +215,6 @@ void texed_add_op(int idx) {
     texed_repaint_preview();
 }
 
-void texed_rem_op(int idx) {
-    assert(idx >= 0 && idx < (int)zpl_array_count(ctx.ops));
-    zpl_mfree(ctx.ops[idx].params);
-    zpl_array_remove_at(ctx.ops, idx);
-    
-    if (idx == ctx.selected_op) {
-        if (idx > 0) ctx.selected_op -= 1;
-    }
-    texed_repaint_preview();
-}
-
-static bool is_add_op_dropbox_open = false;
-static int add_op_dropbox_selected = 0;
-
-void texed_draw_oplist_pane(zpl_aabb2 r) {
-    zpl_aabb2 oplist_header = zpl_aabb2_cut_top(&r, 40.0f);
-    
-    zpl_aabb2 add_op_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
-    
-    if (!is_add_op_dropbox_open && GuiButton(aabb2_ray(add_op_r), "ADD OPERATION")) {
-        is_add_op_dropbox_open = true;
-    }
-    
-    
-    GuiSetState(ctx.filepath ? GUI_STATE_NORMAL : GUI_STATE_DISABLED);
-    
-    zpl_aabb2 export_code_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
-    
-    if (GuiButton(aabb2_ray(export_code_r), "BUILD TEXTURE")) {
-        zpl_printf("Building texture %s.h ...\n", ctx.filepath);
-        ExportImageAsCode(ctx.img, zpl_bprintf("art/gen/%s.h", ctx.filepath));
-    }
-    
-    zpl_aabb2 export_img_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
-    
-    if (GuiButton(aabb2_ray(export_img_r), "EXPORT AS IMAGE")) {
-        zpl_printf("Exporting texture %s.png ...\n", ctx.filepath);
-        ExportImage(ctx.img, zpl_bprintf("art/gen/%s.png", ctx.filepath));
-    }
-    
-    GuiSetState(GUI_STATE_NORMAL);
-    
-    // NOTE(zaklaus): operator list
-    for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
-        zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 45.0f);
-        zpl_aabb2_cut_top(&op_item_r, 2.5f);
-        zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
-        Rectangle list_item = aabb2_ray(op_item_r);
-        DrawRectangleRec(list_item, ColorAlpha(ctx.selected_op == i ? GREEN : RED, 0.4f));
-        
-        zpl_aabb2 swap_r = zpl_aabb2_cut_left(&op_item_r, 50.0f);
-        Rectangle list_text = aabb2_ray(op_item_r);
-        
-        zpl_aabb2_cut_right(&swap_r, 5.0f);
-        zpl_aabb2 swap_top = zpl_aabb2_cut_top(&swap_r, 20.0f);
-        zpl_aabb2 swap_bottom = swap_r;
-        
-        if (i > 0 && GuiButton(aabb2_ray(swap_top), "UP")) {
-            texed_swp_op(i, i-1);
-        }
-        
-        if (i+1 < zpl_array_count(ctx.ops) && GuiButton(aabb2_ray(swap_bottom), "DOWN")) {
-            texed_swp_op(i, i+1);
-        }
-        
-        zpl_aabb2 remove_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
-        
-        if (GuiButton(aabb2_ray(remove_r), "REMOVE")) {
-            texed_rem_op(i);
-        }
-        
-        zpl_aabb2 hidden_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
-        
-        if (GuiButton(aabb2_ray(hidden_r), ctx.ops[i].is_hidden ? "SHOW" : "HIDE")) {
-            ctx.ops[i].is_hidden = !ctx.ops[i].is_hidden;
-            texed_repaint_preview();
-        }
-        
-        if (ctx.selected_op != i) {
-            zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
-            
-            if (GuiButton(aabb2_ray(select_r), "SELECT")) {
-                ctx.selected_op = i;
-            }
-        }
-        
-        GuiDrawText(ctx.ops[i].name, GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
-    }
-    
-    if (is_add_op_dropbox_open && GuiDropdownBox(aabb2_ray(add_op_r), add_op_list, &add_op_dropbox_selected, true)) {
-        is_add_op_dropbox_open = false;
-        texed_add_op(add_op_dropbox_selected);
-    }
-}
-
-void texed_draw_props_pane(zpl_aabb2 r) {
-    if (zpl_array_count(ctx.ops) == 0) {
-        GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
-        GuiDrawText("No operation is selected!", GetTextBounds(LABEL, aabb2_ray(r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
-        GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-        return;
-    }
-    
-    td_op *op = &ctx.ops[ctx.selected_op];
-    Rectangle dims = aabb2_ray(r);
-    
-    zpl_aabb2 column_1_r = zpl_aabb2_cut_left(&r, dims.width/2.0f);
-    zpl_aabb2 column_2_r = r;
-    float prop_height = 40.0f;
-    int prop_column_treshold = (int)zpl_floor(dims.height / prop_height);
-    
-    for (int i = 0; i < op->num_params; i += 1) {
-        td_param *p = &op->params[i];
-        zpl_aabb2 *c = (i >= prop_column_treshold) ? &column_2_r : &column_1_r;
-        zpl_aabb2 item = zpl_aabb2_cut_top(c, prop_height);
-        zpl_aabb2 label_r = zpl_aabb2_cut_left(&item, dims.width/4.0f);
-        zpl_aabb2 tbox_r = item;
-        
-        GuiDrawText(zpl_bprintf("%s: ", p->name ? p->name : "prop"), GetTextBounds(LABEL, aabb2_ray(label_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
-        
-        if (GuiTextBox(aabb2_ray(tbox_r), p->str, 64, p->edit_mode)) {
-            p->edit_mode = !p->edit_mode;
-            
-            if (!p->edit_mode)
-                texed_repaint_preview();
-        }
-    }
-}
-
-static inline
-Rectangle aabb2_ray(zpl_aabb2 r) {
-    return (Rectangle) {
-        .x = r.min.x,
-        .y = r.min.y,
-        .width = r.max.x-r.min.x,
-        .height = r.max.y-r.min.y
-    };
-}
-
-void texed_process_ops(void) {
-    for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
-        td_op *op = &ctx.ops[i];
-        if (op->is_hidden) continue;
-        zpl_printf("processing op: %s ... \n", op->name);
-        
-        switch (op->kind) {
-            case TOP_CLEAR: {
-                ImageClearBackground(&ctx.img, op->params[0].color);
-            }break;
-            case TOP_DRAW_RECT: {
-                ImageDrawRectangle(&ctx.img, 
-                                   op->params[0].u32,
-                                   op->params[1].u32,
-                                   op->params[2].u32,
-                                   op->params[3].u32,
-                                   op->params[4].color);
-            }break;
-            default: {
-                zpl_printf("%s\n", "unsupported op!");
-            }break;
-        }
-    }
-}
-
-void texed_process_params(void) {
-    for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
-        td_op *op = &ctx.ops[i];
-        if (op->is_hidden) continue;
-        
-        for (int j = 0; j < op->num_params; j += 1) {
-            td_param *p = &op->params[j];
-            
-            switch (p->kind) {
-                case TPARAM_FLOAT: {
-                    p->flt = (float)zpl_str_to_f64(p->str, NULL);
-                }break;
-                case TPARAM_INT: {
-                    p->u32 = (int)zpl_str_to_i64(p->str, NULL, 10);
-                }break;
-                case TPARAM_COLOR: {
-                    uint32_t color = (uint32_t)zpl_str_to_u64(p->str, NULL, 16);
-                    p->color = GetColor(color);
-                }break;
-                case TPARAM_STRING: {
-                    // NOTE(zaklaus): no-op
-                }break;
-                default: {
-                    zpl_printf("%s\n", "unsupported param!");
-                }break;
-            }
-        }
-    }
-}
-
-void texed_draw_topbar(zpl_aabb2 r) {
-    zpl_aabb2 zoom_ctrl_r = zpl_aabb2_cut_left(&r, 150.0f);
-    
-    zoom = GuiSlider(aabb2_ray(zoom_ctrl_r), "zoom: ", zpl_bprintf("%.02f x", zoom), zoom, 1.0f, 16.0f);
-    
-    zpl_aabb2_cut_left(&r, 100.0f);
-    
-    zpl_aabb2 new_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
-    
-    if (GuiButton(aabb2_ray(new_prj_r), "NEW")) {
-        texed_destroy();
-        texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT); // TODO(zaklaus): show res panel
-    }
-    
-    zpl_aabb2 load_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
-    static bool load_pending = false;
-    
-    if (GuiButton(aabb2_ray(load_prj_r), "LOAD")) {
-        load_pending = true;
-        ctx.fileDialog.fileDialogActive = true;
-    }
-    
-    if (ctx.fileDialog.SelectFilePressed && load_pending) {
-        ctx.fileDialog.SelectFilePressed = false;
-        if (IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
-            zpl_strcpy(filename, ctx.fileDialog.fileNameText);
-            ctx.filepath = filename;
-            load_pending = false;
-            texed_load();
-        } else {
-            ctx.fileDialog.fileDialogActive = true;
-        }
-    }
-    
-    zpl_aabb2 save_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
-    static bool save_as_pending = false;
-    
-    if (GuiButton(aabb2_ray(save_prj_r), "SAVE")) {
-        if (ctx.filepath == NULL) {
-            save_as_pending = true;
-            ctx.fileDialog.fileDialogActive = true;
-        } else {
-            texed_save();
-        }
-    }
-    
-    zpl_aabb2 save_as_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
-    
-    if (GuiButton(aabb2_ray(save_as_prj_r), "SAVE AS")) {
-        save_as_pending = true;
-        ctx.fileDialog.fileDialogActive = true;
-    }
-    
-    if (ctx.fileDialog.SelectFilePressed && save_as_pending) {
-        ctx.fileDialog.SelectFilePressed = false;
-        if (!IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
-            zpl_strcpy(ctx.fileDialog.fileNameText, zpl_bprintf("%s.ecotex", ctx.fileDialog.fileNameText));
-        }
-        zpl_strcpy(filename, ctx.fileDialog.fileNameText);
-        ctx.filepath = filename;
-        save_as_pending = false;
-        texed_save();
-    }
-    
-    zpl_aabb2 prj_name_r = zpl_aabb2_cut_right(&r, 200.0f);
-    GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
-    GuiDrawText(zpl_bprintf("Project: %s", ctx.filepath ? ctx.filepath : "(unnamed)"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(BLACK, guiAlpha));
-    GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-}
-
 void texed_swp_op(int idx, int idx2) {
     assert(idx >= 0 && idx < (int)zpl_array_count(ctx.ops));
     assert(idx2 >= 0 && idx2 < (int)zpl_array_count(ctx.ops));
@@ -524,88 +226,13 @@ void texed_swp_op(int idx, int idx2) {
     texed_repaint_preview();
 }
 
-//~ NOTE(zaklaus): DATA SERIALISATION
-
-#define ECOTEX_VERSION 1
-
-#define UNPACK(kind) cw_unpack_next(&uc); assert(uc.item.type == kind);
-
-void texed_load(void) {
-    assert(ctx.filepath);
-    zpl_printf("Loading %s ...\n", ctx.filepath);
-    zpl_array_clear(ctx.ops);
+void texed_rem_op(int idx) {
+    assert(idx >= 0 && idx < (int)zpl_array_count(ctx.ops));
+    zpl_mfree(ctx.ops[idx].params);
+    zpl_array_remove_at(ctx.ops, idx);
     
-    uint32_t size = 0;
-    uint8_t *databuf = LoadFileData(zpl_bprintf("art/%s", ctx.filepath), &size); 
-    
-    cw_unpack_context uc;
-    cw_unpack_context_init(&uc, databuf, (size_t)size, NULL);
-    
-    UNPACK(CWP_ITEM_POSITIVE_INTEGER);
-    assert(uc.item.as.u64 == ECOTEX_VERSION);
-    
-    UNPACK(CWP_ITEM_POSITIVE_INTEGER);
-    int selected_op = (int)uc.item.as.u64;
-    
-    UNPACK(CWP_ITEM_ARRAY);
-    int arrsize = (int)uc.item.as.array.size;
-    for (int i = 0; i < arrsize; i += 1) {
-        UNPACK(CWP_ITEM_POSITIVE_INTEGER);
-        int kind = (int)uc.item.as.u64;
-        texed_add_op(kind);
-        td_op *op = zpl_array_end(ctx.ops);
-        UNPACK(CWP_ITEM_BOOLEAN);
-        op->is_hidden = uc.item.as.boolean;
-        
-        UNPACK(CWP_ITEM_ARRAY);
-        op->num_params = uc.item.as.u64;
-        op->params = zpl_malloc(sizeof(td_param)*op->num_params);
-        int parmarrsize = (int)uc.item.as.array.size;
-        for (int j = 0; j < parmarrsize; j += 1) {
-            td_param *p = &op->params[j];
-            UNPACK(CWP_ITEM_POSITIVE_INTEGER);
-            p->kind = (td_param_kind)uc.item.as.u64;
-            UNPACK(CWP_ITEM_STR);
-            zpl_memcopy(p->str, uc.item.as.str.start, uc.item.as.str.length);
-            
-            // NOTE(zaklaus): fix up other metadata
-            p->name = default_ops[kind].params[j].name;
-        }
+    if (idx == ctx.selected_op) {
+        if (idx > 0) ctx.selected_op -= 1;
     }
-    
-    assert(uc.return_code == CWP_RC_OK);
-    cw_unpack_next(&uc);
-    assert(uc.return_code == CWP_RC_END_OF_INPUT);
-    
-    ctx.selected_op = selected_op;
     texed_repaint_preview();
-    UnloadFileData(databuf);
-}
-
-void texed_save(void) {
-    assert(ctx.filepath);
-    zpl_printf("Saving %s ...\n", ctx.filepath);
-    
-    static uint8_t databuf[400000] = {0};
-    
-    cw_pack_context pc;
-    cw_pack_context_init(&pc, databuf, sizeof(databuf), NULL);
-    
-    cw_pack_unsigned(&pc, ECOTEX_VERSION);
-    cw_pack_unsigned(&pc, ctx.selected_op);
-    
-    cw_pack_array_size(&pc, zpl_array_count(ctx.ops));
-    for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
-        td_op *op = &ctx.ops[i];
-        cw_pack_unsigned(&pc, op->kind);
-        cw_pack_boolean(&pc, (bool)op->is_hidden);
-        cw_pack_array_size(&pc, op->num_params);
-        for (int j = 0; j < op->num_params; j += 1) {
-            td_param *p = &op->params[j];
-            cw_pack_unsigned(&pc, p->kind);
-            cw_pack_str(&pc, p->str, zpl_strlen(p->str));
-        }
-    }
-    
-    SaveFileData(zpl_bprintf("art/%s", ctx.filepath), databuf, pc.current - pc.start);
 }
