@@ -32,13 +32,15 @@ static td_op default_ops[] = {
         }
     },{
         OP(TOP_DRAW_IMAGE),
-        PARAMS(6) {
+        PARAMS(8) {
             PARAM(TPARAM_STRING, "src", "samples/test.png"),
             PARAM(TPARAM_COORD, "x", "0"),
             PARAM(TPARAM_COORD, "y", "0"),
             PARAM(TPARAM_COORD, "w", "-1"),
             PARAM(TPARAM_COORD, "h", "-1"),
             PARAM(TPARAM_COLOR, "tint", "ffffffff"),
+            PARAM(TPARAM_INT, "flip?", "0"),
+            PARAM(TPARAM_INT, "rotate?", "0"),
         }
     },{
         OP(TOP_DRAW_TEXT),
@@ -66,10 +68,12 @@ static td_op default_ops[] = {
         }
     },{
         OP(TOP_COLOR_TWEAKS),
-        PARAMS(3) {
+        PARAMS(5) {
             PARAM(TPARAM_SLIDER, "contrast", "0.5"),
             PARAM(TPARAM_SLIDER, "brightness", "0.5"),
             PARAM(TPARAM_COLOR, "tint", "FFFFFFFF"),
+            PARAM(TPARAM_INT, "invert?", "0"),
+            PARAM(TPARAM_INT, "grayscale?", "0"),
         }
     }
 };

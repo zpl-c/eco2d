@@ -43,9 +43,23 @@ void texed_process_ops(void) {
                     int y = op->params[2].i32;
                     int w = op->params[3].i32;
                     int h = op->params[4].i32;
+                    int flip = op->params[5].i32;
+                    int rotate = op->params[6].i32;
                     
                     if (w != -1 || h != -1) {
                         ImageResize(&img, w != -1 ? w : img.width, h != -1 ? h : img.height);
+                    }
+                    
+                    if (flip == 1) {
+                        ImageFlipVertical(&img);
+                    } else if (flip == 2) {
+                        ImageFlipHorizontal(&img);
+                    }
+                    
+                    if (rotate == 1) {
+                        ImageRotateCW(&img);
+                    } else if (rotate == 2) {
+                        ImageRotateCCW(&img);
                     }
                     
                     ImageDraw(&ctx.img, img, 
@@ -81,6 +95,13 @@ void texed_process_ops(void) {
                 ImageColorContrast(&ctx.img, texed_map_value(op->params[0].flt, -100.0f, 100.0f));
                 ImageColorBrightness(&ctx.img, (int)texed_map_value(op->params[1].flt, -255.0f, 255.0f));
                 ImageColorTint(&ctx.img, op->params[2].color);
+                
+                if (op->params[3].i32) {
+                    ImageColorInvert(&ctx.img);
+                }
+                if (op->params[4].i32) {
+                    ImageColorGrayscale(&ctx.img);
+                }
             }break;
             default: {
                 zpl_printf("%s\n", "unsupported op!");
@@ -101,9 +122,7 @@ void texed_process_params(void) {
                 case TPARAM_FLOAT: {
                     p->flt = (float)zpl_str_to_f64(p->str, NULL);
                 }break;
-                case TPARAM_INT: {
-                    p->u32 = (uint32_t)zpl_str_to_i64(p->str, NULL, 10);
-                }break;
+                case TPARAM_INT:
                 case TPARAM_COORD: {
                     p->i32 = (int32_t)zpl_str_to_i64(p->str, NULL, 10);
                 }break;

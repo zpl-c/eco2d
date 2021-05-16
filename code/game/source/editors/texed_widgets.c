@@ -291,6 +291,7 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                     texed_repaint_preview();
                 }
             }break;
+            case TPARAM_INT:
             case TPARAM_COORD: {
                 if (GuiValueBox(aabb2_ray(tbox_r), NULL, &p->i32, INT32_MIN, INT32_MAX, p->edit_mode)) {
                     p->edit_mode = !p->edit_mode;

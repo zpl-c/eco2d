@@ -68,6 +68,8 @@ typedef enum {
     TOP_DRAW_TEXT,
     TOP_RESIZE_IMAGE,
     TOP_COLOR_TWEAKS,
+    TOP_FLIP_IMAGE,
+    TOP_ROTATE_IMAGE,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
