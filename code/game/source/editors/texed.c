@@ -312,6 +312,7 @@ void texed_add_op(int idx) {
     td_op op = {
         .kind = dop->kind,
         .name = dop->name,
+        .is_locked = dop->is_locked,
         .num_params = dop->num_params,
         .params = (td_param*)zpl_malloc(sizeof(td_param)*dop->num_params)
     };
