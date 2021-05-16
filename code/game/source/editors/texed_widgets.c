@@ -14,7 +14,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
     
     if (GuiButton(aabb2_ray(new_prj_r), "NEW")) {
         texed_destroy();
-        texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT); // TODO(zaklaus): show res panel
+        texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
     }
     
     zpl_aabb2 load_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
@@ -141,13 +141,14 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
             texed_repaint_preview();
         }
         
-        if (ctx.selected_op != i) {
-            zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
-            
-            if (GuiButton(aabb2_ray(select_r), "SELECT")) {
-                ctx.selected_op = i;
-            }
+        if (ctx.selected_op == i) GuiSetState(GUI_STATE_DISABLED);
+        zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
+        
+        if (GuiButton(aabb2_ray(select_r), "SELECT")) {
+            ctx.selected_op = i;
         }
+        GuiSetState(GUI_STATE_NORMAL);
+        
         
         GuiDrawText(ctx.ops[i].name, GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
