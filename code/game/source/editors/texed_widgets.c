@@ -30,6 +30,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
     if (new_pending && ctx.msgbox.result != -1) {
         new_pending = false;
         if (ctx.msgbox.result == 2) {
+            ctx.msgbox.result = -1; // NOTE(zaklaus): ensure we don't re-trigger this branch next frame
             texed_destroy();
             texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
         }
