@@ -70,6 +70,7 @@ typedef struct {
     td_op_kind kind;
     char const *name;
     bool is_hidden;
+    bool is_locked;
     
     uint8_t num_params;
     td_param *params;

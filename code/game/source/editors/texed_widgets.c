@@ -74,7 +74,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
 }
 
 static bool is_add_op_dropbox_open = false;
-static int add_op_dropbox_selected = 0;
+static int add_op_dropbox_selected = 1;
 static char add_op_list[2000] = {0};
 
 void texed_draw_oplist_pane(zpl_aabb2 r) {
@@ -86,8 +86,10 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         is_add_op_dropbox_open = true;
         zpl_memset(add_op_list, 0, sizeof(add_op_list));
         
-        for (int i = 1; i < DEF_OPS_LEN; i += 1) {
-            zpl_strcat(add_op_list, zpl_bprintf("%.*s%s", i == 1 ? 0 : 1, ";", default_ops[i].name));
+        for (int i = 0, cnt = 0; i < DEF_OPS_LEN; i += 1) {
+            if (default_ops[i].is_locked) continue;
+            zpl_strcat(add_op_list, zpl_bprintf("%.*s%s", cnt == 0 ? 0 : 1, ";", default_ops[i].name));
+            cnt += 1;
         }
     }
     
@@ -122,13 +124,13 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         zpl_aabb2 swap_top = zpl_aabb2_cut_left(&swap_r, aabb2_ray(swap_r).width/2.0f);
         zpl_aabb2 swap_bottom = swap_r;
         
-        if (i <= 1) GuiSetState(GUI_STATE_DISABLED);
+        if (i == 0 || (i > 0 && default_ops[i-1].is_locked)) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(swap_top), "#121#")) {
             texed_swp_op(i, i-1);
         }
         GuiSetState(GUI_STATE_NORMAL);
         
-        if (i == 0 || i+1 >= zpl_array_count(ctx.ops)) GuiSetState(GUI_STATE_DISABLED);
+        if ((i+1 < zpl_array_count(ctx.ops) && default_ops[i+1].is_locked) || i+1 >= zpl_array_count(ctx.ops)) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(swap_bottom), "#120#")) {
             texed_swp_op(i, i+1);
         }
@@ -136,7 +138,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         zpl_aabb2 remove_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
         
-        if (i == 0) GuiSetState(GUI_STATE_DISABLED);
+        if (default_ops[i].is_locked) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(remove_r), "REMOVE")) {
             texed_rem_op(i);
         }
@@ -157,7 +159,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         }
         GuiSetState(GUI_STATE_NORMAL);
         
-        GuiDrawText(ctx.ops[i].name, GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
+        GuiDrawText(zpl_bprintf("%s %s", ctx.ops[i].name, default_ops[i].is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
     
     static int op_dropdown_state = 0;

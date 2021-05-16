@@ -5,6 +5,7 @@
 static td_op default_ops[] = {
     {
         OP(TOP_NEW_IMAGE),
+        .is_locked = true,
         .num_params = 3,
         .params = (td_param[]) {
             PARAM(TPARAM_COORD, "w", "64"),
