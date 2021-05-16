@@ -75,6 +75,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
 
 static bool is_add_op_dropbox_open = false;
 static int add_op_dropbox_selected = 0;
+static char add_op_list[2000] = {0};
 
 void texed_draw_oplist_pane(zpl_aabb2 r) {
     zpl_aabb2 oplist_header = zpl_aabb2_cut_top(&r, 40.0f);
@@ -83,6 +84,11 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     
     if (!is_add_op_dropbox_open && GuiButton(aabb2_ray(add_op_r), "ADD OPERATION")) {
         is_add_op_dropbox_open = true;
+        zpl_memset(add_op_list, 0, sizeof(add_op_list));
+        
+        for (int i = 0; i < DEF_OPS_LEN; i += 1) {
+            zpl_strcat(add_op_list, zpl_bprintf("%.*s%s", i == 0 ? 0 : 1, ";", default_ops[i].name));
+        }
     }
     
     GuiSetState(ctx.filepath ? GUI_STATE_NORMAL : GUI_STATE_DISABLED);

@@ -78,7 +78,4 @@ static td_op default_ops[] = {
     }
 };
 
-// NOTE(zaklaus): IMPORTANT !! keep these in sync
-static char const *add_op_list = "NEW IMAGE;DRAW RECTANGLE;PLOT LINE;DITHER;LOAD IMAGE;DRAW TEXT;RESIZE IMAGE";
-
 #define DEF_OPS_LEN (int)(sizeof(default_ops) / (sizeof(default_ops[0])))
