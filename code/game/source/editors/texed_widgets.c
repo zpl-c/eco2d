@@ -149,7 +149,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     
     // NOTE(zaklaus): operator list
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
-        zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 22.5f);
+        zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 25.0f);
         zpl_aabb2_cut_top(&op_item_r, 2.5f);
         zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
         Rectangle list_item = aabb2_ray(op_item_r);
@@ -190,20 +190,20 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         }
         GuiSetState(GUI_STATE_NORMAL);
         
-        if (ctx.selected_op == i) GuiSetState(GUI_STATE_DISABLED);
-        zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
-        
-        if (GuiButton(aabb2_ray(select_r), "#141#")) {
-            ctx.selected_op = i;
-            ctx.is_saved = false;
-        }
-        GuiSetState(GUI_STATE_NORMAL);
-        
         zpl_aabb2 lock_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
         
         if (default_ops[ctx.ops[i].kind].is_locked) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(lock_r), ctx.ops[i].is_locked ? "#137#" : "#138#")) {
             ctx.ops[i].is_locked = !ctx.ops[i].is_locked;
+            ctx.is_saved = false;
+        }
+        GuiSetState(GUI_STATE_NORMAL);
+        
+        if (ctx.selected_op == i) GuiSetState(GUI_STATE_DISABLED);
+        zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
+        
+        if (GuiButton(aabb2_ray(select_r), "#141#")) {
+            ctx.selected_op = i;
             ctx.is_saved = false;
         }
         GuiSetState(GUI_STATE_NORMAL);

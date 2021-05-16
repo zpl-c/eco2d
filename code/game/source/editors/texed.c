@@ -282,6 +282,7 @@ void texed_new(int32_t w, int32_t h) {
     ctx.img = GenImageColor(w, h, WHITE);
     ctx.filepath = NULL;
     ctx.selected_op = 0;
+    ctx.msgbox.result = -1;
     zpl_array_init(ctx.ops, zpl_heap());
     
     is_repaint_locked = true;
