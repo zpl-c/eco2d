@@ -15,10 +15,24 @@ void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2_cut_left(&r, 100.0f);
     
     zpl_aabb2 new_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
+    static bool new_pending = false;
     
     if (GuiButton(aabb2_ray(new_prj_r), "NEW")) {
-        texed_destroy();
-        texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
+        if (ctx.is_saved) {
+            texed_destroy();
+            texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
+        } else {
+            new_pending = true;
+            texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "Cancel;OK");
+        }
+    }
+    
+    if (new_pending && ctx.msgbox.result != -1) {
+        new_pending = false;
+        if (ctx.msgbox.result == 2) {
+            texed_destroy();
+            texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
+        }
     }
     
     zpl_aabb2 load_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
@@ -26,7 +40,11 @@ void texed_draw_topbar(zpl_aabb2 r) {
     
     if (GuiButton(aabb2_ray(load_prj_r), "LOAD")) {
         load_pending = true;
-        ctx.fileDialog.fileDialogActive = true;
+        if (ctx.is_saved) {
+            ctx.fileDialog.fileDialogActive = true;
+        } else {
+            texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "Cancel;OK");
+        }
     }
     
     if (ctx.fileDialog.SelectFilePressed && load_pending) {
@@ -39,6 +57,14 @@ void texed_draw_topbar(zpl_aabb2 r) {
         } else {
             ctx.fileDialog.fileDialogActive = true;
         }
+    }
+    
+    if (load_pending && ctx.msgbox.result != -1) {
+        if (ctx.msgbox.result == 2) {
+            ctx.msgbox.result = -1; // NOTE(zaklaus): ensure we don't re-trigger this branch next frame
+            ctx.fileDialog.fileDialogActive = true;
+        }
+        else load_pending = false;
     }
     
     zpl_aabb2 save_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
@@ -420,4 +446,24 @@ int GuiDropdownBoxEco(Rectangle bounds, char const *text, char const *caption, i
     
     *active = itemSelected;
     return pressed;
+}
+
+#define TD_UI_MSGBOX_WIDTH 320
+#define TD_UI_MSGBOX_HEIGHT 200
+
+void texed_draw_msgbox(zpl_aabb2 r) {
+    if (!ctx.msgbox.visible) return;
+    DrawRectangle(r.min.x, r.min.y, r.max.x, r.max.y, Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), 0.85f));
+    
+    Rectangle rec = {
+        r.max.x/2.0f - TD_UI_MSGBOX_WIDTH/2.0f,
+        r.max.y/2.0f - TD_UI_MSGBOX_HEIGHT/2.0f,
+        TD_UI_MSGBOX_WIDTH,
+        TD_UI_MSGBOX_HEIGHT,
+    };
+    
+    ctx.msgbox.result = GuiMessageBox(rec, ctx.msgbox.title, ctx.msgbox.message, ctx.msgbox.buttons);
+    if (ctx.msgbox.result != -1) {
+        ctx.msgbox.visible = false;
+    }
 }

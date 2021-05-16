@@ -81,10 +81,19 @@ typedef struct {
 #define OP(n) .kind = n, .name = #n 
 
 typedef struct {
+    bool visible;
+    char const *title;
+    char const *message;
+    char const *buttons;
+    int result;
+} td_msgbox;
+
+typedef struct {
     char *filepath;
     Image img;
     Texture2D tex;
     GuiFileDialogState fileDialog;
+    td_msgbox msgbox;
     bool is_saved;
     
     td_op *ops; //< zpl_array
@@ -105,6 +114,7 @@ void texed_export_cc(char const *path);
 void texed_export_png(char const *path);
 void texed_repaint_preview(void);
 void texed_compose_image(void);
+void texed_msgbox_init(char const *title, char const *message, char const *buttons);
 void texed_process_ops(void);
 void texed_process_params(void);
 void texed_add_op(int idx);
@@ -114,6 +124,7 @@ void texed_swp_op(int idx, int idx2);
 void texed_draw_oplist_pane(zpl_aabb2 r);
 void texed_draw_props_pane(zpl_aabb2 r);
 void texed_draw_topbar(zpl_aabb2 r);
+void texed_draw_msgbox(zpl_aabb2 r);
 
 static inline
 void DrawAABB(zpl_aabb2 rect, Color color) {
@@ -213,6 +224,7 @@ void texed_run(int argc, char **argv) {
             .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
             .max = (zpl_vec2) {.x = GetScreenWidth(), .y = GetScreenHeight()},
         };
+        zpl_aabb2 orig_screen = screen;
         
         zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 25.0f);
         zpl_aabb2 oplist_pane = zpl_aabb2_cut_right(&screen, screenWidth / 2.0f);
@@ -239,6 +251,8 @@ void texed_run(int argc, char **argv) {
         ClearBackground(GetColor(0x222034));
         {
             if (ctx.fileDialog.fileDialogActive) GuiLock();
+            if (ctx.msgbox.visible) GuiLock();
+            
             DrawTextureEx(checker_tex, (Vector2){ preview_window.min.x, preview_window.min.y}, 0.0f, 1.0f, WHITE);
             DrawTextureEx(ctx.tex, (Vector2){ preview_window.min.x, preview_window.min.y}, 0.0f, zoom, WHITE);
             
@@ -251,7 +265,10 @@ void texed_run(int argc, char **argv) {
             texed_draw_oplist_pane(oplist_pane);
             
             if (ctx.fileDialog.fileDialogActive) GuiUnlock();
+            if (ctx.msgbox.visible) GuiUnlock();
+            
             GuiFileDialog(&ctx.fileDialog);
+            texed_draw_msgbox(orig_screen);
         }
         EndDrawing();
     }
@@ -308,6 +325,14 @@ void texed_compose_image(void) {
     ctx.is_saved = false;
     texed_process_params();
     texed_process_ops();
+}
+
+void texed_msgbox_init(char const *title, char const *message, char const *buttons) {
+    ctx.msgbox.result = -1;
+    ctx.msgbox.visible = true;
+    ctx.msgbox.title = title;
+    ctx.msgbox.message = message;
+    ctx.msgbox.buttons = buttons;
 }
 
 void texed_add_op(int idx) {
