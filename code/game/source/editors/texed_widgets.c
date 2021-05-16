@@ -154,7 +154,19 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         zpl_aabb2_cut_top(&op_item_r, 2.5f);
         zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
         Rectangle list_item = aabb2_ray(op_item_r);
-        DrawRectangleRec(list_item, ColorAlpha(ctx.selected_op == i ? GREEN : RED, 0.4f));
+        Color bg_color = BLUE;
+        
+        if (ctx.selected_op == i) {
+            bg_color = GREEN;
+        }
+        else if (ctx.ops[i].is_hidden) {
+            bg_color = RED;
+        }
+        else if (ctx.ops[i].is_locked) {
+            bg_color = SKYBLUE;
+        }
+        
+        DrawRectangleRec(list_item, ColorAlpha(bg_color, 0.4f));
         
         zpl_aabb2 swap_r = zpl_aabb2_cut_left(&op_item_r, 50.0f);
         Rectangle list_text = aabb2_ray(op_item_r);
