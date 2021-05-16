@@ -106,6 +106,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
     }
     
     zpl_aabb2 prj_name_r = zpl_aabb2_cut_right(&r, 200.0f);
+    zpl_aabb2_cut_right(&prj_name_r, 15.0f);
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
     GuiDrawText(zpl_bprintf("Project: %s%s", ctx.filepath ? ctx.filepath : "(unnamed)", ctx.is_saved ? "" : "*"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(BLACK, guiAlpha));
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
@@ -206,7 +207,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
             ctx.selected_op = i;
             ctx.is_saved = false;
         }
-        GuiSetState(GUI_STATE_NORMAL);
+        GuiSetState(GUI_STATE_NORMAL); 
         
         GuiDrawText(zpl_bprintf("%s %s", ctx.ops[i].name, ctx.ops[i].is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
