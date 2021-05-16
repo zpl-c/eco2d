@@ -122,13 +122,13 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         zpl_aabb2 swap_top = zpl_aabb2_cut_left(&swap_r, aabb2_ray(swap_r).width/2.0f);
         zpl_aabb2 swap_bottom = swap_r;
         
-        if (i <= 0) GuiSetState(GUI_STATE_DISABLED);
+        if (i <= 1) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(swap_top), "#121#")) {
             texed_swp_op(i, i-1);
         }
         GuiSetState(GUI_STATE_NORMAL);
         
-        if (i+1 >= zpl_array_count(ctx.ops)) GuiSetState(GUI_STATE_DISABLED);
+        if (i == 0 || i+1 >= zpl_array_count(ctx.ops)) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(swap_bottom), "#120#")) {
             texed_swp_op(i, i+1);
         }
@@ -136,6 +136,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         zpl_aabb2 remove_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
         
+        if (i == 0) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(remove_r), "REMOVE")) {
             texed_rem_op(i);
         }
@@ -146,6 +147,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
             ctx.ops[i].is_hidden = !ctx.ops[i].is_hidden;
             texed_repaint_preview();
         }
+        GuiSetState(GUI_STATE_NORMAL);
         
         if (ctx.selected_op == i) GuiSetState(GUI_STATE_DISABLED);
         zpl_aabb2 select_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
@@ -154,7 +156,6 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
             ctx.selected_op = i;
         }
         GuiSetState(GUI_STATE_NORMAL);
-        
         
         GuiDrawText(ctx.ops[i].name, GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
