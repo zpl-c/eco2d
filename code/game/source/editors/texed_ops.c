@@ -85,7 +85,6 @@ void texed_process_ops(void) {
 void texed_process_params(void) {
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
         td_op *op = &ctx.ops[i];
-        if (op->is_hidden) continue;
         
         for (int j = 0; j < op->num_params; j += 1) {
             td_param *p = &op->params[j];
