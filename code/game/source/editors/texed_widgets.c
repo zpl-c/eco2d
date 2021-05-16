@@ -86,8 +86,8 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         is_add_op_dropbox_open = true;
         zpl_memset(add_op_list, 0, sizeof(add_op_list));
         
-        for (int i = 0; i < DEF_OPS_LEN; i += 1) {
-            zpl_strcat(add_op_list, zpl_bprintf("%.*s%s", i == 0 ? 0 : 1, ";", default_ops[i].name));
+        for (int i = 1; i < DEF_OPS_LEN; i += 1) {
+            zpl_strcat(add_op_list, zpl_bprintf("%.*s%s", i == 1 ? 0 : 1, ";", default_ops[i].name));
         }
     }
     
