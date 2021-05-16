@@ -3,6 +3,9 @@ void int_to_hex_color(uint32_t color, char *text);
 static inline
 int GuiDropdownBoxEco(Rectangle bounds, char const *text, char const *caption, int *active, bool editMode);
 
+static inline
+bool IsCtrlAcceleratorPressed(char key);
+
 void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2 zoom_ctrl_r = zpl_aabb2_cut_left(&r, 150.0f);
     
@@ -17,34 +20,34 @@ void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2 new_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
     static bool new_pending = false;
     
-    if (GuiButton(aabb2_ray(new_prj_r), "NEW")) {
+    if (GuiButton(aabb2_ray(new_prj_r), "NEW") || IsCtrlAcceleratorPressed('n')) {
         if (ctx.is_saved) {
             texed_destroy();
             texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
         } else {
             new_pending = true;
-            texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "Cancel;OK");
+            texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "OK;Cancel");
         }
     }
     
     if (new_pending && ctx.msgbox.result != -1) {
         new_pending = false;
-        if (ctx.msgbox.result == 2) {
-            ctx.msgbox.result = -1; // NOTE(zaklaus): ensure we don't re-trigger this branch next frame
+        if (ctx.msgbox.result == 1) {
             texed_destroy();
             texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
         }
+        ctx.msgbox.result = -1; // NOTE(zaklaus): ensure we don't re-trigger this branch next frame
     }
     
     zpl_aabb2 load_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
     static bool load_pending = false;
     
-    if (GuiButton(aabb2_ray(load_prj_r), "LOAD")) {
+    if (GuiButton(aabb2_ray(load_prj_r), "LOAD") || IsCtrlAcceleratorPressed('o')) {
         load_pending = true;
         if (ctx.is_saved) {
             ctx.fileDialog.fileDialogActive = true;
         } else {
-            texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "Cancel;OK");
+            texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "OK;Cancel");
         }
     }
     
@@ -61,17 +64,17 @@ void texed_draw_topbar(zpl_aabb2 r) {
     }
     
     if (load_pending && ctx.msgbox.result != -1) {
-        if (ctx.msgbox.result == 2) {
-            ctx.msgbox.result = -1; // NOTE(zaklaus): ensure we don't re-trigger this branch next frame
+        if (ctx.msgbox.result == 1) {
             ctx.fileDialog.fileDialogActive = true;
         }
         else load_pending = false;
+        ctx.msgbox.result = -1; // NOTE(zaklaus): ensure we don't re-trigger this branch next frame
     }
     
     zpl_aabb2 save_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
     static bool save_as_pending = false;
     
-    if (GuiButton(aabb2_ray(save_prj_r), "SAVE")) {
+    if (GuiButton(aabb2_ray(save_prj_r), "SAVE") || IsCtrlAcceleratorPressed('s')) {
         if (ctx.filepath == NULL) {
             save_as_pending = true;
             ctx.fileDialog.fileDialogActive = true;
@@ -467,4 +470,9 @@ void texed_draw_msgbox(zpl_aabb2 r) {
     if (ctx.msgbox.result != -1) {
         ctx.msgbox.visible = false;
     }
+}
+
+static inline
+bool IsCtrlAcceleratorPressed(char key) {
+    return (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && (char)GetKeyPressed() == key;
 }
