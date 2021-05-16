@@ -135,7 +135,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
 void texed_draw_oplist_pane(zpl_aabb2 r) {
     // NOTE(zaklaus): add operator
     {
-        zpl_aabb2 add_op_r = zpl_aabb2_cut_right(&r, 120.0f);
+        zpl_aabb2 add_op_r = zpl_aabb2_cut_right(&r, 180.0f);
         DrawAABB(add_op_r, GetColor(0x122025));
         add_op_r = zpl_aabb2_contract(&add_op_r, 3.0f);
         
@@ -240,7 +240,7 @@ void texed_draw_props_pane(zpl_aabb2 r) {
     
     zpl_aabb2 column_1_r = zpl_aabb2_cut_left(&r, dims.width/2.0f);
     zpl_aabb2 column_2_r = r;
-    float prop_height = 40.0f;
+    float prop_height = 20.0f;
     int prop_column_treshold = (int)zpl_floor(dims.height / prop_height);
     
     for (int i = 0; i < op->num_params; i += 1) {
@@ -279,6 +279,14 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                     }
                 }
                 if (is_color_editing) GuiLock();
+            }break;
+            case TPARAM_SLIDER: {
+                p->flt = GuiSlider(aabb2_ray(tbox_r), NULL, zpl_bprintf("%.02f", p->flt), p->flt, 0.0f, 1.0f);
+                if (p->old_flt != p->flt) {
+                    sprintf(p->str, "%f", p->flt);
+                    p->old_flt = p->flt;
+                    texed_repaint_preview();
+                }
             }break;
             case TPARAM_COORD: {
                 if (GuiValueBox(aabb2_ray(tbox_r), NULL, &p->i32, INT32_MIN, INT32_MAX, p->edit_mode)) {

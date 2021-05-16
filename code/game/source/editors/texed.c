@@ -37,6 +37,7 @@ typedef enum {
     TPARAM_INT,
     TPARAM_COLOR,
     TPARAM_STRING,
+    TPARAM_SLIDER,
     
     TPARAM_FORCE_UINT8 = UINT8_MAX
 } td_param_kind;
@@ -48,7 +49,9 @@ typedef struct {
     bool edit_mode;
     
     union {
-        float flt;
+        struct {
+            float flt, old_flt;
+        };
         uint32_t u32;
         int32_t i32;
         Color color;
@@ -64,6 +67,8 @@ typedef enum {
     TOP_DRAW_IMAGE,
     TOP_DRAW_TEXT,
     TOP_RESIZE_IMAGE,
+    TOP_COLOR_CONTRAST,
+    TOP_COLOR_BRIGHTNESS,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;

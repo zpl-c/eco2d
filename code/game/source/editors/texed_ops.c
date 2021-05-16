@@ -1,3 +1,5 @@
+static inline
+float texed_map_value(float v, float min, float max);
 
 void texed_process_ops(void) {
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
@@ -75,6 +77,12 @@ void texed_process_ops(void) {
                     ImageResizeNN(&ctx.img, w, h);
                 }
             }break;
+            case TOP_COLOR_CONTRAST: {
+                ImageColorContrast(&ctx.img, texed_map_value(op->params[0].flt, -100.0f, 100.0f));
+            }break;
+            case TOP_COLOR_BRIGHTNESS: {
+                ImageColorBrightness(&ctx.img, (int)texed_map_value(op->params[0].flt, -255.0f, 255.0f));
+            }break;
             default: {
                 zpl_printf("%s\n", "unsupported op!");
             }break;
@@ -90,6 +98,7 @@ void texed_process_params(void) {
             td_param *p = &op->params[j];
             
             switch (p->kind) {
+                case TPARAM_SLIDER:
                 case TPARAM_FLOAT: {
                     p->flt = (float)zpl_str_to_f64(p->str, NULL);
                 }break;
@@ -112,4 +121,10 @@ void texed_process_params(void) {
             }
         }
     }
+}
+
+static inline
+float texed_map_value(float v, float min, float max) {
+    float slope = max-min;
+    return min + zpl_round(slope * v);
 }
