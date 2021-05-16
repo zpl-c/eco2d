@@ -105,6 +105,26 @@ void texed_draw_topbar(zpl_aabb2 r) {
         }
     }
     
+    zpl_aabb2 split_r = zpl_aabb2_cut_left(&r, 5.0f);
+    split_r = zpl_aabb2_contract(&split_r, 2.0f);
+    DrawAABB(split_r, BLACK);
+    
+    zpl_aabb2 exports_r = zpl_aabb2_cut_left(&r, 240.0f);
+    GuiSetState(ctx.filepath ? GUI_STATE_NORMAL : GUI_STATE_DISABLED);
+    zpl_aabb2 export_code_r = zpl_aabb2_cut_left(&exports_r, 120.0f);
+    
+    if (GuiButton(aabb2_ray(export_code_r), "BUILD TEXTURE")) {
+        texed_export_cc(ctx.filepath);
+    }
+    
+    zpl_aabb2 export_img_r = zpl_aabb2_cut_left(&exports_r, 120.0f);
+    
+    if (GuiButton(aabb2_ray(export_img_r), "EXPORT AS IMAGE")) {
+        texed_export_png(ctx.filepath);
+    }
+    GuiSetState(GUI_STATE_NORMAL);
+    
+    
     zpl_aabb2 prj_name_r = zpl_aabb2_cut_right(&r, 200.0f);
     zpl_aabb2_cut_right(&prj_name_r, 15.0f);
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
@@ -112,41 +132,22 @@ void texed_draw_topbar(zpl_aabb2 r) {
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 }
 
-static bool is_add_op_dropbox_open = false;
-static int add_op_dropbox_selected = 0;
-static char add_op_list[2000] = {0};
-
 void texed_draw_oplist_pane(zpl_aabb2 r) {
-    zpl_aabb2 oplist_header = zpl_aabb2_cut_top(&r, 40.0f);
-    
-    zpl_aabb2 add_op_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
-    
-    if (!is_add_op_dropbox_open && GuiButton(aabb2_ray(add_op_r), "ADD OPERATION")) {
-        is_add_op_dropbox_open = true;
-        zpl_memset(add_op_list, 0, sizeof(add_op_list));
+    // NOTE(zaklaus): add operator
+    {
+        zpl_aabb2 add_op_r = zpl_aabb2_cut_right(&r, 120.0f);
+        DrawAABB(add_op_r, GetColor(0x122025));
+        add_op_r = zpl_aabb2_contract(&add_op_r, 3.0f);
         
-        for (int i = 0, cnt = 0; i < DEF_OPS_LEN; i += 1) {
-            if (ctx.ops[i].is_locked) continue;
-            zpl_strcat(add_op_list, zpl_bprintf("%s%s", cnt == 0 ? "" : ";", default_ops[i].name));
-            cnt += 1;
+        for (int i = 0; i < DEF_OPS_LEN; i += 1) {
+            if (default_ops[i].is_locked) continue;
+            
+            zpl_aabb2 add_op_btn_r = zpl_aabb2_cut_top(&add_op_r, 20.0f);
+            if (GuiButton(aabb2_ray(add_op_btn_r), default_ops[i].name)) {
+                texed_add_op(i);
+            }
         }
     }
-    
-    GuiSetState(ctx.filepath ? GUI_STATE_NORMAL : GUI_STATE_DISABLED);
-    
-    zpl_aabb2 export_code_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
-    
-    if (GuiButton(aabb2_ray(export_code_r), "BUILD TEXTURE")) {
-        texed_export_cc(ctx.filepath);
-    }
-    
-    zpl_aabb2 export_img_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
-    
-    if (GuiButton(aabb2_ray(export_img_r), "EXPORT AS IMAGE")) {
-        texed_export_png(ctx.filepath);
-    }
-    
-    GuiSetState(GUI_STATE_NORMAL);
     
     // NOTE(zaklaus): operator list
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
@@ -222,23 +223,6 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         GuiSetState(GUI_STATE_NORMAL); 
         
         GuiDrawText(zpl_bprintf("%s %s", ctx.ops[i].name, ctx.ops[i].is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
-    }
-    
-    static int op_dropdown_state = 0;
-    
-    if (is_add_op_dropbox_open && (op_dropdown_state = GuiDropdownBoxEco(aabb2_ray(add_op_r), add_op_list, "ADD OPERATION", &add_op_dropbox_selected, true)) > 0) {
-        is_add_op_dropbox_open = false;
-        if (op_dropdown_state < 2) {
-            int idx = 0;
-            for (int i = 0; i < DEF_OPS_LEN; i += 1) {
-                if (!default_ops[i].is_locked && idx == add_op_dropbox_selected) {
-                    idx = i;
-                    break;
-                }
-                else if (!default_ops[i].is_locked) idx += 1;
-            }
-            texed_add_op(idx);
-        }
     }
 }
 

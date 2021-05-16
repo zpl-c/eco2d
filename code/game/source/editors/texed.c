@@ -226,7 +226,7 @@ void texed_run(int argc, char **argv) {
         };
         zpl_aabb2 orig_screen = screen;
         
-        zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 25.0f);
+        zpl_aabb2 topbar = zpl_aabb2_cut_top(&screen, 20.0f);
         zpl_aabb2 oplist_pane = zpl_aabb2_cut_right(&screen, screenWidth / 2.0f);
         zpl_aabb2 property_pane = zpl_aabb2_cut_bottom(&screen, screenHeight / 2.0f);
         zpl_aabb2 preview_window = screen;
