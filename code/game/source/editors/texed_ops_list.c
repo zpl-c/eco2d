@@ -65,14 +65,11 @@ static td_op default_ops[] = {
             PARAM(TPARAM_COORD, "mode (0=nearest,1=bicubic)", "0"),
         }
     },{
-        OP(TOP_COLOR_CONTRAST),
-        PARAMS(1) {
-            PARAM(TPARAM_SLIDER, "contrast", "0.5")
-        }
-    },{
-        OP(TOP_COLOR_BRIGHTNESS),
-        PARAMS(1) {
-            PARAM(TPARAM_SLIDER, "brightness", "0.5")
+        OP(TOP_COLOR_TWEAKS),
+        PARAMS(3) {
+            PARAM(TPARAM_SLIDER, "contrast", "0.5"),
+            PARAM(TPARAM_SLIDER, "brightness", "0.5"),
+            PARAM(TPARAM_COLOR, "tint", "FFFFFFFF"),
         }
     }
 };

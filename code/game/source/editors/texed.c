@@ -67,8 +67,7 @@ typedef enum {
     TOP_DRAW_IMAGE,
     TOP_DRAW_TEXT,
     TOP_RESIZE_IMAGE,
-    TOP_COLOR_CONTRAST,
-    TOP_COLOR_BRIGHTNESS,
+    TOP_COLOR_TWEAKS,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
@@ -261,7 +260,12 @@ void texed_run(int argc, char **argv) {
             if (ctx.msgbox.visible) GuiLock();
             
             DrawTextureEx(checker_tex, (Vector2){ preview_window.min.x, preview_window.min.y}, 0.0f, 1.0f, WHITE);
-            DrawTextureEx(ctx.tex, (Vector2){ preview_window.min.x, preview_window.min.y}, 0.0f, zoom, WHITE);
+            
+            Rectangle tex_rect = aabb2_ray(preview_window);
+            DrawTextureEx(ctx.tex, (Vector2){ 
+                              tex_rect.x + zpl_max(0.0f, tex_rect.width/2.0f - (ctx.tex.width*zoom)/2.0f), 
+                              tex_rect.y + zpl_max(0.0f, tex_rect.height/2.0f - (ctx.tex.height*zoom)/2.0f),
+                          }, 0.0f, zoom, WHITE);
             
             DrawAABB(topbar, RAYWHITE);
             DrawAABB(property_pane, GetColor(0x422060));

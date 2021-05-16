@@ -77,11 +77,10 @@ void texed_process_ops(void) {
                     ImageResizeNN(&ctx.img, w, h);
                 }
             }break;
-            case TOP_COLOR_CONTRAST: {
+            case TOP_COLOR_TWEAKS: {
                 ImageColorContrast(&ctx.img, texed_map_value(op->params[0].flt, -100.0f, 100.0f));
-            }break;
-            case TOP_COLOR_BRIGHTNESS: {
-                ImageColorBrightness(&ctx.img, (int)texed_map_value(op->params[0].flt, -255.0f, 255.0f));
+                ImageColorBrightness(&ctx.img, (int)texed_map_value(op->params[1].flt, -255.0f, 255.0f));
+                ImageColorTint(&ctx.img, op->params[2].color);
             }break;
             default: {
                 zpl_printf("%s\n", "unsupported op!");

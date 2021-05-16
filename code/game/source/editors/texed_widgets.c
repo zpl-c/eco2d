@@ -264,7 +264,7 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                 }
                 
                 if (p->edit_mode) {
-                    zpl_aabb2 extra_r = zpl_aabb2_add_bottom(&tbox_r, prop_height);
+                    zpl_aabb2 extra_r = zpl_aabb2_add_bottom(&tbox_r, prop_height*4.0f);
                     DrawRectangleRec(aabb2_ray(extra_r), GRAY);
                     
                     zpl_aabb2 ok_r = zpl_aabb2_cut_left(&extra_r, 50.0f);
