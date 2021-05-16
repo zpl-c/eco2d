@@ -74,7 +74,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
 }
 
 static bool is_add_op_dropbox_open = false;
-static int add_op_dropbox_selected = 1;
+static int add_op_dropbox_selected = 0;
 static char add_op_list[2000] = {0};
 
 void texed_draw_oplist_pane(zpl_aabb2 r) {
@@ -145,6 +145,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         zpl_aabb2 hidden_r = zpl_aabb2_cut_right(&op_item_r, 60.0f);
         
+        if (!default_ops[ctx.ops[i].kind].is_locked) GuiSetState(GUI_STATE_NORMAL);
         if (GuiButton(aabb2_ray(hidden_r), ctx.ops[i].is_hidden ? "SHOW" : "HIDE")) {
             ctx.ops[i].is_hidden = !ctx.ops[i].is_hidden;
             texed_repaint_preview();
@@ -159,6 +160,14 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         }
         GuiSetState(GUI_STATE_NORMAL);
         
+        zpl_aabb2 lock_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
+        
+        if (default_ops[ctx.ops[i].kind].is_locked) GuiSetState(GUI_STATE_DISABLED);
+        if (GuiButton(aabb2_ray(lock_r), ctx.ops[i].is_locked ? "#138#" : "#137#")) {
+            ctx.ops[i].is_locked = !ctx.ops[i].is_locked;
+        }
+        GuiSetState(GUI_STATE_NORMAL);
+        
         GuiDrawText(zpl_bprintf("%s %s", ctx.ops[i].name, ctx.ops[i].is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
     
@@ -167,7 +176,15 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     if (is_add_op_dropbox_open && (op_dropdown_state = GuiDropdownBoxEco(aabb2_ray(add_op_r), add_op_list, "ADD OPERATION", &add_op_dropbox_selected, true)) > 0) {
         is_add_op_dropbox_open = false;
         if (op_dropdown_state < 2) {
-            texed_add_op(add_op_dropbox_selected);
+            int idx = 0;
+            for (int i = 0; i < DEF_OPS_LEN; i += 1) {
+                if (!default_ops[i].is_locked && idx == add_op_dropbox_selected) {
+                    idx = i;
+                    break;
+                }
+                else if (!default_ops[i].is_locked) idx += 1;
+            }
+            texed_add_op(idx);
         }
     }
 }

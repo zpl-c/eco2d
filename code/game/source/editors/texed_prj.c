@@ -1,7 +1,7 @@
 
 //~ NOTE(zaklaus): DATA SERIALISATION
 
-#define ECOTEX_VERSION 2
+#define ECOTEX_VERSION 3
 
 #define UNPACK(kind) cw_unpack_next(&uc); assert(uc.item.type == kind);
 
@@ -33,6 +33,8 @@ void texed_load(void) {
         int kind = (int)uc.item.as.u64;
         texed_add_op(kind);
         td_op *op = zpl_array_end(ctx.ops);
+        UNPACK(CWP_ITEM_BOOLEAN);
+        op->is_locked = uc.item.as.boolean;
         UNPACK(CWP_ITEM_BOOLEAN);
         op->is_hidden = uc.item.as.boolean;
         
@@ -86,6 +88,7 @@ void texed_save(void) {
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
         td_op *op = &ctx.ops[i];
         cw_pack_unsigned(&pc, op->kind);
+        cw_pack_boolean(&pc, (bool)op->is_locked);
         cw_pack_boolean(&pc, (bool)op->is_hidden);
         cw_pack_array_size(&pc, op->num_params);
         for (int j = 0; j < op->num_params; j += 1) {
