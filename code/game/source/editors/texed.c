@@ -225,7 +225,7 @@ void texed_run(int argc, char **argv) {
     
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
     
-    while (!WindowShouldClose()) {
+    while (1) {
         zpl_aabb2 screen = {
             .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
             .max = (zpl_vec2) {.x = GetScreenWidth(), .y = GetScreenHeight()},
@@ -282,6 +282,24 @@ void texed_run(int argc, char **argv) {
             texed_draw_msgbox(orig_screen);
         }
         EndDrawing();
+        
+        static bool exit_pending = false;
+        if (WindowShouldClose()) {
+            if (!ctx.is_saved) {
+                texed_msgbox_init("Discard unsaved work?", "You have an unsaved work! Do you want to proceed?", "OK;Cancel");
+                exit_pending = true;
+            } else {
+                break;
+            }
+        }
+        
+        if (exit_pending && ctx.msgbox.result != -1) {
+            exit_pending = false;
+            if (ctx.msgbox.result == 1) {
+                break;
+            }
+            ctx.msgbox.result = -1;
+        }
     }
     
     UnloadTexture(checker_tex);
@@ -310,6 +328,7 @@ void texed_new(int32_t w, int32_t h) {
 void texed_destroy(void) {
     UnloadTexture(ctx.tex);
     UnloadImage(ctx.img);
+    CloseWindow();
     zpl_array_free(ctx.ops);
 }
 
