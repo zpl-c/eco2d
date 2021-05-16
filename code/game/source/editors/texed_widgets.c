@@ -7,6 +7,10 @@ void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2 zoom_ctrl_r = zpl_aabb2_cut_left(&r, 150.0f);
     
     zoom = GuiSlider(aabb2_ray(zoom_ctrl_r), "zoom: ", zpl_bprintf("%.02f x", zoom), zoom, 1.0f, 16.0f);
+    if (zoom != old_zoom) {
+        ctx.is_saved = false;
+        old_zoom = zoom;
+    }
     
     zpl_aabb2_cut_left(&r, 100.0f);
     
@@ -58,18 +62,22 @@ void texed_draw_topbar(zpl_aabb2 r) {
     
     if (ctx.fileDialog.SelectFilePressed && save_as_pending) {
         ctx.fileDialog.SelectFilePressed = false;
-        if (!IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
-            zpl_strcpy(ctx.fileDialog.fileNameText, zpl_bprintf("%s.ecotex", ctx.fileDialog.fileNameText));
+        if (TextLength(ctx.fileDialog.fileNameText)) {
+            if (!IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
+                zpl_strcpy(ctx.fileDialog.fileNameText, zpl_bprintf("%s.ecotex", ctx.fileDialog.fileNameText));
+            }
+            zpl_strcpy(filename, ctx.fileDialog.fileNameText);
+            ctx.filepath = filename;
+            save_as_pending = false;
+            texed_save();
+        } else {
+            ctx.fileDialog.fileDialogActive = true;
         }
-        zpl_strcpy(filename, ctx.fileDialog.fileNameText);
-        ctx.filepath = filename;
-        save_as_pending = false;
-        texed_save();
     }
     
     zpl_aabb2 prj_name_r = zpl_aabb2_cut_right(&r, 200.0f);
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
-    GuiDrawText(zpl_bprintf("Project: %s", ctx.filepath ? ctx.filepath : "(unnamed)"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(BLACK, guiAlpha));
+    GuiDrawText(zpl_bprintf("Project: %s%s", ctx.filepath ? ctx.filepath : "(unnamed)", ctx.is_saved ? "" : "*"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(BLACK, guiAlpha));
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 }
 
@@ -88,7 +96,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         for (int i = 0, cnt = 0; i < DEF_OPS_LEN; i += 1) {
             if (ctx.ops[i].is_locked) continue;
-            zpl_strcat(add_op_list, zpl_bprintf("%.*s%s", cnt == 0 ? 0 : 1, ";", default_ops[i].name));
+            zpl_strcat(add_op_list, zpl_bprintf("%s%s", cnt == 0 ? "" : ";", default_ops[i].name));
             cnt += 1;
         }
     }
@@ -157,6 +165,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         if (GuiButton(aabb2_ray(select_r), "#141#")) {
             ctx.selected_op = i;
+            ctx.is_saved = false;
         }
         GuiSetState(GUI_STATE_NORMAL);
         
@@ -165,6 +174,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         if (default_ops[ctx.ops[i].kind].is_locked) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(lock_r), ctx.ops[i].is_locked ? "#137#" : "#138#")) {
             ctx.ops[i].is_locked = !ctx.ops[i].is_locked;
+            ctx.is_saved = false;
         }
         GuiSetState(GUI_STATE_NORMAL);
         

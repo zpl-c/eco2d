@@ -16,18 +16,20 @@
 #define GUI_TEXTBOX_EXTENDED_IMPLEMENTATION
 #include "gui_textbox_extended.h"
 
-static uint16_t screenWidth = 1280;
-static uint16_t screenHeight = 720;
-static float zoom = 4.0f;
-static Texture2D checker_tex;
-static uint16_t old_screen_w;
-static uint16_t old_screen_h;
-static bool is_repaint_locked = false;
-
 #define TD_DEFAULT_IMG_WIDTH 64
 #define TD_DEFAULT_IMG_HEIGHT 64
 #define TD_UI_PADDING 5.0f
 #define TD_UI_PREVIEW_BORDER 4.0f
+#define TD_UI_DEFAULT_ZOOM 4.0f
+
+static uint16_t screenWidth = 1280;
+static uint16_t screenHeight = 720;
+static float zoom = TD_UI_DEFAULT_ZOOM;
+static float old_zoom = TD_UI_DEFAULT_ZOOM;
+static Texture2D checker_tex;
+static uint16_t old_screen_w;
+static uint16_t old_screen_h;
+static bool is_repaint_locked = false;
 
 typedef enum {
     TPARAM_FLOAT,
@@ -83,6 +85,7 @@ typedef struct {
     Image img;
     Texture2D tex;
     GuiFileDialogState fileDialog;
+    bool is_saved;
     
     td_op *ops; //< zpl_array
     int selected_op;
@@ -272,6 +275,7 @@ void texed_new(int32_t w, int32_t h) {
     texed_repaint_preview();
     
     ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
+    ctx.is_saved = true;
 }
 
 void texed_destroy(void) {
@@ -301,6 +305,7 @@ void texed_repaint_preview(void) {
 
 void texed_compose_image(void) {
     if (is_repaint_locked) return;
+    ctx.is_saved = false;
     texed_process_params();
     texed_process_ops();
 }

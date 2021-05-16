@@ -69,6 +69,7 @@ void texed_load(void) {
     is_repaint_locked = false;
     texed_repaint_preview();
     UnloadFileData(databuf);
+    ctx.is_saved = true;
 }
 
 void texed_save(void) {
@@ -98,4 +99,5 @@ void texed_save(void) {
     }
     
     SaveFileData(zpl_bprintf("art/%s", ctx.filepath), databuf, pc.current - pc.start);
+    ctx.is_saved = true;
 }
