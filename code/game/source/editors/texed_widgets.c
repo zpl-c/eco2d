@@ -142,7 +142,8 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         for (int i = 0; i < DEF_OPS_LEN; i += 1) {
             if (default_ops[i].is_locked) continue;
             
-            zpl_aabb2 add_op_btn_r = zpl_aabb2_cut_top(&add_op_r, 20.0f);
+            zpl_aabb2 add_op_btn_r = zpl_aabb2_cut_top(&add_op_r, 22.5f);
+            zpl_aabb2_cut_bottom(&add_op_btn_r, 2.5f);
             if (GuiButton(aabb2_ray(add_op_btn_r), default_ops[i].name)) {
                 texed_add_op(i);
             }
