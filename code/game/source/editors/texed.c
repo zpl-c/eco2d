@@ -201,7 +201,6 @@ void texed_run(int argc, char **argv) {
     SetTargetFPS(60);
     
     texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
-    texed_repaint_preview();
     
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
     
@@ -269,7 +268,7 @@ void texed_new(int32_t w, int32_t h) {
     zpl_i64_to_str(w, ctx.ops[0].params[0].str, 10);
     zpl_i64_to_str(h, ctx.ops[0].params[1].str, 10);
     is_repaint_locked = false;
-    texed_compose_image();
+    texed_repaint_preview();
     
     ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
 }
