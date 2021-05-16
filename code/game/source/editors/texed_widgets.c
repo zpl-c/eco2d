@@ -145,7 +145,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
             zpl_aabb2 add_op_btn_r = zpl_aabb2_cut_top(&add_op_r, 22.5f);
             zpl_aabb2_cut_bottom(&add_op_btn_r, 2.5f);
             if (GuiButton(aabb2_ray(add_op_btn_r), default_ops[i].name)) {
-                texed_add_op(i);
+                texed_add_op(default_ops[i].kind);
             }
         }
     }
@@ -198,7 +198,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         zpl_aabb2 hidden_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
         
-        if (!default_ops[ctx.ops[i].kind].is_locked) GuiSetState(GUI_STATE_NORMAL);
+        if (!default_ops[texed_find_op(ctx.ops[i].kind)].is_locked) GuiSetState(GUI_STATE_NORMAL);
         if (GuiButton(aabb2_ray(hidden_r), ctx.ops[i].is_hidden ? "#45#" : "#44#")) {
             ctx.ops[i].is_hidden = !ctx.ops[i].is_hidden;
             texed_repaint_preview();
@@ -207,7 +207,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         zpl_aabb2 lock_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
         
-        if (default_ops[ctx.ops[i].kind].is_locked) GuiSetState(GUI_STATE_DISABLED);
+        if (default_ops[texed_find_op(ctx.ops[i].kind)].is_locked) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(lock_r), ctx.ops[i].is_locked ? "#137#" : "#138#")) {
             ctx.ops[i].is_locked = !ctx.ops[i].is_locked;
             ctx.is_saved = false;

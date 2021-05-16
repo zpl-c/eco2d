@@ -36,17 +36,7 @@ static td_op default_ops[] = {
         }
     },
     {
-        OP(TOP_DITHER),
-        .num_params = 4,
-        .params = (td_param[]) {
-            PARAM(TPARAM_INT, "r_bpp", "8"),
-            PARAM(TPARAM_INT, "g_bpp", "8"),
-            PARAM(TPARAM_INT, "b_bpp", "8"),
-            PARAM(TPARAM_INT, "a_bpp", "8"),
-        }
-    },
-    {
-        OP(TOP_LOAD_IMAGE),
+        OP(TOP_DRAW_IMAGE),
         .num_params = 6,
         .params = (td_param[]) {
             PARAM(TPARAM_STRING, "src", "samples/test.png"),
@@ -66,6 +56,16 @@ static td_op default_ops[] = {
             PARAM(TPARAM_COORD, "y", "0"),
             PARAM(TPARAM_COORD, "size", "16"),
             PARAM(TPARAM_COLOR, "color", PARAM_DEF_COLOR),
+        }
+    },
+    {
+        OP(TOP_DITHER),
+        .num_params = 4,
+        .params = (td_param[]) {
+            PARAM(TPARAM_INT, "r_bpp", "8"),
+            PARAM(TPARAM_INT, "g_bpp", "8"),
+            PARAM(TPARAM_INT, "b_bpp", "8"),
+            PARAM(TPARAM_INT, "a_bpp", "8"),
         }
     },
     {

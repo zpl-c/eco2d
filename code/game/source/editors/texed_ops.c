@@ -33,7 +33,7 @@ void texed_process_ops(void) {
                             op->params[2].i32,
                             op->params[3].i32);
             }break;
-            case TOP_LOAD_IMAGE: {
+            case TOP_DRAW_IMAGE: {
                 char const *str = zpl_bprintf("art/%s", op->params[0].str);
                 if (FileExists(str)) {
                     Image img = LoadImage(str);

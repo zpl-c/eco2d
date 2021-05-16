@@ -61,7 +61,7 @@ typedef enum {
     TOP_DRAW_RECT,
     TOP_DRAW_LINE,
     TOP_DITHER,
-    TOP_LOAD_IMAGE,
+    TOP_DRAW_IMAGE,
     TOP_DRAW_TEXT,
     TOP_RESIZE_IMAGE,
     
@@ -117,9 +117,11 @@ void texed_compose_image(void);
 void texed_msgbox_init(char const *title, char const *message, char const *buttons);
 void texed_process_ops(void);
 void texed_process_params(void);
-void texed_add_op(int idx);
+
+void texed_add_op(int kind);
 void texed_rem_op(int idx);
 void texed_swp_op(int idx, int idx2);
+int texed_find_op(int kind);
 
 void texed_draw_oplist_pane(zpl_aabb2 r);
 void texed_draw_props_pane(zpl_aabb2 r);
@@ -169,7 +171,7 @@ void texed_run(int argc, char **argv) {
             Image orig = LoadImage(zpl_bprintf("art/%s", path));
             texed_new(orig.width, orig.height);
             is_repaint_locked = true;
-            texed_add_op(TOP_LOAD_IMAGE);
+            texed_add_op(TOP_DRAW_IMAGE);
             td_param *params = ctx.ops[1].params;
             zpl_strcpy(params[0].str, path);
             is_repaint_locked = false;
@@ -336,9 +338,19 @@ void texed_msgbox_init(char const *title, char const *message, char const *butto
     ctx.msgbox.buttons = buttons;
 }
 
-void texed_add_op(int idx) {
-    assert(idx >= 0 && idx < DEF_OPS_LEN);
-    td_op *dop = &default_ops[idx];
+int texed_find_op(int kind) {
+    assert(kind >= 0 && kind < DEF_OPS_LEN);
+    for (int i = 0; i < DEF_OPS_LEN; i += 1) {
+        if (default_ops[i].kind == kind) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void texed_add_op(int kind) {
+    assert(kind >= 0 && kind < DEF_OPS_LEN);
+    td_op *dop = &default_ops[texed_find_op(kind)];
     
     td_op op = {
         .kind = dop->kind,
