@@ -90,15 +90,13 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     zpl_aabb2 export_code_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
     
     if (GuiButton(aabb2_ray(export_code_r), "BUILD TEXTURE")) {
-        zpl_printf("Building texture %s.h ...\n", ctx.filepath);
-        ExportImageAsCode(ctx.img, zpl_bprintf("art/gen/%s.h", ctx.filepath));
+        texed_export_cc(ctx.filepath);
     }
     
     zpl_aabb2 export_img_r = zpl_aabb2_cut_left(&oplist_header, 120.0f);
     
     if (GuiButton(aabb2_ray(export_img_r), "EXPORT AS IMAGE")) {
-        zpl_printf("Exporting texture %s.png ...\n", ctx.filepath);
-        ExportImage(ctx.img, zpl_bprintf("art/gen/%s.png", ctx.filepath));
+        texed_export_png(ctx.filepath);
     }
     
     GuiSetState(GUI_STATE_NORMAL);

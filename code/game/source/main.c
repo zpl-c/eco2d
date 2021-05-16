@@ -21,13 +21,11 @@
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
 #define DEFAULT_WORLD_SIZE 32 /* amount of chunks within a world (single axis) */
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
     zpl_opts opts={0};
     zpl_opts_init(&opts, zpl_heap(), argv[0]);
     
     zpl_opts_add(&opts, "?", "help", "the HELP section", ZPL_OPTS_FLAG);
-    zpl_opts_add(&opts, "td", "texed", "run text editor", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "v", "viewer-only", "run viewer-only client", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "c", "viewer-count", "number of viewers (detachable clients)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
@@ -37,6 +35,14 @@ int main(int argc, char** argv)
     zpl_opts_add(&opts, "cs", "chunk-size", "amount of blocks within a chunk (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "ws", "world-size", "amount of chunks within a world (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "n", "npc-count", "amount of demo npcs to spawn", ZPL_OPTS_INT);
+    
+    zpl_opts_add(&opts, "td", "texed", "run texture editor", ZPL_OPTS_FLAG);
+    {
+        // NOTE(zaklaus): here to satisfy cli parser, otherwise we handle it inside texed
+        zpl_opts_add(&opts, "td-i", "texed-import", "convert an image to ecotex format", ZPL_OPTS_STRING);
+        zpl_opts_add(&opts, "td-ec", "texed-export-cc", "export ecotex image to C header file", ZPL_OPTS_STRING);
+        zpl_opts_add(&opts, "td-ep", "texed-export-png", "export ecotex image to PNG format", ZPL_OPTS_STRING);
+    }
     
     uint32_t ok = zpl_opts_compile(&opts, argc, argv);
     
@@ -55,7 +61,7 @@ int main(int argc, char** argv)
     uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 1000);
     
     if (zpl_opts_has_arg(&opts, "texed")) {
-        texed_run();
+        texed_run(argc, argv);
         return 0;
     }
     
@@ -73,7 +79,7 @@ int main(int argc, char** argv)
     
     sighandler_register();
     game_init(is_viewer_only, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
-        
+    
     // TODO(zaklaus): VERY TEMPORARY -- SPAWN SOME NPCS THAT RANDOMLY MOVE
     {
         ECS_IMPORT(world_ecs(), General);
@@ -101,7 +107,7 @@ int main(int argc, char** argv)
         
         profiler_collate();
     }
-
+    
     game_shutdown();
     sighandler_unregister();
     

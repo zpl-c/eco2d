@@ -1,4 +1,4 @@
 #pragma once
 #include "system.h"
 
-void texed_run(void);
+void texed_run(int,char**);

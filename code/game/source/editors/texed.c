@@ -22,7 +22,7 @@ static float zoom = 4.0f;
 static Texture2D checker_tex;
 static uint16_t old_screen_w;
 static uint16_t old_screen_h;
-static bool is_loading_prj = false;
+static bool is_repaint_locked = false;
 
 #define TD_DEFAULT_IMG_WIDTH 64
 #define TD_DEFAULT_IMG_HEIGHT 64
@@ -97,7 +97,10 @@ void texed_new(int32_t w, int32_t h);
 void texed_destroy(void);
 void texed_load(void);
 void texed_save(void);
+void texed_export_cc(char const *path);
+void texed_export_png(char const *path);
 void texed_repaint_preview(void);
+void texed_compose_image(void);
 void texed_process_ops(void);
 void texed_process_params(void);
 void texed_add_op(int idx);
@@ -130,12 +133,75 @@ Rectangle aabb2_ray(zpl_aabb2 r) {
 #include "texed_prj.c"
 #include "texed_widgets.c"
 
-void texed_run(void) {
+void texed_run(int argc, char **argv) {
+    zpl_opts opts={0};
+    zpl_opts_init(&opts, zpl_heap(), argv[0]);
+    zpl_opts_add(&opts, "td", "texed", "run texture editor", ZPL_OPTS_FLAG);
+    zpl_opts_add(&opts, "td-i", "texed-import", "convert an image to ecotex format", ZPL_OPTS_STRING);
+    zpl_opts_add(&opts, "td-ec", "texed-export-cc", "export ecotex image to C header file", ZPL_OPTS_STRING);
+    zpl_opts_add(&opts, "td-ep", "texed-export-png", "export ecotex image to PNG format", ZPL_OPTS_STRING);
+    uint32_t ok = zpl_opts_compile(&opts, argc, argv);
+    
+    if (!ok) {
+        zpl_opts_print_errors(&opts);
+        zpl_opts_print_help(&opts);
+        return;
+    }
+    
+    if (zpl_opts_has_arg(&opts, "texed-import")) {
+        zpl_string path = zpl_opts_string(&opts, "texed-import", "");
+        if (FileExists(zpl_bprintf("art/%s", path)) && IsFileExtension(path, ".png")) {
+            Image orig = LoadImage(zpl_bprintf("art/%s", path));
+            texed_new(orig.width, orig.height);
+            is_repaint_locked = true;
+            texed_add_op(TOP_LOAD_IMAGE);
+            td_param *params = ctx.ops[1].params;
+            zpl_strcpy(params[0].str, path);
+            is_repaint_locked = false;
+            texed_compose_image();
+            zpl_strcpy(filename, zpl_bprintf("%s.ecotex", GetFileNameWithoutExt(path)));
+            ctx.filepath = filename;
+            texed_save();
+        } else {
+            zpl_printf("%s\n", "provided file does not exist!");
+        }
+        return;
+    }
+    
+    if (zpl_opts_has_arg(&opts, "texed-export-cc")) {
+        zpl_string path = zpl_opts_string(&opts, "texed-export-cc", "");
+        if (FileExists(zpl_bprintf("art/%s.ecotex", path))) {
+            zpl_array_init(ctx.ops, zpl_heap());
+            zpl_strcpy(filename, zpl_bprintf("%s.ecotex", path));
+            ctx.filepath = filename;
+            texed_load();
+            texed_export_cc(path);
+        } else {
+            zpl_printf("%s\n", "provided file does not exist!");
+        }
+        return;
+    }
+    
+    if (zpl_opts_has_arg(&opts, "texed-export-png")) {
+        zpl_string path = zpl_opts_string(&opts, "texed-export-png", "");
+        if (FileExists(zpl_bprintf("art/%s.ecotex", path))) {
+            zpl_array_init(ctx.ops, zpl_heap());
+            zpl_strcpy(filename, zpl_bprintf("%s.ecotex", path));
+            ctx.filepath = filename;
+            texed_load();
+            texed_export_png(path);
+        } else {
+            zpl_printf("%s\n", "provided file does not exist!");
+        }
+        return;
+    }
+    
     InitWindow(screenWidth, screenHeight, "eco2d - texture editor");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
     
     texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
+    texed_repaint_preview();
     
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
     
@@ -188,6 +254,7 @@ void texed_run(void) {
     }
     
     UnloadTexture(checker_tex);
+    zpl_opts_free(&opts);
     texed_destroy();
 }
 
@@ -196,7 +263,13 @@ void texed_new(int32_t w, int32_t h) {
     ctx.filepath = NULL;
     ctx.selected_op = 0;
     zpl_array_init(ctx.ops, zpl_heap());
+    
+    is_repaint_locked = true;
     texed_add_op(TOP_NEW_IMAGE);
+    zpl_i64_to_str(w, ctx.ops[0].params[0].str, 10);
+    zpl_i64_to_str(h, ctx.ops[0].params[1].str, 10);
+    is_repaint_locked = false;
+    texed_compose_image();
     
     ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
 }
@@ -207,12 +280,29 @@ void texed_destroy(void) {
     zpl_array_free(ctx.ops);
 }
 
+void texed_export_cc(char const *path) {
+    zpl_printf("Building texture %s.h ...\n", path);
+    ExportImageAsCode(ctx.img, zpl_bprintf("art/gen/%s.h", GetFileNameWithoutExt(path)));
+}
+
+void texed_export_png(char const *path) {
+    zpl_printf("Exporting texture %s.png ...\n", path);
+    ExportImage(ctx.img, zpl_bprintf("art/gen/%s.png", GetFileNameWithoutExt(path)));
+}
+
 void texed_repaint_preview(void) {
-    if (is_loading_prj) return;
+    if (is_repaint_locked) return;
+    texed_compose_image();
+    
+    if (!IsWindowReady()) return;
     UnloadTexture(ctx.tex);
+    ctx.tex = LoadTextureFromImage(ctx.img);
+}
+
+void texed_compose_image(void) {
+    if (is_repaint_locked) return;
     texed_process_params();
     texed_process_ops();
-    ctx.tex = LoadTextureFromImage(ctx.img);
 }
 
 void texed_add_op(int idx) {
