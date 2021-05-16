@@ -240,13 +240,14 @@ void texed_draw_props_pane(zpl_aabb2 r) {
     
     zpl_aabb2 column_1_r = zpl_aabb2_cut_left(&r, dims.width/2.0f);
     zpl_aabb2 column_2_r = r;
-    float prop_height = 20.0f;
+    float prop_height = 25.0f;
     int prop_column_treshold = (int)zpl_floor(dims.height / prop_height);
     
     for (int i = 0; i < op->num_params; i += 1) {
         td_param *p = &op->params[i];
         zpl_aabb2 *c = (i >= prop_column_treshold) ? &column_2_r : &column_1_r;
         zpl_aabb2 item = zpl_aabb2_cut_top(c, prop_height);
+        zpl_aabb2_cut_bottom(&item, 5.0f);
         zpl_aabb2 label_r = zpl_aabb2_cut_left(&item, dims.width/6.0f);
         zpl_aabb2 tbox_r = item;
         
@@ -264,7 +265,9 @@ void texed_draw_props_pane(zpl_aabb2 r) {
                 }
                 
                 if (p->edit_mode) {
-                    zpl_aabb2 extra_r = zpl_aabb2_add_bottom(&tbox_r, prop_height*4.0f);
+                    zpl_aabb2 extra_r = zpl_aabb2_cut_top(c, prop_height*4.0f + 50.0f);
+                    zpl_aabb2_cut_bottom(&extra_r, 50.0f);
+                    zpl_aabb2_cut_left(&extra_r, dims.width/6.0f);
                     DrawRectangleRec(aabb2_ray(extra_r), GRAY);
                     
                     zpl_aabb2 ok_r = zpl_aabb2_cut_left(&extra_r, 50.0f);
