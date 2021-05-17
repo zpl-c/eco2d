@@ -15,7 +15,7 @@ void texed_process_ops(void) {
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
         td_op *op = &ctx.ops[i];
         if (op->is_hidden) continue;
-        zpl_printf("processing op: %s ... \n", op->name);
+        //zpl_printf("processing op: %s ... \n", op->name);
         
         switch (op->kind) {
             case TOP_PUSH_IMAGE:
@@ -36,6 +36,9 @@ void texed_process_ops(void) {
                 Image *di = &ctx.img[ctx.img_pos-1];
                 ImageAlphaMask(di, *oi);
                 ctx.img_pos--;
+            }break;
+            case TOP_IMAGE_ALPHA_MASK_CLEAR: {
+                ImageAlphaClear(&ctx.img[ctx.img_pos], op->params[0].color, op->params[1].flt);
             }break;
             case TOP_DRAW_RECT: {
                 ImageDrawRectangle(&ctx.img[ctx.img_pos], 
@@ -209,7 +212,7 @@ void texed_process_ops(void) {
                 UnloadImage(img);
             }break;
             default: {
-                zpl_printf("%s\n", "unsupported op!");
+                zpl_printf("%s\n", "unsupported op: %s!", op->name);
             }break;
         }
     }
@@ -225,7 +228,7 @@ void texed_process_params(void) {
             switch (p->kind) {
                 case TPARAM_SLIDER:
                 case TPARAM_FLOAT: {
-                    p->flt = (float)zpl_str_to_f64(p->str, NULL);
+                    p->old_flt = p->flt = (float)zpl_str_to_f64(p->str, NULL);
                 }break;
                 case TPARAM_INT:
                 case TPARAM_COORD: {

@@ -31,6 +31,12 @@ static td_op default_ops[] = {
     },{
         OP(TOP_IMAGE_ALPHA_MASK),
     },{
+        OP(TOP_IMAGE_ALPHA_MASK_CLEAR),
+        PARAMS(2) {
+            PARAM(TPARAM_COLOR, "color", "ffffffff"),
+            PARAM(TPARAM_FLOAT, "threshold", "1.0"),
+        }
+    },{
         OP(TOP_DRAW_RECT),
         PARAMS(5) {
             PARAM(TPARAM_COORD, "x", "0"),

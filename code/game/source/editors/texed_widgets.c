@@ -56,7 +56,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
     if (ctx.fileDialog.SelectFilePressed && load_pending) {
         ctx.fileDialog.SelectFilePressed = false;
         if (IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
-            zpl_strcpy(filename, ctx.fileDialog.fileNameText);
+            strcpy(filename, GetFileNameWithoutExt(ctx.fileDialog.fileNameText));
             ctx.filepath = filename;
             load_pending = false;
             texed_load();
@@ -95,10 +95,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
     if (ctx.fileDialog.SelectFilePressed && save_as_pending) {
         ctx.fileDialog.SelectFilePressed = false;
         if (TextLength(ctx.fileDialog.fileNameText)) {
-            if (!IsFileExtension(ctx.fileDialog.fileNameText, ".ecotex")) {
-                zpl_strcpy(ctx.fileDialog.fileNameText, zpl_bprintf("%s.ecotex", ctx.fileDialog.fileNameText));
-            }
-            zpl_strcpy(filename, ctx.fileDialog.fileNameText);
+            strcpy(filename, GetFileNameWithoutExt(ctx.fileDialog.fileNameText));
             ctx.filepath = filename;
             save_as_pending = false;
             texed_save();
@@ -140,21 +137,49 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         zpl_aabb2 add_op_r = zpl_aabb2_cut_right(&r, 180.0f);
         DrawAABB(add_op_r, GetColor(0x122025));
         add_op_r = zpl_aabb2_contract(&add_op_r, 3.0f);
+        Rectangle panel_rec = aabb2_ray(add_op_r);
+        static Vector2 panel_scroll = {99, -20};
+        float list_y = (DEF_OPS_LEN) * 22.5f;
+        if (list_y >= (add_op_r.max.y-add_op_r.min.y)) add_op_r.min.x += 12.0f;
+        else add_op_r.min.x += 2.0f;
+        add_op_r.max.y = add_op_r.min.y + list_y;
+        
+        Rectangle view = GuiScrollPanel(panel_rec, aabb2_ray(add_op_r), &panel_scroll);
+        
+        BeginScissorMode(view.x, view.y, view.width, view.height);
         
         for (int i = 0; i < DEF_OPS_LEN; i += 1) {
             if (default_ops[i].is_locked) continue;
             
             zpl_aabb2 add_op_btn_r = zpl_aabb2_cut_top(&add_op_r, 22.5f);
+            add_op_btn_r.min.y += panel_scroll.y;
+            add_op_btn_r.max.y += panel_scroll.y;
             zpl_aabb2_cut_bottom(&add_op_btn_r, 2.5f);
             if (GuiButton(aabb2_ray(add_op_btn_r), default_ops[i].name)) {
                 texed_add_op(default_ops[i].kind);
             }
         }
+        
+        EndScissorMode();
     }
+    
+    // NOTE(zaklaus): recalculate height based on ops count
+    Rectangle panel_rec = aabb2_ray(r);
+    static Vector2 panel_scroll = {99, -20};
+    float list_y = zpl_array_count(ctx.ops)*25.0f;
+    if (list_y >= (r.max.y-r.min.y)) r.min.x += 12.0f;
+    else r.min.x += 2.0f;
+    r.max.y = r.min.y + list_y;
+    
+    Rectangle view = GuiScrollPanel(panel_rec, aabb2_ray(r), &panel_scroll);
+    
+    BeginScissorMode(view.x, view.y, view.width, view.height);
     
     // NOTE(zaklaus): operator list
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
         zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 25.0f);
+        op_item_r.min.y += panel_scroll.y;
+        op_item_r.max.y += panel_scroll.y;
         zpl_aabb2_cut_top(&op_item_r, 2.5f);
         zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
         Rectangle list_item = aabb2_ray(op_item_r);
@@ -227,6 +252,8 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         
         GuiDrawText(zpl_bprintf("%s %s", ctx.ops[i].name, ctx.ops[i].is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
+    
+    EndScissorMode();
 }
 
 void texed_draw_props_pane(zpl_aabb2 r) {

@@ -86,6 +86,7 @@ typedef enum {
     TOP_COLOR_REPLACE,
     
     TOP_IMAGE_ALPHA_MASK,
+    TOP_IMAGE_ALPHA_MASK_CLEAR,
     
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
@@ -246,7 +247,15 @@ void texed_run(int argc, char **argv) {
     
     texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
     
-    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
+    {
+        GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
+        GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x012e33ff);
+        GuiSetStyle(BUTTON, BASE, 0x202020ff);
+        GuiSetStyle(BUTTON, BASE + GUI_STATE_DISABLED*3, 0x303030ff);
+        GuiSetStyle(BUTTON, TEXT + GUI_STATE_FOCUSED*3, 0x303030ff);
+        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xffffffff);
+        GuiSetStyle(LISTVIEW, SCROLLBAR_SIDE, SCROLLBAR_LEFT_SIDE);
+    }
     
     while (1) {
         zpl_aabb2 screen = {
@@ -362,12 +371,12 @@ void texed_destroy(void) {
 }
 
 void texed_export_cc(char const *path) {
-    zpl_printf("Building texture %s.h ...\n", path);
+    zpl_printf("Building texture %s ...\n", zpl_bprintf("art/gen/%s.h", GetFileNameWithoutExt(path)));
     ExportImageAsCode(ctx.img[ctx.img_pos], zpl_bprintf("art/gen/%s.h", GetFileNameWithoutExt(path)));
 }
 
 void texed_export_png(char const *path) {
-    zpl_printf("Exporting texture %s.png ...\n", path);
+    zpl_printf("Exporting texture %s ...\n", zpl_bprintf("art/gen/%s.png", GetFileNameWithoutExt(path)));
     ExportImage(ctx.img[ctx.img_pos], zpl_bprintf("art/gen/%s.png", GetFileNameWithoutExt(path)));
 }
 

@@ -11,7 +11,7 @@ void texed_load(void) {
     is_repaint_locked = true;
     texed_clear();
     uint32_t size = 0;
-    uint8_t *databuf = LoadFileData(zpl_bprintf("art/%s", ctx.filepath), &size); 
+    uint8_t *databuf = LoadFileData(zpl_bprintf("art/%s.ecotex", ctx.filepath), &size); 
     
     cw_unpack_context uc;
     cw_unpack_context_init(&uc, databuf, (size_t)size, NULL);
@@ -98,6 +98,6 @@ void texed_save(void) {
         }
     }
     
-    SaveFileData(zpl_bprintf("art/%s", ctx.filepath), databuf, pc.current - pc.start);
+    SaveFileData(zpl_bprintf("art/%s.ecotex", ctx.filepath), databuf, pc.current - pc.start);
     ctx.is_saved = true;
 }
