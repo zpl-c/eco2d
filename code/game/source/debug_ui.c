@@ -64,8 +64,8 @@ typedef enum {
 debug_area_status check_mouse_area(float xpos, float ypos, float w, float h);
 bool is_btn_pressed(float xpos, float ypos, float w, float h, Color *color);
 
-void UIDrawText(const char *text, float posX, float posY, int fontSize, Color color);
-int UIMeasureText(const char *text, int fontSize);
+static void UIDrawText(const char *text, float posX, float posY, int fontSize, Color color);
+static int UIMeasureText(const char *text, int fontSize);
 
 #include "debug_ui_widgets.c"
 #include "debug_ui_actions.c"
