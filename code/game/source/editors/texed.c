@@ -21,6 +21,7 @@
 #define TD_UI_PADDING 5.0f
 #define TD_UI_PREVIEW_BORDER 4.0f
 #define TD_UI_DEFAULT_ZOOM 4.0f
+#define TD_IMAGES_MAX_STACK 128
 
 static uint16_t screenWidth = 1280;
 static uint16_t screenHeight = 720;
@@ -71,6 +72,9 @@ typedef enum {
     TOP_FLIP_IMAGE,
     TOP_ROTATE_IMAGE,
     
+    TOP_PUSH_IMAGE,
+    TOP_POP_IMAGE,
+    
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
 
@@ -96,7 +100,8 @@ typedef struct {
 
 typedef struct {
     char *filepath;
-    Image img;
+    int32_t img_pos;
+    Image img[TD_IMAGES_MAX_STACK];
     Texture2D tex;
     GuiFileDialogState fileDialog;
     td_msgbox msgbox;
@@ -112,7 +117,8 @@ static char filename[200];
 
 #include "texed_ops_list.c"
 
-void texed_new(int32_t w, int32_t h);
+void texed_new(int w, int h);
+void texed_clear(void);
 void texed_destroy(void);
 void texed_load(void);
 void texed_save(void);
@@ -123,6 +129,9 @@ void texed_compose_image(void);
 void texed_msgbox_init(char const *title, char const *message, char const *buttons);
 void texed_process_ops(void);
 void texed_process_params(void);
+
+void texed_img_push(int w, int h, Color color);
+void texed_img_pop(int x, int y, int w, int h, Color tint);
 
 void texed_add_op(int kind);
 void texed_rem_op(int idx);
@@ -310,7 +319,9 @@ void texed_run(int argc, char **argv) {
 }
 
 void texed_new(int32_t w, int32_t h) {
-    ctx.img = GenImageColor(w, h, WHITE);
+    ctx.img_pos = -1;
+    zpl_memset(ctx.img, 0, sizeof(Image)*TD_IMAGES_MAX_STACK);
+    texed_img_push(w, h, WHITE);
     ctx.filepath = NULL;
     ctx.selected_op = 0;
     ctx.msgbox.result = -1;
@@ -327,21 +338,59 @@ void texed_new(int32_t w, int32_t h) {
     ctx.is_saved = true;
 }
 
+void texed_clear(void) {
+    zpl_array_clear(ctx.ops);
+    for (int i = 0; i <= ctx.img_pos; i+=1)
+        UnloadImage(ctx.img[i]);
+    ctx.img_pos = -1;
+}
+
 void texed_destroy(void) {
-    UnloadTexture(ctx.tex);
-    UnloadImage(ctx.img);
+    texed_clear();
     CloseWindow();
-    zpl_array_free(ctx.ops);
 }
 
 void texed_export_cc(char const *path) {
     zpl_printf("Building texture %s.h ...\n", path);
-    ExportImageAsCode(ctx.img, zpl_bprintf("art/gen/%s.h", GetFileNameWithoutExt(path)));
+    ExportImageAsCode(ctx.img[ctx.img_pos], zpl_bprintf("art/gen/%s.h", GetFileNameWithoutExt(path)));
 }
 
 void texed_export_png(char const *path) {
     zpl_printf("Exporting texture %s.png ...\n", path);
-    ExportImage(ctx.img, zpl_bprintf("art/gen/%s.png", GetFileNameWithoutExt(path)));
+    ExportImage(ctx.img[ctx.img_pos], zpl_bprintf("art/gen/%s.png", GetFileNameWithoutExt(path)));
+}
+
+void texed_img_push(int w, int h, Color color) {
+    if (ctx.img_pos == TD_IMAGES_MAX_STACK)
+        return;
+    
+    ctx.img_pos += 1;
+    ctx.img[ctx.img_pos] = GenImageColor(w, h, color);
+}
+
+void texed_img_pop(int x, int y, int w, int h, Color tint) {
+    if (ctx.img_pos == 0)
+        return;
+    
+    Image *oi = &ctx.img[ctx.img_pos];
+    Image *di = &ctx.img[ctx.img_pos-1];
+    
+    Rectangle src = {
+        0, 0,
+        oi->width, oi->height
+    };
+    
+    w = (w == 0) ? di->width : w;
+    h = (h == 0) ? di->height : h;
+    
+    Rectangle dst = {
+        x, y,
+        w, h,
+    };
+    
+    ImageDraw(di, *oi, src, dst, tint); 
+    UnloadImage(ctx.img[ctx.img_pos]);
+    ctx.img_pos -= 1;
 }
 
 void texed_repaint_preview(void) {
@@ -350,7 +399,7 @@ void texed_repaint_preview(void) {
     
     if (!IsWindowReady()) return;
     UnloadTexture(ctx.tex);
-    ctx.tex = LoadTextureFromImage(ctx.img);
+    ctx.tex = LoadTextureFromImage(ctx.img[ctx.img_pos]);
 }
 
 void texed_compose_image(void) {
@@ -369,7 +418,6 @@ void texed_msgbox_init(char const *title, char const *message, char const *butto
 }
 
 int texed_find_op(int kind) {
-    assert(kind >= 0 && kind < DEF_OPS_LEN);
     for (int i = 0; i < DEF_OPS_LEN; i += 1) {
         if (default_ops[i].kind == kind) {
             return i;
@@ -379,8 +427,9 @@ int texed_find_op(int kind) {
 }
 
 void texed_add_op(int kind) {
-    assert(kind >= 0 && kind < DEF_OPS_LEN);
-    td_op *dop = &default_ops[texed_find_op(kind)];
+    int idx = texed_find_op(kind);
+    assert(idx >= 0);
+    td_op *dop = &default_ops[idx];
     
     td_op op = {
         .kind = dop->kind,

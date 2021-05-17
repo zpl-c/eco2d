@@ -2,18 +2,29 @@ static inline
 float texed_map_value(float v, float min, float max);
 
 void texed_process_ops(void) {
+    for (int i = 0; i <= ctx.img_pos; i+=1)
+        UnloadImage(ctx.img[i]);
+    ctx.img_pos = -1;
+    
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
         td_op *op = &ctx.ops[i];
         if (op->is_hidden) continue;
         zpl_printf("processing op: %s ... \n", op->name);
         
         switch (op->kind) {
+            case TOP_PUSH_IMAGE:
             case TOP_NEW_IMAGE: {
-                UnloadImage(ctx.img);
-                ctx.img = GenImageColor(op->params[0].i32, op->params[1].i32, op->params[2].color);
+                texed_img_push(op->params[0].i32, op->params[1].i32, op->params[2].color);
+            }break;
+            case TOP_POP_IMAGE: {
+                texed_img_pop(op->params[0].i32,
+                              op->params[1].i32,
+                              op->params[2].i32,
+                              op->params[3].i32,
+                              op->params[4].color);
             }break;
             case TOP_DRAW_RECT: {
-                ImageDrawRectangle(&ctx.img, 
+                ImageDrawRectangle(&ctx.img[ctx.img_pos], 
                                    op->params[0].i32,
                                    op->params[1].i32,
                                    op->params[2].i32,
@@ -21,7 +32,7 @@ void texed_process_ops(void) {
                                    op->params[4].color);
             }break;
             case TOP_DRAW_LINE: {
-                ImageDrawLine(&ctx.img, 
+                ImageDrawLine(&ctx.img[ctx.img_pos], 
                               op->params[0].i32,
                               op->params[1].i32,
                               op->params[2].i32,
@@ -29,7 +40,7 @@ void texed_process_ops(void) {
                               op->params[4].color);
             }break;
             case TOP_DITHER: {
-                ImageDither(&ctx.img,
+                ImageDither(&ctx.img[ctx.img_pos],
                             op->params[0].i32,
                             op->params[1].i32,
                             op->params[2].i32,
@@ -46,8 +57,8 @@ void texed_process_ops(void) {
                     int flip = op->params[5].i32;
                     int rotate = op->params[6].i32;
                     
-                    if (w != -1 || h != -1) {
-                        ImageResize(&img, w != -1 ? w : img.width, h != -1 ? h : img.height);
+                    if (w != 0 || h != 0) {
+                        ImageResize(&img, w != 0 ? w : img.width, h != 0 ? h : img.height);
                     }
                     
                     if (flip == 1) {
@@ -62,7 +73,7 @@ void texed_process_ops(void) {
                         ImageRotateCCW(&img);
                     }
                     
-                    ImageDraw(&ctx.img, img, 
+                    ImageDraw(&ctx.img[ctx.img_pos], img, 
                               (Rectangle){0.0f, 0.0f, img.width, img.height},
                               (Rectangle){x, y, img.width, img.height},
                               op->params[5].color);
@@ -78,29 +89,29 @@ void texed_process_ops(void) {
                 int y = op->params[2].i32;
                 int size = op->params[3].i32;
                 Color color = op->params[4].color;
-                ImageDrawText(&ctx.img, str, x, y, size, color);
+                ImageDrawText(&ctx.img[ctx.img_pos], str, x, y, size, color);
             }break;
             case TOP_RESIZE_IMAGE: {
-                if (ctx.img.width == 0) break;
+                if (ctx.img[ctx.img_pos].width == 0) break;
                 int w = op->params[0].i32;
                 int h = op->params[1].i32;
                 int mode = op->params[2].i32;
                 if (mode) {
-                    ImageResize(&ctx.img, w, h);
+                    ImageResize(&ctx.img[ctx.img_pos], w, h);
                 } else {
-                    ImageResizeNN(&ctx.img, w, h);
+                    ImageResizeNN(&ctx.img[ctx.img_pos], w, h);
                 }
             }break;
             case TOP_COLOR_TWEAKS: {
-                ImageColorContrast(&ctx.img, texed_map_value(op->params[0].flt, -100.0f, 100.0f));
-                ImageColorBrightness(&ctx.img, (int)texed_map_value(op->params[1].flt, -255.0f, 255.0f));
-                ImageColorTint(&ctx.img, op->params[2].color);
+                ImageColorContrast(&ctx.img[ctx.img_pos], texed_map_value(op->params[0].flt, -100.0f, 100.0f));
+                ImageColorBrightness(&ctx.img[ctx.img_pos], (int)texed_map_value(op->params[1].flt, -255.0f, 255.0f));
+                ImageColorTint(&ctx.img[ctx.img_pos], op->params[2].color);
                 
                 if (op->params[3].i32) {
-                    ImageColorInvert(&ctx.img);
+                    ImageColorInvert(&ctx.img[ctx.img_pos]);
                 }
                 if (op->params[4].i32) {
-                    ImageColorGrayscale(&ctx.img);
+                    ImageColorGrayscale(&ctx.img[ctx.img_pos]);
                 }
             }break;
             default: {

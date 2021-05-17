@@ -13,6 +13,22 @@ static td_op default_ops[] = {
             PARAM(TPARAM_COLOR, "color", "ffffffff"),
         }
     },{
+        OP(TOP_PUSH_IMAGE),
+        PARAMS(3) {
+            PARAM(TPARAM_COORD, "w", "64"),
+            PARAM(TPARAM_COORD, "h", "64"),
+            PARAM(TPARAM_COLOR, "color", "ffffffff"),
+        }
+    },{
+        OP(TOP_POP_IMAGE),
+        PARAMS(5) {
+            PARAM(TPARAM_COORD, "x", "0"),
+            PARAM(TPARAM_COORD, "y", "0"),
+            PARAM(TPARAM_COORD, "w", "0"),
+            PARAM(TPARAM_COORD, "h", "0"),
+            PARAM(TPARAM_COLOR, "tint", "ffffffff"),
+        }
+    },{
         OP(TOP_DRAW_RECT),
         PARAMS(5) {
             PARAM(TPARAM_COORD, "x", "0"),
@@ -36,8 +52,8 @@ static td_op default_ops[] = {
             PARAM(TPARAM_STRING, "src", "samples/test.png"),
             PARAM(TPARAM_COORD, "x", "0"),
             PARAM(TPARAM_COORD, "y", "0"),
-            PARAM(TPARAM_COORD, "w", "-1"),
-            PARAM(TPARAM_COORD, "h", "-1"),
+            PARAM(TPARAM_COORD, "w", "0"),
+            PARAM(TPARAM_COORD, "h", "0"),
             PARAM(TPARAM_COLOR, "tint", "ffffffff"),
             PARAM(TPARAM_INT, "flip?", "0"),
             PARAM(TPARAM_INT, "rotate?", "0"),
@@ -54,10 +70,10 @@ static td_op default_ops[] = {
     },{
         OP(TOP_DITHER),
         PARAMS(4) {
-            PARAM(TPARAM_INT, "r_bpp", "8"),
-            PARAM(TPARAM_INT, "g_bpp", "8"),
-            PARAM(TPARAM_INT, "b_bpp", "8"),
-            PARAM(TPARAM_INT, "a_bpp", "8"),
+            PARAM(TPARAM_INT, "r_bpp", "4"),
+            PARAM(TPARAM_INT, "g_bpp", "4"),
+            PARAM(TPARAM_INT, "b_bpp", "4"),
+            PARAM(TPARAM_INT, "a_bpp", "4"),
         }
     },{
         OP(TOP_RESIZE_IMAGE),

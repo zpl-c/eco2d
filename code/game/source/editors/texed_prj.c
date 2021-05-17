@@ -9,8 +9,7 @@ void texed_load(void) {
     assert(ctx.filepath);
     zpl_printf("Loading %s ...\n", ctx.filepath);
     is_repaint_locked = true;
-    zpl_array_clear(ctx.ops);
-    
+    texed_clear();
     uint32_t size = 0;
     uint8_t *databuf = LoadFileData(zpl_bprintf("art/%s", ctx.filepath), &size); 
     
@@ -24,7 +23,7 @@ void texed_load(void) {
     int selected_op = (int)uc.item.as.u64;
     
     UNPACK(CWP_ITEM_FLOAT);
-    zoom = uc.item.as.real;
+    old_zoom = zoom = uc.item.as.real;
     
     UNPACK(CWP_ITEM_ARRAY);
     int arrsize = (int)uc.item.as.array.size;
