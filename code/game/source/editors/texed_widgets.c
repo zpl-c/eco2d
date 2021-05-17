@@ -19,6 +19,12 @@ void texed_draw_topbar(zpl_aabb2 r) {
     
     zpl_aabb2_cut_left(&r, 100.0f);
     
+    zpl_aabb2 render_tiles_ctrl_r = zpl_aabb2_cut_left(&r, 150.0f);
+    
+    render_tiles = (int)GuiSlider(aabb2_ray(render_tiles_ctrl_r), "tiles: ", zpl_bprintf("%d", render_tiles+1), render_tiles, 0.0f, 50.0f);
+    
+    zpl_aabb2_cut_left(&r, 100.0f);
+    
     zpl_aabb2 new_prj_r = zpl_aabb2_cut_left(&r, 60.0f);
     static bool new_pending = false;
     
@@ -127,7 +133,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2 prj_name_r = zpl_aabb2_cut_right(&r, 200.0f);
     zpl_aabb2_cut_right(&prj_name_r, 15.0f);
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
-    GuiDrawText(zpl_bprintf("Project: %s%s", ctx.filepath ? ctx.filepath : "(unnamed)", ctx.is_saved ? "" : "*"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(BLACK, guiAlpha));
+    GuiDrawText(zpl_bprintf("Project: %s%s", ctx.filepath ? ctx.filepath : "(unnamed)", ctx.is_saved ? "" : "*"), GetTextBounds(LABEL, aabb2_ray(prj_name_r)), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(GREEN, guiAlpha));
     GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 }
 

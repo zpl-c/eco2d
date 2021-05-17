@@ -31,6 +31,7 @@ static Texture2D checker_tex;
 static uint16_t old_screen_w;
 static uint16_t old_screen_h;
 static bool is_repaint_locked = false;
+static int render_tiles = 0;
 
 typedef enum {
     TPARAM_FLOAT,
@@ -294,12 +295,16 @@ void texed_run(int argc, char **argv) {
             DrawTextureEx(checker_tex, (Vector2){ preview_window.min.x, preview_window.min.y}, 0.0f, 1.0f, WHITE);
             
             Rectangle tex_rect = aabb2_ray(preview_window);
-            DrawTextureEx(ctx.tex, (Vector2){ 
-                              tex_rect.x + zpl_max(0.0f, tex_rect.width/2.0f - (ctx.tex.width*zoom)/2.0f), 
-                              tex_rect.y + zpl_max(0.0f, tex_rect.height/2.0f - (ctx.tex.height*zoom)/2.0f),
-                          }, 0.0f, zoom, WHITE);
+            float tile_x = tex_rect.x + zpl_max(0.0f, tex_rect.width/2.0f - (ctx.tex.width*zoom)/2.0f);
+            float tile_y = tex_rect.y + zpl_max(0.0f, tex_rect.height/2.0f - (ctx.tex.height*zoom)/2.0f);
             
-            DrawAABB(topbar, RAYWHITE);
+            for (int x = -render_tiles; x <= render_tiles; x++) {
+                for (int y = -render_tiles; y <= render_tiles; y++) {
+                    DrawTextureEx(ctx.tex, (Vector2){tile_x + (ctx.tex.width*zoom) * x, tile_y + (ctx.tex.height*zoom)*y}, 0.0f, zoom, WHITE);
+                }
+            }
+            
+            DrawAABB(topbar, BLACK);
             DrawAABB(property_pane, GetColor(0x422060));
             DrawAABB(oplist_pane, GetColor(0x425060));
             
