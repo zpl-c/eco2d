@@ -75,6 +75,18 @@ typedef enum {
     TOP_PUSH_IMAGE,
     TOP_POP_IMAGE,
     
+    TOP_IMAGE_GRAD_V,
+    TOP_IMAGE_GRAD_H,
+    TOP_IMAGE_GRAD_RAD,
+    TOP_IMAGE_CHECKED,
+    TOP_IMAGE_NOISE_WHITE,
+    TOP_IMAGE_NOISE_PERLIN,
+    TOP_IMAGE_CELLULAR,
+    
+    TOP_COLOR_REPLACE,
+    
+    TOP_IMAGE_ALPHA_MASK,
+    
     TOP_FORCE_UINT8 = UINT8_MAX
 } td_op_kind;
 
@@ -320,13 +332,11 @@ void texed_run(int argc, char **argv) {
 
 void texed_new(int32_t w, int32_t h) {
     ctx.img_pos = -1;
+    ctx.selected_op = -1;
     zpl_memset(ctx.img, 0, sizeof(Image)*TD_IMAGES_MAX_STACK);
-    texed_img_push(w, h, WHITE);
     ctx.filepath = NULL;
-    ctx.selected_op = 0;
     ctx.msgbox.result = -1;
     zpl_array_init(ctx.ops, zpl_heap());
-    
     is_repaint_locked = true;
     texed_add_op(TOP_NEW_IMAGE);
     zpl_i64_to_str(w, ctx.ops[0].params[0].str, 10);
@@ -343,6 +353,7 @@ void texed_clear(void) {
     for (int i = 0; i <= ctx.img_pos; i+=1)
         UnloadImage(ctx.img[i]);
     ctx.img_pos = -1;
+    ctx.selected_op = -1;
 }
 
 void texed_destroy(void) {
@@ -441,8 +452,17 @@ void texed_add_op(int kind) {
     
     zpl_memcopy(op.params, dop->params, sizeof(td_param)*dop->num_params);
     
-    zpl_array_append(ctx.ops, op);
-    ctx.selected_op = zpl_array_count(ctx.ops)-1;
+    //TODO(zaklaus): weird stuff down there
+    //zpl_array_append_at(ctx.ops, op, ctx.selected_op+1);
+    int ind = ctx.selected_op+1;
+    do {                            
+        if (ind >= zpl_array_count(ctx.ops)) { zpl_array_append(ctx.ops, op); break; }
+        if (zpl_array_capacity(ctx.ops) < zpl_array_count(ctx.ops) + 1) zpl_array_grow(ctx.ops, 0);
+        zpl_memmove(&(ctx.ops)[ind + 1], (ctx.ops + ind), zpl_size_of(td_op) * (zpl_array_count(ctx.ops) - ind));
+        ctx.ops[ind] = op;
+        zpl_array_count(ctx.ops)++;
+    } while (0);
+    ctx.selected_op++;
     
     texed_repaint_preview();
 }
