@@ -8,6 +8,9 @@ bool GuiValueBoxEco(Rectangle bounds, const char *text, int *value, int minValue
 static inline
 bool IsCtrlAcceleratorPressed(char key);
 
+static inline
+char const *prettify_op_name(int idx);
+
 void texed_draw_topbar(zpl_aabb2 r) {
     zpl_aabb2 zoom_ctrl_r = zpl_aabb2_cut_left(&r, 150.0f);
     
@@ -140,7 +143,7 @@ void texed_draw_topbar(zpl_aabb2 r) {
 void texed_draw_oplist_pane(zpl_aabb2 r) {
     // NOTE(zaklaus): add operator
     {
-        zpl_aabb2 add_op_r = zpl_aabb2_cut_right(&r, 180.0f);
+        zpl_aabb2 add_op_r = zpl_aabb2_cut_right(&r, 200.0f);
         DrawAABB(add_op_r, GetColor(0x122025));
         add_op_r = zpl_aabb2_contract(&add_op_r, 3.0f);
         Rectangle panel_rec = aabb2_ray(add_op_r);
@@ -153,18 +156,30 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         Rectangle view = GuiScrollPanel(panel_rec, aabb2_ray(add_op_r), &panel_scroll);
         
         BeginScissorMode(view.x, view.y, view.width, view.height);
+        GuiSetStyle(BUTTON, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
         
         for (int i = 0; i < DEF_OPS_LEN; i += 1) {
             if (default_ops[i].is_locked) continue;
+            tcat_desc cat_info = default_cats[default_ops[i].cat];
+            Color color = cat_info.color;
             
             zpl_aabb2 add_op_btn_r = zpl_aabb2_cut_top(&add_op_r, 22.5f);
             add_op_btn_r.min.y += panel_scroll.y;
             add_op_btn_r.max.y += panel_scroll.y;
+            add_op_btn_r.max.x -= 2.0f;
             zpl_aabb2_cut_bottom(&add_op_btn_r, 2.5f);
-            if (GuiButton(aabb2_ray(add_op_btn_r), default_ops[i].name)) {
+            
+            GuiSetStyle(BUTTON, BORDER, ColorToInt(Fade(color, 0.89f)));
+            GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
+            
+            if (GuiButton(aabb2_ray(add_op_btn_r), prettify_op_name(i))) {
                 texed_add_op(default_ops[i].kind);
             }
+            
+            GuiSetStyle(BUTTON, BORDER, 0x838383ff);
+            GuiSetStyle(BUTTON, BORDER_WIDTH, 2);
         }
+        GuiSetStyle(BUTTON, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
         
         EndScissorMode();
     }
@@ -183,26 +198,17 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
     
     // NOTE(zaklaus): operator list
     for (int i = 0; i < zpl_array_count(ctx.ops); i += 1) {
+        td_op *op = &ctx.ops[i];
         zpl_aabb2 op_item_r = zpl_aabb2_cut_top(&r, 25.0f);
         op_item_r.min.y += panel_scroll.y;
         op_item_r.max.y += panel_scroll.y;
         zpl_aabb2_cut_top(&op_item_r, 2.5f);
         zpl_aabb2_cut_bottom(&op_item_r, 2.5f);
         Rectangle list_item = aabb2_ray(op_item_r);
-        Color bg_color = BLUE;
+        tcat_desc cat_info = default_cats[default_ops[texed_find_op(op->kind)].cat];
+        Color bg_color = cat_info.color;
         
-        if (ctx.selected_op == i) {
-            bg_color = GREEN;
-        }
-        else if (ctx.ops[i].is_hidden) {
-            bg_color = RED;
-        }
-        else if (ctx.ops[i].is_locked) {
-            bg_color = SKYBLUE;
-        }
-        
-        DrawRectangleRec(list_item, ColorAlpha(bg_color, 0.4f));
-        
+        DrawRectangleRec(list_item, ColorAlpha(bg_color, ctx.selected_op == i ? 0.6f : 0.325f));
         zpl_aabb2 swap_r = zpl_aabb2_cut_left(&op_item_r, 50.0f);
         Rectangle list_text = aabb2_ray(op_item_r);
         
@@ -210,41 +216,61 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         zpl_aabb2 swap_top = zpl_aabb2_cut_left(&swap_r, aabb2_ray(swap_r).width/2.0f);
         zpl_aabb2 swap_bottom = swap_r;
         
-        if (i == 0 || ctx.ops[i].is_locked || (i > 0 && ctx.ops[i-1].is_locked)) GuiSetState(GUI_STATE_DISABLED);
+        if (i == 0 || op->is_locked || (i > 0 && ctx.ops[i-1].is_locked)) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(swap_top), "#121#")) {
             texed_swp_op(i, i-1);
         }
         GuiSetState(GUI_STATE_NORMAL);
         
-        if (ctx.ops[i].is_locked || (i+1 < zpl_array_count(ctx.ops) && ctx.ops[i+1].is_locked) || i+1 >= zpl_array_count(ctx.ops)) GuiSetState(GUI_STATE_DISABLED);
+        if (op->is_locked || (i+1 < zpl_array_count(ctx.ops) && ctx.ops[i+1].is_locked) || i+1 >= zpl_array_count(ctx.ops)) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(swap_bottom), "#120#")) {
             texed_swp_op(i, i+1);
         }
         GuiSetState(GUI_STATE_NORMAL);
         
+        zpl_aabb2 theme_stripe = zpl_aabb2_add_right(&swap_r, 3.0f);
+        if (op->is_locked && op->is_hidden) {
+            zpl_aabb2 stripe_bottom = zpl_aabb2_cut_bottom(&theme_stripe, (theme_stripe.max.y-theme_stripe.min.y)/2.0f);
+            DrawAABB(theme_stripe, SKYBLUE);
+            DrawAABB(stripe_bottom, RED);
+        } else if (op->is_locked) {
+            DrawAABB(theme_stripe, SKYBLUE);
+        } else if (op->is_hidden) {
+            DrawAABB(theme_stripe, RED);
+        }
+        
         zpl_aabb2 remove_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
         
-        if (ctx.ops[i].is_locked) GuiSetState(GUI_STATE_DISABLED);
+        if (op->is_locked) GuiSetState(GUI_STATE_DISABLED);
         if (GuiButton(aabb2_ray(remove_r), "#143#")) {
             texed_rem_op(i);
         }
         
         zpl_aabb2 hidden_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
+        if (!default_ops[texed_find_op(op->kind)].is_locked) GuiSetState(GUI_STATE_NORMAL);
         
-        if (!default_ops[texed_find_op(ctx.ops[i].kind)].is_locked) GuiSetState(GUI_STATE_NORMAL);
-        if (GuiButton(aabb2_ray(hidden_r), ctx.ops[i].is_hidden ? "#45#" : "#44#")) {
-            ctx.ops[i].is_hidden = !ctx.ops[i].is_hidden;
+        if (op->is_hidden) {
+            GuiSetStyle(BUTTON, BASE, ColorToInt(RED));
+        }
+        if (GuiButton(aabb2_ray(hidden_r), op->is_hidden ? "#45#" : "#44#")) {
+            op->is_hidden = !op->is_hidden;
             texed_repaint_preview();
         }
+        GuiSetStyle(BUTTON, BASE, 0x202020ff);
         GuiSetState(GUI_STATE_NORMAL);
         
         zpl_aabb2 lock_r = zpl_aabb2_cut_right(&op_item_r, 20.0f);
         
-        if (default_ops[texed_find_op(ctx.ops[i].kind)].is_locked) GuiSetState(GUI_STATE_DISABLED);
-        if (GuiButton(aabb2_ray(lock_r), ctx.ops[i].is_locked ? "#137#" : "#138#")) {
-            ctx.ops[i].is_locked = !ctx.ops[i].is_locked;
+        if (default_ops[texed_find_op(op->kind)].is_locked) GuiSetState(GUI_STATE_DISABLED);
+        
+        if (op->is_locked) {
+            GuiSetStyle(BUTTON, BASE, ColorToInt(BLUE));
+        }
+        if (GuiButton(aabb2_ray(lock_r), op->is_locked ? "#137#" : "#138#")) {
+            op->is_locked = !op->is_locked;
             ctx.is_saved = false;
         }
+        GuiSetStyle(BUTTON, BASE, 0x202020ff);
         GuiSetState(GUI_STATE_NORMAL);
         
         if (ctx.selected_op == i) GuiSetState(GUI_STATE_DISABLED);
@@ -256,7 +282,7 @@ void texed_draw_oplist_pane(zpl_aabb2 r) {
         }
         GuiSetState(GUI_STATE_NORMAL); 
         
-        GuiDrawText(zpl_bprintf("%s %s", ctx.ops[i].name, ctx.ops[i].is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
+        GuiDrawText(zpl_bprintf("%s %s", prettify_op_name(texed_find_op(op->kind)), op->is_locked ? "(locked)" : ""), GetTextBounds(LABEL, list_text), GuiGetStyle(LABEL, TEXT_ALIGNMENT), Fade(RAYWHITE, guiAlpha));
     }
     
     EndScissorMode();
@@ -642,4 +668,20 @@ bool GuiValueBoxEco(Rectangle bounds, const char *text, int *value, int minValue
     //--------------------------------------------------------------------
     
     return pressed;
+}
+
+static inline
+char const *prettify_op_name(int idx) {
+    static char name[200] = {0};
+    zpl_snprintf(name, 200, "%s %s", default_cats[default_ops[idx].cat].icon, default_ops[idx].name+4);
+    zpl_str_to_lower(name);
+    
+    char *p = (char*)zpl_str_skip(name, ' ')+1;
+    do {
+        *p = zpl_char_to_upper(*p);
+        p = (char*)zpl_str_skip(p, '_');
+        if (*p) *p = ' ';
+    } while(*p++);
+    
+    return name;
 }

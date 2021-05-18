@@ -62,6 +62,21 @@ typedef struct {
 } td_param;
 
 typedef enum {
+    TCAT_STACK,
+    TCAT_GEN,
+    TCAT_DRAW,
+    TCAT_MOD,
+    
+    TCAT_FORCE_UINT8 = UINT8_MAX
+} tcat_kind;
+
+typedef struct {
+    tcat_kind kind;
+    char const *icon;
+    Color color;
+} tcat_desc;
+
+typedef enum {
     TOP_NEW_IMAGE,
     TOP_DRAW_RECT,
     TOP_DRAW_LINE,
@@ -95,6 +110,7 @@ typedef enum {
 typedef struct {
     td_op_kind kind;
     char const *name;
+    tcat_kind cat;
     bool is_hidden;
     bool is_locked;
     
@@ -248,16 +264,6 @@ void texed_run(int argc, char **argv) {
     
     texed_new(TD_DEFAULT_IMG_WIDTH, TD_DEFAULT_IMG_HEIGHT);
     
-    {
-        GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
-        GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x012e33ff);
-        GuiSetStyle(BUTTON, BASE, 0x202020ff);
-        GuiSetStyle(BUTTON, BASE + GUI_STATE_DISABLED*3, 0x303030ff);
-        GuiSetStyle(BUTTON, TEXT + GUI_STATE_FOCUSED*3, 0x303030ff);
-        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xffffffff);
-        GuiSetStyle(LISTVIEW, SCROLLBAR_SIDE, SCROLLBAR_LEFT_SIDE);
-    }
-    
     while (1) {
         zpl_aabb2 screen = {
             .min = (zpl_vec2) {.x = 0.0f, .y = 0.0f},
@@ -284,6 +290,18 @@ void texed_run(int argc, char **argv) {
             checker_tex = LoadTextureFromImage(checkerboard);
             UnloadImage(checkerboard);
             ctx.fileDialog = InitGuiFileDialog(420, 310, zpl_bprintf("%s/art", GetWorkingDirectory()), false);
+        }
+        
+        // NOTE(zaklaus): ensure we reset styling to our defaults each frame
+        {
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
+            GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x012e33ff);
+            GuiSetStyle(BUTTON, BASE, 0x202020ff);
+            GuiSetStyle(BUTTON, BASE + GUI_STATE_DISABLED*3, 0x303030ff);
+            GuiSetStyle(BUTTON, TEXT + GUI_STATE_FOCUSED*3, 0x303030ff);
+            GuiSetStyle(BUTTON, BORDER, 0xffffffff);
+            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xffffffff);
+            GuiSetStyle(LISTVIEW, SCROLLBAR_SIDE, SCROLLBAR_LEFT_SIDE);
         }
         
         BeginDrawing();
