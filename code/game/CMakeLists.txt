@@ -19,7 +19,6 @@ add_executable(eco2d
 	source/signal_handling.c
 	source/profiler.c
 	source/debug_ui.c
-	source/editors/texed.c
   
 	source/utils/options.c
 

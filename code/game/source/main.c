@@ -4,7 +4,6 @@
 #include "game.h"
 #include "entity.h"
 #include "utils/options.h"
-#include "editors/texed.h"
 #include "signal_handling.h"
 #include "profiler.h"
 
@@ -36,14 +35,6 @@ int main(int argc, char** argv) {
     zpl_opts_add(&opts, "ws", "world-size", "amount of chunks within a world (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "n", "npc-count", "amount of demo npcs to spawn", ZPL_OPTS_INT);
     
-    zpl_opts_add(&opts, "td", "texed", "run texture editor", ZPL_OPTS_FLAG);
-    {
-        // NOTE(zaklaus): here to satisfy cli parser, otherwise we handle it inside texed
-        zpl_opts_add(&opts, "td-i", "texed-import", "convert an image to ecotex format", ZPL_OPTS_STRING);
-        zpl_opts_add(&opts, "td-ec", "texed-export-cc", "export ecotex image to C header file", ZPL_OPTS_STRING);
-        zpl_opts_add(&opts, "td-ep", "texed-export-png", "export ecotex image to PNG format", ZPL_OPTS_STRING);
-    }
-    
     uint32_t ok = zpl_opts_compile(&opts, argc, argv);
     
     if (!ok) {
@@ -59,11 +50,6 @@ int main(int argc, char** argv) {
     uint16_t chunk_size = zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
     uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 1000);
-    
-    if (zpl_opts_has_arg(&opts, "texed")) {
-        texed_run(argc, argv);
-        return 0;
-    }
     
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};
