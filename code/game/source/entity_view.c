@@ -10,6 +10,8 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_HALF(entity_view, y) },
     { PKT_HALF(entity_view, vx) },
     { PKT_HALF(entity_view, vy) },
+    { PKT_SKIP_IF(entity_view, blocks_used, 0, 1) },
+    { PKT_ARRAY(entity_view, blocks) },
     { PKT_END }, 
 };
 

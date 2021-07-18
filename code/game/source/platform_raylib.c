@@ -56,7 +56,7 @@ void platform_shutdown() {
     assets_destroy();
     CloseWindow();
 }
- 
+
 uint8_t platform_is_running() {
     return !WindowShouldClose();
 }
@@ -123,11 +123,11 @@ void platform_render() {
     }
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
     camera_update();
-
+    
     camera game_camera = camera_get();
     render_camera.target = (Vector2){game_camera.x, game_camera.y};
     zoom_overlay_tran = zpl_lerp(zoom_overlay_tran, (target_zoom <= CAM_OVERLAY_ZOOM_LEVEL) ? 1.0f : 0.0f, GetFrameTime()*2.0f);
-
+    
     BeginDrawing();
     profile (PROF_RENDER) {
         ClearBackground(GetColor(0x222034));
@@ -167,7 +167,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
             
             float x = data->x * size + offset;
             float y = data->y * size + offset;
-                             
+            
             DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(LIME, data->tran_time));
             
 #if 0
@@ -182,11 +182,11 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
                 DrawRectangleEco(bx, by, block_size, block_size, GREEN);
             }
 #endif
-       
+            
             if (zoom_overlay_tran > 0.02f) {
                 DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV(key*x, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran));
                 
-                DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 65 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
+                DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
                 
             }
         }break;

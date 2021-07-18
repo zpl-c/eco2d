@@ -32,12 +32,12 @@ int32_t pkt_header_encode(pkt_messages id, uint16_t view_id, void *data, size_t 
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     cw_unpack_context uc = {0};
     pkt_unpack_msg_raw(&uc, data, datalen, PKT_HEADER_ELEMENTS);
-
+    
     cw_unpack_next(&uc);
     if (uc.item.type != CWP_ITEM_POSITIVE_INTEGER || uc.item.as.u64 > UINT16_MAX) {
         return -1; // invalid packet id
     }
-
+    
     uint16_t pkt_id = (uint16_t)uc.item.as.u64;
     
     cw_unpack_next(&uc);
@@ -50,13 +50,13 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     cw_unpack_next(&uc);
     const void *packed_blob = uc.item.as.bin.start;
     uint32_t packed_size = uc.item.as.bin.length;
-
+    
     table->id = pkt_id;
     table->view_id = view_id;
     table->data = packed_blob;
     table->datalen = packed_size;
     table->ok = 1;
-
+    
     return pkt_validate_eof_msg(&uc) != -1;
 }
 
@@ -64,6 +64,11 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
     uint8_t *blob = (uint8_t*)raw_blob;
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
         cw_unpack_next(uc);
+        if (field->skip_count) {
+            if (uc->item.type != CWP_ITEM_POSITIVE_INTEGER) return -1; // unexpected field
+            field += uc->item.as.u64;
+            continue;
+        }
         if (uc->item.type != field->type) return -1; // unexpected field
         if (blob + field->offset + field->size > blob + blob_size) return -1; // field does not fit
         switch (field->type) {
@@ -99,6 +104,18 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
 int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uint32_t blob_size) {
     uint8_t *blob = (uint8_t*)raw_blob;
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
+        if (field->skip_count) {
+            uint8_t val = *(uint8_t*)(blob + field->offset);
+            if (val == field->skip_eq) {
+                field += field->skip_count;
+                cw_pack_unsigned(pc, field->skip_count);
+            } else {
+                cw_pack_unsigned(pc, 0);
+            }
+            
+            continue;
+        }
+        
         switch (field->type) {
             case CWP_ITEM_BIN: {
                 if (field->size >= PKT_BUFSIZ) return -1; // bin blob too big
@@ -140,6 +157,14 @@ void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size) {
     uint8_t *blob = (uint8_t*)raw_blob;
     zpl_printf("{\n");
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
+        if (field->skip_count) {
+            uint8_t val = *(uint8_t*)(blob + field->offset);
+            if (val == field->skip_eq) {
+                field += field->skip_count;
+            }
+            
+            continue;
+        }
         zpl_printf("  \"%s\": ", field->name);
         switch (field->type) {
             case CWP_ITEM_BIN: {

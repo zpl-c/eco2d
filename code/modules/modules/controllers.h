@@ -3,11 +3,11 @@
 #include "flecs/flecs_meta.h"
 
 ECS_STRUCT(Input, {
-    float x;
-    float y;
-    uint8_t use;
-    uint8_t sprint;
-});
+               float x;
+               float y;
+               uint8_t use;
+               uint8_t sprint;
+           });
 
 typedef struct {
     ECS_DECLARE_COMPONENT(Input);
@@ -22,14 +22,14 @@ typedef struct {
 } Controllers;
 
 #define ControllersImportHandles(handles)\
-    ECS_IMPORT_COMPONENT(handles, Input);\
-    ECS_IMPORT_TYPE(handles, Player);\
-    ECS_IMPORT_TYPE(handles, Builder);\
-    ECS_IMPORT_ENTITY(handles, EcsActor);\
-    ECS_IMPORT_ENTITY(handles, EcsPlayer);\
-    ECS_IMPORT_ENTITY(handles, EcsBuilder);\
-    ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
-    ECS_IMPORT_ENTITY(handles, MovementImpulse);\
-    ECS_IMPORT_ENTITY(handles, DemoNPCMoveAround);\
+ECS_IMPORT_COMPONENT(handles, Input);\
+ECS_IMPORT_TYPE(handles, Player);\
+ECS_IMPORT_TYPE(handles, Builder);\
+ECS_IMPORT_ENTITY(handles, EcsActor);\
+ECS_IMPORT_ENTITY(handles, EcsPlayer);\
+ECS_IMPORT_ENTITY(handles, EcsBuilder);\
+ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
+ECS_IMPORT_ENTITY(handles, MovementImpulse);\
+ECS_IMPORT_ENTITY(handles, DemoNPCMoveAround);\
 
 void ControllersImport(ecs_world_t *ecs);

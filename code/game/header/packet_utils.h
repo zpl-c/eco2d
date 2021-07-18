@@ -97,6 +97,10 @@ static inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t i
 #define PKT_ARRAY(t, a) .type = CWP_ITEM_BIN, .offset = PKT_OFFSETOF(t, a), .size = PKT_FIELD_SIZEOF(t,a), .it_size = PKT_FIELD_SIZEOF(t,a[0]), .name = #a
 #endif
 
+#ifndef PKT_SKIP_IF
+#define PKT_SKIP_IF(t, a, e, n) .skip_count = n, .offset = PKT_OFFSETOF(t, a), .skip_eq = e, .name = #a
+#endif
+
 #ifndef PKT_END
 #define PKT_END .type = CWP_NOT_AN_ITEM
 #endif
@@ -111,8 +115,10 @@ typedef struct pkt_desc {
     size_t offset;
     size_t size;
     size_t it_size;
+    size_t skip_count;
+    uint8_t skip_eq;
 } pkt_desc;
-    
+
 int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
 int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uint32_t blob_size);
 

@@ -185,16 +185,16 @@ void debug_draw(void) {
             color = RED;
             is_handle_ctrl_held = 1;
         }
-            
+        
         if (is_handle_ctrl_held) {
             debug_xpos = xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
             debug_ypos = ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
-                    
+            
             if (area == DAREA_PRESS) {
                 is_handle_ctrl_held = 0;
             }
         }
-            
+        
         DrawRectangle(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
     }
     

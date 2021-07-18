@@ -35,6 +35,10 @@ typedef struct entity_view {
     float tx;
     float ty;
     
+    // TODO(zaklaus): Find a way to stream dynamic arrays
+    uint8_t blocks_used;
+    uint8_t blocks[256];
+    
     // NOTE(zaklaus): internals
     uint8_t layer_id;
     uint64_t last_update;
