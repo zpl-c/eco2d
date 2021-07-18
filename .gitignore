@@ -9,3 +9,6 @@ work
 GPATH
 GRTAGS
 GTAGS
+/run_release.bat
+/package.bat
+pkg
