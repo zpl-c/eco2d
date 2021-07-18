@@ -56,6 +56,13 @@ Image GetBlockImage(uint8_t id) {
 }
 
 static inline
+Texture2D GetChunkTexture(uint64_t id) {
+    Texture2D *tex = (Texture2D*)blocks_get_chunk_tex(id);
+    if (!tex) return (Texture2D){0};
+    return *tex;
+}
+
+static inline
 Image GetSpriteImage(uint16_t id) {
     return *(Image*)assets_get_tex(id);
 }

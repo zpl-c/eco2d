@@ -168,7 +168,9 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
             float x = data->x * size + offset;
             float y = data->y * size + offset;
             
-            DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(LIME, data->tran_time));
+            //DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(LIME, data->tran_time));
+            Texture2D tex = GetChunkTexture(key);
+            DrawTextureEx(tex, (Vector2){x, y}, 0.0f, 1.0f, ColorAlpha(WHITE, data->tran_time));
             
 #if 0
             float block_size = view->block_size*0.70f;
@@ -184,7 +186,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
 #endif
             
             if (zoom_overlay_tran > 0.02f) {
-                DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV(key*x, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran));
+                DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV(key*x, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
                 
                 DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
                 
