@@ -129,7 +129,7 @@ int32_t worldgen_test(world_data *wld) {
     uint8_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
     uint8_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
     uint8_t dirt_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_DIRT);
-    //uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
     
     srand(world->seed);
     
@@ -141,18 +141,18 @@ int32_t worldgen_test(world_data *wld) {
     world_fill_rect(dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise50);
     
     // water
-#if 0
-    for (int i=0; i<RAND_RANGE(0, 12); i++) {
-        world_fill_rect_anchor(watr_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise33);
+#if 1
+    for (int i=0; i<RAND_RANGE(8, 22); i++) {
+        world_fill_rect_anchor(watr_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise80);
     }
 #endif
     
     
     // hills
-#if 0
-    const uint32_t HILLS_SIZE = 44;
-    for (int i=0; i<RAND_RANGE(32, 224); i++) {
-        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise33);
+#if 1
+    const uint32_t HILLS_SIZE = 21;
+    for (int i=0; i<RAND_RANGE(8, 124); i++) {
+        world_fill_rect_anchor(wall_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise50);
     }
 #endif
     

@@ -31,6 +31,9 @@ Image texgen_build_block(uint32_t biome, uint32_t kind) {
                 case BLOCK_KIND_HILL:{
                     return LoadImageEco("rock");
                 }break;
+                case BLOCK_KIND_WATER:{
+                    return LoadImageEco("water");
+                }break;
             }
         }
     }

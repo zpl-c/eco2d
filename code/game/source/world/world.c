@@ -154,10 +154,10 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         for (int y = 0; y < world.chunk_size; y += 1) {
             for (int x = 0; x < world.chunk_size; x += 1) {
                 int chk = world.chunk_size * i;
-                int chk_x = chk % world.chunk_amount;
-                int chk_y = chk / world.chunk_amount;
+                int chk_x = chk % world.dim;
+                int chk_y = chk / world.dim;
                 uint8_t *c = ecs_vector_add(&chunk->blocks, uint8_t);
-                *c = world.data[(chk_y+y)*world.chunk_amount + (chk_x+x)];
+                *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
             }
         }
     }

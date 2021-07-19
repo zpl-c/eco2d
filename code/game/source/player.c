@@ -27,13 +27,18 @@ uint64_t player_spawn(char *name) {
     ecs_set(world_ecs(), e, Input, {0});
     ecs_add(world_ecs(), e, Player);
     Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+#if 1
     pos->x=rand() % world_dim();
     pos->y=rand() % world_dim();
-
+#else
+    pos->x=10;
+    pos->y=10;
+#endif
+    
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     librg_entity_radius_set(world_tracker(), e, 3);
     librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), pos->x, pos->y, 0));
-
+    
     return (uint64_t)e;
 }
 
