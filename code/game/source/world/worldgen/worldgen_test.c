@@ -10,8 +10,8 @@
 #define WORLD_BLOCK_OBSERVER(name) uint8_t name(uint8_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
-#define WORLD_PERLIN_FREQ    1.0
-#define WORLD_PERLIN_OCTAVES 1
+#define WORLD_PERLIN_FREQ    9.34157f
+#define WORLD_PERLIN_OCTAVES 4
 
 static world_data *world;
 
@@ -83,9 +83,10 @@ static uint8_t world_perlin_cond(uint32_t block_idx, double chance) {
     uint32_t x = block_idx % world->dim;
     uint32_t y = block_idx / world->dim;
     
-    return perlin_fbm(world->seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
+    return perlin_fbm(world->seed, x+rand()%world->dim, y+rand()%world->dim, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
 }
 
+#if 1
 static WORLD_BLOCK_OBSERVER(shaper_noise80) {
     return world_perlin_cond(block_idx, 0.80) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
@@ -97,6 +98,19 @@ static WORLD_BLOCK_OBSERVER(shaper_noise50) {
 static WORLD_BLOCK_OBSERVER(shaper_noise33) {
     return world_perlin_cond(block_idx, 0.33) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
+#else
+static WORLD_BLOCK_OBSERVER(shaper_noise80) {
+    return rand()%10 < 8 ? shaper(id, block_idx) : BLOCK_INVALID;
+}
+
+static WORLD_BLOCK_OBSERVER(shaper_noise50) {
+    return rand()%10 < 5 ? shaper(id, block_idx) : BLOCK_INVALID;
+}
+
+static WORLD_BLOCK_OBSERVER(shaper_noise33) {
+    return rand()%10 < 3 ? shaper(id, block_idx) : BLOCK_INVALID;
+}
+#endif
 
 #if 0
 static void world_fill_mountain(uint32_t x, uint32_t y) {
@@ -115,7 +129,7 @@ int32_t worldgen_test(world_data *wld) {
     uint8_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
     uint8_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
     uint8_t dirt_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_DIRT);
-    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    //uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
     
     srand(world->seed);
     
