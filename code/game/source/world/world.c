@@ -222,9 +222,9 @@ int32_t world_update() {
         ecs_progress(world.ecs, 0.0f);
     }
     
-    world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 1);
-    world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 2);
-    world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 3);
+    world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
+    world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
+    world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
     return 0;
 }
 

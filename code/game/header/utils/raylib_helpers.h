@@ -51,14 +51,14 @@ void DrawRectangleEco(float posX, float posY, float width, float height, Color c
 }
 
 static inline
-Image GetBlockImage(uint8_t id) {
-    return *(Image*)blocks_get_img(id);
+Texture2D GetBlockImage(uint8_t id) {
+    return *(Texture2D*)blocks_get_img(id);
 }
 
 static inline
-Texture2D GetChunkTexture(uint64_t id) {
-    Texture2D *tex = (Texture2D*)blocks_get_chunk_tex(id);
-    if (!tex) return (Texture2D){0};
+RenderTexture2D GetChunkTexture(uint64_t id) {
+    RenderTexture2D *tex = (RenderTexture2D*)blocks_get_chunk_tex(id);
+    if (!tex) return (RenderTexture2D){0};
     return *tex;
 }
 

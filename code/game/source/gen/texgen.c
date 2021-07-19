@@ -6,13 +6,13 @@
 #include "zpl.h"
 
 static inline
-Image LoadImageEco(const char *name) {
+Texture2D LoadImageEco(const char *name) {
     static char filename[128];
     zpl_snprintf(filename,  128, "art/gen/%s.png", name);
-    return LoadImage(filename);
+    return LoadTexture(filename);
 }
 
-Image texgen_build_block(uint32_t biome, uint32_t kind) {
+Texture2D texgen_build_block(uint32_t biome, uint32_t kind) {
     // TODO(zaklaus): 
     
     switch (biome) {
@@ -38,7 +38,10 @@ Image texgen_build_block(uint32_t biome, uint32_t kind) {
         }
     }
     
-    return GenImageColor(WORLD_BLOCK_SIZE,WORLD_BLOCK_SIZE,ColorFromHSV(biome+kind*30, 0.13f, 0.89f));
+    Image img = GenImageColor(WORLD_BLOCK_SIZE,WORLD_BLOCK_SIZE,ColorFromHSV(biome+kind*30, 0.13f, 0.89f));
+    Texture2D tex = LoadTextureFromImage(img);
+    UnloadImage(img);
+    return tex;
 }
 
 Texture2D texgen_build_sprite(asset_id id) {

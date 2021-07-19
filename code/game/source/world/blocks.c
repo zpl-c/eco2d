@@ -8,13 +8,13 @@
 
 #define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 
-ZPL_TABLE(static, blocks__chunk_tbl, blocks__chunk_tbl_, Texture2D);
+ZPL_TABLE(static, blocks__chunk_tbl, blocks__chunk_tbl_, RenderTexture2D);
 
 static blocks__chunk_tbl baked_chunks;
 
-static void chunks_unload_textures(uint64_t key, Texture2D *value) {
+static void chunks_unload_textures(uint64_t key, RenderTexture2D *value) {
     (void)key;
-    UnloadTexture(*value);
+    UnloadRenderTexture(*value);
 }
 
 typedef struct {
@@ -25,7 +25,7 @@ typedef struct {
     char symbol;
     
     // NOTE(zaklaus): viewer data
-    Image img;
+    Texture2D img;
 } block;
 
 #include "blocks_list.c"
@@ -42,7 +42,7 @@ int32_t blocks_setup(void) {
 
 void blocks_destroy(void) {
     for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
-        UnloadImage(blocks[i].img);
+        UnloadTexture(blocks[i].img);
     }
     
     blocks__chunk_tbl_map_mut(&baked_chunks, chunks_unload_textures);
@@ -85,19 +85,21 @@ void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, size_t blocks_le
     (void)blocks_len;
     world_view *view = (world_view*)raw_view;
     uint16_t dims = WORLD_BLOCK_SIZE * view->chunk_size;
-    Image canvas = GenImageColor(dims, dims, RAYWHITE);
+    RenderTexture2D canvas = LoadRenderTexture(dims, dims);
+    BeginTextureMode(canvas);
+    ClearBackground(WHITE);
     for (int y = 0; y < view->chunk_size; y += 1) {
         for (int x = 0; x < view->chunk_size; x += 1) {
-            Image blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
+#if 1
+            Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             Rectangle dst = {x*WORLD_BLOCK_SIZE, y*WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
-            ImageDraw(&canvas, blk, src, dst, WHITE);
+            DrawTexturePro(blk, src, dst, (Vector2){0.0f,0.0f}, 0.0f, WHITE);
+#endif
         }
     }
-    
-    Texture2D tex = LoadTextureFromImage(canvas);
-    UnloadImage(canvas);
-    blocks__chunk_tbl_set(&baked_chunks, id, tex);
+    EndTextureMode();
+    blocks__chunk_tbl_set(&baked_chunks, id, canvas);
 }
 
 void *blocks_get_chunk_tex(uint64_t id) {
@@ -105,6 +107,6 @@ void *blocks_get_chunk_tex(uint64_t id) {
 }
 
 void blocks_remove_chunk_tex(uint64_t id) {
-    UnloadTexture(*blocks__chunk_tbl_get(&baked_chunks, id));
+    UnloadRenderTexture(*blocks__chunk_tbl_get(&baked_chunks, id));
     blocks__chunk_tbl_remove(&baked_chunks, id);
 }
