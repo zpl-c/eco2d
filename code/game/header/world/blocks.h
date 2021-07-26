@@ -19,6 +19,7 @@ char blocks_get_symbol(uint8_t id);
 uint32_t blocks_get_flags(uint8_t id);
 uint32_t blocks_get_biome(uint8_t id);
 uint32_t blocks_get_kind(uint8_t id);
+float blocks_get_drag(uint8_t id);
 
 // NOTE(zaklaus): viewer-related functions
 void *blocks_get_img(uint8_t id);

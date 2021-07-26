@@ -155,11 +155,10 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         world.block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
         chunk->id = i;
         
-        for (int y = 0; y < world.chunk_size; y += 1) {
-            for (int x = 0; x < world.chunk_size; x += 1) {
-                int chk = world.chunk_size * i;
-                int chk_x = chk % world.dim;
-                int chk_y = chk / world.dim;
+        for (int y = 0; y < chunk_size; y += 1) {
+            for (int x = 0; x < chunk_size; x += 1) {
+                int chk_x = chunk->x * chunk_size;
+                int chk_y = chunk->y * chunk_size;
                 uint8_t *c = &world.block_mapping[i][(y*chunk_size)+x];
                 *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
             }

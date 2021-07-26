@@ -10,8 +10,8 @@
 #define WORLD_BLOCK_OBSERVER(name) uint8_t name(uint8_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
-#define WORLD_PERLIN_FREQ    9.34157f
-#define WORLD_PERLIN_OCTAVES 4
+#define WORLD_PERLIN_FREQ    100
+#define WORLD_PERLIN_OCTAVES 1
 
 static world_data *world;
 
@@ -83,7 +83,7 @@ static uint8_t world_perlin_cond(uint32_t block_idx, double chance) {
     uint32_t x = block_idx % world->dim;
     uint32_t y = block_idx / world->dim;
     
-    return perlin_fbm(world->seed, x+rand()%world->dim, y+rand()%world->dim, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
+    return perlin_fbm(world->seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
 }
 
 #if 1
@@ -138,11 +138,11 @@ int32_t worldgen_test(world_data *wld) {
     
     // ground
     world_fill_rect(grnd_id, 1, 1, world->dim-2, world->dim-2, NULL);
-    world_fill_rect(dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise50);
+    world_fill_rect(dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise33);
     
     // water
 #if 1
-    for (int i=0; i<RAND_RANGE(8, 22); i++) {
+    for (int i=0; i<RAND_RANGE(58, 92); i++) {
         world_fill_rect_anchor(watr_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise80);
     }
 #endif

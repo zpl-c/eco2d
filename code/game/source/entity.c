@@ -28,8 +28,8 @@ uint64_t entity_spawn(char *name) {
     pos->x=rand() % world_dim();
     pos->y=rand() % world_dim();
 #else
-    pos->x=35;
-    pos->y=33;
+    pos->x=350;
+    pos->y=88;
 #endif
     
     

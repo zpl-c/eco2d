@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
     uint16_t chunk_size = DEFAULT_CHUNK_SIZE; //zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
-    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 1000);
+    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 10000);
     
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};

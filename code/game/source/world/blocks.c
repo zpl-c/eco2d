@@ -23,6 +23,7 @@ typedef struct {
     uint32_t kind;
     uint32_t biome;
     char symbol;
+    float drag;
     
     // NOTE(zaklaus): viewer data
     Texture2D img;
@@ -75,6 +76,10 @@ uint32_t blocks_get_biome(uint8_t id) {
 
 uint32_t blocks_get_kind(uint8_t id) {
     return blocks[id].kind;
+}
+
+float blocks_get_drag(uint8_t id) {
+    return blocks[id].drag;
 }
 
 void *blocks_get_img(uint8_t id) {
