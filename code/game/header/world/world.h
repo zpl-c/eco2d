@@ -30,11 +30,13 @@ typedef struct {
     uint32_t size;
     uint16_t chunk_size;
     uint16_t chunk_amount;
+    uint8_t **block_mapping;
     uint16_t dim;
     uint64_t tracker_update[3];
     uint8_t active_layer_id;
     ecs_world_t *ecs;
     ecs_query_t *ecs_update;
+    ecs_entity_t *chunk_mapping;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
     world_pkt_writer_proc *writer_proc;
@@ -55,3 +57,13 @@ librg_world * world_tracker(void);
 uint16_t world_chunk_size(void);
 uint16_t world_chunk_amount(void);
 uint16_t world_dim(void);
+ecs_entity_t world_chunk_mapping(librg_chunk id);
+
+typedef struct {
+    uint32_t id;
+    uint8_t block_id;
+    ecs_entity_t chunk_id;
+    float ox, oy;
+} world_block_lookup;
+
+world_block_lookup world_block_from_realpos(float x, float y);

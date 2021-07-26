@@ -42,7 +42,7 @@ entity_view world_build_entity_view(int64_t e) {
         view.blocks_used = 1;
         
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
-            view.blocks[i] = *ecs_vector_get(chpos->blocks, uint8_t, i);
+            view.blocks[i] = world.block_mapping[chpos->id][i];
         }
     }
     
@@ -139,6 +139,8 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     ECS_IMPORT(world.ecs, General);
     ECS_IMPORT(world.ecs, Net);
     world.ecs_update = ecs_query_new(world.ecs, "net.ClientInfo, general.Position");
+    world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
+    world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
     
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
@@ -149,14 +151,16 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         librg_entity_track(world.tracker, e);
         librg_entity_chunk_set(world.tracker, e, i);
         librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
-        chunk->blocks = NULL;
+        world.chunk_mapping[i] = e;
+        world.block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
+        chunk->id = i;
         
         for (int y = 0; y < world.chunk_size; y += 1) {
             for (int x = 0; x < world.chunk_size; x += 1) {
                 int chk = world.chunk_size * i;
                 int chk_x = chk % world.dim;
                 int chk_y = chk / world.dim;
-                uint8_t *c = ecs_vector_add(&chunk->blocks, uint8_t);
+                uint8_t *c = &world.block_mapping[i][(y*chunk_size)+x];
                 *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
             }
         }
@@ -171,6 +175,11 @@ int32_t world_destroy(void) {
     librg_world_destroy(world.tracker);
     ecs_fini(world.ecs);
     zpl_mfree(world.data);
+    zpl_mfree(world.chunk_mapping);
+    for (int i = 0; i < zpl_square(world.chunk_amount); i+=1) {
+        zpl_mfree(world.block_mapping[i]);
+    }
+    zpl_mfree(world.block_mapping);
     zpl_memset(&world, 0, sizeof(world));
     zpl_printf("[INFO] World was destroyed.\n");
     return WORLD_ERROR_NONE;
@@ -268,4 +277,42 @@ uint16_t world_chunk_amount(void) {
 
 uint16_t world_dim(void) {
     return WORLD_BLOCK_SIZE * world.chunk_size * world.chunk_amount;
+}
+
+ecs_entity_t world_chunk_mapping(librg_chunk id) {
+    assert(id >= 0 && id < zpl_square(world.chunk_amount));
+    return world.chunk_mapping[id];
+}
+
+world_block_lookup world_block_from_realpos(float x, float y) {
+    x = zpl_clamp(x, 0, world_dim()-1);
+    y = zpl_clamp(y, 0, world_dim()-1);
+    librg_chunk chunk_id = librg_chunk_from_realpos(world.tracker, x, y, 0);
+    ecs_entity_t e = world.chunk_mapping[chunk_id];
+    int32_t size = world.chunk_size * WORLD_BLOCK_SIZE;
+    int16_t chunk_x, chunk_y;
+    librg_chunk_to_chunkpos(world.tracker, chunk_id, &chunk_x, &chunk_y, NULL);
+    
+    // NOTE(zaklaus): pos relative to chunk
+    float chx = x - chunk_x * size;
+    float chy = y - chunk_y * size;
+    
+    uint32_t bx = (uint32_t)chx / WORLD_BLOCK_SIZE;
+    uint32_t by = (uint32_t)chy / WORLD_BLOCK_SIZE;
+    uint32_t block_idx = (by*world.chunk_size)+bx;
+    uint8_t block_id = world.block_mapping[chunk_id][block_idx];
+    
+    // NOTE(zaklaus): pos relative to block's center
+    float box = chx - bx * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
+    float boy = chy - by * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
+    
+    world_block_lookup lookup = {
+        .id = block_idx,
+        .block_id = block_id,
+        .chunk_id = e,
+        .ox = box,
+        .oy = boy,
+    };
+    
+    return lookup;
 }

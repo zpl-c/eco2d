@@ -46,6 +46,11 @@ typedef struct debug_item {
             uint8_t is_collapsed;
         } list;
         
+        struct {
+            float val, min, max;
+            void (*on_change)(float);
+        } slider;
+        
         void (*on_click)(void);
     };
     
@@ -79,6 +84,7 @@ static debug_item items[] = {
                 { .kind = DITEM_TEXT, .name = "delta time", .proc = DrawDeltaTime },
                 { .kind = DITEM_TEXT, .name = "random literal", .text = "hello", .proc = DrawLiteral },
                 { .kind = DITEM_TEXT, .name = "zoom", .proc = DrawZoom },
+                { .kind = DITEM_SLIDER, .name = "slider", .slider = { .min = 0.0f, .max = 1.0f, .val = 0.5f } },
                 { .kind = DITEM_END },
             }
         }
@@ -95,6 +101,7 @@ static debug_item items[] = {
                 { .kind = DITEM_RAW, .val = PROF_UPDATE_SYSTEMS, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_ENTITY_LERP, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_ENTITY_REMOVAL, .proc = DrawProfilerDelta },
+                { .kind = DITEM_RAW, .val = PROF_INTEGRATE_POS, .proc = DrawProfilerDelta },
                 { .kind = DITEM_END },
             },
             .is_collapsed = 1
@@ -161,6 +168,25 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 
                 debug_draw_result res = DrawColoredText(xpos, ypos, text, color);
                 ypos = res.y;
+            }break;
+            
+            case DITEM_SLIDER: {
+                assert(it->slider.min != it->slider.max);
+                char const *text = TextFormat("%s: ", it->name);
+                if (it->name_width == 0) {
+                    it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
+                }
+                UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
+                xpos += it->name_width;
+                
+                DrawRectangleLines(xpos, ypos, 100.0f, DBG_FONT_SIZE, RAYWHITE);
+                
+                float stick_x = xpos + ((it->slider.val / it->slider.max) * 100.0f) - 5.0f;
+                DrawRectangle(stick_x, ypos, 10.0f, DBG_FONT_SIZE, RED);
+                
+                xpos += 100.0f + 5.0f;
+                DrawFloat(xpos, ypos, it->slider.val);
+                ypos += DBG_FONT_SPACING;
             }break;
             
             default: {

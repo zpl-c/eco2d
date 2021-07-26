@@ -4,7 +4,7 @@
 #define BLOCK_INVALID 0xF
 
 typedef enum {
-    BLOCK_FLAG_COLLISION = (1 << 0)
+    BLOCK_FLAG_COLLISION = (1 << 1)
 } block_flags;
 
 #include "blocks_info.h"

@@ -22,11 +22,19 @@ uint64_t entity_spawn(char *name) {
     
     ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
     ecs_set(world_ecs(), e, Velocity, {0});
-    ecs_set(world_ecs(), e, Position, {0});
     ecs_add(world_ecs(), e, Walking);
+    Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+#if 1
+    pos->x=rand() % world_dim();
+    pos->y=rand() % world_dim();
+#else
+    pos->x=35;
+    pos->y=33;
+#endif
+    
     
     librg_entity_track(world_tracker(), e);
-    librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), 0, 0, 0));
+    librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), pos->x, pos->y, 0));
     
     return (uint64_t)e;
 }
