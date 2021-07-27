@@ -34,6 +34,8 @@ In both cases, the game engine does not differentiate between these 2 options an
 
 All data is transferred via packets that are fully automated by our own serialization rule system, which uses the **cwpack** library in the background.
 
+Data is streamed in or out using the [librg](https://github.com/zpl-c/librg/) library, thanks to which all clients only receive data relevant to their location.
+
 On top of that, the game client is also capable of spinning up multiple client heads and cycle between them, which allows us to easily debug new features locally without having to physically start the server.
 
 In the abstract sense, we call the Server the game master hosting all gameplay rules and features, while the Client represents a terminal sending key inputs and receiving data to render.
