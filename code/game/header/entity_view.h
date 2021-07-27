@@ -5,8 +5,10 @@
 #include "zpl.h"
 
 typedef enum {
-    EKIND_PLAYER = 0,
-    EKIND_THING,
+    EKIND_SERVER = 0,
+    EKIND_PLAYER,
+    EKIND_DEMO_NPC,
+    EKIND_MONSTER,
     EKIND_CHUNK,
     FORCE_EKIND_UINT16 = UINT16_MAX
 } entity_kind;

@@ -1,5 +1,6 @@
 #include "player.h"
 #include "entity.h"
+#include "entity_view.h"
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
 #include "librg.h"
@@ -10,7 +11,7 @@
 #include "zpl.h"
 
 uint64_t player_spawn(char *name) {    
-    ecs_entity_t e = entity_spawn(NULL);
+    ecs_entity_t e = entity_spawn(NULL, EKIND_PLAYER);
     
     if (!name) {
         name = zpl_bprintf("player_%d", e);

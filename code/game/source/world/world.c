@@ -17,10 +17,13 @@ entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), Components);
     entity_view view = {0};
     
-    // TODO(zaklaus): branch out based on ECS tags
+    const Classify *classify = ecs_get(world_ecs(), e, Classify);
+    assert(classify);
+    
+    view.kind = classify->id;
+    
     const Position *pos = ecs_get(world_ecs(), e, Position);
     if (pos) {
-        view.kind = ecs_has(world_ecs(), e, EcsClient) ? EKIND_PLAYER : EKIND_THING;
         view.x = pos->x;
         view.y = pos->y;
     }
@@ -35,7 +38,6 @@ entity_view world_build_entity_view(int64_t e) {
     
     if (ecs_get(world_ecs(), e, Chunk)) {
         Chunk *chpos = ecs_get_mut(world_ecs(), e, Chunk, 0);
-        view.kind = EKIND_CHUNK;
         view.x = chpos->x;
         view.y = chpos->y;
         view.blocks_used = 1;
@@ -149,6 +151,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     
     for (int i = 0; i < world.chunk_amount * world.chunk_amount; ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
+        ecs_set(world.ecs, e, Classify, {.id = EKIND_CHUNK });
         Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
         librg_entity_track(world.tracker, e);
         librg_entity_chunk_set(world.tracker, e, i);

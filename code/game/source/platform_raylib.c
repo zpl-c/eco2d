@@ -193,7 +193,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     float fixed_title_offset = 2;
     
     switch (data->kind) {
-        case EKIND_THING: {
+        case EKIND_DEMO_NPC: {
             float x = data->x;
             float y = data->y;
 #if 0
@@ -207,10 +207,12 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_PLAYER: {
             float x = data->x;
             float y = data->y;
+#if 1
             const char *title = TextFormat("Player %d", key);
             int title_w = MeasureTextEco(title, font_size, font_spacing);
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
+#endif
             DrawCircleEco(x, y, size, ColorAlpha(RED, data->tran_time));
         }break;        
         default:break;

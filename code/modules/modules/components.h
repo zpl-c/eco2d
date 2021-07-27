@@ -33,12 +33,28 @@ ECS_STRUCT(ClientInfo, {
                uint16_t view_id;                                             
            });
 
+ECS_STRUCT(Health, {
+               float hp;
+               float max_hp;
+               
+               // NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
+               float pain_time;
+           });
+
+ECS_STRUCT(Classify, {
+               uint16_t id;
+           });
+
 typedef struct {
     ECS_DECLARE_COMPONENT(Chunk);
     ECS_DECLARE_COMPONENT(Position);
     ECS_DECLARE_COMPONENT(Vector2D);
     ECS_DECLARE_COMPONENT(Drawable);
     ECS_DECLARE_COMPONENT(Input);
+    ECS_DECLARE_COMPONENT(Velocity);
+    ECS_DECLARE_COMPONENT(ClientInfo);
+    ECS_DECLARE_COMPONENT(Health);
+    ECS_DECLARE_COMPONENT(Classify);
     ECS_DECLARE_ENTITY(EcsActor);
     ECS_DECLARE_ENTITY(EcsPlayer);
     ECS_DECLARE_ENTITY(EcsBuilder);
@@ -48,9 +64,7 @@ typedef struct {
     ECS_DECLARE_TYPE(Movement);
     ECS_DECLARE_ENTITY(Walking);
     ECS_DECLARE_ENTITY(Flying);
-    ECS_DECLARE_COMPONENT(Velocity);
     ECS_DECLARE_ENTITY(EcsClient);
-    ECS_DECLARE_COMPONENT(ClientInfo);
 } Components;
 
 #define ComponentsImportHandles(handles)\
@@ -59,17 +73,19 @@ ECS_IMPORT_COMPONENT(handles, Vector2D);\
 ECS_IMPORT_COMPONENT(handles, Position);\
 ECS_IMPORT_COMPONENT(handles, Drawable);\
 ECS_IMPORT_COMPONENT(handles, Input);\
+ECS_IMPORT_COMPONENT(handles, Velocity);\
+ECS_IMPORT_COMPONENT(handles, ClientInfo);\
+ECS_IMPORT_COMPONENT(handles, Health);\
+ECS_IMPORT_COMPONENT(handles, Classify);\
 ECS_IMPORT_TYPE(handles, Player);\
 ECS_IMPORT_TYPE(handles, Builder);\
+ECS_IMPORT_TYPE(handles, Movement);\
 ECS_IMPORT_ENTITY(handles, EcsActor);\
 ECS_IMPORT_ENTITY(handles, EcsPlayer);\
 ECS_IMPORT_ENTITY(handles, EcsBuilder);\
 ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
-ECS_IMPORT_TYPE(handles, Movement);\
 ECS_IMPORT_ENTITY(handles, Walking);\
 ECS_IMPORT_ENTITY(handles, Flying);\
-ECS_IMPORT_COMPONENT(handles, Velocity);\
 ECS_IMPORT_ENTITY(handles, EcsClient);\
-ECS_IMPORT_COMPONENT(handles, ClientInfo);\
 
 void ComponentsImport(ecs_world_t *ecs);
