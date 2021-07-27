@@ -184,10 +184,4 @@ void SystemsImport(ecs_world_t *ecs) {
     //ECS_SYSTEM(ecs, PushOutOverlappingEntities, EcsOnValidate, components.Position, Velocity);
     
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position);
-    
-    
-    ECS_SET_ENTITY(MoveWalk);
-    ECS_SET_ENTITY(UpdateTrackerPos);
-    ECS_SET_ENTITY(IntegratePositions);
-    //ECS_SET_ENTITY(PushOutOverlappingEntities);
 }
