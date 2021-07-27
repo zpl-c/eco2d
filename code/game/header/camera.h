@@ -11,6 +11,9 @@ typedef struct {
     camera_mode mode;
     uint64_t ent_id;
     double x, y;
+    
+    // HACK(zaklaus): Don't lerp if this is the first time we follow any entity.
+    bool first_time;
 } camera;
 
 void camera_reset(void);

@@ -10,6 +10,7 @@ static camera main_camera;
 void camera_reset(void) {
     zpl_zero_item(&main_camera);
     main_camera.mode = CAMERA_MODE_STATIONARY;
+    main_camera.first_time = true;
 }
 
 void camera_update(void) {
@@ -22,6 +23,12 @@ void camera_update(void) {
             
             main_camera.x = zpl_lerp(main_camera.x, view->x, CAMERA_LERP_FACTOR);
             main_camera.y = zpl_lerp(main_camera.y, view->y, CAMERA_LERP_FACTOR);
+            
+            if (main_camera.first_time) {
+                main_camera.first_time = false;
+                main_camera.x = view->x;
+                main_camera.y = view->y;
+            }
         }break;
         
         default: {
