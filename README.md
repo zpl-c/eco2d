@@ -46,6 +46,10 @@ In the abstract sense, we call the Server the game master hosting all gameplay r
 * Improved rendering - the current world structure does not allow for layered blocks, but it's something worth looking into.
 * UI and visual effects
 
+# Media
+![image](https://user-images.githubusercontent.com/9026786/127201607-936241ee-762e-4630-b52f-e75ae72c3ed3.png)
+![image](https://user-images.githubusercontent.com/9026786/127201653-f0ca5626-24a9-4294-98ac-1a62aff0e1e5.png)
+
 # Build the project
 We use CMake to generate project files and manage builds.
 You can do the following on the command line to create and build this project:
@@ -64,3 +68,10 @@ build\Debug\eco2d.exe -?
 Linux:
 build\eco2d.exe -?
 ```
+
+# License
+zpl.eco2d code is licensed under the BSD 3-Clause license, as seen [here](LICENSE).
+
+Assets under the **art** folder are released into [Public Domain](https://creativecommons.org/share-your-work/public-domain/cc0/) unless otherwise stated.
+
+Third-party vendors are licensed according to their respective authors.
