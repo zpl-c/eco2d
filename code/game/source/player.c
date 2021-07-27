@@ -5,10 +5,8 @@
 #include "librg.h"
 #include "world/world.h"
 
-#include "modules/general.h"
-#include "modules/controllers.h"
-#include "modules/net.h"
-#include "modules/physics.h"
+#include "modules/components.h"
+#include "modules/systems.h"
 #include "zpl.h"
 
 uint64_t player_spawn(char *name) {    
@@ -18,9 +16,7 @@ uint64_t player_spawn(char *name) {
         name = zpl_bprintf("player_%d", e);
     }
     
-    ECS_IMPORT(world_ecs(), General);
-    ECS_IMPORT(world_ecs(), Controllers);
-    ECS_IMPORT(world_ecs(), Net);
+    ECS_IMPORT(world_ecs(), Components);
     
     ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
     ecs_add(world_ecs(), e, EcsClient);

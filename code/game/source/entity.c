@@ -4,15 +4,12 @@
 #include "librg.h"
 #include "world/world.h"
 
-#include "modules/general.h"
-#include "modules/controllers.h"
-#include "modules/net.h"
-#include "modules/physics.h"
+#include "modules/components.h"
+#include "modules/systems.h"
 #include "zpl.h"
 
 uint64_t entity_spawn(char *name) {
-    ECS_IMPORT(world_ecs(), General);
-    ECS_IMPORT(world_ecs(), Physics);
+    ECS_IMPORT(world_ecs(), Components);
     
     ecs_entity_t e = ecs_new(world_ecs(), 0);
     

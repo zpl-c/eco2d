@@ -7,7 +7,8 @@
 #include "camera.h"
 #include "player.h"
 
-#include "modules/net.h"
+#include "modules/components.h"
+#include "modules/systems.h"
 
 pkt_desc pkt_00_init_desc[] = {
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_00_init, view_id) },
@@ -27,7 +28,7 @@ size_t pkt_00_init_send(uint16_t view_id) {
 }
 
 int32_t pkt_00_init_handler(pkt_header *header) {
-    ECS_IMPORT(world_ecs(), Net);
+    ECS_IMPORT(world_ecs(), Components);
     pkt_00_init table;
     PKT_IF(pkt_msg_decode(header, pkt_00_init_desc, pkt_pack_desc_args(pkt_00_init_desc), PKT_STRUCT_PTR(&table)));
     

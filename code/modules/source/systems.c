@@ -1,6 +1,6 @@
-
 #include "zpl.h"
-#include "modules/physics.h"
+#include "modules/systems.h"
+#include "modules/components.h"
 #include "world/world.h"
 #include "world/blocks.h"
 #include "profiler.h"
@@ -127,27 +127,67 @@ void UpdateTrackerPos(ecs_iter_t *it) {
     }
 }
 
-void PhysicsImport(ecs_world_t *ecs) {
-    ECS_MODULE(ecs, Physics);
-    ecs_set_name_prefix(ecs, "Physics");
+#define PLR_MOVE_SPEED 50.0
+#define PLR_MOVE_SPEED_MULT 4.0
+
+void MovementImpulse(ecs_iter_t *it) {
+    Input *in = ecs_column(it, Input, 1);
+    Velocity *v = ecs_column(it, Velocity, 2);
     
-    ECS_TAG(ecs, Walking);
-    ECS_TAG(ecs, Flying);
-    ECS_TYPE(ecs, Movement, Walking, Flying);
+    for (int i = 0; i < it->count; i++) {
+        double speed = PLR_MOVE_SPEED * (in[i].sprint ? PLR_MOVE_SPEED_MULT : 1.0);
+        if (zpl_abs(v[i].x) < speed && in[i].x)
+            v[i].x = in[i].x*speed;
+        if (zpl_abs(v[i].y) < speed && in[i].y)
+            v[i].y = in[i].y*speed;
+    }
+}
+
+#define DEMO_NPC_CHANGEDIR_FACTOR 0.1
+#define DEMO_NPC_MOVE_SPEED 1500
+
+void DemoNPCMoveAround(ecs_iter_t *it) {
+    Velocity *v = ecs_column(it, Velocity, 1);
     
-    ECS_META(ecs, Velocity);
+    for (int i = 0; i < it->count; i++) {
+        v[i].x = zpl_lerp(v[i].x, (rand()%3-1)*DEMO_NPC_MOVE_SPEED, DEMO_NPC_CHANGEDIR_FACTOR);
+        v[i].y = zpl_lerp(v[i].y, (rand()%3-1)*DEMO_NPC_MOVE_SPEED, DEMO_NPC_CHANGEDIR_FACTOR);
+    }
+}
+
+void DemoPlaceIceBlock(ecs_iter_t *it) {
+    Input *in = ecs_column(it, Input, 1);
+    Position *p = ecs_column(it, Position, 2);
+    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
     
-    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, general.Position, Velocity);
-    ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, general.Position, Velocity);
-    //ECS_SYSTEM(ecs, PushOutOverlappingEntities, EcsOnValidate, general.Position, Velocity);
-    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, general.Position);
+    for (int i = 0; i < it->count; i++) {
+        if (in[i].use) {
+            world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
+            world_chunk_replace_block(l.chunk_id, l.id, watr_id); 
+        }
+    }
+}
+
+void SystemsImport(ecs_world_t *ecs) {
+    ECS_MODULE(ecs, Systems);
+    ecs_set_name_prefix(ecs, "Systems");
     
-    ECS_SET_TYPE(Movement);
-    ECS_SET_ENTITY(Walking);
-    ECS_SET_ENTITY(Flying);
-    ECS_SET_COMPONENT(Velocity);
+    ECS_IMPORT(ecs, Components);
+    
+    ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity);
+    ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, components.Input, components.Position);
+    ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
+    
+    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, components.Position, components.Velocity);
+    
+    ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
+    //ECS_SYSTEM(ecs, PushOutOverlappingEntities, EcsOnValidate, components.Position, Velocity);
+    
+    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position);
+    
+    
     ECS_SET_ENTITY(MoveWalk);
     ECS_SET_ENTITY(UpdateTrackerPos);
     ECS_SET_ENTITY(IntegratePositions);
-    ECS_SET_ENTITY(PushOutOverlappingEntities);
+    //ECS_SET_ENTITY(PushOutOverlappingEntities);
 }

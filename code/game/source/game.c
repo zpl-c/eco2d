@@ -16,9 +16,8 @@
 #include "flecs/flecs_systems_civetweb.h"
 #include "flecs/flecs_os_api_stdcpp.h"
 
-#include "modules/general.h"
-#include "modules/physics.h"
-#include "modules/controllers.h"
+#include "modules/components.h"
+#include "modules/systems.h"
 
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"

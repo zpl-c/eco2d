@@ -1,8 +1,7 @@
 #include "zpl.h"
 #include "librg.h"
-#include "modules/general.h"
-#include "modules/net.h"
-#include "modules/physics.h"
+#include "modules/components.h"
+#include "modules/systems.h"
 #include "world/world.h"
 #include "entity_view.h"
 #include "world/worldgen/worldgen.h"
@@ -14,11 +13,8 @@
 static world_data world = {0};
 
 entity_view world_build_entity_view(int64_t e) {
-    ECS_IMPORT(world_ecs(), General);
-    ECS_IMPORT(world_ecs(), Physics);
-    ECS_IMPORT(world_ecs(), Net);
+    ECS_IMPORT(world_ecs(), Components);
     entity_view view = {0};
-    
     
     // TODO(zaklaus): branch out based on ECS tags
     const Position *pos = ecs_get(world_ecs(), e, Position);
@@ -140,9 +136,9 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.ecs = ecs_init();
     ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
     
-    ECS_IMPORT(world.ecs, General);
-    ECS_IMPORT(world.ecs, Net);
-    world.ecs_update = ecs_query_new(world.ecs, "net.ClientInfo, general.Position");
+    ECS_IMPORT(world.ecs, Components);
+    ECS_IMPORT(world.ecs, Systems);
+    world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
     world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
     world.chunk_handle = ecs_typeid(Chunk);
@@ -197,8 +193,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
     profile(PROF_WORLD_WRITE) {
-        ECS_IMPORT(world.ecs, General);
-        ECS_IMPORT(world.ecs, Net);
+        ECS_IMPORT(world.ecs, Components);
         
         ecs_iter_t it = ecs_query_iter(world.ecs_update);
         static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
@@ -214,7 +209,6 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
                 {
                     librg_entity_radius_set(world_tracker(), p[i].peer, radius);
                 }
-                
                 // TODO(zaklaus): push radius once librg patch comes in
                 int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
                 
@@ -232,7 +226,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
 
 
 int32_t world_update() {
-    ECS_IMPORT(world.ecs, General);
+    ECS_IMPORT(world.ecs, Components);
     
     profile (PROF_UPDATE_SYSTEMS) {
         ecs_progress(world.ecs, 0.0f);
@@ -350,7 +344,7 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
 void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     assert(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
-    world_chunk_mark_dirty(id);
+    world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
 uint8_t *world_chunk_get_blocks(int64_t id) {
@@ -358,12 +352,16 @@ uint8_t *world_chunk_get_blocks(int64_t id) {
 }
 
 void world_chunk_mark_dirty(ecs_entity_t e) {
-    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, NULL);
+    bool was_added=false;
+    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, &was_added);
+    assert(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
 uint8_t world_chunk_is_dirty(ecs_entity_t e) {
-    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, NULL);
+    bool was_added=false;
+    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, &was_added);
+    assert(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;
 }

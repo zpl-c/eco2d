@@ -1,6 +1,7 @@
 #include "packet_utils.h"
 #include "packets/pkt_send_keystate.h"
-#include "modules/controllers.h"
+#include "modules/components.h"
+#include "modules/systems.h"
 #include "world/world.h"
 
 pkt_desc pkt_send_keystate_desc[] = {
@@ -33,7 +34,7 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
     ecs_entity_t e = PKT_GET_ENT(header);
     ecs_world_t *ecs = world_ecs();
     
-    ECS_IMPORT(ecs, Controllers);
+    ECS_IMPORT(ecs, Components);
     Input *i = ecs_get_mut(world_ecs(), e, Input, NULL);
     if (i) {
         i->x = table.x;
@@ -41,6 +42,6 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
         i->use = table.use;
         i->sprint = table.sprint;
     }
-
+    
     return 0;
 }
