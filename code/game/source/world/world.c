@@ -350,6 +350,7 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
 void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     assert(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
+    world_chunk_mark_dirty(id);
 }
 
 uint8_t *world_chunk_get_blocks(int64_t id) {
