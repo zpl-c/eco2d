@@ -36,6 +36,7 @@ typedef struct {
     uint8_t active_layer_id;
     ecs_world_t *ecs;
     ecs_query_t *ecs_update;
+    ecs_entity_t chunk_handle;
     ecs_entity_t *chunk_mapping;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
@@ -62,8 +63,17 @@ ecs_entity_t world_chunk_mapping(librg_chunk id);
 typedef struct {
     uint32_t id;
     uint8_t block_id;
-    ecs_entity_t chunk_id;
+    ecs_entity_t chunk_e;
+    int64_t chunk_id;
     float ox, oy;
 } world_block_lookup;
 
 world_block_lookup world_block_from_realpos(float x, float y);
+world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx);
+int64_t world_chunk_from_realpos(float x, float y);
+int64_t world_chunk_from_entity(ecs_entity_t id);
+void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id);
+uint8_t *world_chunk_get_blocks(int64_t id);
+void world_chunk_mark_dirty(ecs_entity_t e);
+uint8_t world_chunk_is_dirty(ecs_entity_t e);
+

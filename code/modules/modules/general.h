@@ -12,7 +12,7 @@ ECS_STRUCT(Chunk, {
                uint32_t id;
                int16_t x;
                int16_t y;
-               //ecs_vector(uint8_t) blocks;
+               uint8_t is_dirty;
            });
 
 ECS_STRUCT(Drawable, {

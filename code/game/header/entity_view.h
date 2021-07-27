@@ -38,6 +38,8 @@ typedef struct entity_view {
     // TODO(zaklaus): Find a way to stream dynamic arrays
     uint8_t blocks_used;
     uint8_t blocks[256];
+    uint32_t color;
+    uint8_t is_dirty;
     int64_t tex;
     
     // NOTE(zaklaus): internals

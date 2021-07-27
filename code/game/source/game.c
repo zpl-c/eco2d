@@ -33,7 +33,7 @@ static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
     uint32_t ok = pkt_header_decode(&header, data, datalen);
     header.udata = udata;
-
+    
     if (ok && header.ok) {
         return pkt_handlers[header.id].handler(&header) >= 0;
     } else {
@@ -111,7 +111,7 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
     world_viewers_init(num_viewers);
     active_viewer = &world_viewers[0];
     camera_reset();
-
+    
     if (game_mode == GAMEKIND_CLIENT) {
         world_setup_pkt_handlers(pkt_reader, mp_pkt_writer);
         network_init();
@@ -135,7 +135,7 @@ int8_t game_is_networked() {
 
 void game_shutdown() {
     world_viewers_destroy();
-
+    
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_disconnect();
         network_destroy();
@@ -152,12 +152,12 @@ void game_input() {
     platform_input();
 }
 
-void game_update() {
+void game_update() { 
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_tick();
     }
     else world_update();
-        
+    
     game_world_cleanup_entities();
 }
 
@@ -179,14 +179,14 @@ void game_world_cleanup_entities(void) {
         static uint64_t last_removal_time = 0;
         if (last_removal_time > zpl_time_rel_ms()) return;
         last_removal_time = zpl_time_rel_ms() + GAME_ENT_REMOVAL_TIME;
-    
+        
         for (int i = 0; i < zpl_buffer_count(world_viewers); i += 1){
             entity_view_tbl *view = &world_viewers[i].entities;
             uint32_t deletions = 0;
-                    
+            
             for (int j = 0; j < zpl_array_count(view->entries); j += 1) {
                 if (deletions > GAME_ENT_REMOVAL_TRESHOLD) return;
-                            
+                
                 entity_view *e = &view->entries[j].value;
                 if (e->tran_effect == ETRAN_REMOVE) {
                     entity_view_tbl_remove(view, e->ent_id);

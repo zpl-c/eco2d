@@ -112,6 +112,8 @@ void *blocks_get_chunk_tex(uint64_t id) {
 }
 
 void blocks_remove_chunk_tex(uint64_t id) {
-    UnloadRenderTexture(*blocks__chunk_tbl_get(&baked_chunks, id));
+    RenderTexture2D *tex = blocks__chunk_tbl_get(&baked_chunks, id);
+    if (!tex) return;
+    UnloadRenderTexture(*tex);
     blocks__chunk_tbl_remove(&baked_chunks, id);
 }

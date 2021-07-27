@@ -19,6 +19,7 @@ entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), Net);
     entity_view view = {0};
     
+    
     // TODO(zaklaus): branch out based on ECS tags
     const Position *pos = ecs_get(world_ecs(), e, Position);
     if (pos) {
@@ -34,12 +35,15 @@ entity_view world_build_entity_view(int64_t e) {
         view.vy = vel->y;
     }
     
-    const Chunk *chpos = ecs_get(world_ecs(), e, Chunk);
-    if (chpos) {
+    
+    if (ecs_get(world_ecs(), e, Chunk)) {
+        Chunk *chpos = ecs_get_mut(world_ecs(), e, Chunk, 0);
         view.kind = EKIND_CHUNK;
         view.x = chpos->x;
         view.y = chpos->y;
         view.blocks_used = 1;
+        view.is_dirty = chpos->is_dirty;
+        chpos->is_dirty = false;
         
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
             view.blocks[i] = world.block_mapping[chpos->id][i];
@@ -84,7 +88,7 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     // NOTE(zaklaus): exclude chunks from updates as they never move
     // TODO(zaklaus): use dirty flag to send updates if chunk changes
     {
-        if (view.kind == EKIND_CHUNK) {
+        if (view.kind == EKIND_CHUNK && !view.is_dirty) {
             return LIBRG_WRITE_REJECT;
         }
     }
@@ -141,6 +145,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.ecs_update = ecs_query_new(world.ecs, "net.ClientInfo, general.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
     world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
+    world.chunk_handle = ecs_typeid(Chunk);
     
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
@@ -154,6 +159,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         world.chunk_mapping[i] = e;
         world.block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
         chunk->id = i;
+        chunk->is_dirty = false;
         
         for (int y = 0; y < chunk_size; y += 1) {
             for (int x = 0; x < chunk_size; x += 1) {
@@ -226,6 +232,8 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
 
 
 int32_t world_update() {
+    ECS_IMPORT(world.ecs, General);
+    
     profile (PROF_UPDATE_SYSTEMS) {
         ecs_progress(world.ecs, 0.0f);
     }
@@ -308,10 +316,53 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     world_block_lookup lookup = {
         .id = block_idx,
         .block_id = block_id,
-        .chunk_id = e,
+        .chunk_id = chunk_id,
+        .chunk_e = e,
         .ox = box,
         .oy = boy,
     };
     
     return lookup;
+}
+
+world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx) {
+    uint8_t block_id = world.block_mapping[id][block_idx];
+    
+    world_block_lookup lookup = {
+        .id = block_idx,
+        .block_id = block_id,
+        .chunk_id = id,
+        .chunk_e = world.chunk_mapping[id],
+    };
+    
+    return lookup;
+}
+
+int64_t world_chunk_from_realpos(float x, float y) {
+    librg_chunk chunk_id = librg_chunk_from_realpos(world.tracker, x, y, 0);
+    return world.chunk_mapping[chunk_id];
+}
+
+int64_t world_chunk_from_entity(ecs_entity_t id) {
+    return librg_entity_chunk_get(world.tracker, id);
+}
+
+void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+    assert(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
+    world.block_mapping[id][block_idx] = block_id;
+}
+
+uint8_t *world_chunk_get_blocks(int64_t id) {
+    return world.block_mapping[id];
+}
+
+void world_chunk_mark_dirty(ecs_entity_t e) {
+    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, NULL);
+    if (chunk) chunk->is_dirty = true;
+}
+
+uint8_t world_chunk_is_dirty(ecs_entity_t e) {
+    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, NULL);
+    if (chunk) return chunk->is_dirty;
+    return false;
 }

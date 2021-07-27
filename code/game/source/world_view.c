@@ -40,6 +40,8 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
     data.layer_id = view->active_layer_id;
     predict_receive_update(d, &data);
     entity_view_update_or_create(&view->entities, entity_id, data);
+    entity_view_remove_chunk_texture(&view->entities, entity_id);
+    entity_view_update_chunk_texture(&view->entities, entity_id, view);
     return 0;
 }
 
@@ -53,6 +55,7 @@ int32_t tracker_read_create(librg_world *w, librg_event *e) {
     data.ent_id = entity_id;
     data.layer_id = view->active_layer_id;
     data.tran_time = 0.0f;
+    data.color = rand(); // TODO(zaklaus): feed from server
     if (data.flag & EFLAG_INTERP) {
         data.tx = data.x;
         data.ty = data.y;

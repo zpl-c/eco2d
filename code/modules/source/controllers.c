@@ -4,6 +4,8 @@
 #include "modules/general.h"
 #include "modules/physics.h"
 
+#include "world/blocks.h"
+
 #define PLR_MOVE_SPEED 50.0
 #define PLR_MOVE_SPEED_MULT 4.0
 
@@ -32,6 +34,20 @@ void DemoNPCMoveAround(ecs_iter_t *it) {
     }
 }
 
+void DemoPlaceIceBlock(ecs_iter_t *it) {
+    Input *in = ecs_column(it, Input, 1);
+    Position *p = ecs_column(it, Position, 2);
+    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    
+    for (int i = 0; i < it->count; i++) {
+        if (in[i].use) {
+            world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
+            world_chunk_replace_block(l.chunk_id, l.id, watr_id); 
+            world_chunk_mark_dirty(l.chunk_e);
+        }
+    }
+}
+
 void ControllersImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Controllers);
     ecs_set_name_prefix(ecs, "Controllers");
@@ -48,6 +64,7 @@ void ControllersImport(ecs_world_t *ecs) {
     ECS_TAG(ecs, EcsDemoNPC);
     
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, Input, physics.Velocity);
+    ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, Input, general.Position);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, physics.Velocity, EcsDemoNPC);
     
     ECS_PREFAB(ecs, Base, general.Position, physics.Velocity, Input, EcsActor);
