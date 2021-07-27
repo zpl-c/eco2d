@@ -14,6 +14,7 @@ void game_shutdown();
 void game_request_close();
 uint8_t game_is_running();
 int8_t game_is_networked();
+float game_time();
 
 //~ NOTE(zaklaus): game events
 void game_input();

@@ -14,30 +14,35 @@ static world_data world = {0};
 static Components const *ecs_components;
 
 entity_view world_build_entity_view(int64_t e) {
-    ECS_IMPORT(world_ecs(), Components);
+    ECS_IMPORT(world.ecs, Components);
     entity_view view = {0};
     
-    const Classify *classify = ecs_get(world_ecs(), e, Classify);
+    const Classify *classify = ecs_get(world.ecs, e, Classify);
     assert(classify);
     
     view.kind = classify->id;
     
-    const Position *pos = ecs_get(world_ecs(), e, Position);
+    const Position *pos = ecs_get(world.ecs, e, Position);
     if (pos) {
         view.x = pos->x;
         view.y = pos->y;
     }
     
-    const Velocity *vel = ecs_get(world_ecs(), e, Velocity);
+    const Velocity *vel = ecs_get(world.ecs, e, Velocity);
     if (vel) {
         view.flag |= EFLAG_INTERP;
         view.vx = vel->x;
         view.vy = vel->y;
     }
     
+    const Health *health = ecs_get(world.ecs, e, Health);
+    if (health) {
+        view.hp = health->hp;
+        view.max_hp = health->max_hp;
+    }
     
-    if (ecs_get(world_ecs(), e, Chunk)) {
-        Chunk *chpos = ecs_get_mut(world_ecs(), e, Chunk, 0);
+    if (ecs_get(world.ecs, e, Chunk)) {
+        Chunk *chpos = ecs_get_mut(world.ecs, e, Chunk, 0);
         view.x = chpos->x;
         view.y = chpos->y;
         view.blocks_used = 1;

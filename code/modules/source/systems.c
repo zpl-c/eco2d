@@ -4,6 +4,7 @@
 #include "world/world.h"
 #include "world/blocks.h"
 #include "profiler.h"
+#include "game.h"
 
 #define PHY_BLOCK_COLLISION 1
 #define PHY_WALK_DRAG 0.12
@@ -168,6 +169,43 @@ void DemoPlaceIceBlock(ecs_iter_t *it) {
     }
 }
 
+#define HAZARD_BLOCK_TIME 1.0f
+#define HAZARD_BLOCK_DMG 5.0f
+
+void HurtOnHazardBlock(ecs_iter_t *it) {
+    Position *p = ecs_column(it, Position, 1);
+    Health *h = ecs_column(it, Health, 2);
+    
+    for (int i = 0; i < it->count; i++) {
+        world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
+        if (blocks_get_flags(l.block_id) & BLOCK_FLAG_HAZARD) {
+            if (h->pain_time < game_time()) {
+                h->pain_time = game_time() + HAZARD_BLOCK_TIME;
+                h->hp -= HAZARD_BLOCK_DMG;
+                h->hp = zpl_max(0.0f, h->hp);
+            }
+        }
+    }
+}
+
+#define HP_REGEN_TIME 2.0f
+#define HP_REGEN_PAIN_COOLDOWN 5.0f
+#define HP_REGEN_RECOVERY 15.0f
+
+void RegenerateHP(ecs_iter_t *it) {
+    Health *h = ecs_column(it, Health, 1);
+    
+    for (int i = 0; i < it->count; i++) {
+        if (h->pain_time < game_time() - HP_REGEN_PAIN_COOLDOWN) {
+            if (h->heal_time < game_time() && h->hp < h->max_hp) {
+                h->heal_time = game_time() + HP_REGEN_TIME;
+                h->hp += HP_REGEN_RECOVERY;
+                h->hp = zpl_min(h->max_hp, h->hp);
+            }
+        }
+    }
+}
+
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     ECS_IMPORT(ecs, Components);
@@ -177,6 +215,8 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
     
     ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, components.Position, components.Velocity);
+    ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
+    ECS_SYSTEM(ecs, RegenerateHP, EcsOnUpdate, components.Health);
     
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
     //ECS_SYSTEM(ecs, PushOutOverlappingEntities, EcsOnValidate, components.Position, Velocity);

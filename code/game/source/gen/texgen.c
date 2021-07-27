@@ -34,6 +34,9 @@ Texture2D texgen_build_block(uint32_t biome, uint32_t kind) {
                 case BLOCK_KIND_WATER:{
                     return LoadImageEco("water");
                 }break;
+                case BLOCK_KIND_LAVA:{
+                    return LoadImageEco("lava");
+                }break;
             }
         }
     }

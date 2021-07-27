@@ -10,6 +10,8 @@
 #include "modules/systems.h"
 #include "zpl.h"
 
+#define PLAYER_MAX_HP 100.0f
+
 uint64_t player_spawn(char *name) {    
     ecs_entity_t e = entity_spawn(NULL, EKIND_PLAYER);
     
@@ -23,6 +25,7 @@ uint64_t player_spawn(char *name) {
     ecs_add(world_ecs(), e, EcsClient);
     ecs_set(world_ecs(), e, ClientInfo, {0});
     ecs_set(world_ecs(), e, Input, {0});
+    ecs_set(world_ecs(), e, Health, {.hp = PLAYER_MAX_HP, .max_hp = PLAYER_MAX_HP});
     ecs_add(world_ecs(), e, Player);
     
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);

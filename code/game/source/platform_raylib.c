@@ -190,7 +190,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
     float font_spacing = 1.1f;
     float title_bg_offset = 4;
-    float fixed_title_offset = 2;
+    float fixed_title_offset = 8;
     
     switch (data->kind) {
         case EKIND_DEMO_NPC: {
@@ -207,13 +207,15 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_PLAYER: {
             float x = data->x;
             float y = data->y;
+            float health = (data->hp / data->max_hp);
 #if 1
             const char *title = TextFormat("Player %d", key);
             int title_w = MeasureTextEco(title, font_size, font_spacing);
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
+            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
 #endif
-            DrawCircleEco(x, y, size, ColorAlpha(RED, data->tran_time));
+            DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
         }break;        
         default:break;
     }

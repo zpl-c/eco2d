@@ -39,6 +39,7 @@ ECS_STRUCT(Health, {
                
                // NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
                float pain_time;
+               float heal_time;
            });
 
 ECS_STRUCT(Classify, {
