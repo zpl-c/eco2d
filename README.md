@@ -22,7 +22,7 @@
 </div>
 
 # Introduction
-zpl.eco2d is a small framework/game engine made out of curiosity. It attempts to bridge several libraries to create a playable sandbox with ease of extensibility and with performance in mind. The goal is not to make a generic 2D game engine but to build a game prototype that anyone can use to build various experiments. As such, 
+zpl.eco2d is a small framework/game engine made out of curiosity. It attempts to bridge several libraries to create a playable sandbox with ease of extensibility and with performance in mind. The goal is not to make a generic 2D game engine but to build a game prototype that anyone can use to build various experiments.
 
 The game runs on top of [raylib](https://raylib.com/) technologies and makes use of the [zpl](https://zpl.pw/) ecosystem alongside the **cwpack** library for data serialization. The game logic and lifecycle are maintained using [flecs](https://github.com/SanderMertens/flecs/) library and its suite of tools that help us improve the development efficiency.
 
