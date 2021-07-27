@@ -1,7 +1,6 @@
 #pragma once
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
-#include "world/world.h"
 
 ECS_STRUCT(Vector2D, {
                float x;

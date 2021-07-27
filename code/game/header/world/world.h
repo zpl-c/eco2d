@@ -3,6 +3,7 @@
 #include "librg.h"
 #include "packet.h"
 #include "flecs/flecs.h"
+#include "modules/components.h"
 
 #define WORLD_ERROR_NONE                +0x0000
 #define WORLD_ERROR_OUTOFMEM            -0x0001
@@ -36,7 +37,6 @@ typedef struct {
     uint8_t active_layer_id;
     ecs_world_t *ecs;
     ecs_query_t *ecs_update;
-    ecs_entity_t chunk_handle;
     ecs_entity_t *chunk_mapping;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;
@@ -53,6 +53,7 @@ int32_t world_write(pkt_header *pkt, void *udata);
 
 uint32_t world_buf(uint8_t const **ptr, uint32_t *width);
 ecs_world_t * world_ecs(void);
+Components const* world_components(void);
 librg_world * world_tracker(void);
 
 uint16_t world_chunk_size(void);

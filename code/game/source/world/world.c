@@ -11,6 +11,7 @@
 #include "packets/pkt_send_librg_update.h"
 
 static world_data world = {0};
+static Components const *ecs_components;
 
 entity_view world_build_entity_view(int64_t e) {
     ECS_IMPORT(world_ecs(), Components);
@@ -141,7 +142,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
     world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
-    world.chunk_handle = ecs_typeid(Chunk);
+    ecs_components = ecs_get(world.ecs, ecs_typeid(Components), Components);
     
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
@@ -264,6 +265,10 @@ ecs_world_t * world_ecs() {
     return world.ecs;
 }
 
+Components const* world_components(void) {
+    return ecs_components;
+}
+
 librg_world * world_tracker() {
     return world.tracker;
 }
@@ -353,14 +358,14 @@ uint8_t *world_chunk_get_blocks(int64_t id) {
 
 void world_chunk_mark_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, &was_added);
+    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, ecs_components->ecs_typeid(Chunk), &was_added);
     assert(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
 uint8_t world_chunk_is_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, world.chunk_handle, &was_added);
+    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, ecs_components->ecs_typeid(Chunk), &was_added);
     assert(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;
