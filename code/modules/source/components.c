@@ -2,8 +2,6 @@
 
 void ComponentsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Components);
-    ecs_set_name_prefix(ecs, "Components");
-    
     ECS_IMPORT(ecs, FlecsMeta);
     
     ECS_META(ecs, Position);

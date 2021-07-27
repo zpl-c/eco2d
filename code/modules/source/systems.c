@@ -170,8 +170,6 @@ void DemoPlaceIceBlock(ecs_iter_t *it) {
 
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
-    ecs_set_name_prefix(ecs, "Systems");
-    
     ECS_IMPORT(ecs, Components);
     
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity);
