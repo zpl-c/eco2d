@@ -133,7 +133,7 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
 }
 
 int8_t game_is_networked() {
-    return game_mode > 0;
+    return game_mode != GAMEKIND_SINGLE;
 }
 
 void game_shutdown() {

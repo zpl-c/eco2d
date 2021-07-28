@@ -13,7 +13,7 @@
 #define PLAYER_MAX_HP 100.0f
 
 uint64_t player_spawn(char *name) {    
-    ecs_entity_t e = entity_spawn(NULL, EKIND_PLAYER);
+    ecs_entity_t e = entity_spawn(EKIND_PLAYER);
     
     if (!name) {
         name = zpl_bprintf("player_%d", e);

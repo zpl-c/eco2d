@@ -26,7 +26,7 @@ static Camera2D render_camera;
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d - client");
     SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE);
-    SetTargetFPS(60);
+    SetTargetFPS(0);
     
     screenWidth = GetScreenWidth();
     screenHeight = GetScreenHeight();

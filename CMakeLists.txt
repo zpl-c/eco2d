@@ -10,7 +10,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    add_compile_options(/MP /W4 /nologo)
+    add_compile_options(/W4 /nologo)
 endif()
 
 include_directories(code/common code/vendors code/vendors/flecs)

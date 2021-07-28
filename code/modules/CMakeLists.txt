@@ -1,5 +1,5 @@
 add_library(eco2d-modules STATIC
-	source/systems.c
-	source/components.c
+	modules/systems.c
+	modules/components.c
 )
-include_directories(. ../game/header)
+include_directories(. ../game/src)

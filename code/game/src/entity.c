@@ -9,16 +9,11 @@
 #include "modules/systems.h"
 #include "zpl.h"
 
-uint64_t entity_spawn(char *name, uint16_t class_id) {
+uint64_t entity_spawn(uint16_t class_id) {
     ECS_IMPORT(world_ecs(), Components);
     
     ecs_entity_t e = ecs_new(world_ecs(), 0);
     
-    if (!name) {
-        name = zpl_bprintf("entity_%d", e);
-    }
-    
-    ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
     ecs_set(world_ecs(), e, Velocity, {0});
     ecs_set(world_ecs(), e, Classify, { .id = class_id });
     ecs_add(world_ecs(), e, Walking);

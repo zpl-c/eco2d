@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     {
         ECS_IMPORT(world_ecs(), Components);
         for (uint32_t i = 0; i < npc_count; i++) {
-            uint64_t e = entity_spawn(NULL, EKIND_DEMO_NPC);
+            uint64_t e = entity_spawn(EKIND_DEMO_NPC);
             ecs_add(world_ecs(), e, EcsDemoNPC);
             Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
             pos->x=rand() % world_dim();
