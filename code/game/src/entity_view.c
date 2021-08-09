@@ -10,14 +10,14 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_HALF(entity_view, x) },
     { PKT_HALF(entity_view, y) },
     
-    { PKT_SKIP_IF(entity_view, blocks_used, 1, 2) }, // NOTE(zaklaus): skip velocity for chunks
+    { PKT_KEEP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip velocity for chunks
     { PKT_HALF(entity_view, vx) },
     { PKT_HALF(entity_view, vy) },
     
     { PKT_SKIP_IF(entity_view, blocks_used, 0, 1) }, // NOTE(zaklaus): skip blocks for anything else
     { PKT_ARRAY(entity_view, blocks) },
     
-    { PKT_SKIP_IF(entity_view, blocks_used, 1, 2) }, // NOTE(zaklaus): skip hp for chunks
+    { PKT_KEEP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip hp for chunks
     { PKT_HALF(entity_view, hp) },
     { PKT_HALF(entity_view, max_hp) },
     

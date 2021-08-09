@@ -106,9 +106,10 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
         if (field->skip_count != 0) {
             uint8_t val = *(uint8_t*)(blob + field->offset);
-            if (val == field->skip_eq) {
-                cw_pack_unsigned(pc, field->skip_count);
-                field += field->skip_count;
+            if ((field->skip_count > 0 && val == field->skip_eq) ||
+                (field->skip_count < 0 && val != field->skip_eq)) {
+                cw_pack_unsigned(pc, zpl_abs(field->skip_count));
+                field += zpl_abs(field->skip_count);
             } else {
                 cw_pack_unsigned(pc, 0);
             }

@@ -101,6 +101,10 @@ static inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t i
 #define PKT_SKIP_IF(t, a, e, n) .skip_count = n, .offset = PKT_OFFSETOF(t, a), .skip_eq = e, .name = #a
 #endif
 
+#ifndef PKT_KEEP_IF
+#define PKT_KEEP_IF(t, a, e, n) .skip_count = -(n), .offset = PKT_OFFSETOF(t, a), .skip_eq = e, .name = #a
+#endif
+
 #ifndef PKT_END
 #define PKT_END .type = CWP_NOT_AN_ITEM
 #endif
@@ -115,7 +119,7 @@ typedef struct pkt_desc {
     size_t offset;
     size_t size;
     size_t it_size;
-    size_t skip_count;
+    int16_t skip_count;
     uint8_t skip_eq;
 } pkt_desc;
 
