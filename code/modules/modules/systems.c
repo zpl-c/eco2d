@@ -212,23 +212,10 @@ void VehicleHandling(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         Vehicle *car = &veh[i];
+        
+        // NOTE(zaklaus): Apply friction
         car->speed *= 0.99f;
         car->steer *= 0.97f;
-        
-        float fr_x = p[i].x + (car->wheel_base/2.0f) * zpl_cos(car->heading);
-        float fr_y = p[i].y + (car->wheel_base/2.0f) * zpl_sin(car->heading);
-        
-        float bk_x = p[i].x - (car->wheel_base/2.0f) * zpl_cos(car->heading);
-        float bk_y = p[i].y - (car->wheel_base/2.0f) * zpl_sin(car->heading);
-        
-        bk_x += car->speed * zpl_cos(car->heading);
-        bk_y += car->speed * zpl_sin(car->heading);
-        fr_x += car->speed * zpl_cos(car->heading + zpl_to_radians(car->steer));
-        fr_y += car->speed * zpl_sin(car->heading + zpl_to_radians(car->steer));
-        
-        v[i].x = (fr_x + bk_x) / 2.0f - p[i].x;
-        v[i].y = (fr_y + bk_y) / 2.0f - p[i].y;
-        car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
         
         for (int j = 0; j < 4; j++) {
             // NOTE(zaklaus): Perform seat cleanup
@@ -257,6 +244,22 @@ void VehicleHandling(ecs_iter_t *it) {
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
         }
+        
+        // NOTE(zaklaus): Vehicle physics
+        float fr_x = p[i].x + (car->wheel_base/2.0f) * zpl_cos(car->heading);
+        float fr_y = p[i].y + (car->wheel_base/2.0f) * zpl_sin(car->heading);
+        
+        float bk_x = p[i].x - (car->wheel_base/2.0f) * zpl_cos(car->heading);
+        float bk_y = p[i].y - (car->wheel_base/2.0f) * zpl_sin(car->heading);
+        
+        bk_x += car->speed * zpl_cos(car->heading);
+        bk_y += car->speed * zpl_sin(car->heading);
+        fr_x += car->speed * zpl_cos(car->heading + zpl_to_radians(car->steer));
+        fr_y += car->speed * zpl_sin(car->heading + zpl_to_radians(car->steer));
+        
+        v[i].x = (fr_x + bk_x) / 2.0f - p[i].x;
+        v[i].y = (fr_y + bk_y) / 2.0f - p[i].y;
+        car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
     }
 }
 
