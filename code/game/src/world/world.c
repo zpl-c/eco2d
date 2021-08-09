@@ -14,7 +14,6 @@ ZPL_TABLE(static, world_snapshot, world_snapshot_, entity_view);
 
 static world_data world = {0};
 static world_snapshot streamer_snapshot;
-static ecs_entity_t components_handle;
 
 entity_view world_build_entity_view(int64_t e) {
     entity_view *cached_ev = world_snapshot_get(&streamer_snapshot, e);
@@ -22,32 +21,32 @@ entity_view world_build_entity_view(int64_t e) {
     
     entity_view view = {0};
     
-    const Classify *classify = w_ecs_get(e, Classify);
+    const Classify *classify = ecs_get(world_ecs(), e, Classify);
     assert(classify);
     
     view.kind = classify->id;
     
-    const Position *pos = w_ecs_get(e, Position);
+    const Position *pos = ecs_get(world_ecs(), e, Position);
     if (pos) {
         view.x = pos->x;
         view.y = pos->y;
     }
     
-    const Velocity *vel = w_ecs_get(e, Velocity);
+    const Velocity *vel = ecs_get(world_ecs(), e, Velocity);
     if (vel) {
         view.flag |= EFLAG_INTERP;
         view.vx = vel->x;
         view.vy = vel->y;
     }
     
-    const Health *health = w_ecs_get(e, Health);
+    const Health *health = ecs_get(world_ecs(), e, Health);
     if (health) {
         view.hp = health->hp;
         view.max_hp = health->max_hp;
     }
     
-    if (w_ecs_get(e, Chunk)) {
-        Chunk *chpos = w_ecs_get_mut(e, Chunk, 0);
+    if (ecs_get(world_ecs(), e, Chunk)) {
+        Chunk *chpos = ecs_get_mut(world_ecs(), e, Chunk, 0);
         view.x = chpos->x;
         view.y = chpos->y;
         view.blocks_used = 1;
@@ -154,7 +153,6 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
     world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
-    components_handle = ecs_typeid(Components);
     world_snapshot_init(&streamer_snapshot, zpl_heap());
     
     int32_t world_build_status = worldgen_test(&world);
@@ -283,11 +281,6 @@ ecs_world_t * world_ecs() {
     return world.ecs;
 }
 
-Components const *world_components(void) {
-    ecs_entity_t ecs_typeid(Components) = components_handle;
-    return ecs_get(world.ecs, ecs_typeid(Components), Components);
-}
-
 librg_world *world_tracker() {
     return world.tracker;
 }
@@ -377,14 +370,14 @@ uint8_t *world_chunk_get_blocks(int64_t id) {
 
 void world_chunk_mark_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = w_ecs_get_mut(e, Chunk, &was_added);
+    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
     assert(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
 uint8_t world_chunk_is_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = w_ecs_get_mut(e, Chunk, &was_added);
+    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
     assert(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;
