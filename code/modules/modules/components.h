@@ -27,6 +27,8 @@ ECS_STRUCT(Input, {
                uint8_t use;
                uint8_t sprint;
                uint8_t is_blocked;
+               
+               ecs_entity_t parent;
            });
 
 ECS_STRUCT(ClientInfo, {
@@ -63,6 +65,7 @@ ECS_COMPONENT_EXTERN(Classify);
 ECS_COMPONENT_EXTERN(Vehicle);
 ECS_TAG_EXTERN(EcsActor);
 ECS_TAG_EXTERN(EcsDemoNPC);
+ECS_TAG_EXTERN(EcsInVehicle);
 ECS_TYPE_EXTERN(Player);
 ECS_TYPE_EXTERN(Movement);
 ECS_TYPE_EXTERN(Walking);
@@ -82,6 +85,7 @@ typedef struct {
     ECS_DECLARE_COMPONENT(Vehicle);
     ECS_DECLARE_ENTITY(EcsActor);
     ECS_DECLARE_ENTITY(EcsDemoNPC);
+    ECS_DECLARE_ENTITY(EcsInVehicle);
     ECS_DECLARE_TYPE(Player);
     ECS_DECLARE_TYPE(Builder);
     ECS_DECLARE_TYPE(Movement);
@@ -109,5 +113,6 @@ ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
 ECS_IMPORT_ENTITY(handles, Walking);\
 ECS_IMPORT_ENTITY(handles, Flying);\
 ECS_IMPORT_ENTITY(handles, EcsClient);\
+ECS_IMPORT_ENTITY(handles, EcsInVehicle);\
 
 void ComponentsImport(ecs_world_t *ecs);

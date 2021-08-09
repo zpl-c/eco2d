@@ -217,6 +217,13 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
 #endif
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
         }break;        
+        case EKIND_VEHICLE: {
+            float x = data->x;
+            float y = data->y;
+            float const w = 50;
+            float const h = 80;
+            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, 0.0f, ColorAlpha(RED, data->tran_time));
+        }break;
         default:break;
     }
 }

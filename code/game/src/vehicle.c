@@ -8,7 +8,7 @@
 uint64_t vehicle_spawn(void) {    
     ecs_entity_t e = entity_spawn(EKIND_VEHICLE);
     
-    ecs_add(world_ecs(), e, Vehicle);
+    ecs_set(world_ecs(), e, Vehicle, {0});
     return (uint64_t)e;
 }
 

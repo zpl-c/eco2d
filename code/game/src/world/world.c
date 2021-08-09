@@ -382,3 +382,24 @@ uint8_t world_chunk_is_dirty(ecs_entity_t e) {
     if (chunk) return chunk->is_dirty;
     return false;
 }
+
+int64_t *world_chunk_fetch_entities(librg_chunk chunk_id, size_t *ents_len) {
+    ZPL_ASSERT_NOT_NULL(ents_len);
+    static int64_t ents[UINT16_MAX];
+    *ents_len = UINT16_MAX;
+    librg_world_fetch_chunk(world.tracker, chunk_id, ents, ents_len);
+    return ents;
+}
+
+int64_t *world_chunk_fetch_entities_realpos(float x, float y, size_t *ents_len) {
+    return world_chunk_fetch_entities(librg_chunk_from_realpos(world.tracker, x, y, 0), ents_len);
+}
+
+int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) {
+    ZPL_ASSERT_NOT_NULL(ents_len);
+    static int64_t ents[UINT16_MAX];
+    *ents_len = UINT16_MAX;
+    librg_entity_radius_set(world.tracker, e, radius);
+    librg_world_query(world.tracker, e, ents, ents_len);
+    return ents;
+}

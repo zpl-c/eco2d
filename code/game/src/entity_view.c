@@ -5,6 +5,7 @@
 ZPL_TABLE_DEFINE(entity_view_tbl, entity_view_tbl_, entity_view);
 
 pkt_desc pkt_entity_view_desc[] = {
+    
     { PKT_UINT(entity_view, kind) },
     { PKT_UINT(entity_view, flag) },
     { PKT_HALF(entity_view, x) },

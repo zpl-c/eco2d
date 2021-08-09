@@ -62,64 +62,6 @@ void IntegratePositions(ecs_iter_t *it) {
     }
 }
 
-#define PHY_PUSHOUT_DIST ((64.0f*WORLD_BLOCK_SIZE))
-
-void PushOutOverlappingEntities(ecs_iter_t *it) {
-    Position *p = ecs_column(it, Position, 1);
-    
-    for (int i = 0; i <= it->count; i++) {
-#if 1
-        // NOTE(zaklaus): slow path. iterate over all the entities in the table.
-        for (int k = 0; k <= it->count; k++) {
-            if (i == k) continue;
-#else
-            // TODO(zaklaus): use a shared internal buffer instead !!!
-            static int64_t ents[UINT32_MAX];
-            size_t ents_count = UINT32_MAX;
-            librg_world_fetch_chunk(world_tracker(), librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0), ents, &ents_count);
-            
-            // NOTE(zaklaus): iterate over all entities inside this chunk
-            for (size_t j = 0; j < ents_count; j++) {
-                ecs_entity_t e = ents[j];
-                
-                if (e == it->entities[i])
-                    continue;
-                
-                // NOTE(zaklaus): reverse lookup
-                int k = 0;
-                for (; k <= it->count; k++) {
-                    if (k == it->count) {
-                        k = -1;
-                        break;
-                    }
-                    if (it->entities[k] == e) {
-                        break;
-                    }
-                }
-                
-                if (k == -1)
-                    continue;
-#endif
-                
-                float dx = p[i].x - p[k].x;
-                float dy = p[i].y - p[k].y;
-                float dist = zpl_sqrt(dx*dx + dy*dy);
-                if (dist < PHY_PUSHOUT_DIST) {
-                    p[i].x = zpl_sign(dx);
-                    p[i].y = zpl_sign(dy);
-#if 0
-                    p[k].x += zpl_sign(dx);
-                    p[k].y += zpl_sign(dy);
-#endif
-                }
-            }
-        }
-    }
-    
-#if 0
-}
-#endif
-
 void UpdateTrackerPos(ecs_iter_t *it) {
     Position *p = ecs_column(it, Position, 1);
     
@@ -136,6 +78,7 @@ void MovementImpulse(ecs_iter_t *it) {
     Velocity *v = ecs_column(it, Velocity, 2);
     
     for (int i = 0; i < it->count; i++) {
+        if (ecs_is_alive(world_ecs(), in[i].parent)) continue;
         double speed = PLR_MOVE_SPEED * (in[i].sprint ? PLR_MOVE_SPEED_MULT : 1.0);
         if (zpl_abs(v[i].x) < speed && in[i].x)
             v[i].x = in[i].x*speed;
@@ -205,20 +148,106 @@ void RegenerateHP(ecs_iter_t *it) {
     }
 }
 
+#define VEH_ENTER_RADIUS 45.0f
+
+void EnterOrLeaveVehicle(ecs_iter_t *it) {
+    Input *in = ecs_column(it, Input, 1);
+    Position *p = ecs_column(it, Position, 2);
+    
+    for (int i = 0; i < it->count; i++) {
+        if (!in[i].use) continue;
+        
+        if (!ecs_is_alive(world_ecs(), in[i].parent)) {
+            size_t ents_count;
+            int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
+            
+            for (size_t j = 0; j < ents_count; j++) {
+                if (ecs_get(world_ecs(), ents[j], Vehicle)) {
+                    Vehicle *veh = ecs_get_mut(world_ecs(), ents[j], Vehicle, NULL);
+                    Position const* p2 = ecs_get(world_ecs(), ents[j], Position);
+                    
+                    float dx = p2->x - p[i].x;
+                    float dy = p2->y - p[i].y;
+                    float range = zpl_sqrt(dx*dx + dy*dy);
+                    if (range <= VEH_ENTER_RADIUS) {
+                        for (int k = 0; k < 4; k++) {
+                            if (veh->seats[k] != 0) continue;
+                            
+                            // NOTE(zaklaus): We can enter the vehicle, yay!
+                            veh->seats[k] = it->entities[i];
+                            in[i].parent = ents[j];
+                            p[i] = *p2;
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            if (ecs_get(world_ecs(), in[i].parent, Vehicle)) {
+                Vehicle *veh = ecs_get_mut(world_ecs(), in[i].parent, Vehicle, NULL);
+                
+                for (int k = 0; k < 4; k++) {
+                    if (veh->seats[k] == it->entities[i]) {
+                        veh->seats[k] = 0;
+                        break;
+                    }
+                }
+                
+                in[i].parent = 0;
+            } else {
+                ZPL_PANIC("unreachable code");
+            }
+        }
+    }
+}
+
+void VehicleHandling(ecs_iter_t *it) {
+    Vehicle *veh = ecs_column(it, Vehicle, 1);
+    Position *p = ecs_column(it, Position, 2);
+    Velocity *v = ecs_column(it, Velocity, 3);
+    
+    for (int i = 0; i < it->count; i++) {
+        for (int j = 0; j < 4; j++) {
+            // NOTE(zaklaus): Perform seat cleanup
+            if (!ecs_is_alive(world_ecs(), veh[i].seats[j])) {
+                veh[i].seats[j] = 0;
+                continue;
+            }
+            
+            ecs_entity_t pe = veh[i].seats[j];
+            
+            // NOTE(zaklaus): Update passenger position
+            {
+                Position *p2 = ecs_get_mut(world_ecs(), pe, Position, NULL);
+                *p2 = p[i];
+            }
+            
+            // NOTE(zaklaus): Handle driver input
+            if (j == 0) {
+                // TODO(zaklaus): Be lazy about it for now, implement wheels later
+                Input const* in = ecs_get(world_ecs(), pe, Input);
+                v[i].x += in->x;
+                v[i].y += in->y;
+            }
+        }
+    }
+}
+
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     ECS_IMPORT(ecs, Components);
     
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity);
-    ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, components.Input, components.Position);
+    //ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, components.Input, components.Position);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
+    ECS_SYSTEM(ecs, EnterOrLeaveVehicle, EcsOnLoad, components.Input, components.Position);
     
     ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, components.Position, components.Velocity);
     ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
     ECS_SYSTEM(ecs, RegenerateHP, EcsOnUpdate, components.Health);
+    ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
     
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
-    //ECS_SYSTEM(ecs, PushOutOverlappingEntities, EcsOnValidate, components.Position, Velocity);
     
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position);
 }
