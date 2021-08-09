@@ -201,12 +201,35 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
     }
 }
 
+#define VEHICLE_MAX_SPEED 500.0f
+#define VEHICLE_ACCEL 2.1f
+#define VEHICLE_STEER 0.01f
+
 void VehicleHandling(ecs_iter_t *it) {
     Vehicle *veh = ecs_column(it, Vehicle, 1);
     Position *p = ecs_column(it, Position, 2);
     Velocity *v = ecs_column(it, Velocity, 3);
     
     for (int i = 0; i < it->count; i++) {
+        Vehicle *car = &veh[i];
+        car->speed *= 0.99f;
+        car->steer *= 0.97f;
+        
+        float fr_x = p[i].x + (car->wheel_base/2.0f) * zpl_cos(car->heading);
+        float fr_y = p[i].y + (car->wheel_base/2.0f) * zpl_sin(car->heading);
+        
+        float bk_x = p[i].x - (car->wheel_base/2.0f) * zpl_cos(car->heading);
+        float bk_y = p[i].y - (car->wheel_base/2.0f) * zpl_sin(car->heading);
+        
+        bk_x += car->speed * zpl_cos(car->heading);
+        bk_y += car->speed * zpl_sin(car->heading);
+        fr_x += car->speed * zpl_cos(car->heading + zpl_to_radians(car->steer));
+        fr_y += car->speed * zpl_sin(car->heading + zpl_to_radians(car->steer));
+        
+        v[i].x = (fr_x + bk_x) / 2.0f - p[i].x;
+        v[i].y = (fr_y + bk_y) / 2.0f - p[i].y;
+        car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
+        
         for (int j = 0; j < 4; j++) {
             // NOTE(zaklaus): Perform seat cleanup
             if (!ecs_is_alive(world_ecs(), veh[i].seats[j])) {
@@ -219,15 +242,19 @@ void VehicleHandling(ecs_iter_t *it) {
             // NOTE(zaklaus): Update passenger position
             {
                 Position *p2 = ecs_get_mut(world_ecs(), pe, Position, NULL);
+                Velocity *v2 = ecs_get_mut(world_ecs(), pe, Velocity, NULL);
                 *p2 = p[i];
+                *v2 = v[i];
             }
             
             // NOTE(zaklaus): Handle driver input
             if (j == 0) {
-                // TODO(zaklaus): Be lazy about it for now, implement wheels later
                 Input const* in = ecs_get(world_ecs(), pe, Input);
-                v[i].x += in->x;
-                v[i].y += in->y;
+                
+                car->speed += in->y * VEHICLE_ACCEL;
+                car->speed = zpl_clamp(car->speed, -VEHICLE_MAX_SPEED, VEHICLE_MAX_SPEED);
+                car->steer += in->x * -VEHICLE_STEER * (zpl_abs(car->speed*2.5f) / VEHICLE_MAX_SPEED);
+                car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
         }
     }
@@ -242,7 +269,7 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
     ECS_SYSTEM(ecs, EnterOrLeaveVehicle, EcsOnLoad, components.Input, components.Position);
     
-    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, components.Position, components.Velocity);
+    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, components.Position, components.Velocity, !components.Vehicle);
     ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
     ECS_SYSTEM(ecs, RegenerateHP, EcsOnUpdate, components.Health);
     ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);

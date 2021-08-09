@@ -48,6 +48,9 @@ typedef struct entity_view {
     uint8_t is_dirty;
     int64_t tex;
     
+    // NOTE(zaklaus): vehicle
+    float heading, theading;
+    
     // NOTE(zaklaus): internals
     uint8_t layer_id;
     uint64_t last_update;

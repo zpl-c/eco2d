@@ -51,6 +51,11 @@ ECS_STRUCT(Classify, {
 
 ECS_STRUCT(Vehicle, {
                uint64_t seats[4];
+               
+               float speed;
+               float heading;
+               float steer;
+               float wheel_base;
            });
 
 ECS_COMPONENT_EXTERN(Chunk);

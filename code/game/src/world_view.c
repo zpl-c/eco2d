@@ -59,6 +59,7 @@ int32_t tracker_read_create(librg_world *w, librg_event *e) {
     if (data.flag & EFLAG_INTERP) {
         data.tx = data.x;
         data.ty = data.y;
+        data.theading = data.heading;
     }
     entity_view_update_or_create(&view->entities, entity_id, data);
     entity_view_mark_for_fadein(&view->entities, entity_id);

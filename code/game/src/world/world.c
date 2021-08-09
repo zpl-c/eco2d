@@ -45,6 +45,11 @@ entity_view world_build_entity_view(int64_t e) {
         view.max_hp = health->max_hp;
     }
     
+    if (ecs_get(world_ecs(), e, Vehicle)) {
+        Vehicle const* veh = ecs_get(world_ecs(), e, Vehicle);
+        view.heading = veh->heading;
+    }
+    
     if (ecs_get(world_ecs(), e, Chunk)) {
         Chunk *chpos = ecs_get_mut(world_ecs(), e, Chunk, 0);
         view.x = chpos->x;

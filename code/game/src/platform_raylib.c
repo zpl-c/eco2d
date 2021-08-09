@@ -115,6 +115,7 @@ void lerp_entity_positions(uint64_t key, entity_view * data);
 void do_entity_fadeinout(uint64_t key, entity_view * data);
 
 float zpl_lerp(float,float,float);
+float zpl_to_degrees(float);
 
 void platform_render() {
     profile(PROF_ENTITY_LERP) {
@@ -220,9 +221,9 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_VEHICLE: {
             float x = data->x;
             float y = data->y;
-            float const w = 50;
-            float const h = 80;
-            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, 0.0f, ColorAlpha(RED, data->tran_time));
+            float const w = 80;
+            float const h = 50;
+            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(RED, data->tran_time));
         }break;
         default:break;
     }
@@ -237,9 +238,11 @@ void lerp_entity_positions(uint64_t key, entity_view *data) {
 #if 1
         data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
         data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
+        data->heading = smooth_val_spherical(data->heading, data->theading, view->delta_time[data->layer_id]);
 #else
         data->x = data->tx;
         data->y = data->ty;
+        data->heading = data->theading;
 #endif
     }
 }

@@ -8,7 +8,9 @@
 uint64_t vehicle_spawn(void) {    
     ecs_entity_t e = entity_spawn(EKIND_VEHICLE);
     
-    ecs_set(world_ecs(), e, Vehicle, {0});
+    Vehicle *veh = ecs_get_mut(world_ecs(), e, Vehicle, NULL);
+    zpl_zero_item(veh);
+    veh->wheel_base = 60.0f;
     return (uint64_t)e;
 }
 
