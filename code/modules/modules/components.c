@@ -13,6 +13,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_META(ecs, Input);
     ECS_META(ecs, Health);
     ECS_META(ecs, Classify);
+    ECS_META(ecs, Vehicle);
     
     ECS_TAG(ecs, Walking);
     ECS_TAG(ecs, Flying);
@@ -37,6 +38,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_SET_COMPONENT(Input);
     ECS_SET_COMPONENT(Health);
     ECS_SET_COMPONENT(Classify);
+    ECS_SET_COMPONENT(Vehicle);
     ECS_SET_ENTITY(EcsClient);
     ECS_SET_ENTITY(Walking);
     ECS_SET_ENTITY(Flying);

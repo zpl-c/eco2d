@@ -10,39 +10,44 @@
 
 #include "packets/pkt_send_librg_update.h"
 
+ZPL_TABLE(static, world_snapshot, world_snapshot_, entity_view);
+
 static world_data world = {0};
-static Components const *ecs_components;
+static world_snapshot streamer_snapshot;
+static ecs_entity_t components_handle;
 
 entity_view world_build_entity_view(int64_t e) {
-    ECS_IMPORT(world.ecs, Components);
+    entity_view *cached_ev = world_snapshot_get(&streamer_snapshot, e);
+    if (cached_ev) return *cached_ev;
+    
     entity_view view = {0};
     
-    const Classify *classify = ecs_get(world.ecs, e, Classify);
+    const Classify *classify = w_ecs_get(e, Classify);
     assert(classify);
     
     view.kind = classify->id;
     
-    const Position *pos = ecs_get(world.ecs, e, Position);
+    const Position *pos = w_ecs_get(e, Position);
     if (pos) {
         view.x = pos->x;
         view.y = pos->y;
     }
     
-    const Velocity *vel = ecs_get(world.ecs, e, Velocity);
+    const Velocity *vel = w_ecs_get(e, Velocity);
     if (vel) {
         view.flag |= EFLAG_INTERP;
         view.vx = vel->x;
         view.vy = vel->y;
     }
     
-    const Health *health = ecs_get(world.ecs, e, Health);
+    const Health *health = w_ecs_get(e, Health);
     if (health) {
         view.hp = health->hp;
         view.max_hp = health->max_hp;
     }
     
-    if (ecs_get(world.ecs, e, Chunk)) {
-        Chunk *chpos = ecs_get_mut(world.ecs, e, Chunk, 0);
+    if (w_ecs_get(e, Chunk)) {
+        Chunk *chpos = w_ecs_get_mut(e, Chunk, 0);
         view.x = chpos->x;
         view.y = chpos->y;
         view.blocks_used = 1;
@@ -54,6 +59,7 @@ entity_view world_build_entity_view(int64_t e) {
         }
     }
     
+    world_snapshot_set(&streamer_snapshot, e, view);
     return view;
 }
 
@@ -90,7 +96,6 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     entity_view view = world_build_entity_view(entity_id);
     
     // NOTE(zaklaus): exclude chunks from updates as they never move
-    // TODO(zaklaus): use dirty flag to send updates if chunk changes
     {
         if (view.kind == EKIND_CHUNK && !view.is_dirty) {
             return LIBRG_WRITE_REJECT;
@@ -149,7 +154,8 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
     world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
-    ecs_components = ecs_get(world.ecs, ecs_typeid(Components), Components);
+    components_handle = ecs_typeid(Components);
+    world_snapshot_init(&streamer_snapshot, zpl_heap());
     
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
@@ -190,6 +196,7 @@ int32_t world_destroy(void) {
         zpl_mfree(world.block_mapping[i]);
     }
     zpl_mfree(world.block_mapping);
+    world_snapshot_destroy(&streamer_snapshot);
     zpl_memset(&world, 0, sizeof(world));
     zpl_printf("[INFO] World was destroyed.\n");
     return WORLD_ERROR_NONE;
@@ -202,8 +209,6 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
     profile(PROF_WORLD_WRITE) {
-        ECS_IMPORT(world.ecs, Components);
-        
         ecs_iter_t it = ecs_query_iter(world.ecs_update);
         static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
         world.active_layer_id = ticker;
@@ -230,13 +235,18 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
                 pkt_send_librg_update((uint64_t)p[i].peer, p[i].view_id, ticker, buffer, datalen);
             }
         }
+        
+        // NOTE(zaklaus): clear out our streaming snapshot
+        // TODO(zaklaus): move this to zpl
+        {
+            zpl_array_clear(streamer_snapshot.hashes);
+            zpl_array_clear(streamer_snapshot.entries);
+        }
     }
 }
 
 
 int32_t world_update() {
-    ECS_IMPORT(world.ecs, Components);
-    
     profile (PROF_UPDATE_SYSTEMS) {
         ecs_progress(world.ecs, 0.0f);
     }
@@ -273,11 +283,12 @@ ecs_world_t * world_ecs() {
     return world.ecs;
 }
 
-Components const* world_components(void) {
-    return ecs_components;
+Components const *world_components(void) {
+    ecs_entity_t ecs_typeid(Components) = components_handle;
+    return ecs_get(world.ecs, ecs_typeid(Components), Components);
 }
 
-librg_world * world_tracker() {
+librg_world *world_tracker() {
     return world.tracker;
 }
 
@@ -366,14 +377,14 @@ uint8_t *world_chunk_get_blocks(int64_t id) {
 
 void world_chunk_mark_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, ecs_components->ecs_typeid(Chunk), &was_added);
+    Chunk *chunk = w_ecs_get_mut(e, Chunk, &was_added);
     assert(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
 uint8_t world_chunk_is_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = (Chunk *)ecs_get_mut_w_entity(world.ecs, e, ecs_components->ecs_typeid(Chunk), &was_added);
+    Chunk *chunk = w_ecs_get_mut(e, Chunk, &was_added);
     assert(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;

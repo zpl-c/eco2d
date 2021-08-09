@@ -32,11 +32,9 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
     pkt_send_keystate table;
     PKT_IF(pkt_msg_decode(header, pkt_send_keystate_desc, pkt_pack_desc_args(pkt_send_keystate_desc), PKT_STRUCT_PTR(&table)));
     ecs_entity_t e = PKT_GET_ENT(header);
-    ecs_world_t *ecs = world_ecs();
     
-    ECS_IMPORT(ecs, Components);
-    Input *i = ecs_get_mut(world_ecs(), e, Input, NULL);
-    if (i) {
+    Input *i = w_ecs_get_mut(e, Input, NULL);
+    if (i && !i->is_blocked) {
         i->x = table.x;
         i->y = table.y;
         i->use = table.use;

@@ -16,6 +16,7 @@ add_executable(eco2d
 	src/entity_view.c
 	src/packet.c
 	src/player.c
+	src/vehicle.c
 	src/signal_handling.c
 	src/profiler.c
 	src/debug_ui.c

@@ -81,7 +81,7 @@ world_view *game_world_view_get_active(void) {
 
 void game_world_view_cycle_active(int8_t dir) {
     uint16_t idx = (uint16_t)(active_viewer - world_viewers);
-    game_world_view_set_active_by_idx((idx+dir)%zpl_buffer_count(world_viewers));
+    game_world_view_set_active_by_idx(zpl_max(0, (idx+dir)%zpl_buffer_count(world_viewers)));
 }
 void game_world_view_set_active_by_idx(uint16_t idx) {
     ZPL_ASSERT(idx >= 0 && idx < zpl_buffer_count(world_viewers));

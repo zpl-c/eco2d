@@ -26,6 +26,7 @@ ECS_STRUCT(Input, {
                float y;
                uint8_t use;
                uint8_t sprint;
+               uint8_t is_blocked;
            });
 
 ECS_STRUCT(ClientInfo, {
@@ -46,6 +47,10 @@ ECS_STRUCT(Classify, {
                uint16_t id;
            });
 
+ECS_STRUCT(Vehicle, {
+               uint64_t seats[4];
+           });
+
 typedef struct {
     ECS_DECLARE_COMPONENT(Chunk);
     ECS_DECLARE_COMPONENT(Position);
@@ -56,6 +61,7 @@ typedef struct {
     ECS_DECLARE_COMPONENT(ClientInfo);
     ECS_DECLARE_COMPONENT(Health);
     ECS_DECLARE_COMPONENT(Classify);
+    ECS_DECLARE_COMPONENT(Vehicle);
     ECS_DECLARE_ENTITY(EcsActor);
     ECS_DECLARE_ENTITY(EcsPlayer);
     ECS_DECLARE_ENTITY(EcsBuilder);
@@ -78,6 +84,7 @@ ECS_IMPORT_COMPONENT(handles, Velocity);\
 ECS_IMPORT_COMPONENT(handles, ClientInfo);\
 ECS_IMPORT_COMPONENT(handles, Health);\
 ECS_IMPORT_COMPONENT(handles, Classify);\
+ECS_IMPORT_COMPONENT(handles, Vehicle);\
 ECS_IMPORT_TYPE(handles, Player);\
 ECS_IMPORT_TYPE(handles, Builder);\
 ECS_IMPORT_TYPE(handles, Movement);\

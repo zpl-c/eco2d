@@ -7,6 +7,7 @@
 typedef enum {
     EKIND_SERVER = 0,
     EKIND_PLAYER,
+    EKIND_VEHICLE,
     EKIND_DEMO_NPC,
     EKIND_MONSTER,
     EKIND_CHUNK,

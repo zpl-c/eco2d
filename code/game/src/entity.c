@@ -10,14 +10,12 @@
 #include "zpl.h"
 
 uint64_t entity_spawn(uint16_t class_id) {
-    ECS_IMPORT(world_ecs(), Components);
-    
     ecs_entity_t e = ecs_new(world_ecs(), 0);
     
-    ecs_set(world_ecs(), e, Velocity, {0});
-    ecs_set(world_ecs(), e, Classify, { .id = class_id });
-    ecs_add(world_ecs(), e, Walking);
-    Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+    w_ecs_set(e, Velocity, {0});
+    w_ecs_set(e, Classify, { .id = class_id });
+    w_ecs_add(e, Walking);
+    Position *pos = w_ecs_get_mut(e, Position, NULL);
 #if 1
     pos->x=rand() % world_dim();
     pos->y=rand() % world_dim();

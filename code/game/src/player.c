@@ -19,14 +19,12 @@ uint64_t player_spawn(char *name) {
         name = zpl_bprintf("player_%d", e);
     }
     
-    ECS_IMPORT(world_ecs(), Components);
-    
     ecs_set(world_ecs(), e, EcsName, {.alloc_value = name });
-    ecs_add(world_ecs(), e, EcsClient);
-    ecs_set(world_ecs(), e, ClientInfo, {0});
-    ecs_set(world_ecs(), e, Input, {0});
-    ecs_set(world_ecs(), e, Health, {.hp = PLAYER_MAX_HP, .max_hp = PLAYER_MAX_HP});
-    ecs_add(world_ecs(), e, Player);
+    w_ecs_add(e, EcsClient);
+    w_ecs_set(e, ClientInfo, {0});
+    w_ecs_set(e, Input, {0});
+    w_ecs_set(e, Health, {.hp = PLAYER_MAX_HP, .max_hp = PLAYER_MAX_HP});
+    w_ecs_add(e, Player);
     
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     
@@ -35,4 +33,7 @@ uint64_t player_spawn(char *name) {
 
 void player_despawn(uint64_t ent_id) {
     entity_despawn(ent_id);
+}
+
+void player_freeze(uint64_t id, uint8_t state, uint8_t clear) {
 }

@@ -3,6 +3,7 @@
 #include "librg.h"
 #include "packet.h"
 #include "flecs/flecs.h"
+#include "flecs/flecs_meta.h"
 #include "modules/components.h"
 
 #define WORLD_ERROR_NONE                +0x0000
@@ -52,9 +53,9 @@ int32_t world_read(void* data, uint32_t datalen, void *udata);
 int32_t world_write(pkt_header *pkt, void *udata);
 
 uint32_t world_buf(uint8_t const **ptr, uint32_t *width);
-ecs_world_t * world_ecs(void);
-Components const* world_components(void);
-librg_world * world_tracker(void);
+ecs_world_t *world_ecs(void);
+Components const *world_components(void);
+librg_world *world_tracker(void);
 
 uint16_t world_chunk_size(void);
 uint16_t world_chunk_amount(void);
@@ -77,4 +78,21 @@ void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id)
 uint8_t *world_chunk_get_blocks(int64_t id);
 void world_chunk_mark_dirty(ecs_entity_t e);
 uint8_t world_chunk_is_dirty(ecs_entity_t e);
+
+// NOTE(zaklaus): flecs wrappers for easier world access
+
+#define w_ecs_set(entity, component, ...)\
+ecs_set_ptr_w_entity(world_ecs(), entity, world_components()->ecs_typeid(component), sizeof(component), &(component)__VA_ARGS__)
+
+#define w_ecs_add(entity, component)\
+ecs_add_type(world_ecs(), entity, world_components()->ecs_type(component))
+
+#define w_ecs_get(entity, component)\
+((const component*)ecs_get_w_entity(world_ecs(), entity, world_components()->ecs_typeid(component)))
+
+#define w_ecs_get_ref(ref, entity, component)\
+((const component*)ecs_get_ref_w_entity(world_ecs(), ref, entity, world_components()->ecs_typeid(component)))
+
+#define w_ecs_get_mut(entity, component, is_added)\
+((component*)ecs_get_mut_w_entity(world_ecs(), entity, world_components()->ecs_typeid(component), is_added))
 

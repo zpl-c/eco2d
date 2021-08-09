@@ -91,6 +91,16 @@ static debug_item items[] = {
     },
     {
         .kind = DITEM_LIST,
+        .name = "debug actions",
+        .list = {
+            .items = (debug_item[]) {
+                { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
+                { .kind = DITEM_END },
+            }
+        }
+    },
+    {
+        .kind = DITEM_LIST,
         .name = "profilers",
         .list = {
             .items = (debug_item[]) {
