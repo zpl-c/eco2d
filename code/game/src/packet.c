@@ -64,7 +64,7 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
     uint8_t *blob = (uint8_t*)raw_blob;
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
         cw_unpack_next(uc);
-        if (field->skip_count) {
+        if (field->skip_count != 0) {
             if (uc->item.type != CWP_ITEM_POSITIVE_INTEGER) return -1; // unexpected field
             field += uc->item.as.u64;
             continue;
@@ -104,11 +104,11 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
 int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uint32_t blob_size) {
     uint8_t *blob = (uint8_t*)raw_blob;
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
-        if (field->skip_count) {
+        if (field->skip_count != 0) {
             uint8_t val = *(uint8_t*)(blob + field->offset);
             if (val == field->skip_eq) {
-                field += field->skip_count;
                 cw_pack_unsigned(pc, field->skip_count);
+                field += field->skip_count;
             } else {
                 cw_pack_unsigned(pc, 0);
             }
