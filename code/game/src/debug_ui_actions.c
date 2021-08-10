@@ -21,17 +21,32 @@ ActSpawnCar(void) {
 
 static inline uint8_t
 CondReplayStatusOn(void) {
-    return is_recording;
+    return is_recording && !is_playing;
 }
 
 static inline uint8_t
 CondReplayStatusOff(void) {
-    return !is_recording;
+    return !is_recording && !is_playing;
 }
 
 static inline uint8_t
-CondReplayDataPresent(void) {
-    return records != NULL && !is_recording;
+CondReplayDataPresentAndNotPlaying(void) {
+    return records != NULL && !is_recording && !is_playing;
+}
+
+static inline uint8_t
+CondReplayIsPlaying(void) {
+    return records != NULL && !is_recording && is_playing;
+}
+
+static inline uint8_t
+CondReplayIsNotPlaying(void) {
+    return !is_recording && !is_playing;
+}
+
+static inline uint8_t
+CondReplayIsNotPlayingOrRecordsNotClear(void) {
+    return records != NULL && !is_recording && !is_playing;
 }
 
 static inline void

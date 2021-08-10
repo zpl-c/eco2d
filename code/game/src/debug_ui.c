@@ -45,6 +45,8 @@ typedef struct debug_item {
     debug_kind kind;
     char const *name;
     float name_width;
+    uint8_t skip;
+    
     union {
         union {
             char const *text;
@@ -133,12 +135,9 @@ static debug_item items[] = {
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "macro", .proc = DrawReplayFileName },
                 { .kind = DITEM_TEXT, .name = "samples", .proc = DrawReplaySamples },
-                { .kind = DITEM_BUTTON, .name = "new", .on_click = ActReplayNew },
-                { .kind = DITEM_BUTTON, .name = "load", .on_click = ActReplayLoad },
-                { .kind = DITEM_BUTTON, .name = "save", .on_click = ActReplaySave },
-                { .kind = DITEM_BUTTON, .name = "save as...", .on_click = ActReplaySaveAs },
                 
-                { .kind = DITEM_GAP },
+                { .kind = DITEM_COND, .on_success = CondReplayDataPresentAndNotPlaying },
+                { .kind = DITEM_BUTTON, .name = "replay", .on_click = ActReplayRun },
                 
                 { .kind = DITEM_COND, .on_success = CondReplayStatusOff },
                 { .kind = DITEM_BUTTON, .name = "record", .on_click = ActReplayBegin },
@@ -146,10 +145,20 @@ static debug_item items[] = {
                 { .kind = DITEM_COND, .on_success = CondReplayStatusOn },
                 { .kind = DITEM_BUTTON, .name = "stop", .on_click = ActReplayEnd },
                 
-                { .kind = DITEM_COND, .on_success = CondReplayDataPresent },
-                { .kind = DITEM_BUTTON, .name = "replay", .on_click = ActReplayRun },
+                { .kind = DITEM_COND, .on_success = CondReplayIsPlaying },
+                { .kind = DITEM_BUTTON, .name = "stop", .on_click = ActReplayEnd },
                 
+                { .kind = DITEM_COND, .on_success = CondReplayIsNotPlayingOrRecordsNotClear },
                 { .kind = DITEM_BUTTON, .name = "clear", .on_click = ActReplayClear },
+                
+                { .kind = DITEM_GAP },
+                
+                { .kind = DITEM_COND, .on_success = CondReplayIsNotPlaying, .skip = 4 },
+                { .kind = DITEM_BUTTON, .name = "new", .on_click = ActReplayNew },
+                { .kind = DITEM_BUTTON, .name = "load", .on_click = ActReplayLoad },
+                { .kind = DITEM_BUTTON, .name = "save", .on_click = ActReplaySave },
+                { .kind = DITEM_BUTTON, .name = "save as...", .on_click = ActReplaySaveAs },
+                
                 { .kind = DITEM_END },
             }
         }
@@ -191,7 +200,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 assert(it->on_success);
                 
                 if (!it->on_success()) {
-                    it += 1;
+                    it += it->skip ? it->skip : 1;
                 }
             }break;
             case DITEM_LIST: {

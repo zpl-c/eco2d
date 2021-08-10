@@ -52,7 +52,7 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
     }
 }
 
-#define VEHICLE_FORCE 19.8f
+#define VEHICLE_FORCE 34.8f
 #define VEHICLE_ACCEL 0.27f
 #define VEHICLE_DECEL 0.28f
 #define VEHICLE_STEER 0.11f

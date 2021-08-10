@@ -104,8 +104,27 @@ void debug_replay_clear(void) {
     record_pos = 0;
 }
 
+void debug_replay_cleanup_ents(void) {
+    if (!mime) return;
+    
+    entity_despawn(mime);
+    mime = 0;
+    
+    is_playing = false;
+    camera_set_follow(plr);
+    
+    for (int i = 0; i < zpl_array_count(temp_actors); i++) {
+        entity_despawn(temp_actors[i]);
+    }
+    
+    zpl_array_free(temp_actors);
+}
+
 void debug_replay_stop(void) {
     is_recording = false;
+    is_playing = false;
+    record_pos = 0;
+    debug_replay_cleanup_ents();
 }
 
 void debug_replay_run(void) {
@@ -160,17 +179,7 @@ void debug_replay_update(void) {
     
     // NOTE(zaklaus): remove our dummy art exhibist
     if (mime && record_pos == zpl_array_count(records)) {
-        entity_despawn(mime);
-        mime = 0;
-        
-        is_playing = false;
-        camera_set_follow(plr);
-        
-        for (int i = 0; i < zpl_array_count(temp_actors); i++) {
-            entity_despawn(temp_actors[i]);
-        }
-        
-        zpl_array_free(temp_actors);
+        debug_replay_cleanup_ents();
     }
 }
 
