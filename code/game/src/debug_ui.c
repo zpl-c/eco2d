@@ -4,11 +4,13 @@
 #include "camera.h"
 #include "world/world.h"
 #include "game.h"
+#include "sfd.h"
 
 #include "modules/components.h"
 
 typedef enum {
     DITEM_RAW,
+    DITEM_GAP,
     DITEM_TEXT,
     DITEM_BUTTON,
     DITEM_SLIDER,
@@ -31,6 +33,7 @@ typedef struct {
 #define DBG_SHADOW_OFFSET_XPOS 1
 #define DBG_SHADOW_OFFSET_YPOS 1
 #define DBG_CTRL_HANDLE_DIM 10
+#define DBG_GAP_HEIGHT DBG_FONT_SPACING * 0.5f
 
 static uint8_t is_shadow_rendered;
 static uint8_t is_debug_open = 1;
@@ -115,10 +118,14 @@ static debug_item items[] = {
         .name = "replay system",
         .list = {
             .items = (debug_item[]) {
-                { .kind = DITEM_TEXT, .name = "macro", .text = "<unnamed>", .proc = DrawLiteral },
+                { .kind = DITEM_TEXT, .name = "macro", .proc = DrawReplayFileName },
                 { .kind = DITEM_TEXT, .name = "samples", .proc = DrawReplaySamples },
-                { .kind = DITEM_BUTTON, .name = "load", .on_click = NULL },
-                { .kind = DITEM_BUTTON, .name = "save", .on_click = NULL },
+                { .kind = DITEM_BUTTON, .name = "new", .on_click = ActReplayNew },
+                { .kind = DITEM_BUTTON, .name = "load", .on_click = ActReplayLoad },
+                { .kind = DITEM_BUTTON, .name = "save", .on_click = ActReplaySave },
+                { .kind = DITEM_BUTTON, .name = "save as...", .on_click = ActReplaySaveAs },
+                
+                { .kind = DITEM_GAP },
                 
                 { .kind = DITEM_COND, .on_success = CondReplayStatusOff },
                 { .kind = DITEM_BUTTON, .name = "record", .on_click = ActReplayBegin },
@@ -164,6 +171,9 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
     is_shadow_rendered = is_shadow;
     for (debug_item *it = list; it->kind != DITEM_END; it += 1) {
         switch (it->kind) {
+            case DITEM_GAP: {
+                ypos += DBG_GAP_HEIGHT;
+            }break;
             case DITEM_COND: {
                 assert(it->on_success);
                 

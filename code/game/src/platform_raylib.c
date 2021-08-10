@@ -108,6 +108,7 @@ void platform_input() {
 
 void display_conn_status();
 
+void DEBUG_draw_entities_low(uint64_t key, entity_view * data);
 void DEBUG_draw_entities(uint64_t key, entity_view * data);
 void DEBUG_draw_ground(uint64_t key, entity_view * data);
 
@@ -134,6 +135,7 @@ void platform_render() {
         ClearBackground(GetColor(0x222034));
         BeginMode2D(render_camera);
         game_world_view_active_entity_map(DEBUG_draw_ground);
+        game_world_view_active_entity_map(DEBUG_draw_entities_low);
         game_world_view_active_entity_map(DEBUG_draw_entities);
         EndMode2D();        
         display_conn_status();
@@ -217,7 +219,24 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
 #endif
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
-        }break;        
+        }break;
+        case EKIND_MACRO_BOT: {
+            float x = data->x;
+            float y = data->y;
+            const char *title = TextFormat("Bot %d", key);
+            int title_w = MeasureTextEco(title, font_size, font_spacing);
+            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(GRAY, data->tran_time));
+            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(BLACK, data->tran_time), font_spacing); 
+            DrawCircleEco(x, y, size, ColorAlpha(PURPLE, data->tran_time));
+        }break;
+        default:break;
+    }
+}
+
+void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
+    (void)key;
+    
+    switch (data->kind) {
         case EKIND_VEHICLE: {
             float x = data->x;
             float y = data->y;

@@ -70,3 +70,9 @@ DrawReplaySamples(debug_item *it, float xpos, float ypos) {
     }
     return DrawFormattedText(xpos, ypos, TextFormat("%d of %d", record_pos, cnt));
 }
+
+static inline debug_draw_result 
+DrawReplayFileName(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    return DrawFormattedText(xpos, ypos, TextFormat("%s", replay_filename[0] ? replay_filename : "<unnamed>"));
+}

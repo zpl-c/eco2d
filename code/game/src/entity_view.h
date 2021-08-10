@@ -10,6 +10,7 @@ typedef enum {
     EKIND_VEHICLE,
     EKIND_DEMO_NPC,
     EKIND_MONSTER,
+    EKIND_MACRO_BOT,
     EKIND_CHUNK,
     FORCE_EKIND_UINT16 = UINT16_MAX
 } entity_kind;

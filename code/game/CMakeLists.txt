@@ -38,6 +38,6 @@ add_executable(eco2d
 
 target_compile_definitions(eco2d PRIVATE CLIENT)
 include_directories(src ../modules ../../art/gen)
-target_link_libraries(eco2d raylib cwpack eco2d-modules flecs-bundle)
+target_link_libraries(eco2d raylib cwpack eco2d-modules flecs-bundle vendors-bundle)
 
 link_system_libs(eco2d)
