@@ -98,6 +98,10 @@ static WORLD_BLOCK_OBSERVER(shaper_noise50) {
 static WORLD_BLOCK_OBSERVER(shaper_noise33) {
     return world_perlin_cond(block_idx, 0.33) ? shaper(id, block_idx) : BLOCK_INVALID;
 }
+
+static WORLD_BLOCK_OBSERVER(shaper_noise05) {
+    return world_perlin_cond(block_idx, 0.05) ? shaper(id, block_idx) : BLOCK_INVALID;
+}
 #else
 static WORLD_BLOCK_OBSERVER(shaper_noise80) {
     return rand()%10 < 8 ? shaper(id, block_idx) : BLOCK_INVALID;
@@ -139,7 +143,7 @@ int32_t worldgen_test(world_data *wld) {
     
     // ground
     world_fill_rect(grnd_id, 1, 1, world->dim-2, world->dim-2, NULL);
-    world_fill_rect(dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise33);
+    world_fill_rect(dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise05);
     
     // water
 #if 1

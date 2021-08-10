@@ -10,7 +10,7 @@ uint64_t vehicle_spawn(void) {
     
     Vehicle *veh = ecs_get_mut(world_ecs(), e, Vehicle, NULL);
     zpl_zero_item(veh);
-    veh->wheel_base = 60.0f;
+    veh->wheel_base = 50.0f;
     return (uint64_t)e;
 }
 
