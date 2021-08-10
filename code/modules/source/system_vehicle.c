@@ -8,7 +8,7 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
         
-        if (!ecs_is_alive(world_ecs(), in[i].parent)) {
+        if (!world_entity_valid(in[i].parent)) {
             size_t ents_count;
             int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
             
@@ -52,8 +52,8 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
     }
 }
 
-#define VEHICLE_FORCE 12.8f
-#define VEHICLE_ACCEL 0.17f
+#define VEHICLE_FORCE 19.8f
+#define VEHICLE_ACCEL 0.27f
 #define VEHICLE_DECEL 0.28f
 #define VEHICLE_STEER 0.11f
 #define VEHICLE_STEER_MUL 0.087f
@@ -72,7 +72,7 @@ void VehicleHandling(ecs_iter_t *it) {
         
         for (int j = 0; j < 4; j++) {
             // NOTE(zaklaus): Perform seat cleanup
-            if (!ecs_is_alive(world_ecs(), veh[i].seats[j])) {
+            if (!world_entity_valid(veh[i].seats[j])) {
                 veh[i].seats[j] = 0;
                 continue;
             }

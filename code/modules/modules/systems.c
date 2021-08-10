@@ -101,7 +101,6 @@ void RegenerateHP(ecs_iter_t *it) {
 
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
-    ECS_IMPORT(ecs, Components);
     
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity);
     //ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, components.Input, components.Position);
