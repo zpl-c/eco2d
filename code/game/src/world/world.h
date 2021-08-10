@@ -82,3 +82,5 @@ uint8_t world_chunk_is_dirty(ecs_entity_t e);
 int64_t *world_chunk_fetch_entities(librg_chunk chunk_id, size_t *ents_len);
 int64_t *world_chunk_fetch_entities_realpos(float x, float y, size_t *ents_len);
 int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius);
+
+uint8_t world_entity_valid(ecs_entity_t e);

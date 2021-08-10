@@ -27,6 +27,7 @@ uint64_t entity_spawn(uint16_t class_id) {
     if (class_id != EKIND_SERVER) {
         librg_entity_track(world_tracker(), e);
         librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), pos->x, pos->y, 0));
+        librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     }
     
     return (uint64_t)e;

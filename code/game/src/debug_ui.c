@@ -7,6 +7,7 @@ typedef enum {
     DITEM_BUTTON,
     DITEM_SLIDER,
     DITEM_LIST,
+    DITEM_COND,
     DITEM_END,
     
     DITEM_FORCE_UINT8 = UINT8_MAX
@@ -52,6 +53,8 @@ typedef struct debug_item {
         } slider;
         
         void (*on_click)(void);
+        
+        uint8_t (*on_success)(void);
     };
     
     debug_draw_result (*proc)(struct debug_item*, float, float);
@@ -101,6 +104,29 @@ static debug_item items[] = {
     },
     {
         .kind = DITEM_LIST,
+        .name = "replay system",
+        .list = {
+            .items = (debug_item[]) {
+                { .kind = DITEM_TEXT, .name = "macro", .text = "<unnamed>", .proc = DrawLiteral },
+                { .kind = DITEM_BUTTON, .name = "load", .on_click = NULL },
+                { .kind = DITEM_BUTTON, .name = "save", .on_click = NULL },
+                
+                { .kind = DITEM_COND, .on_success = CondReplayStatusOff },
+                { .kind = DITEM_BUTTON, .name = "record", .on_click = ActReplayBegin },
+                
+                { .kind = DITEM_COND, .on_success = CondReplayStatusOn },
+                { .kind = DITEM_BUTTON, .name = "stop", .on_click = ActReplayEnd },
+                
+                { .kind = DITEM_COND, .on_success = CondReplayDataPresent },
+                { .kind = DITEM_BUTTON, .name = "replay", .on_click = ActReplayRun },
+                
+                { .kind = DITEM_BUTTON, .name = "clear", .on_click = ActReplayClear },
+                { .kind = DITEM_END },
+            }
+        }
+    },
+    {
+        .kind = DITEM_LIST,
         .name = "profilers",
         .list = {
             .items = (debug_item[]) {
@@ -129,6 +155,13 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
     is_shadow_rendered = is_shadow;
     for (debug_item *it = list; it->kind != DITEM_END; it += 1) {
         switch (it->kind) {
+            case DITEM_COND: {
+                assert(it->on_success);
+                
+                if (!it->on_success()) {
+                    it += 1;
+                }
+            }break;
             case DITEM_LIST: {
                 // NOTE(zaklaus): calculate and cache name width for future use
                 if (it->name_width == 0) {
@@ -166,14 +199,17 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
             }break;
             
             case DITEM_BUTTON: {
-                assert(it->on_click);
                 char const *text = TextFormat("> %s", it->name);
                 if (it->name_width == 0) {
                     it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
                 }
                 Color color = RAYWHITE;
-                if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color)) {
+                if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color) && it->on_click) {
                     it->on_click();
+                }
+                
+                if (!it->on_click) {
+                    color = GRAY;
                 }
                 
                 debug_draw_result res = DrawColoredText(xpos, ypos, text, color);

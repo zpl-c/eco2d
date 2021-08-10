@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
     uint16_t chunk_size = DEFAULT_CHUNK_SIZE; //zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
-    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 10000);
+    uint32_t npc_count = zpl_opts_integer(&opts, "npc-count", 1000);
     
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};
@@ -67,8 +67,8 @@ int main(int argc, char** argv) {
     game_init(is_viewer_only, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
     
     // TODO(zaklaus): VERY TEMPORARY -- SPAWN SOME NPCS THAT RANDOMLY MOVE
+#if 1
     {
-        ECS_IMPORT(world_ecs(), Components);
         for (uint32_t i = 0; i < npc_count; i++) {
             uint64_t e = entity_spawn(EKIND_DEMO_NPC);
             ecs_add(world_ecs(), e, EcsDemoNPC);
@@ -81,6 +81,7 @@ int main(int argc, char** argv) {
             v->y = (rand()%3-1) * 100;
         }
     }
+#endif
     
     while (game_is_running()) {
         profile (PROF_MAIN_LOOP) {

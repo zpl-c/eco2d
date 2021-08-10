@@ -7,6 +7,8 @@
 
 #include "modules/components.h"
 
+#include "debug_replay.c"
+
 static inline void
 ActExitGame(void) {
     game_request_close();
@@ -21,3 +23,41 @@ ActSpawnCar(void) {
     Position * dest = ecs_get_mut(world_ecs(), e, Position, NULL);
     *dest = *origin;
 }
+
+// NOTE(zaklaus): Replay system
+
+static inline uint8_t
+CondReplayStatusOn(void) {
+    return is_recording;
+}
+
+static inline uint8_t
+CondReplayStatusOff(void) {
+    return !is_recording;
+}
+
+static inline uint8_t
+CondReplayDataPresent(void) {
+    return records != NULL && !is_recording;
+}
+
+static inline void
+ActReplayBegin(void) {
+    debug_replay_start();
+}
+
+static inline void
+ActReplayEnd(void) {
+    debug_replay_stop();
+}
+
+static inline void
+ActReplayRun(void) {
+    debug_replay_run();
+}
+
+static inline void
+ActReplayClear(void) {
+    debug_replay_clear();
+}
+

@@ -4,6 +4,7 @@
 #include "modules/systems.h"
 #include "world/world.h"
 #include "entity_view.h"
+#include "debug_replay.h"
 #include "world/worldgen/worldgen.h"
 #include "platform.h"
 #include "profiler.h"
@@ -151,7 +152,6 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     }
     
     world.ecs = ecs_init();
-    ecs_set_entity_range(world.ecs, 0, UINT32_MAX);
     
     ECS_IMPORT(world.ecs, Components);
     ECS_IMPORT(world.ecs, Systems);
@@ -257,6 +257,8 @@ int32_t world_update() {
     world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
     world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
     world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
+    
+    debug_replay_update();
     return 0;
 }
 
@@ -407,4 +409,9 @@ int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) 
     librg_entity_radius_set(world.tracker, e, radius);
     librg_world_query(world.tracker, e, ents, ents_len);
     return ents;
+}
+
+uint8_t world_entity_valid(ecs_entity_t e) {
+    if (!e) return false;
+    return ecs_is_alive(world.ecs, e);
 }

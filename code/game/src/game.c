@@ -12,8 +12,8 @@
 #include "profiler.h"
 
 #include "flecs/flecs.h"
-#include "flecs/flecs_dash.h"
-#include "flecs/flecs_systems_civetweb.h"
+//#include "flecs/flecs_dash.h"
+//#include "flecs/flecs_systems_civetweb.h"
 #include "flecs/flecs_os_api_stdcpp.h"
 
 #include "modules/components.h"
@@ -98,10 +98,12 @@ void game_world_view_set_active(world_view *view) {
 }
 
 void flecs_dash_init() {
+#if 0
     ECS_IMPORT(world_ecs(), FlecsDash);
     ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
     
     ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
+#endif
 }
 
 float game_time() {

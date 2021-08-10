@@ -4,6 +4,8 @@
 #include "modules/systems.h"
 #include "world/world.h"
 
+#include "debug_replay.h"
+
 pkt_desc pkt_send_keystate_desc[] = {
     { PKT_REAL(pkt_send_keystate, x) },
     { PKT_REAL(pkt_send_keystate, y) },
@@ -39,6 +41,7 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
         i->y = table.y;
         i->use = table.use;
         i->sprint = table.sprint;
+        debug_replay_record_keystate(table);
     }
     
     return 0;
