@@ -36,7 +36,7 @@ static char replaybuf[sizeof(replay_record)*UINT16_MAX + 32];
 
 void debug_replay_store(void) {
     assert(replay_filename[0]);
-    assert(records);
+    if (!records) return;
     
     cw_pack_context pc = {0};
     cw_pack_context_init(&pc, replaybuf, sizeof(replaybuf), 0);
