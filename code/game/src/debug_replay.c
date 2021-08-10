@@ -26,6 +26,7 @@ static int record_pos = 0;
 static uint64_t playback_time = 0;
 static ecs_entity_t mime = 0;
 static ecs_entity_t plr = 0;
+static ecs_entity_t *temp_actors = NULL;
 
 #define REPLAY_MAGIC 0x421DC97E
 #define REPLAY_VERSION 2
@@ -112,6 +113,7 @@ void debug_replay_run(void) {
     is_playing = true;
     record_pos = 0;
     playback_time = zpl_time_rel_ms();
+    zpl_array_init(temp_actors, zpl_heap());
     
     plr = camera_get().ent_id;
     Position const *p1 = ecs_get(world_ecs(), plr, Position);
@@ -146,6 +148,8 @@ void debug_replay_update(void) {
             Position const *origin = ecs_get(world_ecs(), mime, Position);
             Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
             *dest = *origin;
+            
+            zpl_array_append(temp_actors, e);
         }break;
         default: {
             ZPL_PANIC("unreachable");
@@ -161,6 +165,12 @@ void debug_replay_update(void) {
         
         is_playing = false;
         camera_set_follow(plr);
+        
+        for (int i = 0; i < zpl_array_count(temp_actors); i++) {
+            entity_despawn(temp_actors[i]);
+        }
+        
+        zpl_array_free(temp_actors);
     }
 }
 
