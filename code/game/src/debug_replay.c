@@ -21,7 +21,7 @@ void debug_replay_start(void) {
     is_recording = true;
     
     if (records) zpl_array_free(records);
-    zpl_array_init(records, zpl_heap());
+    zpl_array_init_reserve(records, zpl_heap(), UINT16_MAX);
     
     last_record_time = zpl_time_rel_ms();
 }
@@ -30,11 +30,11 @@ void debug_replay_clear(void) {
     if (!records || is_playing || is_recording) return;
     zpl_array_free(records);
     records = NULL;
+    record_pos = 0;
 }
 
 void debug_replay_stop(void) {
     is_recording = false;
-    // TODO(zaklaus): 
 }
 
 void debug_replay_run(void) {

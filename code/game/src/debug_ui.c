@@ -1,5 +1,11 @@
 #include "debug_ui.h"
 #include "raylib.h"
+#include "vehicle.h"
+#include "camera.h"
+#include "world/world.h"
+#include "game.h"
+
+#include "modules/components.h"
 
 typedef enum {
     DITEM_RAW,
@@ -75,6 +81,8 @@ bool is_btn_pressed(float xpos, float ypos, float w, float h, Color *color);
 static void UIDrawText(const char *text, float posX, float posY, int fontSize, Color color);
 static int UIMeasureText(const char *text, int fontSize);
 
+#include "debug_replay.c"
+
 #include "debug_ui_widgets.c"
 #include "debug_ui_actions.c"
 
@@ -108,6 +116,7 @@ static debug_item items[] = {
         .list = {
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "macro", .text = "<unnamed>", .proc = DrawLiteral },
+                { .kind = DITEM_TEXT, .name = "samples", .proc = DrawReplaySamples },
                 { .kind = DITEM_BUTTON, .name = "load", .on_click = NULL },
                 { .kind = DITEM_BUTTON, .name = "save", .on_click = NULL },
                 

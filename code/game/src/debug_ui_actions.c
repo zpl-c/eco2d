@@ -1,13 +1,4 @@
 #include "debug_ui.h"
-#include "raylib.h"
-#include "vehicle.h"
-#include "camera.h"
-#include "world/world.h"
-#include "game.h"
-
-#include "modules/components.h"
-
-#include "debug_replay.c"
 
 static inline void
 ActExitGame(void) {

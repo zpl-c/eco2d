@@ -60,3 +60,13 @@ DrawProfilerDelta(debug_item *it, float xpos, float ypos) {
     float dt = profiler_delta(it->val);
     return DrawFormattedText(xpos, ypos, TextFormat("%s: %.02f ms", profiler_name(it->val), dt * 1000.0f));
 }
+
+static inline debug_draw_result 
+DrawReplaySamples(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    size_t cnt = 0;
+    if (records) {
+        cnt = zpl_array_count(records);
+    }
+    return DrawFormattedText(xpos, ypos, TextFormat("%d of %d", record_pos, cnt));
+}
