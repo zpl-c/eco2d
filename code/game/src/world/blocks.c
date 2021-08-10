@@ -95,11 +95,19 @@ void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, size_t blocks_le
     ClearBackground(WHITE);
     for (int y = 0; y < view->chunk_size; y += 1) {
         for (int x = 0; x < view->chunk_size; x += 1) {
-#if 1
+#if 0
             Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             Rectangle dst = {x*WORLD_BLOCK_SIZE, y*WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             DrawTexturePro(blk, src, dst, (Vector2){0.0f,0.0f}, 0.0f, WHITE);
+#else
+            static float rots[] = { 0.0f, 90.0f, 180.f, 270.0f };
+            float rot = rots[rand() % 4];
+            float half_block = WORLD_BLOCK_SIZE / 2.0f;
+            Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
+            Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
+            Rectangle dst = {x*WORLD_BLOCK_SIZE + half_block, y*WORLD_BLOCK_SIZE + half_block, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
+            DrawTexturePro(blk, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
 #endif
         }
     }
