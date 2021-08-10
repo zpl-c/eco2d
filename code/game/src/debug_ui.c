@@ -86,8 +86,8 @@ static int UIMeasureText(const char *text, int fontSize);
 
 #include "debug_replay.c"
 
-#include "debug_ui_widgets.c"
 #include "debug_ui_actions.c"
+#include "debug_ui_widgets.c"
 
 static debug_item items[] = {
     {
@@ -109,6 +109,19 @@ static debug_item items[] = {
         .list = {
             .items = (debug_item[]) {
                 { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
+                { 
+                    .kind = DITEM_LIST,
+                    .name = "demo npcs",
+                    .list = {
+                        .items = (debug_item[]) {
+                            { .kind = DITEM_TEXT, .name = "npcs", .proc = DrawDemoNPCCount },
+                            { .kind = DITEM_BUTTON, .name = "spawn 1000 npcs", .on_click = ActSpawnDemoNPCs },
+                            { .kind = DITEM_BUTTON, .name = "remove all demo npcs", .on_click = ActDespawnDemoNPCs },
+                            { .kind = DITEM_END },
+                        },
+                        .is_collapsed = true
+                    }
+                },
                 { .kind = DITEM_END },
             }
         }

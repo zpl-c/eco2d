@@ -51,8 +51,8 @@ entity_view world_build_entity_view(int64_t e) {
         view.heading = veh->heading;
     }
     
-    if (ecs_get(world_ecs(), e, Chunk)) {
-        Chunk *chpos = ecs_get_mut(world_ecs(), e, Chunk, 0);
+    Chunk *chpos = 0;
+    if ((chpos = ecs_get_mut_if(world_ecs(), e, Chunk))) {
         view.x = chpos->x;
         view.y = chpos->y;
         view.blocks_used = 1;

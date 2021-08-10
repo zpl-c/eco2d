@@ -7,14 +7,15 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
+        in[i].use = false;
         
         if (!world_entity_valid(in[i].parent)) {
             size_t ents_count;
             int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
             
             for (size_t j = 0; j < ents_count; j++) {
-                if (ecs_get(world_ecs(), ents[j], Vehicle)) {
-                    Vehicle *veh = ecs_get_mut(world_ecs(), ents[j], Vehicle, NULL);
+                Vehicle *veh = 0;
+                if ((veh = ecs_get_mut_if(world_ecs(), ents[j], Vehicle))) {
                     Position const* p2 = ecs_get(world_ecs(), ents[j], Position);
                     
                     float dx = p2->x - p[i].x;
@@ -34,9 +35,8 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
                 }
             }
         } else {
-            if (ecs_get(world_ecs(), in[i].parent, Vehicle)) {
-                Vehicle *veh = ecs_get_mut(world_ecs(), in[i].parent, Vehicle, NULL);
-                
+            Vehicle *veh = 0;
+            if ((veh = ecs_get_mut_if(world_ecs(), in[i].parent, Vehicle))) {
                 for (int k = 0; k < 4; k++) {
                     if (veh->seats[k] == it->entities[i]) {
                         veh->seats[k] = 0;

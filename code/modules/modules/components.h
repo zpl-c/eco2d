@@ -2,6 +2,20 @@
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
 
+
+// NOTE(zaklaus): custom macro to define meta components outside the current scope
+
+#ifndef ECS_META_DEFINE
+#define ECS_META_DEFINE(world, T)\
+ECS_COMPONENT_DEFINE(world, T);\
+ecs_new_meta(world, ecs_entity(T), &__##T##__);
+#endif
+
+#ifndef ecs_get_mut_if
+#define ecs_get_mut_if(world, entity, component)\
+(ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component, NULL) : NULL)
+#endif
+
 ECS_STRUCT(Vector2D, {
                float x;
                float y;

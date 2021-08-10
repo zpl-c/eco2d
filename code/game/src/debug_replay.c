@@ -32,7 +32,7 @@ static ecs_entity_t *temp_actors = NULL;
 #define REPLAY_VERSION 2
 
 static char replay_filename[1024] = {0};
-static char replaybuf[UINT16_MAX];
+static char replaybuf[sizeof(replay_record)*UINT16_MAX + 32];
 
 void debug_replay_store(void) {
     assert(replay_filename[0]);

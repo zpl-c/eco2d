@@ -76,3 +76,11 @@ DrawReplayFileName(debug_item *it, float xpos, float ypos) {
     (void)it;
     return DrawFormattedText(xpos, ypos, TextFormat("%s", replay_filename[0] ? replay_filename : "<unnamed>"));
 }
+
+// NOTE(zaklaus): demo npcs
+
+static inline debug_draw_result 
+DrawDemoNPCCount(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    return DrawFormattedText(xpos, ypos, TextFormat("%d", demo_npcs ? zpl_array_count(demo_npcs) : 0));
+}

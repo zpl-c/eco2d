@@ -112,3 +112,37 @@ ActReplayLoad(void) {
     }
 }
 
+// NOTE(zaklaus): Demo NPCs
+static ecs_entity_t *demo_npcs = NULL;
+
+static inline void
+ActSpawnDemoNPCs(void) {
+    if (!demo_npcs) zpl_array_init(demo_npcs, zpl_heap());
+    if (zpl_array_count(demo_npcs) >= 10000) return;
+    
+    for (uint32_t i = 0; i < 1000; i++) {
+        uint64_t e = entity_spawn(EKIND_DEMO_NPC);
+        ecs_add(world_ecs(), e, EcsDemoNPC);
+        Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+        pos->x=rand() % world_dim();
+        pos->y=rand() % world_dim();        
+        
+        Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
+        v->x = (rand()%3-1) * 100;
+        v->y = (rand()%3-1) * 100;
+        
+        zpl_array_append(demo_npcs, e);
+    }
+}
+
+static inline void
+ActDespawnDemoNPCs(void) {
+    if (!demo_npcs) return;
+    
+    for (uint32_t i = 0; i < zpl_array_count(demo_npcs); i++) {
+        entity_despawn(demo_npcs[i]);
+    }
+    
+    zpl_array_free(demo_npcs);
+    demo_npcs = 0;
+}
