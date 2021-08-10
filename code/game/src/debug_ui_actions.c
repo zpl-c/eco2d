@@ -121,6 +121,7 @@ ActReplayLoad(void) {
     ChangeDirectory(workdir);
     
     if (path) {
+        zpl_zero_size(replay_filename, sizeof(replay_filename));
         zpl_strcpy(replay_filename, path);
         debug_replay_clear();
         debug_replay_load();
