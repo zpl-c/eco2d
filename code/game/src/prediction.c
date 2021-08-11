@@ -1,5 +1,6 @@
 #include "zpl.h"
 #include "prediction.h"
+#include "platform.h"
 #include "world/world.h"
 #include "game.h"
 
@@ -66,4 +67,48 @@ void predict_receive_update(entity_view *d, entity_view *data) {
     
     data->tran_effect = d->tran_effect;
     data->tran_time = d->tran_time;
+}
+
+
+void lerp_entity_positions(uint64_t key, entity_view *data) {
+    (void)key;
+    world_view *view = game_world_view_get_active();
+    
+    if (data->flag == EFLAG_INTERP) {
+        
+#if 1
+        data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
+        data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
+        data->heading = smooth_val_spherical(data->heading, data->theading, view->delta_time[data->layer_id]);
+#else
+        data->x = data->tx;
+        data->y = data->ty;
+        data->heading = data->theading;
+#endif
+    }
+}
+
+void do_entity_fadeinout(uint64_t key, entity_view * data) {
+    (void)key;
+    switch (data->tran_effect) {
+        case ETRAN_FADEIN: {
+            data->tran_time += platform_frametime();
+            
+            if (data->tran_time > 1.0f) {
+                data->tran_effect = ETRAN_NONE;
+                data->tran_time = 1.0f;
+            }
+        }break;
+        
+        case ETRAN_FADEOUT: {
+            data->tran_time -= platform_frametime();
+            
+            if (data->tran_time < 0.0f) {
+                data->tran_effect = ETRAN_REMOVE;
+                data->tran_time = 0.0f;
+            }
+        }break;
+        
+        default: break;
+    }
 }

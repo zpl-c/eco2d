@@ -1,3 +1,4 @@
+static Camera2D render_camera;
 
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
@@ -103,6 +104,13 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
 }
 
 void renderer_draw(void) {
+    render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
+    camera_update();
+    
+    camera game_camera = camera_get();
+    render_camera.target = (Vector2){game_camera.x, game_camera.y};
+    zoom_overlay_tran = zpl_lerp(zoom_overlay_tran, (target_zoom <= CAM_OVERLAY_ZOOM_LEVEL) ? 1.0f : 0.0f, GetFrameTime()*2.0f);
+    
     BeginDrawing();
     profile (PROF_RENDER) {
         ClearBackground(GetColor(0x222034));
@@ -115,4 +123,30 @@ void renderer_draw(void) {
     }
     debug_draw();
     EndDrawing();
+}
+
+void renderer_init(void) {
+    render_camera.target = (Vector2){0.0f,0.0f};
+    render_camera.offset = (Vector2){screenWidth >> 1, screenHeight >> 1};
+    render_camera.rotation = 0.0f;
+    render_camera.zoom = 1.5f;
+    
+    // NOTE(zaklaus): Paint the screen before we load the game
+    // TODO(zaklaus): Render a cool loading screen background maybe? :wink: :wink:
+    
+    BeginDrawing();
+    ClearBackground(GetColor(0x222034));
+    
+    char const *loading_text = "zpl.eco2d is loading...";
+    int text_w = MeasureText(loading_text, 120);
+    DrawText(loading_text, GetScreenWidth()-text_w-15, GetScreenHeight()-135, 120, RAYWHITE);
+    EndDrawing();
+    
+    blocks_setup();
+    assets_setup();
+}
+
+void renderer_shutdown(void) {
+    blocks_destroy();
+    assets_destroy();
 }
