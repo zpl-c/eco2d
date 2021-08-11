@@ -10,14 +10,13 @@ ECS_COMPONENT_DECLARE(ClientInfo);
 ECS_COMPONENT_DECLARE(Health);
 ECS_COMPONENT_DECLARE(Classify);
 ECS_COMPONENT_DECLARE(Vehicle);
+ECS_COMPONENT_DECLARE(IsInVehicle);
 ECS_TAG_DECLARE(EcsActor);
 ECS_TAG_DECLARE(EcsDemoNPC);
-ECS_TAG_DECLARE(EcsInVehicle);
 ECS_TYPE_DECLARE(Player);
 ECS_TYPE_DECLARE(Movement);
 ECS_TYPE_DECLARE(Walking);
 ECS_TYPE_DECLARE(Flying);
-ECS_TYPE_DECLARE(EcsClient);
 
 void ComponentsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Components);
@@ -34,13 +33,13 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_META_DEFINE(ecs, Classify);
     ECS_META_DEFINE(ecs, Vehicle);
     
+    ECS_COMPONENT_DEFINE(ecs, IsInVehicle);
+    
     ECS_TAG_DEFINE(ecs, Walking);
     ECS_TAG_DEFINE(ecs, Flying);
-    ECS_TAG_DEFINE(ecs, EcsClient);
     
     ECS_TAG_DEFINE(ecs, EcsActor);
     ECS_TAG_DEFINE(ecs, EcsDemoNPC);
-    ECS_TAG_DEFINE(ecs, EcsInVehicle);
     
     ECS_PREFAB(ecs, Base, Position, Velocity, Input, EcsActor);
     ECS_TYPE_DEFINE(ecs, Movement, Walking, Flying);
@@ -55,11 +54,10 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_SET_COMPONENT(Health);
     ECS_SET_COMPONENT(Classify);
     ECS_SET_COMPONENT(Vehicle);
-    ECS_SET_ENTITY(EcsClient);
+    ECS_SET_COMPONENT(IsInVehicle);
     ECS_SET_ENTITY(Walking);
     ECS_SET_ENTITY(Flying);
     ECS_SET_ENTITY(EcsActor);
     ECS_SET_ENTITY(EcsDemoNPC);
-    ECS_SET_ENTITY(EcsInVehicle);
     ECS_SET_TYPE(Movement);
 }

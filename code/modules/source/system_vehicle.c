@@ -1,7 +1,31 @@
 
 #define VEH_ENTER_RADIUS 45.0f
 
-void EnterOrLeaveVehicle(ecs_iter_t *it) {
+void LeaveVehicle(ecs_iter_t *it) {
+    Input *in = ecs_column(it, Input, 1);
+    IsInVehicle *vehp = ecs_column(it, IsInVehicle, 2);
+    
+    for (int i = 0; i < it->count; i++) {
+        if (!in[i].use) continue;
+        in[i].use = false;
+        
+        Vehicle *veh = 0;
+        if ((veh = ecs_get_mut_if(it->world, vehp->veh, Vehicle))) {
+            for (int k = 0; k < 4; k++) {
+                if (veh->seats[k] == it->entities[i]) {
+                    veh->seats[k] = 0;
+                    break;
+                }
+            }
+            
+            ecs_remove(it->world, it->entities[i], IsInVehicle);
+        } else {
+            ZPL_PANIC("unreachable code");
+        }
+    }
+}
+
+void EnterVehicle(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);
     Position *p = ecs_column(it, Position, 2);
     
@@ -9,44 +33,30 @@ void EnterOrLeaveVehicle(ecs_iter_t *it) {
         if (!in[i].use) continue;
         in[i].use = false;
         
-        if (!world_entity_valid(in[i].parent)) {
-            size_t ents_count;
-            int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
-            
-            for (size_t j = 0; j < ents_count; j++) {
-                Vehicle *veh = 0;
-                if ((veh = ecs_get_mut_if(world_ecs(), ents[j], Vehicle))) {
-                    Position const* p2 = ecs_get(world_ecs(), ents[j], Position);
-                    
-                    float dx = p2->x - p[i].x;
-                    float dy = p2->y - p[i].y;
-                    float range = zpl_sqrt(dx*dx + dy*dy);
-                    if (range <= VEH_ENTER_RADIUS) {
-                        for (int k = 0; k < 4; k++) {
-                            if (veh->seats[k] != 0) continue;
-                            
-                            // NOTE(zaklaus): We can enter the vehicle, yay!
-                            veh->seats[k] = it->entities[i];
-                            in[i].parent = ents[j];
-                            p[i] = *p2;
-                            break;
-                        }
-                    }
-                }
-            }
-        } else {
+        size_t ents_count;
+        int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
+        
+        for (size_t j = 0; j < ents_count; j++) {
             Vehicle *veh = 0;
-            if ((veh = ecs_get_mut_if(world_ecs(), in[i].parent, Vehicle))) {
-                for (int k = 0; k < 4; k++) {
-                    if (veh->seats[k] == it->entities[i]) {
-                        veh->seats[k] = 0;
+            if ((veh = ecs_get_mut_if(it->world, ents[j], Vehicle))) {
+                Position const* p2 = ecs_get(it->world, ents[j], Position);
+                
+                float dx = p2->x - p[i].x;
+                float dy = p2->y - p[i].y;
+                float range = zpl_sqrt(dx*dx + dy*dy);
+                if (range <= VEH_ENTER_RADIUS) {
+                    for (int k = 0; k < 4; k++) {
+                        if (veh->seats[k] != 0) continue;
+                        
+                        // NOTE(zaklaus): We can enter the vehicle, yay!
+                        veh->seats[k] = it->entities[i];
+                        ecs_set(it->world, it->entities[i], IsInVehicle, {
+                                    .veh = ents[j]
+                                });
+                        p[i] = *p2;
                         break;
                     }
                 }
-                
-                in[i].parent = 0;
-            } else {
-                ZPL_PANIC("unreachable code");
             }
         }
     }
@@ -81,15 +91,15 @@ void VehicleHandling(ecs_iter_t *it) {
             
             // NOTE(zaklaus): Update passenger position
             {
-                Position *p2 = ecs_get_mut(world_ecs(), pe, Position, NULL);
-                Velocity *v2 = ecs_get_mut(world_ecs(), pe, Velocity, NULL);
+                Position *p2 = ecs_get_mut(it->world, pe, Position, NULL);
+                Velocity *v2 = ecs_get_mut(it->world, pe, Velocity, NULL);
                 *p2 = p[i];
                 *v2 = v[i];
             }
             
             // NOTE(zaklaus): Handle driver input
             if (j == 0) {
-                Input const* in = ecs_get(world_ecs(), pe, Input);
+                Input const* in = ecs_get(it->world, pe, Input);
                 
                 car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL);
                 car->steer += in->x * -VEHICLE_STEER;
