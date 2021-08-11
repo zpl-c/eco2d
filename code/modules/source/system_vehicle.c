@@ -100,8 +100,9 @@ void VehicleHandling(ecs_iter_t *it) {
             // NOTE(zaklaus): Handle driver input
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
+                world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
                 
-                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL);
+                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL) * blocks_get_drag(lookup.block_id);
                 car->steer += in->x * -VEHICLE_STEER;
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
@@ -130,7 +131,7 @@ void ClearVehicle(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         for (int k = 0; k < 4; k++) {
-            if (veh[i].seats[k] != 0) {
+            if (world_entity_valid(veh[i].seats[k])) {
                 ecs_remove(it->world, veh[i].seats[k], IsInVehicle);
             }
         }

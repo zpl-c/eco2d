@@ -98,7 +98,7 @@ static debug_item items[] = {
         .list = {
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "delta time", .proc = DrawDeltaTime },
-                { .kind = DITEM_TEXT, .name = "random literal", .text = "hello", .proc = DrawLiteral },
+                { .kind = DITEM_TEXT, .name = "pos", .proc = DrawCameraPos },
                 { .kind = DITEM_TEXT, .name = "zoom", .proc = DrawZoom },
                 { .kind = DITEM_SLIDER, .name = "slider", .slider = { .min = 0.0f, .max = 1.0f, .val = 0.5f } },
                 { .kind = DITEM_END },
@@ -111,6 +111,7 @@ static debug_item items[] = {
         .list = {
             .items = (debug_item[]) {
                 { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
+                { .kind = DITEM_BUTTON, .name = "place ice rink", .on_click = ActPlaceIceRink },
                 { 
                     .kind = DITEM_LIST,
                     .name = "demo npcs",

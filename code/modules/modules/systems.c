@@ -102,7 +102,7 @@ void RegenerateHP(ecs_iter_t *it) {
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     
-    ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, !components.IsInVehicle);
+    ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
     ECS_SYSTEM(ecs, EnterVehicle, EcsOnLoad, components.Input, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, LeaveVehicle, EcsOnLoad, components.Input, components.IsInVehicle);

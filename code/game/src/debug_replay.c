@@ -9,6 +9,7 @@ typedef enum {
     
     // NOTE(zaklaus): Special actions
     RPKIND_SPAWN_CAR,
+    RPKIND_PLACE_ICE_RINK,
 } replay_kind;
 
 typedef struct {
@@ -146,6 +147,8 @@ void debug_replay_run(void) {
     camera_set_follow(mime);
 }
 
+void ActPlaceIceRink();
+
 void debug_replay_update(void) {
     if (!is_playing) return;
     if (playback_time >= zpl_time_rel_ms()) return;
@@ -169,6 +172,9 @@ void debug_replay_update(void) {
             *dest = *origin;
             
             zpl_array_append(temp_actors, e);
+        }break;
+        case RPKIND_PLACE_ICE_RINK: {
+            ActPlaceIceRink();
         }break;
         default: {
             ZPL_PANIC("unreachable");

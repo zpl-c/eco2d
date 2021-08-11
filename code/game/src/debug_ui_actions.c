@@ -1,4 +1,5 @@
 #include "debug_ui.h"
+#include "world/blocks.h"
 
 static inline void
 ActExitGame(void) {
@@ -15,6 +16,23 @@ ActSpawnCar(void) {
     *dest = *origin;
     
     debug_replay_special_action(RPKIND_SPAWN_CAR);
+}
+
+static inline void
+ActPlaceIceRink(void) {
+    ecs_entity_t plr = camera_get().ent_id;
+    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    Position const *p = ecs_get(world_ecs(), plr, Position);
+    float const bs = WORLD_BLOCK_SIZE;
+    
+    for (int y = 0; y < 100; y++) {
+        for (int x = 0; x < 100; x++) {
+            world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
+            world_chunk_replace_block(world_ecs(), l.chunk_id, l.id, watr_id);
+        }
+    }
+    
+    debug_replay_special_action(RPKIND_PLACE_ICE_RINK);
 }
 
 // NOTE(zaklaus): Replay system

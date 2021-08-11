@@ -152,6 +152,11 @@ int32_t worldgen_test(world_data *wld) {
     }
 #endif
     
+    // ice rink
+#if 0
+    world_fill_rect_anchor(watr_id, 450, 125, 10, 10, 0.0f, 0.0f, NULL);
+#endif
+    
     // lava
 #if 1
     for (int i=0; i<RAND_RANGE(48, 62); i++) {

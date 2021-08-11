@@ -27,6 +27,13 @@ DrawFormattedText(float xpos, float ypos, char const *text) {
 //~ NOTE(zaklaus): widgets
 
 static inline debug_draw_result 
+DrawCameraPos(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    camera cam = camera_get();
+    return DrawFormattedText(xpos, ypos, TextFormat("%d %d", (int)(cam.x/WORLD_BLOCK_SIZE), (int)(cam.y/WORLD_BLOCK_SIZE)));
+}
+
+static inline debug_draw_result 
 DrawUnmeasuredTime(debug_item *it, float xpos, float ypos) {
     (void)it;
     float total_time = profiler_delta(PROF_TOTAL_TIME);
