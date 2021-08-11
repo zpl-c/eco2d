@@ -88,7 +88,7 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
 
 
 void renderer_draw(void) {
-    cam_zoom = zpl_lerp(cam_zoom, target_zoom, 0.18);
+    cam_zoom = zpl_min(zpl_lerp(cam_zoom, target_zoom, 0.18), 9.98f);
     camera_update();
     
     camera game_camera = camera_get();
@@ -98,7 +98,6 @@ void renderer_draw(void) {
 #else
     UpdateCamera(&render_camera);
 #endif
-    
     
     ClearBackground(GetColor(0x222034));
     BeginMode3D(render_camera);
