@@ -17,6 +17,7 @@ ECS_TYPE_DECLARE(Player);
 ECS_TYPE_DECLARE(Movement);
 ECS_TYPE_DECLARE(Walking);
 ECS_TYPE_DECLARE(Flying);
+// NOTE(zaklaus): @1 DECLARE
 
 void ComponentsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Components);
@@ -60,4 +61,5 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_SET_ENTITY(EcsActor);
     ECS_SET_ENTITY(EcsDemoNPC);
     ECS_SET_TYPE(Movement);
+    // NOTE(zaklaus): @2 SET
 }

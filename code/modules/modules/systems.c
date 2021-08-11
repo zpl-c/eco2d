@@ -99,6 +99,19 @@ void RegenerateHP(ecs_iter_t *it) {
     }
 }
 
+void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
+    Position *p = ecs_column(it, Position, 1);
+    Velocity *v = ecs_column(it, Velocity, 2);
+    
+    for (int i = 0; i < it->count; i++) {
+        world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
+        float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
+        float friction = blocks_get_friction(lookup.block_id);
+        v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG*drag*friction);
+        v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG*drag*friction);
+    }
+}
+
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     
@@ -108,7 +121,7 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, LeaveVehicle, EcsOnLoad, components.Input, components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, components.Input, components.Position, !components.IsInVehicle);
     
-    ECS_SYSTEM(ecs, MoveWalk, EcsOnUpdate, components.Position, components.Velocity);
+    ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
     ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
     ECS_SYSTEM(ecs, RegenerateHP, EcsOnUpdate, components.Health);
     ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);

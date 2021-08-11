@@ -21,10 +21,9 @@ static bool request_shutdown;
 #include "renderer_v0.c"
 
 void platform_init() {
-    InitWindow(screenWidth, screenHeight, "eco2d - client");
+    InitWindow(screenWidth, screenHeight, "eco2d");
     SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE);
-    
-    SetTargetFPS(0);
+    SetTargetFPS(60);
     
     screenWidth = GetScreenWidth();
     screenHeight = GetScreenHeight();

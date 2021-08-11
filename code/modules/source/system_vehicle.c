@@ -101,8 +101,9 @@ void VehicleHandling(ecs_iter_t *it) {
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
                 world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
+                float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
                 
-                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL) * blocks_get_drag(lookup.block_id);
+                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL) * drag;
                 car->steer += in->x * -VEHICLE_STEER;
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }

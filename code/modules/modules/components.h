@@ -92,6 +92,7 @@ ECS_TYPE_EXTERN(Movement);
 ECS_TYPE_EXTERN(Walking);
 ECS_TYPE_EXTERN(Flying);
 ECS_TYPE_EXTERN(EcsClient);
+// NOTE(zaklaus): @1 EXTERN
 
 typedef struct {
     ECS_DECLARE_COMPONENT(Chunk);
@@ -112,6 +113,7 @@ typedef struct {
     ECS_DECLARE_TYPE(Movement);
     ECS_DECLARE_ENTITY(Walking);
     ECS_DECLARE_ENTITY(Flying);
+    // NOTE(zaklaus): @2 DECLARE
 } Components;
 
 #define ComponentsImportHandles(handles)\
@@ -133,5 +135,6 @@ ECS_IMPORT_ENTITY(handles, EcsActor);\
 ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
 ECS_IMPORT_ENTITY(handles, Walking);\
 ECS_IMPORT_ENTITY(handles, Flying);\
+// NOTE(zaklaus): @3 IMPORT
 
 void ComponentsImport(ecs_world_t *ecs);
