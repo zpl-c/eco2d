@@ -1,4 +1,8 @@
 static Camera2D render_camera;
+static float zoom_overlay_tran = 0.0f;
+
+#define CAM_OVERLAY_ZOOM_LEVEL 0.80f
+
 
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
@@ -54,25 +58,17 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_DEMO_NPC: {
             float x = data->x;
             float y = data->y;
-#if 0
-            const char *title = TextFormat("Thing %d", key);
-            int title_w = MeasureTextEco(title, font_size, font_spacing);
-            DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
-            DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
-#endif
             DrawCircleEco(x, y, size, ColorAlpha(BLUE, data->tran_time));
         }break;
         case EKIND_PLAYER: {
             float x = data->x;
             float y = data->y;
             float health = (data->hp / data->max_hp);
-#if 1
             const char *title = TextFormat("Player %d", key);
             int title_w = MeasureTextEco(title, font_size, font_spacing);
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
-#endif
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
         }break;
         case EKIND_MACRO_BOT: {
@@ -111,18 +107,14 @@ void renderer_draw(void) {
     render_camera.target = (Vector2){game_camera.x, game_camera.y};
     zoom_overlay_tran = zpl_lerp(zoom_overlay_tran, (target_zoom <= CAM_OVERLAY_ZOOM_LEVEL) ? 1.0f : 0.0f, GetFrameTime()*2.0f);
     
-    BeginDrawing();
-    profile (PROF_RENDER) {
-        ClearBackground(GetColor(0x222034));
-        BeginMode2D(render_camera);
-        game_world_view_active_entity_map(DEBUG_draw_ground);
-        game_world_view_active_entity_map(DEBUG_draw_entities_low);
-        game_world_view_active_entity_map(DEBUG_draw_entities);
-        EndMode2D();        
-        display_conn_status();
-    }
-    debug_draw();
-    EndDrawing();
+    
+    ClearBackground(GetColor(0x222034));
+    BeginMode2D(render_camera);
+    game_world_view_active_entity_map(DEBUG_draw_ground);
+    game_world_view_active_entity_map(DEBUG_draw_entities_low);
+    game_world_view_active_entity_map(DEBUG_draw_entities);
+    EndMode2D();        
+    display_conn_status();
 }
 
 void renderer_init(void) {
