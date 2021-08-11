@@ -198,7 +198,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 ypos += DBG_GAP_HEIGHT;
             }break;
             case DITEM_COND: {
-                assert(it->on_success);
+                ZPL_ASSERT(it->on_success);
                 
                 if (!it->on_success()) {
                     it += it->skip ? it->skip : 1;
@@ -227,14 +227,14 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                     it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
                 }
                 UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
-                assert(it->proc);
+                ZPL_ASSERT(it->proc);
                 
                 debug_draw_result res = it->proc(it, xpos + it->name_width, ypos);
                 ypos = res.y;
             }break;
             
             case DITEM_RAW: {
-                assert(it->proc);
+                ZPL_ASSERT(it->proc);
                 
                 debug_draw_result res = it->proc(it, xpos, ypos);
                 ypos = res.y;
@@ -259,7 +259,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
             }break;
             
             case DITEM_SLIDER: {
-                assert(it->slider.min != it->slider.max);
+                ZPL_ASSERT(it->slider.min != it->slider.max);
                 char const *text = TextFormat("%s: ", it->name);
                 if (it->name_width == 0) {
                     it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
@@ -344,7 +344,7 @@ debug_area_status check_mouse_area(float xpos, float ypos, float w, float h) {
 }
 
 bool is_btn_pressed(float xpos, float ypos, float w, float h, Color *color) {
-    assert(color);
+    ZPL_ASSERT(color);
     *color = RAYWHITE;
     debug_area_status area = check_mouse_area(xpos, ypos, w, h);
     if (area == DAREA_PRESS) {

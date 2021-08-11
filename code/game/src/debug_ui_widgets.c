@@ -14,7 +14,7 @@ DrawFloat(float xpos, float ypos, float val) {
 
 static inline debug_draw_result 
 DrawColoredText(float xpos, float ypos, char const *text, Color color) {
-    assert(text);
+    ZPL_ASSERT(text);
     UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, color);
     return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING};
 }
@@ -58,7 +58,7 @@ DrawZoom(debug_item *it, float xpos, float ypos) {
 
 static inline debug_draw_result 
 DrawLiteral(debug_item *it, float xpos, float ypos) {
-    assert(it->text);
+    ZPL_ASSERT(it->text);
     return DrawFormattedText(xpos, ypos, it->text);
 }
 

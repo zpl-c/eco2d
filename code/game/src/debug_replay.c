@@ -36,7 +36,7 @@ static char replay_filename[1024] = {0};
 static char replaybuf[sizeof(replay_record)*UINT16_MAX + 32];
 
 void debug_replay_store(void) {
-    assert(replay_filename[0]);
+    ZPL_ASSERT(replay_filename[0]);
     if (!records) return;
     
     cw_pack_context pc = {0};
@@ -56,10 +56,12 @@ void debug_replay_store(void) {
 }
 
 void debug_replay_load(void) {
-    assert(replay_filename[0]);
+    ZPL_ASSERT(replay_filename[0]);
     
     zpl_file f = {0};
-    assert(zpl_file_open(&f, replay_filename) == ZPL_FILE_ERROR_NONE);
+    zpl_file_error err = zpl_file_open(&f, replay_filename);
+    ZPL_ASSERT(err == ZPL_FILE_ERROR_NONE);
+    
     size_t file_size = zpl_file_size(&f);
     zpl_file_read(&f, replaybuf, file_size);
     zpl_file_close(&f);
@@ -68,20 +70,20 @@ void debug_replay_load(void) {
     cw_unpack_context_init(&uc, replaybuf, file_size, 0);
     
     cw_unpack_next(&uc);
-    assert(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_MAGIC);
+    ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_MAGIC);
     
     cw_unpack_next(&uc);
-    assert(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_VERSION);
+    ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_VERSION);
     
     cw_unpack_next(&uc);
-    assert(uc.item.type == CWP_ITEM_ARRAY);
+    ZPL_ASSERT(uc.item.type == CWP_ITEM_ARRAY);
     size_t items = uc.item.as.array.size;
     
     zpl_array_init_reserve(records, zpl_heap(), sizeof(replay_record)*items);
     
     for (size_t i = 0; i < items; i++) {
         cw_unpack_next(&uc);
-        assert(uc.item.type == CWP_ITEM_BIN);
+        ZPL_ASSERT(uc.item.type == CWP_ITEM_BIN);
         
         replay_record rec = {0};
         zpl_memcopy(&rec, uc.item.as.bin.start, sizeof(replay_record));
@@ -204,7 +206,7 @@ void debug_replay_record_keystate(pkt_send_keystate state) {
 }
 
 void debug_replay_special_action(replay_kind kind) {
-    assert(kind != RPKIND_KEY);
+    ZPL_ASSERT(kind != RPKIND_KEY);
     if (!is_recording || is_playing) return;
     float record_time = zpl_time_rel_ms();
     

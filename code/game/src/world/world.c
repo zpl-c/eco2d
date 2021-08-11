@@ -23,7 +23,7 @@ entity_view world_build_entity_view(int64_t e) {
     entity_view view = {0};
     
     const Classify *classify = ecs_get(world_ecs(), e, Classify);
-    assert(classify);
+    ZPL_ASSERT(classify);
     
     view.kind = classify->id;
     
@@ -305,7 +305,7 @@ uint16_t world_dim(void) {
 }
 
 ecs_entity_t world_chunk_mapping(librg_chunk id) {
-    assert(id >= 0 && id < zpl_square(world.chunk_amount));
+    ZPL_ASSERT(id >= 0 && id < zpl_square(world.chunk_amount));
     return world.chunk_mapping[id];
 }
 
@@ -366,7 +366,7 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
 }
 
 void world_chunk_replace_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id) {
-    assert(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
+    ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
     world_chunk_mark_dirty(ecs, world.chunk_mapping[id]);
 }
@@ -378,14 +378,14 @@ uint8_t *world_chunk_get_blocks(int64_t id) {
 void world_chunk_mark_dirty(ecs_world_t *ecs, ecs_entity_t e) {
     bool was_added=false;
     Chunk *chunk = ecs_get_mut(ecs, e, Chunk, &was_added);
-    assert(!was_added);
+    ZPL_ASSERT(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
 uint8_t world_chunk_is_dirty(ecs_world_t *ecs, ecs_entity_t e) {
     bool was_added=false;
     Chunk *chunk = ecs_get_mut(ecs, e, Chunk, &was_added);
-    assert(!was_added);
+    ZPL_ASSERT(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;
 }
