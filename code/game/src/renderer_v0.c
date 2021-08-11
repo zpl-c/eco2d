@@ -113,8 +113,7 @@ void renderer_draw(void) {
     game_world_view_active_entity_map(DEBUG_draw_ground);
     game_world_view_active_entity_map(DEBUG_draw_entities_low);
     game_world_view_active_entity_map(DEBUG_draw_entities);
-    EndMode2D();        
-    display_conn_status();
+    EndMode2D();
 }
 
 void renderer_init(void) {

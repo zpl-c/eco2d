@@ -98,6 +98,7 @@ void platform_render() {
             renderer_draw();
         }
         debug_draw();
+        display_conn_status();
     }
     EndDrawing();
     
