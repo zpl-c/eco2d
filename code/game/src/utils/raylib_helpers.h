@@ -7,6 +7,8 @@
 #define RAYLIB_NEW_RLGL
 #include "rlgl.h"
 
+static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
+
 static inline 
 void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
 #if 1

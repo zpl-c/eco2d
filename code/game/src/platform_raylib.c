@@ -18,7 +18,8 @@ static uint16_t screenHeight = 900;
 static float target_zoom = 1.5f;
 static bool request_shutdown;
 
-#include "renderer_3d.c"
+#define GFX_KIND 2
+#include "renderer_bridge.c"
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
@@ -29,6 +30,18 @@ void platform_init() {
     screenHeight = GetScreenHeight();
     
     renderer_init();
+}
+
+void display_conn_status() {
+    if (game_is_networked()) {
+        if (network_client_is_connected()) {
+            DrawText("Connection: online", 5, 5, 12, GREEN);
+        } else {
+            DrawText("Connection: offline", 5, 5, 12, RED);
+        }
+    } else {
+        DrawText("Connection: single-player", 5, 5, 12, BLUE);
+    }
 }
 
 void platform_shutdown() {
@@ -81,6 +94,13 @@ void platform_input() {
         }
         else if (IsKeyPressed(KEY_E)) {
             game_world_view_cycle_active(1);
+        }
+    }
+    
+    // NOTE(zaklaus): switch render modes
+    {
+        if (IsKeyPressed(KEY_O)) {
+            renderer_switch(1-gfx_kind);
         }
     }
 }

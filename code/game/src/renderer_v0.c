@@ -7,18 +7,6 @@ static float zoom_overlay_tran = 0.0f;
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
-void display_conn_status() {
-    if (game_is_networked()) {
-        if (network_client_is_connected()) {
-            DrawText("Connection: online", 5, 5, 12, GREEN);
-        } else {
-            DrawText("Connection: offline", 5, 5, 12, RED);
-        }
-    } else {
-        DrawText("Connection: single-player", 5, 5, 12, BLUE);
-    }
-}
-
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     (void)key;
     switch (data->kind) {
@@ -44,8 +32,6 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
         default:break;
     }
 }
-
-static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
 
 void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     uint16_t size = 16;
@@ -99,7 +85,7 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
     }
 }
 
-void renderer_draw(void) {
+void renderer_draw_v0(void) {
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
     camera_update();
     
@@ -116,7 +102,7 @@ void renderer_draw(void) {
     EndMode2D();
 }
 
-void renderer_init(void) {
+void renderer_init_v0(void) {
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){screenWidth >> 1, screenHeight >> 1};
     render_camera.rotation = 0.0f;
@@ -137,7 +123,7 @@ void renderer_init(void) {
     assets_setup();
 }
 
-void renderer_shutdown(void) {
+void renderer_shutdown_v0(void) {
     blocks_destroy();
     assets_destroy();
 }

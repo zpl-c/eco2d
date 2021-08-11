@@ -1,26 +1,12 @@
-static Camera3D render_camera;
-static float zoom_overlay_tran = 0.0f;
+static Camera3D render_camera_3d;
 static float cam_zoom = 1.5f;
 
 #define CAM_OVERLAY_ZOOM_LEVEL 0.80f
 
-
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
-void display_conn_status() {
-    if (game_is_networked()) {
-        if (network_client_is_connected()) {
-            DrawText("Connection: online", 5, 5, 12, GREEN);
-        } else {
-            DrawText("Connection: offline", 5, 5, 12, RED);
-        }
-    } else {
-        DrawText("Connection: single-player", 5, 5, 12, BLUE);
-    }
-}
-
-void DEBUG_draw_ground(uint64_t key, entity_view * data) {
+void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
     (void)key;
     switch (data->kind) {
         case EKIND_CHUNK: {
@@ -40,9 +26,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     }
 }
 
-static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
-
-void DEBUG_draw_entities(uint64_t key, entity_view * data) {
+void DEBUG_draw_entities_3d(uint64_t key, entity_view * data) {
     (void)key;
     uint16_t size = 16;
     uint16_t ground_offset = 30;
@@ -71,7 +55,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     }
 }
 
-void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
+void DEBUG_draw_entities_low_3d(uint64_t key, entity_view * data) {
     (void)key;
     
     switch (data->kind) {
@@ -87,36 +71,36 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
 }
 
 
-void renderer_draw(void) {
+void renderer_draw_3d(void) {
     cam_zoom = zpl_min(zpl_lerp(cam_zoom, target_zoom, 0.18), 9.98f);
     camera_update();
     
-    camera game_camera = camera_get();
+    camera game_camera_3d = camera_get();
 #if 1
-    render_camera.position = (Vector3){game_camera.x, 260.0f*(10.0f-cam_zoom), game_camera.y+50.0f*(10.0f-cam_zoom/2.0f)};
-    render_camera.target = (Vector3){game_camera.x, 0.0f, game_camera.y};
+    render_camera_3d.position = (Vector3){game_camera_3d.x, 260.0f*(10.0f-cam_zoom), game_camera_3d.y+50.0f*(10.0f-cam_zoom/2.0f)};
+    render_camera_3d.target = (Vector3){game_camera_3d.x, 0.0f, game_camera_3d.y};
 #else
-    UpdateCamera(&render_camera);
+    UpdateCamera(&render_camera_3d);
 #endif
     
     ClearBackground(GetColor(0x222034));
-    BeginMode3D(render_camera);
-    game_world_view_active_entity_map(DEBUG_draw_ground);
-    game_world_view_active_entity_map(DEBUG_draw_entities_low);
-    game_world_view_active_entity_map(DEBUG_draw_entities);
+    BeginMode3D(render_camera_3d);
+    game_world_view_active_entity_map(DEBUG_draw_ground_3d);
+    game_world_view_active_entity_map(DEBUG_draw_entities_low_3d);
+    game_world_view_active_entity_map(DEBUG_draw_entities_3d);
     EndMode3D();
 }
 
-void renderer_init(void) {
-    render_camera.up = (Vector3){0.0f,0.0f,-1.0f};
-    render_camera.fovy = 45.f;
-    render_camera.projection = CAMERA_PERSPECTIVE;
+void renderer_init_3d(void) {
+    render_camera_3d.up = (Vector3){0.0f,0.0f,-1.0f};
+    render_camera_3d.fovy = 45.f;
+    render_camera_3d.projection = CAMERA_PERSPECTIVE;
 #if 1
-    SetCameraMode(render_camera, CAMERA_MODE_STATIONARY);
+    SetCameraMode(render_camera_3d, CAMERA_MODE_STATIONARY);
 #else
-    render_camera.position = (Vector3){10,10,10};
-    render_camera.target = (Vector3){0};
-    SetCameraMode(render_camera, CAMERA_ORBITAL);
+    render_camera_3d.position = (Vector3){10,10,10};
+    render_camera_3d.target = (Vector3){0};
+    SetCameraMode(render_camera_3d, CAMERA_ORBITAL);
 #endif
     
     // NOTE(zaklaus): Paint the screen before we load the game
@@ -134,7 +118,7 @@ void renderer_init(void) {
     assets_setup();
 }
 
-void renderer_shutdown(void) {
+void renderer_shutdown_3d(void) {
     blocks_destroy();
     assets_destroy();
 }
