@@ -4,6 +4,8 @@
 #include "world/blocks.h"
 #include "assets.h"
 
+#include "rlgl.h"
+
 static inline 
 void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
 #if 1
@@ -70,4 +72,81 @@ Image GetSpriteImage(uint16_t id) {
 static inline
 Sound GetSound(uint16_t id) {
     return *(Sound*)assets_get_snd(id);
+}
+
+// Draw cube
+// NOTE: Cube position is the center position
+static inline
+void EcoDrawCube(Vector3 position, float width, float height, float length, float heading, Color color)
+{
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    
+    rlCheckRenderBatchLimit(36);
+    
+    rlPushMatrix();
+    // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
+    rlTranslatef(position.x, position.y, position.z);
+    rlRotatef(heading, 0, 1, 0);
+    //rlScalef(1.0f, 1.0f, 1.0f);   // NOTE: Vertices are directly scaled on definition
+    
+    rlBegin(RL_TRIANGLES);
+    rlColor4ub(color.r, color.g, color.b, color.a);
+    
+    // Front face
+    rlVertex3f(x - width/2, y - height/2, z + length/2);  // Bottom Left
+    rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
+    rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
+    
+    rlVertex3f(x + width/2, y + height/2, z + length/2);  // Top Right
+    rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
+    rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
+    
+    // Back face
+    rlVertex3f(x - width/2, y - height/2, z - length/2);  // Bottom Left
+    rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
+    rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
+    
+    rlVertex3f(x + width/2, y + height/2, z - length/2);  // Top Right
+    rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
+    rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
+    
+    // Top face
+    rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
+    rlVertex3f(x - width/2, y + height/2, z + length/2);  // Bottom Left
+    rlVertex3f(x + width/2, y + height/2, z + length/2);  // Bottom Right
+    
+    rlVertex3f(x + width/2, y + height/2, z - length/2);  // Top Right
+    rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
+    rlVertex3f(x + width/2, y + height/2, z + length/2);  // Bottom Right
+    
+    // Bottom face
+    rlVertex3f(x - width/2, y - height/2, z - length/2);  // Top Left
+    rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
+    rlVertex3f(x - width/2, y - height/2, z + length/2);  // Bottom Left
+    
+    rlVertex3f(x + width/2, y - height/2, z - length/2);  // Top Right
+    rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
+    rlVertex3f(x - width/2, y - height/2, z - length/2);  // Top Left
+    
+    // Right face
+    rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
+    rlVertex3f(x + width/2, y + height/2, z - length/2);  // Top Right
+    rlVertex3f(x + width/2, y + height/2, z + length/2);  // Top Left
+    
+    rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Left
+    rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
+    rlVertex3f(x + width/2, y + height/2, z + length/2);  // Top Left
+    
+    // Left face
+    rlVertex3f(x - width/2, y - height/2, z - length/2);  // Bottom Right
+    rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
+    rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Right
+    
+    rlVertex3f(x - width/2, y - height/2, z + length/2);  // Bottom Left
+    rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
+    rlVertex3f(x - width/2, y - height/2, z - length/2);  // Bottom Right
+    rlEnd();
+    rlPopMatrix();
 }
