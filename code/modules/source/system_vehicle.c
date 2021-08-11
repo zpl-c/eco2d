@@ -124,3 +124,15 @@ void VehicleHandling(ecs_iter_t *it) {
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
     }
 }
+
+void ClearVehicle(ecs_iter_t *it) {
+    Vehicle *veh = ecs_column(it, Vehicle, 1);
+    
+    for (int i = 0; i < it->count; i++) {
+        for (int k = 0; k < 4; k++) {
+            if (veh[i].seats[k] != 0) {
+                ecs_remove(it->world, veh[i].seats[k], IsInVehicle);
+            }
+        }
+    }
+}

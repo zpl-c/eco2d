@@ -116,4 +116,6 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
     
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position);
+    
+    ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
 }
