@@ -18,7 +18,7 @@ static uint16_t screenHeight = 900;
 static float target_zoom = 1.5f;
 static bool request_shutdown;
 
-#include "renderer_3d.c"
+#include "renderer_v0.c"
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
