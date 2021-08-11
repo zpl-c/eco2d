@@ -365,26 +365,26 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
     return librg_entity_chunk_get(world.tracker, id);
 }
 
-void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+void world_chunk_replace_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id) {
     assert(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
-    world_chunk_mark_dirty(world.chunk_mapping[id]);
+    world_chunk_mark_dirty(ecs, world.chunk_mapping[id]);
 }
 
 uint8_t *world_chunk_get_blocks(int64_t id) {
     return world.block_mapping[id];
 }
 
-void world_chunk_mark_dirty(ecs_entity_t e) {
+void world_chunk_mark_dirty(ecs_world_t *ecs, ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
+    Chunk *chunk = ecs_get_mut(ecs, e, Chunk, &was_added);
     assert(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
-uint8_t world_chunk_is_dirty(ecs_entity_t e) {
+uint8_t world_chunk_is_dirty(ecs_world_t *ecs, ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
+    Chunk *chunk = ecs_get_mut(ecs, e, Chunk, &was_added);
     assert(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;

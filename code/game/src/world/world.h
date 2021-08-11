@@ -73,10 +73,10 @@ world_block_lookup world_block_from_realpos(float x, float y);
 world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx);
 int64_t world_chunk_from_realpos(float x, float y);
 int64_t world_chunk_from_entity(ecs_entity_t id);
-void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id);
+void world_chunk_replace_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id);
 uint8_t *world_chunk_get_blocks(int64_t id);
-void world_chunk_mark_dirty(ecs_entity_t e);
-uint8_t world_chunk_is_dirty(ecs_entity_t e);
+void world_chunk_mark_dirty(ecs_world_t *ecs, ecs_entity_t e);
+uint8_t world_chunk_is_dirty(ecs_world_t *ecs, ecs_entity_t e);
 
 // NOTE(zaklaus): Uses locally persistent buffer !!
 int64_t *world_chunk_fetch_entities(librg_chunk chunk_id, size_t *ents_len);

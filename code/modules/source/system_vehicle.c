@@ -7,7 +7,6 @@ void LeaveVehicle(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
-        in[i].use = false;
         
         Vehicle *veh = 0;
         if ((veh = ecs_get_mut_if(it->world, vehp->veh, Vehicle))) {
@@ -18,6 +17,7 @@ void LeaveVehicle(ecs_iter_t *it) {
                 }
             }
             
+            in[i].use = false;
             ecs_remove(it->world, it->entities[i], IsInVehicle);
         } else {
             ZPL_PANIC("unreachable code");
@@ -31,7 +31,6 @@ void EnterVehicle(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
-        in[i].use = false;
         
         size_t ents_count;
         int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
@@ -54,6 +53,7 @@ void EnterVehicle(ecs_iter_t *it) {
                                     .veh = ents[j]
                                 });
                         p[i] = *p2;
+                        in[i].use = false;
                         break;
                     }
                 }
