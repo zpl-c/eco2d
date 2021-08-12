@@ -13,13 +13,27 @@ void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
             world_view *view = game_world_view_get_active();
             int32_t size = view->chunk_size * WORLD_BLOCK_SIZE;
             int32_t half_size = size >> 1;
+            int32_t half_block_size = WORLD_BLOCK_SIZE >> 1;
             int16_t offset = 0;
             
             float x = data->x * size + offset;
             float y = data->y * size + offset;
             
             RenderTexture2D tex = GetChunkTexture(key);
-            DrawCubeTexture(tex.texture, (Vector3){x+half_size, 0.0f, y+half_size}, size, 1.0f, size, WHITE);
+            DrawCubeTexture(tex.texture, (Vector3){x+half_size, 0.0f, y+half_size}, size, 0.01f, size, WHITE);
+            
+            for (int by = 0; by < 16; by++) {
+                for (int bx = 0; bx < 16; bx++) {
+                    switch (blocks_get_flags(data->blocks[by*16+bx])) {
+                        case BLOCK_FLAG_COLLISION:{
+                            DrawCubeWires((Vector3){x + bx*WORLD_BLOCK_SIZE+half_block_size, 34.f, y + by*WORLD_BLOCK_SIZE+half_block_size}, 64, 66, 64, BLUE);
+                        }break;
+                        case BLOCK_FLAG_HAZARD:{
+                            DrawCubeWires((Vector3){x + bx*WORLD_BLOCK_SIZE+half_block_size, 16.667f, y + by*WORLD_BLOCK_SIZE+half_block_size}, 64, 33, 64, RED);
+                        }break;
+                    }
+                }
+            }
         }break;
         
         default:break;

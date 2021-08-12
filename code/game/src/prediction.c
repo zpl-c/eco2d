@@ -76,11 +76,12 @@ void lerp_entity_positions(uint64_t key, entity_view *data) {
     
     if (data->flag == EFLAG_INTERP) {
         
-#if 1
+#if 0
         data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
         data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
         data->heading = smooth_val_spherical(data->heading, data->theading, view->delta_time[data->layer_id]);
 #else
+        (void)view;
         data->x = data->tx;
         data->y = data->ty;
         data->heading = data->theading;

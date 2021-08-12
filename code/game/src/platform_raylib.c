@@ -23,7 +23,7 @@ static bool request_shutdown;
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
-    SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
     SetTargetFPS(60);
     
     screenWidth = GetScreenWidth();
