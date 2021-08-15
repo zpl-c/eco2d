@@ -19,6 +19,30 @@ ActSpawnCar(void) {
 }
 
 void
+ActSpawnCirclingDriver(void) {
+    ecs_entity_t plr = camera_get().ent_id;
+    ecs_entity_t ve = vehicle_spawn();
+    ecs_entity_t e = entity_spawn(EKIND_DEMO_NPC);
+    
+    Position const *origin = ecs_get(world_ecs(), plr, Position);
+    Position *veh_dest = ecs_get_mut(world_ecs(), ve, Position, NULL);
+    Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+    *veh_dest = *origin;
+    *dest = *origin;
+    
+    Input *input = ecs_get_mut(world_ecs(), e, Input, NULL);
+    input->x = input->y = 1.0f;
+    input->use = false;
+    
+    Vehicle *veh = ecs_get_mut(world_ecs(), ve, Vehicle, NULL);
+    veh->seats[0] = e;
+    
+    ecs_set(world_ecs(), e, IsInVehicle, { .veh = ve });
+    
+    debug_replay_special_action(RPKIND_SPAWN_CIRCLING_DRIVER);
+}
+
+void
 ActPlaceIceRink(void) {
     ecs_entity_t plr = camera_get().ent_id;
     uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
