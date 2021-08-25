@@ -1,5 +1,6 @@
 #pragma once
 #include "system.h"
+#include "assets.h"
 
 #define ZPL_PICO
 #include "zpl.h"
@@ -7,6 +8,7 @@
 typedef enum {
     EKIND_SERVER = 0,
     EKIND_PLAYER,
+    EKIND_ITEM,
     EKIND_VEHICLE,
     EKIND_DEMO_NPC,
     EKIND_MONSTER,
@@ -51,6 +53,9 @@ typedef struct entity_view {
     
     // NOTE(zaklaus): vehicle
     float heading, theading;
+    
+    // NOTE(zaklaus): items, ...
+    asset_id asset;
     
     // NOTE(zaklaus): internals
     uint8_t layer_id;

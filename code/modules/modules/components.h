@@ -1,9 +1,9 @@
 #pragma once
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
+#include "items.h"
 
-
-// NOTE(zaklaus): custom macro to define meta components outside the current scope
+//NOTE(zaklaus): custom macro to define meta components outside the current scope
 
 #ifndef ECS_META_DEFINE
 #define ECS_META_DEFINE(world, T)\
@@ -52,7 +52,7 @@ ECS_STRUCT(Health, {
                float hp;
                float max_hp;
                
-               // NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
+               //NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
                float pain_time;
                float heal_time;
            });
@@ -74,6 +74,11 @@ typedef struct {
     ecs_entity_t veh;
 } IsInVehicle;
 
+typedef struct {
+    item_kind kind;
+    uint32_t quantity;
+} ItemDrop;
+
 ECS_COMPONENT_EXTERN(Chunk);
 ECS_COMPONENT_EXTERN(Position);
 ECS_COMPONENT_EXTERN(Vector2D);
@@ -85,6 +90,7 @@ ECS_COMPONENT_EXTERN(Health);
 ECS_COMPONENT_EXTERN(Classify);
 ECS_COMPONENT_EXTERN(Vehicle);
 ECS_COMPONENT_EXTERN(IsInVehicle);
+ECS_COMPONENT_EXTERN(ItemDrop);
 ECS_TAG_EXTERN(EcsActor);
 ECS_TAG_EXTERN(EcsDemoNPC);
 ECS_TYPE_EXTERN(Player);
@@ -106,6 +112,7 @@ typedef struct {
     ECS_DECLARE_COMPONENT(Classify);
     ECS_DECLARE_COMPONENT(Vehicle);
     ECS_DECLARE_COMPONENT(IsInVehicle);
+    ECS_DECLARE_COMPONENT(ItemDrop);
     ECS_DECLARE_ENTITY(EcsActor);
     ECS_DECLARE_ENTITY(EcsDemoNPC);
     ECS_DECLARE_TYPE(Player);
@@ -128,6 +135,7 @@ ECS_IMPORT_COMPONENT(handles, Health);\
 ECS_IMPORT_COMPONENT(handles, Classify);\
 ECS_IMPORT_COMPONENT(handles, Vehicle);\
 ECS_IMPORT_COMPONENT(handles, IsInVehicle);\
+ECS_IMPORT_COMPONENT(handles, ItemDrop);\
 ECS_IMPORT_TYPE(handles, Player);\
 ECS_IMPORT_TYPE(handles, Builder);\
 ECS_IMPORT_TYPE(handles, Movement);\

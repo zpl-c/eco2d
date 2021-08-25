@@ -5,6 +5,7 @@
 #include "world/world.h"
 #include "entity_view.h"
 #include "debug_replay.h"
+#include "items.h"
 #include "world/worldgen/worldgen.h"
 #include "platform.h"
 #include "profiler.h"
@@ -49,6 +50,11 @@ entity_view world_build_entity_view(int64_t e) {
     if (ecs_get(world_ecs(), e, Vehicle)) {
         Vehicle const* veh = ecs_get(world_ecs(), e, Vehicle);
         view.heading = veh->heading;
+    }
+    
+    if (ecs_get(world_ecs(), e, ItemDrop)) {
+        ItemDrop const* dr = ecs_get(world_ecs(), e, ItemDrop);
+        view.asset = item_get_asset(dr->kind);
     }
     
     Chunk *chpos = 0;

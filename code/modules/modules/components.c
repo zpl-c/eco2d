@@ -11,6 +11,7 @@ ECS_COMPONENT_DECLARE(Health);
 ECS_COMPONENT_DECLARE(Classify);
 ECS_COMPONENT_DECLARE(Vehicle);
 ECS_COMPONENT_DECLARE(IsInVehicle);
+ECS_COMPONENT_DECLARE(ItemDrop);
 ECS_TAG_DECLARE(EcsActor);
 ECS_TAG_DECLARE(EcsDemoNPC);
 ECS_TYPE_DECLARE(Player);
@@ -35,6 +36,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_META_DEFINE(ecs, Vehicle);
     
     ECS_COMPONENT_DEFINE(ecs, IsInVehicle);
+    ECS_COMPONENT_DEFINE(ecs, ItemDrop);
     
     ECS_TAG_DEFINE(ecs, Walking);
     ECS_TAG_DEFINE(ecs, Flying);
@@ -56,6 +58,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_SET_COMPONENT(Classify);
     ECS_SET_COMPONENT(Vehicle);
     ECS_SET_COMPONENT(IsInVehicle);
+    ECS_SET_COMPONENT(ItemDrop);
     ECS_SET_ENTITY(Walking);
     ECS_SET_ENTITY(Flying);
     ECS_SET_ENTITY(EcsActor);

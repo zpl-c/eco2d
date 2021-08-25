@@ -2,7 +2,7 @@ static Camera2D render_camera;
 static float zoom_overlay_tran = 0.0f;
 
 #define CAM_OVERLAY_ZOOM_LEVEL 0.80f
-
+#define ALPHA(x) ColorAlpha(x, data->tran_time)
 
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
@@ -65,6 +65,11 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(GRAY, data->tran_time));
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(BLACK, data->tran_time), font_spacing); 
             DrawCircleEco(x, y, size, ColorAlpha(PURPLE, data->tran_time));
+        }break;
+        case EKIND_ITEM: {
+            float x = data->x;
+            float y = data->y;
+            DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
         }break;
         default:break;
     }

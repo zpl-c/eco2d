@@ -1,5 +1,6 @@
 #include "debug_ui.h"
 #include "world/blocks.h"
+#include "items.h"
 
 void
 ActExitGame(void) {
@@ -16,6 +17,16 @@ ActSpawnCar(void) {
     *dest = *origin;
     
     debug_replay_special_action(RPKIND_SPAWN_CAR);
+}
+
+void
+ActSpawnIcemaker(void) {
+    ecs_entity_t e = item_spawn(IKIND_DEMO_ICEMAKER, 1);
+    ecs_entity_t plr = camera_get().ent_id;
+    
+    Position const* origin = ecs_get(world_ecs(), plr, Position);
+    Position * dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+    *dest = *origin;
 }
 
 void

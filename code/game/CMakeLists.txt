@@ -11,6 +11,7 @@ add_executable(eco2d
 	src/prediction.c
 
 	src/assets.c
+	src/items.c
 	src/compress.c
 	src/entity.c
 	src/entity_view.c

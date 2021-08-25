@@ -4,8 +4,12 @@
 #define ASSET_INVALID 0xFF
 
 typedef enum {
+    // NOTE(zaklaus): entities
     ASSET_PLAYER,
     ASSET_THING,
+    
+    // NOTE(zaklaus): items
+    ASSET_DEMO_ICEMAKER,
     
     MAX_ASSETS,
     FORCE_ASSET_UINT16 = UINT16_MAX
@@ -26,3 +30,7 @@ uint16_t assets_find(asset_id id);
 asset_kind assets_get_kind(uint16_t id);
 void *assets_get_snd(uint16_t id);
 void *assets_get_tex(uint16_t id);
+
+// NOTE(zaklaus): client only
+#define ASSET_SRC_RECT() ((Rectangle){0, 0, 64, 64})
+#define ASSET_DST_RECT(x,y) ((Rectangle){x, y, 64, 64})

@@ -68,8 +68,8 @@ RenderTexture2D GetChunkTexture(uint64_t id) {
 }
 
 static inline
-Image GetSpriteImage(uint16_t id) {
-    return *(Image*)assets_get_tex(id);
+Texture2D GetSpriteTexture2D(uint16_t id) {
+    return *(Texture2D*)assets_get_tex(id);
 }
 
 static inline

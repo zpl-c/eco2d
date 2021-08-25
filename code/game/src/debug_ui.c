@@ -113,6 +113,7 @@ static debug_item items[] = {
                 { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
                 { .kind = DITEM_BUTTON, .name = "place ice rink", .on_click = ActPlaceIceRink },
                 { .kind = DITEM_BUTTON, .name = "spawn circling driver", .on_click = ActSpawnCirclingDriver },
+                { .kind = DITEM_BUTTON, .name = "spawn icemaker item", .on_click = ActSpawnIcemaker },
                 { 
                     .kind = DITEM_LIST,
                     .name = "demo npcs",

@@ -64,15 +64,6 @@ void DEBUG_draw_entities_3d(uint64_t key, entity_view * data) {
             float y = data->y;
             DrawSphere((Vector3){x,ground_offset,y}, size, ColorAlpha(PURPLE, data->tran_time));
         }break;
-        
-        default:break;
-    }
-}
-
-void DEBUG_draw_entities_low_3d(uint64_t key, entity_view * data) {
-    (void)key;
-    
-    switch (data->kind) {
         case EKIND_VEHICLE: {
             float x = data->x;
             float y = data->y;
@@ -80,10 +71,15 @@ void DEBUG_draw_entities_low_3d(uint64_t key, entity_view * data) {
             float const h = 150;
             EcoDrawCube((Vector3){x,15.0f,y}, w/2.0f, 10.f, h/2.0f, -zpl_to_degrees(data->heading), ColorAlpha(RED, data->tran_time));
         }break;
-        default:break;
+        case EKIND_CHUNK:break;
+        
+        default:{
+            float x = data->x;
+            float y = data->y;
+            EcoDrawCube((Vector3){x, 15.0f, y}, 16, 16, 16, 0.0f, ColorAlpha(PINK, data->tran_time));
+        }break;
     }
 }
-
 
 void renderer_draw_3d(void) {
     cam_zoom = zpl_min(zpl_lerp(cam_zoom, target_zoom, 0.18), 9.98f);
@@ -100,7 +96,6 @@ void renderer_draw_3d(void) {
     ClearBackground(GetColor(0x222034));
     BeginMode3D(render_camera_3d);
     game_world_view_active_entity_map(DEBUG_draw_ground_3d);
-    game_world_view_active_entity_map(DEBUG_draw_entities_low_3d);
     game_world_view_active_entity_map(DEBUG_draw_entities_3d);
     EndMode3D();
 }

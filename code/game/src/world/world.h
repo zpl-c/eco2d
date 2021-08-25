@@ -53,7 +53,7 @@ int32_t world_read(void* data, uint32_t datalen, void *udata);
 int32_t world_write(pkt_header *pkt, void *udata);
 
 uint32_t world_buf(uint8_t const **ptr, uint32_t *width);
-ecs_world_t *world_ecs(void);
+ecs_world_t *world_ecs(void); // TODO(zaklaus): add staging support
 librg_world *world_tracker(void);
 
 uint16_t world_chunk_size(void);

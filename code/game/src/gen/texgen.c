@@ -13,30 +13,16 @@ Texture2D LoadImageEco(const char *name) {
 }
 
 Texture2D texgen_build_block(uint32_t biome, uint32_t kind) {
-    // TODO(zaklaus): 
-    
     switch (biome) {
         case BLOCK_BIOME_DEV: {
             switch (kind) {
-                case BLOCK_KIND_GROUND:{
-                    return LoadImageEco("grass");
-                }break;
-                case BLOCK_KIND_DIRT:{
-                    return LoadImageEco("dirt");
-                }break;
-                case BLOCK_KIND_WALL:{
-                    return LoadImageEco("asphalt");
-                }break;
+                case BLOCK_KIND_GROUND: return LoadImageEco("grass");
+                case BLOCK_KIND_DIRT: return LoadImageEco("dirt");
+                case BLOCK_KIND_WALL: return LoadImageEco("asphalt");
                 case BLOCK_KIND_HILL_SNOW:
-                case BLOCK_KIND_HILL:{
-                    return LoadImageEco("rock");
-                }break;
-                case BLOCK_KIND_WATER:{
-                    return LoadImageEco("water");
-                }break;
-                case BLOCK_KIND_LAVA:{
-                    return LoadImageEco("lava");
-                }break;
+                case BLOCK_KIND_HILL: return LoadImageEco("rock");
+                case BLOCK_KIND_WATER: return LoadImageEco("water");
+                case BLOCK_KIND_LAVA: return LoadImageEco("lava");
             }
         }
     }
@@ -48,11 +34,16 @@ Texture2D texgen_build_block(uint32_t biome, uint32_t kind) {
 }
 
 Texture2D texgen_build_sprite(asset_id id) {
-    // TODO(zaklaus): 
-    (void)id;
-    Image img = GenImageColor(1, 1, RAYWHITE);
-    Texture2D tex = LoadTextureFromImage(img);
-    UnloadImage(img);
+    switch (id) {
+        case ASSET_DEMO_ICEMAKER: return LoadImageEco("demo_icemaker");
+        
+        default: {
+            Image img = GenImageColor(1, 1, RAYWHITE);
+            Texture2D tex = LoadTextureFromImage(img);
+            UnloadImage(img);
+            return tex;
+        }break;
+    }
     
-    return tex;
+    ZPL_PANIC("unreachable code");
 }
