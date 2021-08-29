@@ -81,7 +81,7 @@ void platform_input() {
             mouse_pos.y -= 0.5f;
             mouse_pos = Vector2Normalize(mouse_pos);
             x = mouse_pos.x;
-            y = mouse_pos.y;
+            y = -mouse_pos.y;
         }
         
         game_action_send_keystate(x, y, use, sprint);
