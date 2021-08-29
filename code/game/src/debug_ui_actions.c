@@ -42,8 +42,8 @@ ActSpawnCirclingDriver(void) {
     *dest = *origin;
     
     Input *input = ecs_get_mut(world_ecs(), e, Input, NULL);
+    zpl_zero_item(input);
     input->x = input->y = 1.0f;
-    input->use = false;
     
     Vehicle *veh = ecs_get_mut(world_ecs(), ve, Vehicle, NULL);
     veh->seats[0] = e;

@@ -330,3 +330,39 @@ Color GenerateRandomColor(float s, float v) {
     h = fmodf((h + h*Phi), 360.0f);
     return ColorFromHSV(h, s, v);
 }
+
+
+// Draw circle outline
+void DrawCircleLinesEco(float centerX, float centerY, float radius, Color color)
+{
+    rlCheckRenderBatchLimit(2*36);
+    
+    rlBegin(RL_LINES);
+    rlColor4ub(color.r, color.g, color.b, color.a);
+    
+    // NOTE: Circle outline is drawn pixel by pixel every degree (0 to 360)
+    for (int i = 0; i < 360; i += 10)
+    {
+        rlVertex2f(centerX + sinf(DEG2RAD*i)*radius, centerY + cosf(DEG2RAD*i)*radius);
+        rlVertex2f(centerX + sinf(DEG2RAD*(i + 10))*radius, centerY + cosf(DEG2RAD*(i + 10))*radius);
+    }
+    rlEnd();
+}
+
+void DrawRectangleLinesEco(float posX, float posY, float width, float height, Color color)
+{
+    rlBegin(RL_LINES);
+    rlColor4ub(color.r, color.g, color.b, color.a);
+    rlVertex2f(posX + 1, posY + 1);
+    rlVertex2f(posX + width, posY + 1);
+    
+    rlVertex2f(posX + width, posY + 1);
+    rlVertex2f(posX + width, posY + height);
+    
+    rlVertex2f(posX + width, posY + height);
+    rlVertex2f(posX + 1, posY + height);
+    
+    rlVertex2f(posX + 1, posY + height);
+    rlVertex2f(posX + 1, posY + 1);
+    rlEnd();
+}

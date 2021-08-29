@@ -147,13 +147,13 @@ void renderer_debug_draw_v0(void) {
                 float y = e->a.y;
                 float x2 = e->b.x;
                 float y2 = e->b.y;
-                DrawLine(x, y, x2, y2, color);
+                DrawLineV((Vector2){x, y}, (Vector2){x2, y2}, color);
             }break;
             
             case DDRAW_CIRCLE:{
                 float x = e->a.x;
                 float y = e->a.y;
-                DrawCircleLines(x, y, e->radius, color);
+                DrawCircleLinesEco(x, y, e->radius, color);
             }break;
             
             case DDRAW_RECT:{
@@ -161,7 +161,7 @@ void renderer_debug_draw_v0(void) {
                 float y = e->bmin.y;
                 float w = e->bmax.x - e->bmin.x;
                 float h = e->bmax.y - e->bmin.y;
-                DrawRectangleLines(x, y, w, h, color);
+                DrawRectangleLinesEco(x, y, w, h, color);
             }break;
             
             default: {

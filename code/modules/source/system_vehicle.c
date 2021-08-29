@@ -135,6 +135,12 @@ void VehicleHandling(ecs_iter_t *it) {
         v[i].y += (fr_y + bk_y) / 2.0f - p[i].y;
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
         
+        world_block_lookup lookahead = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y+PHY_LOOKAHEAD(v[i].y));
+        uint32_t flags = blocks_get_flags(lookahead.block_id);
+        if (flags & BLOCK_FLAG_COLLISION) {
+            car->force = 0.0f;
+        }
+        
         for (int j = 0; j < 4; j++) {
             if (!world_entity_valid(veh[i].seats[j])) continue;
             ecs_entity_t pe = veh[i].seats[j];
