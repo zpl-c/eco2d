@@ -103,6 +103,15 @@ void platform_input() {
             renderer_switch(1-gfx_kind);
         }
     }
+    
+    // NOTE(zaklaus): toggle debug drawing
+#ifndef ECO2D_PROD
+    {
+        if (IsKeyPressed(KEY_T)) {
+            debug_draw_enable(!debug_draw_state());
+        }
+    }
+#endif
 }
 
 void platform_render() {
@@ -116,6 +125,7 @@ void platform_render() {
         profile (PROF_RENDER) {
             renderer_draw();
         }
+        renderer_debug_draw();
         debug_draw();
         display_conn_status();
     }

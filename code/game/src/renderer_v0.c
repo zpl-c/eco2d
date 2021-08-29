@@ -67,8 +67,8 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             DrawCircleEco(x, y, size, ColorAlpha(PURPLE, data->tran_time));
         }break;
         case EKIND_ITEM: {
-            float x = data->x;
-            float y = data->y;
+            float x = data->x - 32.f;
+            float y = data->y - 32.f;
             DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
         }break;
         default:break;
@@ -131,4 +131,44 @@ void renderer_init_v0(void) {
 void renderer_shutdown_v0(void) {
     blocks_destroy();
     assets_destroy();
+}
+
+void renderer_debug_draw_v0(void) {
+    BeginMode2D(render_camera);
+    debug_draw_queue *que = debug_draw_samples();
+    
+    for (size_t i = 0; i < que->num_entries; i += 1) {
+        debug_draw_entry *e = &que->entries[i];
+        Color color = GetColor(e->color);
+        
+        switch (e->kind) {
+            case DDRAW_LINE: {
+                float x = e->a.x;
+                float y = e->a.y;
+                float x2 = e->b.x;
+                float y2 = e->b.y;
+                DrawLine(x, y, x2, y2, color);
+            }break;
+            
+            case DDRAW_CIRCLE:{
+                float x = e->a.x;
+                float y = e->a.y;
+                DrawCircleLines(x, y, e->radius, color);
+            }break;
+            
+            case DDRAW_RECT:{
+                float x = e->bmin.x;
+                float y = e->bmin.y;
+                float w = e->bmax.x - e->bmin.x;
+                float h = e->bmax.y - e->bmin.y;
+                DrawRectangleLines(x, y, w, h, color);
+            }break;
+            
+            default: {
+                
+            }break;
+        }
+    }
+    
+    EndMode2D();
 }

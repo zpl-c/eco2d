@@ -1,40 +1,41 @@
 file(GLOB PKT_SRCS ../game/src/packets/*.h ../game/src/packets/*.c)
 
 add_executable(eco2d
-	src/platform_raylib.c
-	src/main.c
+    src/platform_raylib.c
+    src/main.c
 
-	src/network.c
-	src/game.c
-	src/camera.c
-	src/world_view.c
-	src/prediction.c
+    src/network.c
+    src/game.c
+    src/camera.c
+    src/world_view.c
+    src/prediction.c
 
-	src/assets.c
-	src/items.c
-	src/compress.c
-	src/entity.c
-	src/entity_view.c
-	src/packet.c
-	src/player.c
-	src/vehicle.c
-	src/signal_handling.c
-	src/profiler.c
-	src/debug_ui.c
-  
-	src/utils/options.c
+    src/assets.c
+    src/items.c
+    src/compress.c
+    src/entity.c
+    src/entity_view.c
+    src/packet.c
+    src/player.c
+    src/vehicle.c
+    src/signal_handling.c
+    src/profiler.c
+    src/debug_ui.c
+    src/debug_draw.c
 
-	src/network.h
+    src/utils/options.c
 
-	src/world/blocks.c
-	src/world/perlin.c
-	src/world/world.c
+    src/network.h
 
-	src/gen/texgen.c
+    src/world/blocks.c
+    src/world/perlin.c
+    src/world/world.c
 
-	src/world/worldgen/worldgen_test.c
+    src/gen/texgen.c
 
-	${PKT_SRCS}
+    src/world/worldgen/worldgen_test.c
+
+    ${PKT_SRCS}
 )
 
 target_compile_definitions(eco2d PRIVATE CLIENT)

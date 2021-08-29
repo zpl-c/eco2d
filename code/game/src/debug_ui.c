@@ -1,4 +1,5 @@
 #include "debug_ui.h"
+#include "debug_draw.h"
 #include "raylib.h"
 #include "vehicle.h"
 #include "camera.h"
@@ -289,6 +290,9 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
 }
 
 void debug_draw(void) {
+    // NOTE(zaklaus): Flush old debug samples
+    debug_draw_flush();
+    
     float xpos = debug_xpos;
     float ypos = debug_ypos;
     

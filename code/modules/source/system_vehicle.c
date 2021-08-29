@@ -1,3 +1,4 @@
+#include "debug_draw.h"
 
 #define VEH_ENTER_RADIUS 45.0f
 
@@ -124,6 +125,17 @@ void VehicleHandling(ecs_iter_t *it) {
         v[i].x += (fr_x + bk_x) / 2.0f - p[i].x;
         v[i].y += (fr_y + bk_y) / 2.0f - p[i].y;
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
+        
+        {
+            debug_v2 b2 = {p[i].x + zpl_cos(car->heading)*(car->wheel_base), p[i].y + zpl_sin(car->heading)*(car->wheel_base)};
+            debug_push_line((debug_v2){p[i].x, p[i].y}, b2, 0x0000FFFF);
+            
+            {
+                float dx = zpl_cos(car->heading);
+                float dy = zpl_sin(car->heading);
+                debug_push_circle((debug_v2){p[i].x+dx*car->force, p[i].y+dy*car->force}, 5.0f, 0x00FF00FF);
+            }
+        }
     }
 }
 

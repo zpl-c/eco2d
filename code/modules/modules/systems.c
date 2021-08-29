@@ -4,6 +4,7 @@
 #include "world/world.h"
 #include "world/blocks.h"
 #include "profiler.h"
+#include "debug_draw.h"
 #include "game.h"
 
 #define PHY_BLOCK_COLLISION 1
@@ -50,6 +51,12 @@ void IntegratePositions(ecs_iter_t *it) {
             
             p[i].x += v[i].x * it->delta_time;
             p[i].y += v[i].y * it->delta_time;
+            
+            {
+                debug_v2 a = {p[i].x, p[i].y};
+                debug_v2 b = {p[i].x+v[i].x, p[i].y+v[i].y};
+                debug_push_line(a, b, 0xFFFFFFFF);
+            }
         }
     }
 }
@@ -59,6 +66,12 @@ void UpdateTrackerPos(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++){
         librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
+        
+        {
+            debug_v2 a = {p[i].x-2.5f, p[i].y-2.5f};
+            debug_v2 b = {p[i].x+2.5f, p[i].y+2.5f};
+            debug_push_rect(a, b, 0x00FFFFFF);
+        }
     }
 }
 
@@ -128,7 +141,7 @@ void SystemsImport(ecs_world_t *ecs) {
     
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
     
-    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position);
+    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position, components.Velocity);
     
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
     

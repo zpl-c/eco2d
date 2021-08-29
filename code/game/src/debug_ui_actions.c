@@ -197,8 +197,8 @@ ActSpawnDemoNPCs(void) {
         pos->y=rand() % world_dim();        
         
         Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
-        v->x = (rand()%3-1) * 100;
-        v->y = (rand()%3-1) * 100;
+        v->x = (rand()%3-1) * 10;
+        v->y = (rand()%3-1) * 10;
         
         zpl_array_append(demo_npcs, e);
     }

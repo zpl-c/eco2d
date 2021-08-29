@@ -131,3 +131,8 @@ void renderer_shutdown_3d(void) {
     blocks_destroy();
     assets_destroy();
 }
+
+
+void renderer_debug_draw_3d(void) {
+    
+}

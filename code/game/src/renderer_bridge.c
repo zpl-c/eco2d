@@ -1,3 +1,4 @@
+#include "debug_draw.h"
 #include "renderer_3d.c"
 #include "renderer_v0.c"
 
@@ -6,12 +7,14 @@
 #define renderer_init renderer_init_v0
 #define renderer_shutdown renderer_shutdown_v0
 #define renderer_draw renderer_draw_v0
+#define renderer_debug_draw renderer_debug_draw_v0
 void renderer_switch(int kind) {}
 #elif GFX_KIND == 1
 // NOTE(zaklaus): renderer_3d
 #define renderer_init renderer_init_3d
 #define renderer_shutdown renderer_shutdown_3d
 #define renderer_draw renderer_draw_3d
+#define renderer_debug_draw renderer_debug_draw_3d
 void renderer_switch(int kind) {}
 #elif GFX_KIND == 2
 // NOTE(zaklaus): hybrid mode
@@ -46,6 +49,17 @@ void renderer_shutdown(void) {
         }break;
         case 1:{
             renderer_shutdown_3d();
+        }break;
+    }
+}
+
+void renderer_debug_draw(void) {
+    switch (gfx_kind) {
+        case 0:{
+            renderer_debug_draw_v0();
+        }break;
+        case 1:{
+            renderer_debug_draw_3d();
         }break;
     }
 }
