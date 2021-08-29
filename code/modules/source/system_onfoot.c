@@ -1,5 +1,5 @@
 #define PLR_MOVE_SPEED 30.0
-#define PLR_MOVE_SPEED_MULT 4.0
+#define PLR_MOVE_SPEED_MULT 1.5
 
 void MovementImpulse(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);

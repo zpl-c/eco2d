@@ -10,11 +10,15 @@
 #define PHY_BLOCK_COLLISION 1
 #define PHY_WALK_DRAG 0.12
 #define PHY_LOOKAHEAD(x) (zpl_sign(x)*16.0f)
-#define PHY_CORRECTION(x) ((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f)
 
 #include "source/system_onfoot.c"
 #include "source/system_demo.c"
 #include "source/system_vehicle.c"
+
+inline float physics_correction(float x, float vx, float bounce) {
+    float r = (((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f));
+    return r + (-vx*bounce);
+}
 
 void IntegratePositions(ecs_iter_t *it) {
     profile(PROF_INTEGRATE_POS) {
@@ -34,8 +38,9 @@ void IntegratePositions(ecs_iter_t *it) {
             {
                 world_block_lookup lookup = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y);
                 uint32_t flags = blocks_get_flags(lookup.block_id);
+                float bounce = blocks_get_bounce(lookup.block_id);
                 if (flags & BLOCK_FLAG_COLLISION) {
-                    v[i].x = PHY_CORRECTION(lookup.ox);
+                    v[i].x = physics_correction(lookup.ox, v[i].x, bounce);
                 }
             }
             
@@ -43,8 +48,9 @@ void IntegratePositions(ecs_iter_t *it) {
             {
                 world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y+PHY_LOOKAHEAD(v[i].y));
                 uint32_t flags = blocks_get_flags(lookup.block_id);
+                float bounce = blocks_get_bounce(lookup.block_id);
                 if (flags & BLOCK_FLAG_COLLISION) {
-                    v[i].y = PHY_CORRECTION(lookup.oy);
+                    v[i].y = physics_correction(lookup.oy, v[i].y, bounce);
                 }
             }
 #endif

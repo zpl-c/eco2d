@@ -25,6 +25,7 @@ typedef struct {
     char symbol;
     float drag;
     float friction;
+    float bounce;
     
     // NOTE(zaklaus): viewer data
     Texture2D img;
@@ -85,6 +86,10 @@ float blocks_get_drag(uint8_t id) {
 
 float blocks_get_friction(uint8_t id) {
     return blocks[id].friction;
+}
+
+float blocks_get_bounce(uint8_t id) {
+    return blocks[id].bounce;
 }
 
 void *blocks_get_img(uint8_t id) {

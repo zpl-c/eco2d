@@ -1,9 +1,8 @@
 #include "debug_draw.h"
-#include "renderer_3d.c"
-#include "renderer_v0.c"
 
 #if GFX_KIND == 0 || !defined(GFX_KIND)
 // NOTE(zaklaus): renderer_v0
+#include "renderer_v0.c"
 #define renderer_init renderer_init_v0
 #define renderer_shutdown renderer_shutdown_v0
 #define renderer_draw renderer_draw_v0
@@ -11,12 +10,15 @@
 void renderer_switch(int kind) {}
 #elif GFX_KIND == 1
 // NOTE(zaklaus): renderer_3d
+#include "renderer_3d.c"
 #define renderer_init renderer_init_3d
 #define renderer_shutdown renderer_shutdown_3d
 #define renderer_draw renderer_draw_3d
 #define renderer_debug_draw renderer_debug_draw_3d
 void renderer_switch(int kind) {}
 #elif GFX_KIND == 2
+#include "renderer_3d.c"
+#include "renderer_v0.c"
 // NOTE(zaklaus): hybrid mode
 static int gfx_kind = 0; // 2d -- 0, 3d -- 1
 
