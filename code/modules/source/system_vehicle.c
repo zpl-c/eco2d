@@ -5,6 +5,7 @@
 void LeaveVehicle(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);
     IsInVehicle *vehp = ecs_column(it, IsInVehicle, 2);
+    Velocity *v = ecs_column(it, Velocity, 3);
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
@@ -20,6 +21,14 @@ void LeaveVehicle(ecs_iter_t *it) {
             
             in[i].use = false;
             ecs_remove(it->world, it->entities[i], IsInVehicle);
+            
+            // NOTE(zaklaus): push passenger out
+            {
+                float px = zpl_sin(veh->heading)*400.0f;
+                float py = zpl_cos(veh->heading)*400.0f;
+                v->x += px;
+                v->y += py;
+            }
         } else {
             ZPL_PANIC("unreachable code");
         }
@@ -64,10 +73,10 @@ void EnterVehicle(ecs_iter_t *it) {
 }
 
 #define VEHICLE_FORCE 34.8f
-#define VEHICLE_ACCEL 0.27f
+#define VEHICLE_ACCEL 0.02f
 #define VEHICLE_DECEL 0.28f
-#define VEHICLE_STEER 0.11f
-#define VEHICLE_STEER_MUL 0.087f
+#define VEHICLE_STEER 0.09f
+#define VEHICLE_BRAKE_FORCE 0.04f
 
 void VehicleHandling(ecs_iter_t *it) {
     Vehicle *veh = ecs_column(it, Vehicle, 1);
@@ -78,7 +87,6 @@ void VehicleHandling(ecs_iter_t *it) {
         Vehicle *car = &veh[i];
         
         // NOTE(zaklaus): Apply friction
-        car->force = zpl_lerp(car->force, 0.0f, VEHICLE_DECEL);
         car->steer *= 0.97f;
         
         for (int j = 0; j < 4; j++) {
@@ -90,25 +98,23 @@ void VehicleHandling(ecs_iter_t *it) {
             
             ecs_entity_t pe = veh[i].seats[j];
             
-            // NOTE(zaklaus): Update passenger position
-            {
-                Position *p2 = ecs_get_mut(it->world, pe, Position, NULL);
-                Velocity *v2 = ecs_get_mut(it->world, pe, Velocity, NULL);
-                *p2 = p[i];
-                *v2 = v[i];
-            }
-            
             // NOTE(zaklaus): Handle driver input
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
-                world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
-                float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
                 
-                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL) * drag;
-                car->steer += in->x * -VEHICLE_STEER;
+                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL);
+                if (in->sprint) {
+                    car->force = zpl_lerp(car->force, 0.0f, VEHICLE_BRAKE_FORCE);
+                    
+                    if (zpl_abs(car->force) < 5.5f) 
+                        car->force = 0.0f;
+                }
+                car->steer += in->x * VEHICLE_STEER;
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
         }
+        
+        car->force = zpl_clamp(car->force, car->reverse_speed, car->speed);
         
         // NOTE(zaklaus): Vehicle physics
         float fr_x = p[i].x + (car->wheel_base/2.0f) * zpl_cos(car->heading);
@@ -117,14 +123,30 @@ void VehicleHandling(ecs_iter_t *it) {
         float bk_x = p[i].x - (car->wheel_base/2.0f) * zpl_cos(car->heading);
         float bk_y = p[i].y - (car->wheel_base/2.0f) * zpl_sin(car->heading);
         
-        bk_x += car->force * zpl_cos(car->heading);
-        bk_y += car->force * zpl_sin(car->heading);
-        fr_x += car->force * zpl_cos(car->heading + zpl_to_radians(car->steer));
-        fr_y += car->force * zpl_sin(car->heading + zpl_to_radians(car->steer));
+        world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
+        float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
+        
+        bk_x += car->force * drag * zpl_cos(car->heading);
+        bk_y += car->force * drag * zpl_sin(car->heading);
+        fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer));
+        fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer));
         
         v[i].x += (fr_x + bk_x) / 2.0f - p[i].x;
         v[i].y += (fr_y + bk_y) / 2.0f - p[i].y;
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
+        
+        for (int j = 0; j < 4; j++) {
+            if (!world_entity_valid(veh[i].seats[j])) continue;
+            ecs_entity_t pe = veh[i].seats[j];
+            
+            // NOTE(zaklaus): Update passenger position
+            {
+                Position *p2 = ecs_get_mut(it->world, pe, Position, NULL);
+                Velocity *v2 = ecs_get_mut(it->world, pe, Velocity, NULL);
+                *p2 = p[i];
+                *v2 = v[i];
+            }
+        }
         
         {
             debug_v2 b2 = {p[i].x + zpl_cos(car->heading)*(car->wheel_base), p[i].y + zpl_sin(car->heading)*(car->wheel_base)};

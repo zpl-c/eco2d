@@ -136,9 +136,6 @@ void SystemsImport(ecs_world_t *ecs) {
     
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
-    ECS_SYSTEM(ecs, EnterVehicle, EcsOnLoad, components.Input, components.Position, !components.IsInVehicle);
-    ECS_SYSTEM(ecs, LeaveVehicle, EcsOnLoad, components.Input, components.IsInVehicle);
-    ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsOnLoad, components.Input, components.Position, !components.IsInVehicle);
     
     ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
     ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
@@ -146,6 +143,10 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
     
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
+    
+    ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
+    ECS_SYSTEM(ecs, LeaveVehicle, EcsPostUpdate, components.Input, components.IsInVehicle, components.Velocity);
+    ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
     
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position, components.Velocity);
     

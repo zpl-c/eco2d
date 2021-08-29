@@ -68,6 +68,9 @@ ECS_STRUCT(Vehicle, {
                float heading;
                float steer;
                float wheel_base;
+               
+               float speed;
+               float reverse_speed;
            });
 
 typedef struct {

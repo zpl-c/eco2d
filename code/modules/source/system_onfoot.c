@@ -11,6 +11,6 @@ void MovementImpulse(ecs_iter_t *it) {
         float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
         double speed = PLR_MOVE_SPEED * (in[i].sprint ? PLR_MOVE_SPEED_MULT : 1.0);
         v[i].x += in[i].x*speed*drag;
-        v[i].y += in[i].y*speed*drag;
+        v[i].y -= in[i].y*speed*drag;
     }
 }

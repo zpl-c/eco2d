@@ -66,8 +66,8 @@ void platform_input() {
         uint8_t use, sprint;
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
         if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
-        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y -= 1.0f;
-        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y += 1.0f;
+        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y += 1.0f;
+        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y -= 1.0f;
         
         use = IsKeyPressed(KEY_SPACE);
         sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
