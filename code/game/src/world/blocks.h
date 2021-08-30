@@ -27,6 +27,6 @@ float blocks_get_bounce(uint8_t id);
 // NOTE(zaklaus): viewer-related functions
 void *blocks_get_img(uint8_t id);
 
-void blocks_build_chunk_tex(uint64_t id, uint8_t *blocks, size_t blocks_len, void *view);
+void blocks_build_chunk_tex(uint64_t id, uint8_t *blocks, uint8_t *outer_blocks, void *view);
 void *blocks_get_chunk_tex(uint64_t id);
 void blocks_remove_chunk_tex(uint64_t id);

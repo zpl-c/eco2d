@@ -24,10 +24,10 @@ void LeaveVehicle(ecs_iter_t *it) {
             
             // NOTE(zaklaus): push passenger out
             {
-                float px = zpl_sin(veh->heading)*400.0f;
-                float py = zpl_cos(veh->heading)*400.0f;
-                v->x += px;
-                v->y += py;
+                float px = zpl_cos(veh->heading)*400.0f;
+                float py = zpl_sin(veh->heading)*400.0f;
+                v->x += py;
+                v->y -= px;
             }
         } else {
             ZPL_PANIC("unreachable code");
@@ -73,10 +73,10 @@ void EnterVehicle(ecs_iter_t *it) {
 }
 
 #define VEHICLE_FORCE 34.8f
-#define VEHICLE_ACCEL 0.02f
+#define VEHICLE_ACCEL 0.42f
 #define VEHICLE_DECEL 0.28f
-#define VEHICLE_STEER 0.09f
-#define VEHICLE_BRAKE_FORCE 0.04f
+#define VEHICLE_STEER 3.89f
+#define VEHICLE_BRAKE_FORCE 0.84f
 
 void VehicleHandling(ecs_iter_t *it) {
     Vehicle *veh = ecs_column(it, Vehicle, 1);
@@ -102,14 +102,14 @@ void VehicleHandling(ecs_iter_t *it) {
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
                 
-                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL);
+                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL*it->delta_time);
                 if (in->sprint) {
-                    car->force = zpl_lerp(car->force, 0.0f, VEHICLE_BRAKE_FORCE);
+                    car->force = zpl_lerp(car->force, 0.0f, VEHICLE_BRAKE_FORCE*it->delta_time);
                     
                     if (zpl_abs(car->force) < 5.5f) 
                         car->force = 0.0f;
                 }
-                car->steer += in->x * VEHICLE_STEER;
+                car->steer += (in->x * VEHICLE_STEER)*it->delta_time;
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
         }

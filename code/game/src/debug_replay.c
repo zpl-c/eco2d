@@ -10,6 +10,7 @@ typedef enum {
     // NOTE(zaklaus): Special actions
     RPKIND_SPAWN_CAR,
     RPKIND_PLACE_ICE_RINK,
+    RPKIND_PLACE_ERASE_CHANGES,
     RPKIND_SPAWN_CIRCLING_DRIVER,
 } replay_kind;
 
@@ -152,6 +153,7 @@ void debug_replay_run(void) {
 
 void ActPlaceIceRink();
 void ActSpawnCirclingDriver(void);
+void ActEraseWorldChanges(void);
 
 void debug_replay_update(void) {
     if (!is_playing) return;
@@ -182,6 +184,9 @@ void debug_replay_update(void) {
         }break;
         case RPKIND_SPAWN_CIRCLING_DRIVER: {
             ActSpawnCirclingDriver();
+        }break;
+        case RPKIND_PLACE_ERASE_CHANGES:{
+            ActEraseWorldChanges();
         }break;
         default: {
             ZPL_PANIC("unreachable");

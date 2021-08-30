@@ -20,7 +20,7 @@ void DemoPlaceIceBlock(ecs_iter_t *it) {
         if (in[i].use) {
             in[i].use = false;
             world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
-            world_chunk_replace_block(it->world, l.chunk_id, l.id, watr_id); 
+            world_chunk_replace_outer_block(it->world, l.chunk_id, l.id, watr_id); 
         }
     }
 }

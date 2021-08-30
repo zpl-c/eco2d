@@ -96,8 +96,7 @@ void *blocks_get_img(uint8_t id) {
     return (void*)&blocks[id].img;
 }
 
-void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, size_t blocks_len, void *raw_view) {
-    (void)blocks_len;
+void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_chunk_blocks, void *raw_view) {
     world_view *view = (world_view*)raw_view;
     uint16_t dims = WORLD_BLOCK_SIZE * view->chunk_size;
     RenderTexture2D canvas = LoadRenderTexture(dims, dims);
@@ -118,6 +117,11 @@ void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, size_t blocks_le
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             Rectangle dst = {x*WORLD_BLOCK_SIZE + half_block, y*WORLD_BLOCK_SIZE + half_block, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             DrawTexturePro(blk, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
+            
+            if (outer_chunk_blocks[(y*view->chunk_size)+x] != 0) {
+                Texture2D blk2 = blocks[outer_chunk_blocks[(y*view->chunk_size)+x]].img;
+                DrawTexturePro(blk2, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
+            }
 #endif
         }
     }

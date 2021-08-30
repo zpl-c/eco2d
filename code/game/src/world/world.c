@@ -68,6 +68,10 @@ entity_view world_build_entity_view(int64_t e) {
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
             view.blocks[i] = world.block_mapping[chpos->id][i];
         }
+        
+        for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
+            view.outer_blocks[i] = world.outer_block_mapping[chpos->id][i];
+        }
     }
     
     world_snapshot_set(&streamer_snapshot, e, view);
@@ -164,6 +168,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
     world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
+    world.outer_block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
     world_snapshot_init(&streamer_snapshot, zpl_heap());
     
     int32_t world_build_status = worldgen_test(&world);
@@ -178,6 +183,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
         world.chunk_mapping[i] = e;
         world.block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
+        world.outer_block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
         chunk->id = i;
         chunk->is_dirty = false;
         
@@ -185,11 +191,18 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
             for (int x = 0; x < chunk_size; x += 1) {
                 int chk_x = chunk->x * chunk_size;
                 int chk_y = chunk->y * chunk_size;
+                
                 uint8_t *c = &world.block_mapping[i][(y*chunk_size)+x];
                 *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
+                
+                c = &world.outer_block_mapping[i][(y*chunk_size)+x];
+                *c = 0;
             }
         }
     }
+    
+    zpl_mfree(world.data);
+    world.data = NULL;
     
     zpl_printf("[INFO] Created a new server world\n");
     
@@ -199,12 +212,12 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
 int32_t world_destroy(void) {
     librg_world_destroy(world.tracker);
     ecs_fini(world.ecs);
-    zpl_mfree(world.data);
     zpl_mfree(world.chunk_mapping);
     for (int i = 0; i < zpl_square(world.chunk_amount); i+=1) {
         zpl_mfree(world.block_mapping[i]);
     }
     zpl_mfree(world.block_mapping);
+    zpl_mfree(world.outer_block_mapping);
     world_snapshot_destroy(&streamer_snapshot);
     zpl_memset(&world, 0, sizeof(world));
     zpl_printf("[INFO] World was destroyed.\n");
@@ -331,7 +344,10 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     uint32_t bx = (uint32_t)chx / WORLD_BLOCK_SIZE;
     uint32_t by = (uint32_t)chy / WORLD_BLOCK_SIZE;
     uint32_t block_idx = (by*world.chunk_size)+bx;
-    uint8_t block_id = world.block_mapping[chunk_id][block_idx];
+    uint8_t block_id = world.outer_block_mapping[chunk_id][block_idx];
+    if (block_id == 0) {
+        block_id = world.block_mapping[chunk_id][block_idx];
+    }
     
     // NOTE(zaklaus): pos relative to block's center
     float box = chx - bx * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
@@ -350,7 +366,10 @@ world_block_lookup world_block_from_realpos(float x, float y) {
 }
 
 world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx) {
-    uint8_t block_id = world.block_mapping[id][block_idx];
+    uint8_t block_id = world.outer_block_mapping[id][block_idx];
+    if (block_id == 0) {
+        block_id = world.block_mapping[id][block_idx];
+    }
     
     world_block_lookup lookup = {
         .id = block_idx,
@@ -374,6 +393,12 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
 void world_chunk_replace_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
+    world_chunk_mark_dirty(ecs, world.chunk_mapping[id]);
+}
+
+void world_chunk_replace_outer_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id) {
+    ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
+    world.outer_block_mapping[id][block_idx] = block_id;
     world_chunk_mark_dirty(ecs, world.chunk_mapping[id]);
 }
 

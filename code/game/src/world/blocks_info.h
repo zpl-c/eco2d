@@ -1,6 +1,7 @@
 #pragma once
 
 typedef enum {
+    BLOCK_KIND_EMPTY,
     BLOCK_KIND_DEV,
     BLOCK_KIND_GROUND,
     BLOCK_KIND_DIRT,
