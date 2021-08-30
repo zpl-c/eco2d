@@ -418,10 +418,12 @@ void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id)
     world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
-void world_chunk_replace_outer_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+bool world_chunk_place_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
+    if (world.outer_block_mapping[id][block_idx] != 0 && block_id != 0) return false;
     world.outer_block_mapping[id][block_idx] = block_id;
     world_chunk_mark_dirty(world.chunk_mapping[id]);
+    return true;
 }
 
 uint8_t *world_chunk_get_blocks(int64_t id) {

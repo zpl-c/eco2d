@@ -5,7 +5,7 @@ static item_desc items[] = {
         .kind = IKIND_DEMO_ICEMAKER,
         .usage = UKIND_PLACE,
         .asset = ASSET_DEMO_ICEMAKER,
-        .max_quantity = 4,
+        .max_quantity = 64,
         
         .place = {
             .biome = BLOCK_BIOME_DEV,

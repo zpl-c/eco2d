@@ -21,7 +21,7 @@ ActSpawnCar(void) {
 
 void
 ActSpawnIcemaker(void) {
-    ecs_entity_t e = item_spawn(IKIND_DEMO_ICEMAKER, 1);
+    ecs_entity_t e = item_spawn(IKIND_DEMO_ICEMAKER, 32);
     ecs_entity_t plr = camera_get().ent_id;
     
     Position const* origin = ecs_get(world_ecs(), plr, Position);
@@ -63,7 +63,7 @@ ActPlaceIceRink(void) {
     for (int y = 0; y < 100; y++) {
         for (int x = 0; x < 100; x++) {
             world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
-            world_chunk_replace_outer_block(l.chunk_id, l.id, watr_id);
+            world_chunk_replace_block(l.chunk_id, l.id, watr_id);
         }
     }
     
@@ -79,7 +79,7 @@ ActEraseWorldChanges(void) {
     for (int y = 0; y < 100; y++) {
         for (int x = 0; x < 100; x++) {
             world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
-            world_chunk_replace_outer_block(l.chunk_id, l.id, 0);
+            world_chunk_place_block(l.chunk_id, l.id, 0);
         }
     }
     
