@@ -1,6 +1,9 @@
 #pragma once
 #include "system.h"
 #include "assets.h"
+#include "items.h"
+
+#include "modules/components.h"
 
 #define ZPL_PICO
 #include "zpl.h"
@@ -57,6 +60,12 @@ typedef struct entity_view {
     
     // NOTE(zaklaus): items, ...
     asset_id asset;
+    uint32_t quantity;
+    
+    // NOTE(zaklaus): inventory
+    uint8_t has_items;
+    ItemDrop items[ITEMS_INVENTORY_SIZE];
+    uint8_t selected_item;
     
     // NOTE(zaklaus): internals
     uint8_t layer_id;

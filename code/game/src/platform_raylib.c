@@ -21,6 +21,9 @@ static bool request_shutdown;
 #define GFX_KIND 2
 #include "renderer_bridge.c"
 
+// NOTE(zaklaus): add-ins
+#include "gui/inventory.c"
+
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
     SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
@@ -63,7 +66,7 @@ void platform_input() {
     // NOTE(zaklaus): keystate handling
     {
         float x=0.0f, y=0.0f;
-        uint8_t use, sprint;
+        uint8_t use, sprint, drop, ctrl;
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
         if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
         if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y += 1.0f;
@@ -71,20 +74,23 @@ void platform_input() {
         
         use = IsKeyPressed(KEY_SPACE);
         sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+        ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+        drop = IsKeyPressed(KEY_G) || inv_drop_item;
         
         // NOTE(zaklaus): NEW! mouse movement
+        Vector2 mouse_pos = GetMousePosition();
+        mouse_pos.x /= screenWidth;
+        mouse_pos.y /= screenHeight;
+        mouse_pos.x -= 0.5f;
+        mouse_pos.y -= 0.5f;
+        mouse_pos = Vector2Normalize(mouse_pos);
+        
         if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
-            Vector2 mouse_pos = GetMousePosition();
-            mouse_pos.x /= screenWidth;
-            mouse_pos.y /= screenHeight;
-            mouse_pos.x -= 0.5f;
-            mouse_pos.y -= 0.5f;
-            mouse_pos = Vector2Normalize(mouse_pos);
             x = mouse_pos.x;
             y = -mouse_pos.y;
         }
         
-        game_action_send_keystate(x, y, use, sprint);
+        game_action_send_keystate(x, y, mouse_pos.x, mouse_pos.y, use, sprint, ctrl, drop, inv_selected_item, inv_swap, inv_swap_from, inv_swap_to);
     }
     
     // NOTE(zaklaus): cycle through viewers
@@ -126,6 +132,10 @@ void platform_render() {
             renderer_draw();
         }
         renderer_debug_draw();
+        {
+            // NOTE(zaklaus): add-ins
+            inventory_draw();
+        }
         debug_draw();
         display_conn_status();
     }

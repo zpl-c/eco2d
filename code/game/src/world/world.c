@@ -55,6 +55,21 @@ entity_view world_build_entity_view(int64_t e) {
     if (ecs_get(world_ecs(), e, ItemDrop)) {
         ItemDrop const* dr = ecs_get(world_ecs(), e, ItemDrop);
         view.asset = item_get_asset(dr->kind);
+        view.quantity = dr->quantity;
+        
+        const Input *in = ecs_get(world_ecs(), e, Input);
+        if (in)
+            view.selected_item = in->selected_item;
+    }
+    
+    Inventory *inv = 0;
+    if ((inv = ecs_get_mut_if(world_ecs(), e, Inventory))) {
+        view.has_items = true;
+        
+        for (int i = 0; i < ITEMS_INVENTORY_SIZE; i += 1) {
+            view.items[i] = inv->items[i];
+        }
+        
     }
     
     Chunk *chpos = 0;
@@ -305,7 +320,14 @@ uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
 }
 
 ecs_world_t * world_ecs() {
+    if (world.ecs_stage != NULL) {
+        return world.ecs_stage;
+    }
     return world.ecs;
+}
+
+void world_set_stage(ecs_world_t *ecs) {
+    world.ecs_stage = ecs;
 }
 
 librg_world *world_tracker() {
@@ -391,32 +413,32 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
     return librg_entity_chunk_get(world.tracker, id);
 }
 
-void world_chunk_replace_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id) {
+void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
-    world_chunk_mark_dirty(ecs, world.chunk_mapping[id]);
+    world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
-void world_chunk_replace_outer_block(ecs_world_t *ecs, int64_t id, uint16_t block_idx, uint8_t block_id) {
+void world_chunk_replace_outer_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.outer_block_mapping[id][block_idx] = block_id;
-    world_chunk_mark_dirty(ecs, world.chunk_mapping[id]);
+    world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
 uint8_t *world_chunk_get_blocks(int64_t id) {
     return world.block_mapping[id];
 }
 
-void world_chunk_mark_dirty(ecs_world_t *ecs, ecs_entity_t e) {
+void world_chunk_mark_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = ecs_get_mut(ecs, e, Chunk, &was_added);
+    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
     ZPL_ASSERT(!was_added);
     if (chunk) chunk->is_dirty = true;
 }
 
-uint8_t world_chunk_is_dirty(ecs_world_t *ecs, ecs_entity_t e) {
+uint8_t world_chunk_is_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = ecs_get_mut(ecs, e, Chunk, &was_added);
+    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
     ZPL_ASSERT(!was_added);
     if (chunk) return chunk->is_dirty;
     return false;
@@ -445,5 +467,5 @@ int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) 
 
 uint8_t world_entity_valid(ecs_entity_t e) {
     if (!e) return false;
-    return ecs_is_alive(world.ecs, e);
+    return ecs_is_alive(world_ecs(), e);
 }

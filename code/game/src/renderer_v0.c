@@ -56,6 +56,16 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             DrawRectangleEco(x-title_w/2-title_bg_offset/2, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
+            
+            if (data->has_items) {
+                float ix = data->x;
+                float iy = data->y;
+                if (data->items[data->selected_item].quantity > 0) {
+                    item_kind it_kind = data->items[data->selected_item].kind;
+                    uint16_t it_id = item_find(it_kind);
+                    DrawTexturePro(GetSpriteTexture2D(assets_find(item_get_asset(it_id))), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+                }
+            }
         }break;
         case EKIND_MACRO_BOT: {
             float x = data->x;
@@ -70,6 +80,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             float x = data->x - 32.f;
             float y = data->y - 32.f;
             DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+            DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f); 
         }break;
         default:break;
     }

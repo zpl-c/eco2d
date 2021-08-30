@@ -14,6 +14,7 @@
 #include "source/system_onfoot.c"
 #include "source/system_demo.c"
 #include "source/system_vehicle.c"
+#include "source/system_items.c"
 
 inline float physics_correction(float x, float vx, float bounce) {
     float r = (((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f));
@@ -131,9 +132,19 @@ void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
     }
 }
 
+void EnableWorldEdit(ecs_iter_t *it) {
+    world_set_stage(it->world);
+}
+
+void DisableWorldEdit(ecs_iter_t *it) {
+    (void)it;
+    world_set_stage(NULL);
+}
+
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     
+    ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
     
@@ -146,10 +157,16 @@ void SystemsImport(ecs_world_t *ecs) {
     
     ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, LeaveVehicle, EcsPostUpdate, components.Input, components.IsInVehicle, components.Velocity);
-    ECS_SYSTEM(ecs, DemoPlaceIceBlock, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
+    
+    ECS_SYSTEM(ecs, PickItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
+    ECS_SYSTEM(ecs, DropItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
+    ECS_SYSTEM(ecs, SwapItems, EcsPostUpdate, components.Input, components.Inventory);
+    ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position, components.Velocity);
     
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
+    
+    ECS_SYSTEM(ecs, DisableWorldEdit, EcsPostUpdate);
     
 }

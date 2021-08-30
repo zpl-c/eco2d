@@ -63,7 +63,7 @@ ActPlaceIceRink(void) {
     for (int y = 0; y < 100; y++) {
         for (int x = 0; x < 100; x++) {
             world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
-            world_chunk_replace_outer_block(world_ecs(), l.chunk_id, l.id, watr_id);
+            world_chunk_replace_outer_block(l.chunk_id, l.id, watr_id);
         }
     }
     
@@ -79,7 +79,7 @@ ActEraseWorldChanges(void) {
     for (int y = 0; y < 100; y++) {
         for (int x = 0; x < 100; x++) {
             world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
-            world_chunk_replace_outer_block(world_ecs(), l.chunk_id, l.id, 0);
+            world_chunk_replace_outer_block(l.chunk_id, l.id, 0);
         }
     }
     

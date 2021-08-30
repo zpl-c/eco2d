@@ -9,17 +9,33 @@
 pkt_desc pkt_send_keystate_desc[] = {
     { PKT_REAL(pkt_send_keystate, x) },
     { PKT_REAL(pkt_send_keystate, y) },
+    { PKT_REAL(pkt_send_keystate, mx) },
+    { PKT_REAL(pkt_send_keystate, my) },
     { PKT_UINT(pkt_send_keystate, use) },
     { PKT_UINT(pkt_send_keystate, sprint) },
+    { PKT_UINT(pkt_send_keystate, ctrl) },
+    { PKT_UINT(pkt_send_keystate, selected_item) },
+    { PKT_UINT(pkt_send_keystate, drop) },
+    { PKT_UINT(pkt_send_keystate, swap) },
+    { PKT_UINT(pkt_send_keystate, swap_from) },
+    { PKT_UINT(pkt_send_keystate, swap_to) },
     { PKT_END },
 };
 
 size_t pkt_send_keystate_send(uint16_t view_id,
                               float x,
                               float y,
+                              float mx,
+                              float my,
                               uint8_t use,
-                              uint8_t sprint) {
-    pkt_send_keystate table = { .x = x, .y = y, .use = use, .sprint = sprint };
+                              uint8_t sprint,
+                              uint8_t ctrl,
+                              uint8_t drop,
+                              uint8_t selected_item,
+                              uint8_t swap,
+                              uint8_t swap_from,
+                              uint8_t swap_to) {
+    pkt_send_keystate table = { .x = x, .y = y, .mx = mx, .my = my, .use = use, .sprint = sprint, .ctrl = ctrl, .drop = drop, .selected_item = selected_item, .swap = swap, .swap_from = swap_from, .swap_to = swap_to };
     return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_send_keystate_encode(&table), 1, view_id, NULL);
 }
 
@@ -39,8 +55,16 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
     if (i && !i->is_blocked) {
         i->x = table.x;
         i->y = table.y;
+        i->mx = table.mx;
+        i->my = table.my;
         i->use = table.use;
         i->sprint = table.sprint;
+        i->ctrl = table.ctrl;
+        i->selected_item = zpl_clamp(table.selected_item, 0, ITEMS_INVENTORY_SIZE-1);
+        i->drop = table.drop;
+        i->swap = table.swap;
+        i->swap_from = zpl_clamp(table.swap_from, 0, ITEMS_INVENTORY_SIZE-1);
+        i->swap_to = zpl_clamp(table.swap_to, 0, ITEMS_INVENTORY_SIZE-1);
         debug_replay_record_keystate(table);
     }
     

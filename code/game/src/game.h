@@ -28,7 +28,19 @@ void game_world_view_set_active_by_idx(uint16_t idx);
 void game_world_view_set_active(world_view *view);
 void game_world_view_cycle_active(int8_t dir);
 void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_view * value));
+entity_view *game_world_view_active_get_entity(uint64_t ent_id);
 void game_world_cleanup_entities(void);
 
 //~ NOTE(zaklaus): viewer -> host actions
-void game_action_send_keystate(float x, float y, uint8_t use, uint8_t sprint);
+void game_action_send_keystate(float x, 
+                               float y,
+                               float mx, 
+                               float my,
+                               uint8_t use,
+                               uint8_t sprint,
+                               uint8_t ctrl,
+                               uint8_t drop,
+                               uint8_t selected_item,
+                               uint8_t swap,
+                               uint8_t swap_from,
+                               uint8_t swap_to);

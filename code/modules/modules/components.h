@@ -1,7 +1,6 @@
 #pragma once
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
-#include "items.h"
 
 //NOTE(zaklaus): custom macro to define meta components outside the current scope
 
@@ -15,6 +14,8 @@ ecs_new_meta(world, ecs_entity(T), &__##T##__);
 #define ecs_get_mut_if(world, entity, component)\
 (ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component, NULL) : NULL)
 #endif
+
+#define ITEMS_INVENTORY_SIZE 9
 
 ECS_STRUCT(Vector2D, {
                float x;
@@ -38,9 +39,19 @@ ECS_ALIAS(Vector2D, Velocity);
 ECS_STRUCT(Input, {
                float x;
                float y;
+               float mx;
+               float my;
                uint8_t use;
                uint8_t sprint;
+               uint8_t ctrl;
                uint8_t is_blocked;
+               
+               // NOTE(zaklaus): inventory
+               uint8_t selected_item;
+               uint8_t drop;
+               uint8_t swap;
+               uint8_t swap_from;
+               uint8_t swap_to;
            });
 
 ECS_STRUCT(ClientInfo, {
@@ -78,9 +89,14 @@ typedef struct {
 } IsInVehicle;
 
 typedef struct {
-    item_kind kind;
+    uint16_t kind;
     uint32_t quantity;
 } ItemDrop;
+
+typedef struct {
+    ItemDrop items[ITEMS_INVENTORY_SIZE];
+    float pickup_time;
+} Inventory;
 
 ECS_COMPONENT_EXTERN(Chunk);
 ECS_COMPONENT_EXTERN(Position);
@@ -94,6 +110,7 @@ ECS_COMPONENT_EXTERN(Classify);
 ECS_COMPONENT_EXTERN(Vehicle);
 ECS_COMPONENT_EXTERN(IsInVehicle);
 ECS_COMPONENT_EXTERN(ItemDrop);
+ECS_COMPONENT_EXTERN(Inventory);
 ECS_TAG_EXTERN(EcsActor);
 ECS_TAG_EXTERN(EcsDemoNPC);
 ECS_TYPE_EXTERN(Player);
@@ -116,6 +133,7 @@ typedef struct {
     ECS_DECLARE_COMPONENT(Vehicle);
     ECS_DECLARE_COMPONENT(IsInVehicle);
     ECS_DECLARE_COMPONENT(ItemDrop);
+    ECS_DECLARE_COMPONENT(Inventory);
     ECS_DECLARE_ENTITY(EcsActor);
     ECS_DECLARE_ENTITY(EcsDemoNPC);
     ECS_DECLARE_TYPE(Player);
@@ -139,6 +157,7 @@ ECS_IMPORT_COMPONENT(handles, Classify);\
 ECS_IMPORT_COMPONENT(handles, Vehicle);\
 ECS_IMPORT_COMPONENT(handles, IsInVehicle);\
 ECS_IMPORT_COMPONENT(handles, ItemDrop);\
+ECS_IMPORT_COMPONENT(handles, Inventory);\
 ECS_IMPORT_TYPE(handles, Player);\
 ECS_IMPORT_TYPE(handles, Builder);\
 ECS_IMPORT_TYPE(handles, Movement);\

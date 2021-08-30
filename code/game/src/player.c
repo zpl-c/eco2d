@@ -22,6 +22,7 @@ uint64_t player_spawn(char *name) {
     ecs_set_name(world_ecs(), e, name);
     ecs_set(world_ecs(), e, ClientInfo, {0});
     ecs_set(world_ecs(), e, Input, {0});
+    ecs_set(world_ecs(), e, Inventory, {0});
     ecs_set(world_ecs(), e, Health, {.hp = PLAYER_MAX_HP, .max_hp = PLAYER_MAX_HP});
     ecs_add(world_ecs(), e, Player);
     

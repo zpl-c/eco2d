@@ -26,8 +26,14 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_KEEP_IF(entity_view, kind, EKIND_VEHICLE, 1) }, // NOTE(zaklaus): keep for vehicles
     { PKT_HALF(entity_view, heading) },
     
-    { PKT_KEEP_IF(entity_view, kind, EKIND_ITEM, 1) },
+    { PKT_KEEP_IF(entity_view, kind, EKIND_ITEM, 2) },
     { PKT_UINT(entity_view, asset) },
+    { PKT_UINT(entity_view, quantity) },
+    
+    { PKT_KEEP_IF(entity_view, has_items, true, 3) },
+    { PKT_UINT(entity_view, has_items) },
+    { PKT_ARRAY(entity_view, items) },
+    { PKT_UINT(entity_view, selected_item) },
     
     { PKT_END }, 
 };

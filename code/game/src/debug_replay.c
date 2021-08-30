@@ -147,6 +147,7 @@ void debug_replay_run(void) {
     *pos = *p1;
     
     ecs_set(world_ecs(), mime, Input, {0});
+    ecs_set(world_ecs(), mime, Inventory, {0});
     
     camera_set_follow(mime);
 }
@@ -167,8 +168,16 @@ void debug_replay_update(void) {
             Input *i = ecs_get_mut(world_ecs(), mime, Input, NULL);
             i->x = r->pkt.x;
             i->y = r->pkt.y;
+            i->mx = r->pkt.mx;
+            i->my = r->pkt.my;
             i->use = r->pkt.use;
             i->sprint = r->pkt.sprint;
+            i->ctrl = r->pkt.ctrl;
+            i->selected_item = r->pkt.selected_item;
+            i->drop = r->pkt.drop;
+            i->swap = r->pkt.swap;
+            i->swap_from = r->pkt.swap_from;
+            i->swap_to = r->pkt.swap_to;
         }break;
         case RPKIND_SPAWN_CAR: {
             ecs_entity_t e = vehicle_spawn();

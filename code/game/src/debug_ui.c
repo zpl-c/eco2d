@@ -72,18 +72,6 @@ typedef struct debug_item {
     debug_draw_result (*proc)(struct debug_item*, float, float);
 } debug_item;
 
-typedef enum {
-    DAREA_OUTSIDE,
-    DAREA_HOVER,
-    DAREA_HELD,
-    DAREA_PRESS,
-    
-    DAREA_FORCE_UINT8 = UINT8_MAX
-} debug_area_status;
-
-debug_area_status check_mouse_area(float xpos, float ypos, float w, float h);
-bool is_btn_pressed(float xpos, float ypos, float w, float h, Color *color);
-
 static void UIDrawText(const char *text, float posX, float posY, int fontSize, Color color);
 static int UIMeasureText(const char *text, int fontSize);
 
