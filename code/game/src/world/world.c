@@ -56,10 +56,6 @@ entity_view world_build_entity_view(int64_t e) {
         ItemDrop const* dr = ecs_get(world_ecs(), e, ItemDrop);
         view.asset = item_get_asset(dr->kind);
         view.quantity = dr->quantity;
-        
-        const Input *in = ecs_get(world_ecs(), e, Input);
-        if (in)
-            view.selected_item = in->selected_item;
     }
     
     Inventory *inv = 0;
@@ -70,6 +66,9 @@ entity_view world_build_entity_view(int64_t e) {
             view.items[i] = inv->items[i];
         }
         
+        const Input *in = ecs_get(world_ecs(), e, Input);
+        if (in)
+            view.selected_item = in->selected_item;
     }
     
     Chunk *chpos = 0;

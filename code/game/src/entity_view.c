@@ -32,8 +32,8 @@ pkt_desc pkt_entity_view_desc[] = {
     
     { PKT_KEEP_IF(entity_view, has_items, true, 3) },
     { PKT_UINT(entity_view, has_items) },
-    { PKT_ARRAY(entity_view, items) },
     { PKT_UINT(entity_view, selected_item) },
+    { PKT_ARRAY(entity_view, items) },
     
     { PKT_END }, 
 };
@@ -51,14 +51,6 @@ entity_view entity_view_unpack_struct(void *data, size_t len) {
     
     entity_view view = {0};
     pkt_unpack_struct(&uc, pkt_entity_view_desc, PKT_STRUCT_PTR(&view));
-#if 0
-    if (view.kind == EKIND_CHUNK) {
-        for (int i=0;i<256;i++){
-            zpl_printf("%d, ", view.blocks[i]);
-        }
-        zpl_exit(0);
-    }
-#endif
     
     return view;
 }
