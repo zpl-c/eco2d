@@ -86,9 +86,6 @@ void VehicleHandling(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i++) {
         Vehicle *car = &veh[i];
         
-        // NOTE(zaklaus): Apply friction
-        car->steer *= 0.97f;
-        
         for (int j = 0; j < 4; j++) {
             // NOTE(zaklaus): Perform seat cleanup
             if (!world_entity_valid(veh[i].seats[j])) {
@@ -109,6 +106,7 @@ void VehicleHandling(ecs_iter_t *it) {
                     if (zpl_abs(car->force) < 5.5f) 
                         car->force = 0.0f;
                 }
+                car->steer *= 0.97f;
                 car->steer += (in->x * VEHICLE_STEER)*it->delta_time;
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
