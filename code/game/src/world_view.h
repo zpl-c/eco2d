@@ -9,6 +9,7 @@ typedef struct {
     entity_view_tbl entities;
     librg_world *tracker;
     
+    uint32_t seed;
     uint32_t size;
     uint32_t dim;
     uint16_t chunk_size;
@@ -21,5 +22,5 @@ typedef struct {
 } world_view;
 
 world_view world_view_create(uint16_t view_id);
-void world_view_init(world_view *view, uint64_t ent_id, uint16_t chunk_size, uint16_t chunk_amount);
+void world_view_init(world_view *view, uint32_t seed, uint64_t ent_id, uint16_t chunk_size, uint16_t chunk_amount);
 void world_view_destroy(world_view *view);

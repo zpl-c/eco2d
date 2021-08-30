@@ -318,6 +318,10 @@ uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
     return world.size;
 }
 
+uint32_t world_seed(void) {
+    return world.seed;
+}
+
 ecs_world_t * world_ecs() {
     if (world.ecs_stage != NULL) {
         return world.ecs_stage;

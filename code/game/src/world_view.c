@@ -75,7 +75,8 @@ world_view world_view_create(uint16_t view_id) {
     return view;
 }
 
-void world_view_init(world_view *view, uint64_t ent_id, uint16_t chunk_size, uint16_t chunk_amount) {
+void world_view_init(world_view *view, uint32_t seed, uint64_t ent_id, uint16_t chunk_size, uint16_t chunk_amount) {
+    view->seed = seed;
     view->owner_id = ent_id;
     view->chunk_size = chunk_size;
     view->chunk_amount = chunk_amount;

@@ -55,6 +55,7 @@ int32_t world_read(void* data, uint32_t datalen, void *udata);
 int32_t world_write(pkt_header *pkt, void *udata);
 
 uint32_t world_buf(uint8_t const **ptr, uint32_t *width);
+uint32_t world_seed(void);
 ecs_world_t *world_ecs(void);
 void world_set_stage(ecs_world_t *ecs);
 librg_world *world_tracker(void);

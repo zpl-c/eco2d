@@ -5,6 +5,7 @@
 #include "raylib.h"
 #include "gen/texgen.h"
 #include "world_view.h"
+#include "perlin.h"
 
 #define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 
@@ -111,7 +112,7 @@ void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_c
             DrawTexturePro(blk, src, dst, (Vector2){0.0f,0.0f}, 0.0f, WHITE);
 #else
             static float rots[] = { 0.0f, 90.0f, 180.f, 270.0f };
-            float rot = rots[rand() % 4];
+            float rot = rots[(int32_t)(perlin_fbm(view->seed, x, y, 1.2f, 3) * 4.0f) % 4];
             float half_block = WORLD_BLOCK_SIZE / 2.0f;
             Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
