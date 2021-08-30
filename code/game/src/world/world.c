@@ -215,6 +215,7 @@ int32_t world_destroy(void) {
     zpl_mfree(world.chunk_mapping);
     for (int i = 0; i < zpl_square(world.chunk_amount); i+=1) {
         zpl_mfree(world.block_mapping[i]);
+        zpl_mfree(world.outer_block_mapping[i]);
     }
     zpl_mfree(world.block_mapping);
     zpl_mfree(world.outer_block_mapping);
