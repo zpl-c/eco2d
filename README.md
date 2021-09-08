@@ -42,7 +42,6 @@ In the abstract sense, we call the Server the game master hosting all gameplay r
 
 ## Major things to do
 * More believable world generation.
-* Networking implementation, the communication part is done, but there's currently no way to start a headless server or connect to it anyhow.
 * Improved rendering - the current world structure does not allow for layered blocks, but it's something worth looking into.
 * UI and visual effects
 

@@ -1,4 +1,5 @@
 #include "debug_draw.h"
+#include "game.h"
 
 static debug_draw_queue draw_queue = {0};
 
@@ -26,6 +27,7 @@ bool debug_draw_state(void) {
 
 inline void debug_push_entry(debug_draw_entry entry) {
     if (!draw_is_enabled) return;
+    if (game_get_kind() == GAMEKIND_HEADLESS) return;
     ZPL_ASSERT(draw_queue.num_entries < DEBUG_DRAW_MAX_ENTRIES);
     draw_queue.entries[draw_queue.num_entries++] = entry;
 }

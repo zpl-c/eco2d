@@ -7,6 +7,10 @@
 #include "world/blocks.h"
 #include "world/perlin.h"
 
+#include "modules/components.h"
+#include "vehicle.h"
+#include "items.h"
+
 #define WORLD_BLOCK_OBSERVER(name) uint8_t name(uint8_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
@@ -170,6 +174,28 @@ int32_t worldgen_test(world_data *wld) {
     const uint32_t HILLS_SIZE = 21;
     for (int i=0; i<RAND_RANGE(8, 124); i++) {
         world_fill_rect_anchor(wall_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise50);
+    }
+#endif
+    
+    // vehicles
+#if 1
+    for (int i=0; i<RAND_RANGE(258, 1124); i++) {
+        uint64_t e = vehicle_spawn();
+        
+        Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+        dest->x = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
+        dest->y = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
+    }
+#endif
+    
+    // items
+#if 1
+    for (int i=0; i<RAND_RANGE(328, 164); i++) {
+        uint64_t e = item_spawn(IKIND_DEMO_ICEMAKER, 32);
+        
+        Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+        dest->x = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
+        dest->y = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
     }
 #endif
     

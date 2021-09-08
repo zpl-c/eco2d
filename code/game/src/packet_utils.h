@@ -109,10 +109,6 @@ static inline int32_t pkt_world_write(pkt_messages id, size_t pkt_size, int8_t i
 #define PKT_END .type = CWP_NOT_AN_ITEM
 #endif
 
-#ifndef PKT_GET_ENT
-#define PKT_GET_ENT(h) (ecs_entity_t)(h->udata)
-#endif
-
 typedef struct pkt_desc {
     const char *name;
     cwpack_item_types type;

@@ -3,6 +3,7 @@
 #include "packet.h"
 #include "world/world.h"
 #include "game.h"
+#include "network.h"
 #include "entity_view.h"
 #include "camera.h"
 #include "player.h"
@@ -33,7 +34,16 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     
     uint64_t peer_id = (uint64_t)header->udata;
     uint64_t ent_id = player_spawn(NULL);
-    ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = ent_id, .view_id = header->view_id });
+    
+    Position *pos = ecs_get_mut(world_ecs(), ent_id, Position, NULL);
+    pos->x = world_dim()/2.0f + rand()%15*15.0f;
+    pos->y = world_dim()/2.0f + rand()%15*15.0f;
+    
+    
+    if (game_get_kind() == GAMEKIND_SINGLE) peer_id = ent_id;
+    else network_server_assign_entity(header->udata, ent_id);
+    
+    ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id });
     pkt_01_welcome_send(world_seed(), peer_id, header->view_id, ent_id, world_chunk_size(), world_chunk_amount());
     return 0;
 }

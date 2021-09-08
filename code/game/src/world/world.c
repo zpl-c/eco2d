@@ -261,7 +261,7 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
                     librg_entity_radius_set(world_tracker(), p[i].peer, radius);
                 }
                 // TODO(zaklaus): push radius once librg patch comes in
-                int32_t result = librg_world_write(world_tracker(), p[i].peer, buffer, &datalen, NULL);
+                int32_t result = librg_world_write(world_tracker(), it.entities[i], buffer, &datalen, NULL);
                 
                 if (result > 0) {
                     zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);

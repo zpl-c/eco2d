@@ -47,12 +47,21 @@ static WORLD_PKT_WRITER(sp_pkt_writer) {
 }
 
 static WORLD_PKT_WRITER(mp_pkt_writer) {
-    (void)udata;
     if (pkt->is_reliable) {
-        return network_msg_send(pkt->data, pkt->datalen);
+        return network_msg_send(udata, pkt->data, pkt->datalen);
     }
     else {
-        return network_msg_send_unreliable(pkt->data, pkt->datalen);
+        return network_msg_send_unreliable(udata, pkt->data, pkt->datalen);
+    }
+}
+
+static WORLD_PKT_WRITER(mp_cli_pkt_writer) {
+    (void)udata;
+    if (pkt->is_reliable) {
+        return network_msg_send(0, pkt->data, pkt->datalen);
+    }
+    else {
+        return network_msg_send_unreliable(0, pkt->data, pkt->datalen);
     }
 }
 
@@ -130,17 +139,25 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
     }
     
     if (game_mode == GAMEKIND_CLIENT) {
-        world_setup_pkt_handlers(pkt_reader, mp_pkt_writer);
+        world_setup_pkt_handlers(pkt_reader, mp_cli_pkt_writer);
+#ifndef _DEBUG
+        network_client_connect("lab.zakto.pw", 27000);
+#else
         network_client_connect("127.0.0.1", 27000);
+#endif
     } else {
         stdcpp_set_os_api();
-        world_setup_pkt_handlers(pkt_reader, sp_pkt_writer);
+        world_setup_pkt_handlers(pkt_reader, game_mode == GAMEKIND_SINGLE ? sp_pkt_writer : mp_pkt_writer);
         world_init(seed, chunk_size, chunk_amount);
         if (is_dash_enabled) flecs_dash_init();
         //ecs_set_target_fps(world_ecs(), 60);
+        
+        if (game_mode == GAMEKIND_HEADLESS) {
+            network_server_start(0, 27000);
+        }
     }
     
-    if (game_mode != GAMEKIND_HEADLESS) {
+    if (game_mode == GAMEKIND_SINGLE) {
         for (uint32_t i = 0; i < num_viewers; i++) {
             pkt_00_init_send(i);
         }
@@ -157,6 +174,10 @@ void game_shutdown() {
         network_client_disconnect();
     } else {
         world_destroy();
+        
+        if (game_mode == GAMEKIND_HEADLESS) {
+            network_server_stop();
+        }
     }
     
     if (game_mode != GAMEKIND_SINGLE) {
@@ -187,7 +208,13 @@ void game_update() {
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_tick();
     }
-    else world_update();
+    else {
+        world_update();
+        
+        if (game_mode == GAMEKIND_HEADLESS) {
+            network_server_tick();
+        }
+    }
     
     if (game_mode != GAMEKIND_HEADLESS) {
         game_world_cleanup_entities();

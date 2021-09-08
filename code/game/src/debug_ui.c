@@ -57,6 +57,7 @@ typedef struct debug_item {
         struct {
             struct debug_item *items;
             uint8_t is_collapsed;
+            uint8_t is_sp_only;
         } list;
         
         struct {
@@ -118,7 +119,8 @@ static debug_item items[] = {
                     }
                 },
                 { .kind = DITEM_END },
-            }
+            },
+            .is_sp_only = true,
         }
     },
     {
@@ -153,7 +155,8 @@ static debug_item items[] = {
                 { .kind = DITEM_BUTTON, .name = "save as...", .on_click = ActReplaySaveAs },
                 
                 { .kind = DITEM_END },
-            }
+            },
+            .is_sp_only = true,
         }
     },
     {
@@ -209,6 +212,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 UIDrawText(it->name, xpos, ypos, DBG_FONT_SIZE, color);
                 ypos += DBG_FONT_SPACING;
                 if (it->list.is_collapsed) break;
+                if (it->list.is_sp_only && game_get_kind() != GAMEKIND_SINGLE) break;
                 debug_draw_result res = debug_draw_list(it->list.items, xpos+DBG_LIST_XPOS_OFFSET, ypos, is_shadow);
                 ypos = res.y;
             }break;
