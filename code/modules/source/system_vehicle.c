@@ -44,9 +44,13 @@ void EnterVehicle(ecs_iter_t *it) {
         
         size_t ents_count;
         int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
+        bool has_entered_veh = false;
         
         for (size_t j = 0; j < ents_count; j++) {
             Vehicle *veh = 0;
+            
+            if (has_entered_veh) break;
+            
             if ((veh = ecs_get_mut_if(it->world, ents[j], Vehicle))) {
                 Position const* p2 = ecs_get(it->world, ents[j], Position);
                 
@@ -64,6 +68,7 @@ void EnterVehicle(ecs_iter_t *it) {
                                 });
                         p[i] = *p2;
                         in[i].use = false;
+                        has_entered_veh = true;
                         break;
                     }
                 }
