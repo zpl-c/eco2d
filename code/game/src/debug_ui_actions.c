@@ -27,6 +27,8 @@ ActSpawnIcemaker(void) {
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position, NULL);
     *dest = *origin;
+    
+    debug_replay_special_action(RPKIND_SPAWN_ICEMAKER_ITEM);
 }
 
 void
