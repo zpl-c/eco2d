@@ -9,6 +9,7 @@
 #include "world/worldgen/worldgen.h"
 #include "platform.h"
 #include "profiler.h"
+#include "game.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -282,15 +283,24 @@ static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) 
     }
 }
 
-
 int32_t world_update() {
     profile (PROF_UPDATE_SYSTEMS) {
         ecs_progress(world.ecs, 0.0f);
     }
     
-    world_tracker_update(0, WORLD_TRACKER_UPDATE_FAST_MS, 2);
-    world_tracker_update(1, WORLD_TRACKER_UPDATE_NORMAL_MS, 4);
-    world_tracker_update(2, WORLD_TRACKER_UPDATE_SLOW_MS, 6);
+    uint32_t fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
+    uint32_t normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
+    uint32_t slow_ms = WORLD_TRACKER_UPDATE_SLOW_MS;
+    
+    if (game_get_kind() != GAMEKIND_SINGLE) {
+        fast_ms = WORLD_TRACKER_UPDATE_MP_FAST_MS;
+        normal_ms = WORLD_TRACKER_UPDATE_MP_NORMAL_MS;
+        slow_ms = WORLD_TRACKER_UPDATE_MP_SLOW_MS;
+    }
+    
+    world_tracker_update(0, fast_ms, 2);
+    world_tracker_update(1, normal_ms, 4);
+    world_tracker_update(2, slow_ms, 6);
     
     debug_replay_update();
     return 0;

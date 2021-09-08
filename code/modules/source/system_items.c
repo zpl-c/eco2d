@@ -96,8 +96,12 @@ void DropItem(ecs_iter_t *it) {
             if (in[i].sprint) {
                 dropped_count /= 2;
             } else if (in[i].ctrl) {
-                dropped_count = 1;
+                dropped_count = dropped_count > 0 ? 1 : 0;
             }
+            
+            if (dropped_count == 0)
+                continue;
+            
             ecs_entity_t te = item_spawn(item->kind, dropped_count);
             item->quantity -= dropped_count;
             

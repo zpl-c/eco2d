@@ -33,11 +33,11 @@ static inline float spherical_lerp(float a, float b, float t) {
 }
 
 float smooth_val(float cur, float tgt, uint64_t dt) {
-    float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_FAST_MS, WORLD_TRACKER_UPDATE_SLOW_MS)));
+    float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS)));
     
 #if 0
     dt = 200;
-    factor = map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_FAST_MS, WORLD_TRACKER_UPDATE_SLOW_MS));
+    factor = map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS));
     zpl_printf("lerp factor: %f\n", factor);
     zpl_exit(0);
 #endif
@@ -46,7 +46,7 @@ float smooth_val(float cur, float tgt, uint64_t dt) {
 }
 
 float smooth_val_spherical(float cur, float tgt, uint64_t dt) {
-    float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_FAST_MS, WORLD_TRACKER_UPDATE_SLOW_MS)));
+    float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS)));
     
     return spherical_lerp(cur, tgt, zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor));
 }
@@ -75,17 +75,16 @@ void lerp_entity_positions(uint64_t key, entity_view *data) {
     world_view *view = game_world_view_get_active();
     
     if (data->flag == EFLAG_INTERP) {
-        
-#if 0
-        data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
-        data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
-        data->heading = smooth_val_spherical(data->heading, data->theading, view->delta_time[data->layer_id]);
-#else
-        (void)view;
-        data->x = data->tx;
-        data->y = data->ty;
-        data->heading = data->theading;
-#endif
+        if (game_get_kind() == GAMEKIND_CLIENT) {
+            data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
+            data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
+            data->heading = smooth_val_spherical(data->heading, data->theading, view->delta_time[data->layer_id]);
+        } else {
+            (void)view;
+            data->x = data->tx;
+            data->y = data->ty;
+            data->heading = data->theading;
+        }
     }
 }
 

@@ -186,7 +186,9 @@ void game_shutdown() {
     
     if (game_mode != GAMEKIND_HEADLESS) {
         world_viewers_destroy();
-        platform_shutdown();
+        
+        // TODO(zaklaus): crashes on exit
+        //platform_shutdown();
     }
 }
 
