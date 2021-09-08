@@ -16,6 +16,7 @@ typedef struct {
     uint8_t swap_from;
     uint8_t swap_to;
 } pkt_send_keystate;
+
 size_t pkt_send_keystate_send(uint16_t view_id,
                               float x,
                               float y,

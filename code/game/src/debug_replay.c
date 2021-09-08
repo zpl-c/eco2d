@@ -20,6 +20,8 @@ typedef struct {
     uint64_t delay;
 } replay_record;
 
+#include "debug_replay_compat_v2.c"
+
 static uint8_t is_recording = false;
 static replay_record *records = NULL;
 static uint64_t last_record_time = 0.0f;
@@ -32,7 +34,7 @@ static ecs_entity_t plr = 0;
 static ecs_entity_t *temp_actors = NULL;
 
 #define REPLAY_MAGIC 0x421DC97E
-#define REPLAY_VERSION 2
+#define REPLAY_VERSION 3
 
 static char replay_filename[1024] = {0};
 static char replaybuf[sizeof(replay_record)*UINT16_MAX + 32];
@@ -75,7 +77,11 @@ void debug_replay_load(void) {
     ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_MAGIC);
     
     cw_unpack_next(&uc);
-    ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_VERSION);
+    ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER);
+    
+    uint64_t version = uc.item.as.u64;
+    
+    ZPL_ASSERT(version >= 2);
     
     cw_unpack_next(&uc);
     ZPL_ASSERT(uc.item.type == CWP_ITEM_ARRAY);
@@ -86,9 +92,17 @@ void debug_replay_load(void) {
     for (size_t i = 0; i < items; i++) {
         cw_unpack_next(&uc);
         ZPL_ASSERT(uc.item.type == CWP_ITEM_BIN);
-        
         replay_record rec = {0};
-        zpl_memcopy(&rec, uc.item.as.bin.start, sizeof(replay_record));
+        
+        switch (version) {
+            case 2:{
+                debug_replay_load_record_v2(&rec, uc.item.as.bin.start);
+            }break;
+            
+            default:{
+                zpl_memcopy(&rec, uc.item.as.bin.start, sizeof(replay_record));
+            }break;
+        }
         zpl_array_append(records, rec);
     }
 }

@@ -156,10 +156,18 @@ void VehicleHandling(ecs_iter_t *it) {
             debug_v2 b2 = {p[i].x + zpl_cos(car->heading)*(car->wheel_base), p[i].y + zpl_sin(car->heading)*(car->wheel_base)};
             debug_push_line((debug_v2){p[i].x, p[i].y}, b2, 0x0000FFFF);
             
+            // NOTE(zaklaus): force
             {
                 float dx = zpl_cos(car->heading);
                 float dy = zpl_sin(car->heading);
                 debug_push_circle((debug_v2){p[i].x+dx*car->force, p[i].y+dy*car->force}, 5.0f, 0x00FF00FF);
+            }
+            
+            // NOTE(zaklaus): steer
+            {
+                float dx = zpl_sin(car->heading);
+                float dy = -zpl_cos(car->heading);
+                debug_push_circle((debug_v2){p[i].x+dx*car->steer*-20, p[i].y+dy*car->steer*-20}, 5.0f, 0x00FFAAFF);
             }
         }
     }
