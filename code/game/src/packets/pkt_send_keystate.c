@@ -57,8 +57,8 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
     
     Input *i = ecs_get_mut(world_ecs(), e, Input, NULL);
     if (i && !i->is_blocked) {
-        i->x = table.x;
-        i->y = table.y;
+        i->x = zpl_clamp(table.x, -1.0f, 1.0f);
+        i->y = zpl_clamp(table.y, -1.0f, 1.0f);
         i->mx = table.mx;
         i->my = table.my;
         i->use = table.use;

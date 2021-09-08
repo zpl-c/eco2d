@@ -150,10 +150,10 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
         world_setup_pkt_handlers(pkt_reader, game_mode == GAMEKIND_SINGLE ? sp_pkt_writer : mp_pkt_writer);
         world_init(seed, chunk_size, chunk_amount);
         if (is_dash_enabled) flecs_dash_init();
-        //ecs_set_target_fps(world_ecs(), 60);
         
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_start(0, 27000);
+            ecs_set_target_fps(world_ecs(), 60);
         }
     }
     
