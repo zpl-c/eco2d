@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     
     zpl_opts_add(&opts, "?", "help", "the HELP section", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "v", "viewer-only", "run viewer-only client", ZPL_OPTS_FLAG);
+    zpl_opts_add(&opts, "d", "server-only", "run dedicated server", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "c", "viewer-count", "number of viewers (detachable clients)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "ed", "enable-dash", "enables flecs dash", ZPL_OPTS_FLAG);
@@ -43,11 +44,17 @@ int main(int argc, char** argv) {
     }
     
     int8_t is_viewer_only = zpl_opts_has_arg(&opts, "viewer-only");
+    int8_t is_server_only = zpl_opts_has_arg(&opts, "server-only");
     int8_t is_dash_enabled = zpl_opts_has_arg(&opts, "enable-dash");
     int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
     uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
     uint16_t chunk_size = DEFAULT_CHUNK_SIZE; //zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
     uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
+    
+    game_kind play_mode = GAMEKIND_SINGLE;
+    
+    if (is_viewer_only) play_mode = GAMEKIND_CLIENT;
+    if (is_server_only) play_mode = GAMEKIND_HEADLESS;
     
     if (zpl_opts_has_arg(&opts, "random-seed")) {
         zpl_random rnd={0};
@@ -62,7 +69,7 @@ int main(int argc, char** argv) {
     }
     
     sighandler_register();
-    game_init(is_viewer_only, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
+    game_init(play_mode, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
     
     while (game_is_running()) {
         profile (PROF_MAIN_LOOP) {

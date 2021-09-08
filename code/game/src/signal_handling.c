@@ -1,6 +1,6 @@
 #include <signal.h>
 #include "zpl.h"
-#include "platform.h"
+#include "game.h"
 #ifdef ZPL_SYSTEM_WINDOWS
 #include <Windows.h>
 
@@ -10,13 +10,13 @@ static BOOL WINAPI _sighandler_win32_control_handler(DWORD control_type)
     {
         case CTRL_C_EVENT:
         case DBG_CONTROL_C:
-        platform_shutdown();
+        game_request_close();
         return 0;
         case CTRL_CLOSE_EVENT:
         case CTRL_LOGOFF_EVENT:
         case CTRL_BREAK_EVENT:
         case CTRL_SHUTDOWN_EVENT:
-        platform_shutdown();
+        game_request_close();
         return 1;
     }
     
@@ -25,7 +25,7 @@ static BOOL WINAPI _sighandler_win32_control_handler(DWORD control_type)
 #else //POSIX complaint
 #include <sys/types.h>
 static void _sighandler_posix_signal_handler(int sig) {
-    platform_shutdown();
+    game_request_close();
 }
 #endif
 

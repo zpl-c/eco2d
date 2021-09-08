@@ -116,14 +116,21 @@ float game_time() {
 
 void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
     game_mode = play_mode;
-    platform_init();
-    world_viewers_init(num_viewers);
-    active_viewer = &world_viewers[0];
-    camera_reset();
+    
+    if (game_mode != GAMEKIND_HEADLESS) {
+        platform_init();
+        
+        world_viewers_init(num_viewers);
+        active_viewer = &world_viewers[0];
+        camera_reset();
+    }
+    
+    if (game_mode != GAMEKIND_SINGLE) {
+        network_init();
+    }
     
     if (game_mode == GAMEKIND_CLIENT) {
         world_setup_pkt_handlers(pkt_reader, mp_pkt_writer);
-        network_init();
         network_client_connect("127.0.0.1", 27000);
     } else {
         stdcpp_set_os_api();
@@ -133,8 +140,10 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
         //ecs_set_target_fps(world_ecs(), 60);
     }
     
-    for (uint32_t i = 0; i < num_viewers; i++) {
-        pkt_00_init_send(i);
+    if (game_mode != GAMEKIND_HEADLESS) {
+        for (uint32_t i = 0; i < num_viewers; i++) {
+            pkt_00_init_send(i);
+        }
     }
 }
 
@@ -143,22 +152,35 @@ int8_t game_is_networked() {
 }
 
 void game_shutdown() {
-    world_viewers_destroy();
     
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_disconnect();
-        network_destroy();
     } else {
         world_destroy();
+    }
+    
+    if (game_mode != GAMEKIND_SINGLE) {
+        network_destroy();
+    }
+    
+    if (game_mode != GAMEKIND_HEADLESS) {
+        world_viewers_destroy();
+        platform_shutdown();
     }
 }
 
 uint8_t game_is_running() {
-    return platform_is_running();
+    return game_mode == GAMEKIND_HEADLESS || platform_is_running();
+}
+
+game_kind game_get_kind(void) {
+    return game_mode;
 }
 
 void game_input() {
-    platform_input();
+    if (game_mode != GAMEKIND_HEADLESS) {
+        platform_input();
+    }
 }
 
 void game_update() { 
@@ -167,11 +189,15 @@ void game_update() {
     }
     else world_update();
     
-    game_world_cleanup_entities();
+    if (game_mode != GAMEKIND_HEADLESS) {
+        game_world_cleanup_entities();
+    }
 }
 
 void game_render() {
-    platform_render();
+    if (game_mode != GAMEKIND_HEADLESS) {
+        platform_render();
+    }
 }
 
 void game_action_send_keystate(float x, 
