@@ -18,6 +18,7 @@ uint64_t item_spawn(item_kind kind, uint32_t qty) {
     *d = (ItemDrop){
         .kind = kind,
         .quantity = qty,
+        .merger_time = 0,
     };
     
     return (uint64_t)e;

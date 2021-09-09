@@ -91,6 +91,7 @@ typedef struct {
 typedef struct {
     uint16_t kind;
     uint32_t quantity;
+    float merger_time;
 } ItemDrop;
 
 typedef struct {
