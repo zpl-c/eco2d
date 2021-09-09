@@ -5,11 +5,11 @@
 #include "game.h"
 
 size_t pkt_send_librg_update(uint64_t peer_id,
-                              uint16_t view_id,
-                              uint8_t ticker,
-                              void *data,
-                              size_t datalen) {
-    return pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(data, (int32_t)datalen, ticker), 1, view_id, (void*)peer_id);
+                             uint16_t view_id,
+                             uint8_t ticker,
+                             void *data,
+                             size_t datalen) {
+    return pkt_world_write(MSG_ID_LIBRG_UPDATE, pkt_send_librg_update_encode(data, (int32_t)datalen, ticker), 1, view_id, (void*)peer_id, 0);
 }
 
 size_t pkt_send_librg_update_encode(void *data, int32_t data_length, uint8_t layer_id) {
@@ -31,7 +31,7 @@ int32_t pkt_send_librg_update_handler(pkt_header *header) {
     uint8_t layer_id = (uint8_t)uc.item.as.u64;
     
     cw_unpack_next(&uc);
-
+    
     if (uc.item.type != CWP_ITEM_BIN)
         return -1;
     

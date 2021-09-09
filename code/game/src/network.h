@@ -19,5 +19,5 @@ void    network_server_assign_entity(void *peer_id, uint64_t ent_id);
 uint64_t network_server_get_entity(void *peer_id);
 
 // NOTE(zaklaus): messaging
-int32_t network_msg_send(void *peer_id, void *data, size_t datalen);
-int32_t network_msg_send_unreliable(void *peer_id, void *data, size_t datalen);
+int32_t network_msg_send(void *peer_id, void *data, size_t datalen, uint16_t channel_id);
+int32_t network_msg_send_unreliable(void *peer_id, void *data, size_t datalen, uint16_t channel_id);

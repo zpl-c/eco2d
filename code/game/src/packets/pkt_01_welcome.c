@@ -26,7 +26,7 @@ size_t pkt_01_welcome_send(uint32_t seed,
                            uint16_t chunk_size,
                            uint16_t world_size) {
     pkt_01_welcome table = {.seed = seed, .ent_id = ent_id, .chunk_size = chunk_size, .world_size = world_size};
-    return pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, view_id, (void*)peer_id);
+    return pkt_world_write(MSG_ID_01_WELCOME, pkt_01_welcome_encode(&table), 1, view_id, (void*)peer_id, 0);
 }
 
 int32_t pkt_01_welcome_handler(pkt_header *header) {

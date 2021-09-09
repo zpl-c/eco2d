@@ -108,7 +108,7 @@ int32_t network_server_start(const char *host, uint16_t port) {
     address.host = ENET_HOST_ANY;
     address.port = port;
     
-    server = enet_host_create(&address, 100, 2, 0, 0);
+    server = enet_host_create(&address, 8, 2, 0, 0);
     
     if (server == NULL) {
         zpl_printf("[ERROR] An error occured while trying to create a server host.\n");
@@ -173,16 +173,16 @@ uint64_t network_server_get_entity(void *peer_id) {
 
 //~ NOTE(zaklaus): messaging
 
-static int32_t network_msg_send_raw(ENetPeer *peer_id, void *data, size_t datalen, uint32_t flags) {
+static int32_t network_msg_send_raw(ENetPeer *peer_id, void *data, size_t datalen, uint32_t flags, uint16_t channel_id) {
     if (peer_id == 0) peer_id = peer;
     ENetPacket *packet = enet_packet_create(data, datalen, flags);
-    return enet_peer_send(peer_id, 0, packet);
+    return enet_peer_send(peer_id, channel_id, packet);
 }
 
-int32_t network_msg_send(void *peer_id, void *data, size_t datalen) {
-    return network_msg_send_raw(peer_id, data, datalen, ENET_PACKET_FLAG_RELIABLE);
+int32_t network_msg_send(void *peer_id, void *data, size_t datalen, uint16_t channel_id) {
+    return network_msg_send_raw(peer_id, data, datalen, ENET_PACKET_FLAG_RELIABLE, channel_id);
 }
 
-int32_t network_msg_send_unreliable(void *peer_id, void *data, size_t datalen) {
-    return network_msg_send_raw(peer_id, data, datalen, 0);
+int32_t network_msg_send_unreliable(void *peer_id, void *data, size_t datalen, uint16_t channel_id) {
+    return network_msg_send_raw(peer_id, data, datalen, 0, channel_id);
 }

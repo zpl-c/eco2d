@@ -15,6 +15,7 @@ typedef struct pkt_header {
     uint16_t id;
     uint16_t sender;
     uint16_t view_id;
+    uint16_t channel_id;
     uint8_t *data;
     uint32_t datalen;
     int8_t is_reliable;

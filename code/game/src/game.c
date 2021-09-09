@@ -48,20 +48,20 @@ static WORLD_PKT_WRITER(sp_pkt_writer) {
 
 static WORLD_PKT_WRITER(mp_pkt_writer) {
     if (pkt->is_reliable) {
-        return network_msg_send(udata, pkt->data, pkt->datalen);
+        return network_msg_send(udata, pkt->data, pkt->datalen, pkt->channel_id);
     }
     else {
-        return network_msg_send_unreliable(udata, pkt->data, pkt->datalen);
+        return network_msg_send_unreliable(udata, pkt->data, pkt->datalen, pkt->channel_id);
     }
 }
 
 static WORLD_PKT_WRITER(mp_cli_pkt_writer) {
     (void)udata;
     if (pkt->is_reliable) {
-        return network_msg_send(0, pkt->data, pkt->datalen);
+        return network_msg_send(0, pkt->data, pkt->datalen, pkt->channel_id);
     }
     else {
-        return network_msg_send_unreliable(0, pkt->data, pkt->datalen);
+        return network_msg_send_unreliable(0, pkt->data, pkt->datalen, pkt->channel_id);
     }
 }
 

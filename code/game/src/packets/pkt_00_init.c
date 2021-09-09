@@ -25,7 +25,7 @@ size_t pkt_00_init_encode(pkt_00_init *table) {
 
 size_t pkt_00_init_send(uint16_t view_id) {
     pkt_00_init table = {.view_id = view_id };
-    return pkt_world_write(MSG_ID_00_INIT, pkt_00_init_encode(&table), 1, view_id, NULL);
+    return pkt_world_write(MSG_ID_00_INIT, pkt_00_init_encode(&table), 1, view_id, NULL, 1);
 }
 
 int32_t pkt_00_init_handler(pkt_header *header) {
