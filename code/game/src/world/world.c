@@ -59,6 +59,8 @@ entity_view world_build_entity_view(int64_t e) {
         view.quantity = dr->quantity;
     }
     
+    view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
+    
     Inventory *inv = 0;
     if ((inv = ecs_get_mut_if(world_ecs(), e, Inventory))) {
         view.has_items = true;

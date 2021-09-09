@@ -25,6 +25,7 @@ pkt_desc pkt_entity_view_desc[] = {
     
     { PKT_KEEP_IF(entity_view, kind, EKIND_VEHICLE, 1) }, // NOTE(zaklaus): keep for vehicles
     { PKT_HALF(entity_view, heading) },
+    { PKT_UINT(entity_view, inside_vehicle) },
     
     { PKT_KEEP_IF(entity_view, kind, EKIND_ITEM, 2) },
     { PKT_UINT(entity_view, asset) },

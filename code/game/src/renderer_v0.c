@@ -33,6 +33,8 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     }
 }
 
+extern bool inv_is_open;
+
 void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     uint16_t size = 16;
     uint16_t font_size = (uint16_t)lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
@@ -57,13 +59,17 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             DrawTextEco(title, x-title_w/2, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing); 
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
             
-            if (data->has_items) {
+            if (data->has_items && !data->inside_vehicle) {
                 float ix = data->x;
                 float iy = data->y;
                 if (data->items[data->selected_item].quantity > 0) {
                     item_kind it_kind = data->items[data->selected_item].kind;
+                    uint32_t qty = data->items[data->selected_item].quantity;
                     uint16_t it_id = item_find(it_kind);
                     DrawTexturePro(GetSpriteTexture2D(assets_find(item_get_asset(it_id))), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+                    
+                    if (!inv_is_open)
+                        DrawTextEco(zpl_bprintf("%d", qty), ix+24, iy+24, 8, RAYWHITE, 0.0f); 
                 }
             }
         }break;

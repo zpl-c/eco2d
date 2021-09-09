@@ -57,6 +57,7 @@ typedef struct entity_view {
     
     // NOTE(zaklaus): vehicle
     float heading, theading;
+    bool inside_vehicle;
     
     // NOTE(zaklaus): items, ...
     asset_id asset;
