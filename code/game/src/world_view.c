@@ -15,6 +15,8 @@ int32_t tracker_read_remove(librg_world *w, librg_event *e) {
     } else {
         entity_view_mark_for_removal(&view->entities, entity_id);
     }
+    
+    blocks_remove_chunk_tex(entity_id);
     return 0;
 }
 

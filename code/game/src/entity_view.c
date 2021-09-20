@@ -102,5 +102,5 @@ void entity_view_update_chunk_texture(entity_view_tbl *map, uint64_t ent_id, voi
 void entity_view_remove_chunk_texture(entity_view_tbl *map, uint64_t ent_id) {
     entity_view *view = entity_view_tbl_get(map, ent_id);
     if (view->kind != EKIND_CHUNK) return;
-    blocks_remove_chunk_tex(view->tex);
+    blocks_remove_chunk_tex(ent_id);
 }
