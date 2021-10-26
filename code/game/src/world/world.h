@@ -30,6 +30,7 @@ typedef WORLD_PKT_READER(world_pkt_reader_proc);
 typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 
 typedef struct {
+    bool is_paused;
     uint8_t *data;
     uint32_t seed;
     uint32_t size;
@@ -62,6 +63,12 @@ uint32_t world_seed(void);
 ecs_world_t *world_ecs(void);
 void world_set_stage(ecs_world_t *ecs);
 librg_world *world_tracker(void);
+
+// NOTE(zaklaus): World simulation time control
+void world_pause(void);
+void world_resume(void);
+bool world_is_paused(void);
+void world_step(float step_size);
 
 uint16_t world_chunk_size(void);
 uint16_t world_chunk_amount(void);

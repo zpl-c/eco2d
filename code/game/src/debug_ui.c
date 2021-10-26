@@ -97,6 +97,29 @@ static debug_item items[] = {
     },
     {
         .kind = DITEM_LIST,
+        .name = "world simulation",
+        .list = {
+            .items = (debug_item[]) {
+                { .kind = DITEM_COND, .on_success = CondIsWorldRunning },
+                { .kind = DITEM_BUTTON, .name = "pause", .on_click = ActWorldToggleSim },
+                
+                { .kind = DITEM_COND, .on_success = CondIsWorldPaused, .skip = 6 },
+                { .kind = DITEM_BUTTON, .name = "resume", .on_click = ActWorldToggleSim },
+                
+                { .kind = DITEM_GAP },
+                
+                { .kind = DITEM_TEXT, .name = "step size", .proc = DrawWorldStepSize },
+                { .kind = DITEM_BUTTON, .name = "single-step", .on_click = ActWorldStep },
+                { .kind = DITEM_BUTTON, .name = "increment step size", .on_click = ActWorldIncrementSimStepSize },
+                { .kind = DITEM_BUTTON, .name = "decrement step size", .on_click = ActWorldDecrementSimStepSize },
+                
+                { .kind = DITEM_END },
+            },
+            .is_sp_only = true,
+        }
+    },
+    {
+        .kind = DITEM_LIST,
         .name = "debug actions",
         .list = {
             .items = (debug_item[]) {

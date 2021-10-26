@@ -91,3 +91,11 @@ DrawDemoNPCCount(debug_item *it, float xpos, float ypos) {
     (void)it;
     return DrawFormattedText(xpos, ypos, TextFormat("%d", demo_npcs ? zpl_array_count(demo_npcs) : 0));
 }
+
+
+// NOTE(zaklaus): world simulation 
+static inline debug_draw_result 
+DrawWorldStepSize(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    return DrawFormattedText(xpos, ypos, TextFormat("%d ms", (int16_t)(sim_step_size*1000.f)));
+}

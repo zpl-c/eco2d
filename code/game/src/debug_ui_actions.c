@@ -233,3 +233,42 @@ ActDespawnDemoNPCs(void) {
     zpl_array_free(demo_npcs);
     demo_npcs = 0;
 }
+
+// NOTE(zaklaus): world simulation controls
+#define WORLDSIM_STEPPING 0.01f
+static float sim_step_size = 0.1f;
+
+void
+ActWorldToggleSim(void) {
+    if (world_is_paused()) {
+        world_resume();
+    } else {
+        world_pause();
+    }
+}
+
+void
+ActWorldIncrementSimStepSize(void) {
+    sim_step_size += WORLDSIM_STEPPING;
+}
+
+void
+ActWorldDecrementSimStepSize(void) {
+    if (sim_step_size > WORLDSIM_STEPPING)
+        sim_step_size -= WORLDSIM_STEPPING;
+}
+
+void
+ActWorldStep(void) {
+    world_step(sim_step_size);
+}
+
+uint8_t
+CondIsWorldPaused(void) {
+    return world_is_paused();
+}
+
+uint8_t
+CondIsWorldRunning(void) {
+    return !world_is_paused();
+}

@@ -147,6 +147,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         return 0;
     }
     
+    world.is_paused = false;
     world.seed = seed;
     world.chunk_size = chunk_size;
     world.chunk_amount = chunk_amount;
@@ -347,6 +348,26 @@ void world_set_stage(ecs_world_t *ecs) {
 
 librg_world *world_tracker() {
     return world.tracker;
+}
+
+void world_pause(void) {
+    ecs_set_time_scale(world.ecs, 0.0f);
+    world.is_paused = true;
+}
+
+void world_resume(void) {
+    ecs_set_time_scale(world.ecs, 1.0f);
+    world.is_paused = false;
+}
+
+bool world_is_paused(void) {
+    return world.is_paused;
+}
+
+void world_step(float step_size) {
+    world_resume();
+    ecs_progress(world.ecs, step_size);
+    world_pause();
 }
 
 uint16_t world_chunk_size(void) {
