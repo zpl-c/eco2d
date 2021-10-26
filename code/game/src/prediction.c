@@ -69,13 +69,19 @@ void predict_receive_update(entity_view *d, entity_view *data) {
     data->tran_time = d->tran_time;
 }
 
+#define ENTITY_DO_LERP_SP 1
 
 void lerp_entity_positions(uint64_t key, entity_view *data) {
     (void)key;
     world_view *view = game_world_view_get_active();
     
     if (data->flag == EFLAG_INTERP) {
-        if (game_get_kind() == GAMEKIND_CLIENT) {
+#if ENTITY_DO_LERP_SP==0
+        if (game_get_kind() == GAMEKIND_CLIENT)
+#else
+        if (1)
+#endif
+        {
             data->x = smooth_val(data->x, data->tx, view->delta_time[data->layer_id]);
             data->y = smooth_val(data->y, data->ty, view->delta_time[data->layer_id]);
             data->heading = smooth_val_spherical(data->heading, data->theading, view->delta_time[data->layer_id]);

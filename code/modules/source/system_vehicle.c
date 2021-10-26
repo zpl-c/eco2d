@@ -173,7 +173,8 @@ void VehicleHandling(ecs_iter_t *it) {
             {
                 float dx = zpl_sin(car->heading);
                 float dy = -zpl_cos(car->heading);
-                debug_push_circle((debug_v2){p[i].x+dx*car->steer*-20, p[i].y+dy*car->steer*-20}, 5.0f, 0x00FFAAFF);
+                float steer_mult = -80.0f;
+                debug_push_circle((debug_v2){p[i].x+dx*car->steer*steer_mult, p[i].y+dy*car->steer*steer_mult}, 5.0f, 0x00FFAAFF);
             }
         }
     }
