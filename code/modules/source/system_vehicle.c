@@ -77,10 +77,11 @@ void EnterVehicle(ecs_iter_t *it) {
     }
 }
 
-#define VEHICLE_FORCE 34.8f
-#define VEHICLE_ACCEL 0.42f
+#define VEHICLE_FORCE 340.8f
+#define VEHICLE_ACCEL 0.12f
 #define VEHICLE_DECEL 0.28f
 #define VEHICLE_STEER 3.89f
+#define VEHICLE_POWER 34.89f
 #define VEHICLE_BRAKE_FORCE 0.84f
 
 void VehicleHandling(ecs_iter_t *it) {
@@ -134,8 +135,8 @@ void VehicleHandling(ecs_iter_t *it) {
         fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer));
         fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer));
         
-        v[i].x += (fr_x + bk_x) / 2.0f - p[i].x;
-        v[i].y += (fr_y + bk_y) / 2.0f - p[i].y;
+        v[i].x += ((fr_x + bk_x) / 2.0f - p[i].x)*it->delta_time*VEHICLE_POWER;
+        v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y)*it->delta_time*VEHICLE_POWER;
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
         
         world_block_lookup lookahead = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y+PHY_LOOKAHEAD(v[i].y));

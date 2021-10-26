@@ -8,7 +8,7 @@
 #include "game.h"
 
 #define PHY_BLOCK_COLLISION 1
-#define PHY_WALK_DRAG 0.12
+#define PHY_WALK_DRAG 4.23f
 #define PHY_LOOKAHEAD(x) (zpl_sign(x)*16.0f)
 
 #include "source/system_onfoot.c"
@@ -29,7 +29,7 @@ void IntegratePositions(ecs_iter_t *it) {
         for (int i = 0; i < it->count; i++) {
             // NOTE(zaklaus): world bounds
             {
-                double w = (double)world_dim();
+                float w = (float)world_dim();
                 p[i].x = zpl_clamp(p[i].x, 0, w-1);
                 p[i].y = zpl_clamp(p[i].y, 0, w-1);
             }
@@ -127,8 +127,8 @@ void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
         float friction = blocks_get_friction(lookup.block_id);
-        v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG*drag*friction);
-        v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG*drag*friction);
+        v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG*drag*friction*it->delta_time);
+        v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG*drag*friction*it->delta_time);
     }
 }
 

@@ -3,6 +3,7 @@
 
 typedef struct {
     // NOTE(zaklaus): Public systems are exposed here
+    int32_t _unused;
 } Systems;
 
 #define SystemsImportHandles(handles) (void)(handles)
