@@ -82,7 +82,7 @@ void DEBUG_draw_entities_3d(uint64_t key, entity_view * data) {
 }
 
 void renderer_draw_3d(void) {
-    cam_zoom = zpl_min(zpl_lerp(cam_zoom, target_zoom, 0.18), 9.98f);
+    cam_zoom = zpl_min(zpl_lerp(cam_zoom, target_zoom, GetFrameTime()*2.18f), 9.98f);
     camera_update();
     
     camera game_camera_3d = camera_get();

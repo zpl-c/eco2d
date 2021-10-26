@@ -108,7 +108,7 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
 }
 
 void renderer_draw_v0(void) {
-    render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, 0.18);
+    render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, GetFrameTime()*2.9978f);
     camera_update();
     
     camera game_camera = camera_get();

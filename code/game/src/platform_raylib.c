@@ -28,7 +28,6 @@ void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
     SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
     
-    //SetTargetFPS(144);
     screenWidth = GetScreenWidth();
     screenHeight = GetScreenHeight();
     renderer_init();
