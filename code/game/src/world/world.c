@@ -74,20 +74,20 @@ entity_view world_build_entity_view(int64_t e) {
             view.selected_item = in->selected_item;
     }
     
-    Chunk *chpos = 0;
-    if ((chpos = ecs_get_mut_if(world_ecs(), e, Chunk))) {
-        view.x = chpos->x;
-        view.y = chpos->y;
+    Chunk *chunk = 0;
+    if ((chunk = ecs_get_mut_if(world_ecs(), e, Chunk))) {
+        view.x = chunk->x;
+        view.y = chunk->y;
         view.blocks_used = 1;
-        view.is_dirty = chpos->is_dirty;
-        chpos->is_dirty = false;
+        view.is_dirty = chunk->is_dirty;
+        chunk->is_dirty = false;
         
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
-            view.blocks[i] = world.block_mapping[chpos->id][i];
+            view.blocks[i] = world.block_mapping[chunk->id][i];
         }
         
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
-            view.outer_blocks[i] = world.outer_block_mapping[chpos->id][i];
+            view.outer_blocks[i] = world.outer_block_mapping[chunk->id][i];
         }
     }
     

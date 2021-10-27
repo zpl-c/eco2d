@@ -80,7 +80,8 @@ void EnterVehicle(ecs_iter_t *it) {
 #define VEHICLE_FORCE 340.8f
 #define VEHICLE_ACCEL 0.12f
 #define VEHICLE_DECEL 0.28f
-#define VEHICLE_STEER 3.89f
+#define VEHICLE_STEER 9.89f
+#define VEHICLE_STEER_REVERT 6.0941816f
 #define VEHICLE_POWER 34.89f
 #define VEHICLE_BRAKE_FORCE 0.84f
 
@@ -112,9 +113,9 @@ void VehicleHandling(ecs_iter_t *it) {
                     if (zpl_abs(car->force) < 5.5f) 
                         car->force = 0.0f;
                 }
-                car->steer *= 0.97f;
+                car->steer = zpl_lerp(car->steer, 0.0f, safe_dt(it)*VEHICLE_STEER_REVERT);
                 car->steer += (in->x * VEHICLE_STEER)*safe_dt(it);
-                car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
+                car->steer = zpl_clamp(car->steer, -60.0f, 60.0f);
             }
         }
         
@@ -130,13 +131,13 @@ void VehicleHandling(ecs_iter_t *it) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
         
-        bk_x += car->force * drag * zpl_cos(car->heading);
-        bk_y += car->force * drag * zpl_sin(car->heading);
-        fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer));
-        fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer));
+        bk_x += car->force * drag * zpl_cos(car->heading) * safe_dt(it);
+        bk_y += car->force * drag * zpl_sin(car->heading) * safe_dt(it);
+        fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer)) * safe_dt(it)*VEHICLE_POWER;
+        fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer)) * safe_dt(it)*VEHICLE_POWER;
         
-        v[i].x += ((fr_x + bk_x) / 2.0f - p[i].x)*safe_dt(it)*VEHICLE_POWER;
-        v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y)*safe_dt(it)*VEHICLE_POWER;
+        v[i].x += ((fr_x + bk_x) / 2.0f - p[i].x);
+        v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y);
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
         
         world_block_lookup lookahead = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y+PHY_LOOKAHEAD(v[i].y));
