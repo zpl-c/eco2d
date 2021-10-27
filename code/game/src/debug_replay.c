@@ -115,6 +115,7 @@ void debug_replay_start(void) {
     zpl_array_init_reserve(records, zpl_heap(), UINT16_MAX);
     
     last_record_time = zpl_time_rel_ms();
+    SetTargetFPS(60);
 }
 
 void debug_replay_clear(void) {
@@ -125,6 +126,7 @@ void debug_replay_clear(void) {
 }
 
 void debug_replay_cleanup_ents(void) {
+    SetTargetFPS(0);
     if (!mime) return;
     
     entity_despawn(mime);
@@ -165,6 +167,7 @@ void debug_replay_run(void) {
     ecs_set(world_ecs(), mime, Inventory, {0});
     
     camera_set_follow(mime);
+    SetTargetFPS(60);
 }
 
 void ActPlaceIceRink(void);

@@ -104,12 +104,10 @@ void renderer_init_3d(void) {
     render_camera_3d.up = (Vector3){0.0f,0.0f,-1.0f};
     render_camera_3d.fovy = 45.f;
     render_camera_3d.projection = CAMERA_PERSPECTIVE;
-#if 1
-    SetCameraMode(render_camera_3d, CAMERA_MODE_STATIONARY);
-#else
+#if 0
+    SetCameraMode(render_camera_3d, CAMERA_ORBITAL);
     render_camera_3d.position = (Vector3){10,10,10};
     render_camera_3d.target = (Vector3){0};
-    SetCameraMode(render_camera_3d, CAMERA_ORBITAL);
 #endif
     
     // NOTE(zaklaus): Paint the screen before we load the game
