@@ -205,7 +205,7 @@ static ecs_entity_t *demo_npcs = NULL;
 void
 ActSpawnDemoNPCs(void) {
     if (!demo_npcs) zpl_array_init(demo_npcs, zpl_heap());
-    if (zpl_array_count(demo_npcs) >= 10000) return;
+    if (zpl_array_count(demo_npcs) >= 100000) return;
     
     for (uint32_t i = 0; i < 1000; i++) {
         uint64_t e = entity_spawn(EKIND_DEMO_NPC);
