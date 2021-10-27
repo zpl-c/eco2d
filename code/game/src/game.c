@@ -217,10 +217,6 @@ void game_update() {
             network_server_tick();
         }
     }
-    
-    if (game_mode != GAMEKIND_HEADLESS) {
-        game_world_cleanup_entities();
-    }
 }
 
 void game_render() {
@@ -242,35 +238,6 @@ void game_action_send_keystate(float x,
                                uint8_t swap_from,
                                uint8_t swap_to) {
     pkt_send_keystate_send(active_viewer->view_id, x, y, mx, my, use, sprint, ctrl, drop, selected_item, swap, swap_from, swap_to);
-}
-
-#define GAME_ENT_REMOVAL_TIME 10000
-#define GAME_ENT_REMOVAL_TRESHOLD 500
-
-void game_world_cleanup_entities(void) {
-    // TODO(zaklaus): not the best approach to do a cleanup, let memory stay for a while as it might be reused later on anyway.
-#if 1
-    profile(PROF_ENTITY_REMOVAL) {
-        static uint64_t last_removal_time = 0;
-        if (last_removal_time > zpl_time_rel_ms()) return;
-        last_removal_time = zpl_time_rel_ms() + GAME_ENT_REMOVAL_TIME;
-        
-        for (int i = 0; i < zpl_buffer_count(world_viewers); i += 1){
-            entity_view_tbl *view = &world_viewers[i].entities;
-            uint32_t deletions = 0;
-            
-            for (int j = 0; j < zpl_array_count(view->entries); j += 1) {
-                if (deletions > GAME_ENT_REMOVAL_TRESHOLD) return;
-                
-                entity_view *e = &view->entries[j].value;
-                if (e->tran_effect == ETRAN_REMOVE) {
-                    entity_view_tbl_remove(view, e->ent_id);
-                    deletions++;
-                } 
-            }
-        }    
-    }
-#endif
 }
 
 void game_request_close() {

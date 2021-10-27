@@ -3,7 +3,7 @@
 
 static debug_draw_queue draw_queue = {0};
 
-#ifdef ECO2D_PROD
+#ifndef _DEBUG
 static bool draw_is_enabled = false;
 #else
 static bool draw_is_enabled = true;

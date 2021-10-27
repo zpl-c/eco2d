@@ -30,7 +30,6 @@ void game_world_view_set_active(world_view *view);
 void game_world_view_cycle_active(int8_t dir);
 void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_view * value));
 entity_view *game_world_view_active_get_entity(uint64_t ent_id);
-void game_world_cleanup_entities(void);
 
 //~ NOTE(zaklaus): viewer -> host actions
 void game_action_send_keystate(float x, 

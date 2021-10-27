@@ -9,7 +9,6 @@ typedef enum {
     PROF_RENDER,
     PROF_UPDATE_SYSTEMS,
     PROF_ENTITY_LERP,
-    PROF_ENTITY_REMOVAL,
     PROF_INTEGRATE_POS,
     
     MAX_PROF,

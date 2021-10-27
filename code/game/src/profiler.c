@@ -12,7 +12,6 @@ static profiler profilers[] = {
     { .id = PROF_RENDER, .name = "render" },
     { .id = PROF_UPDATE_SYSTEMS, .name = "update systems" },
     { .id = PROF_ENTITY_LERP, .name = "entity lerp" },
-    { .id = PROF_ENTITY_REMOVAL, .name = "entity removal" },
     { .id = PROF_INTEGRATE_POS, .name = "entity movement" },
 };
 
