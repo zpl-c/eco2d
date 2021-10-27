@@ -82,7 +82,7 @@ void EnterVehicle(ecs_iter_t *it) {
 #define VEHICLE_DECEL 0.28f
 #define VEHICLE_STEER 9.89f
 #define VEHICLE_STEER_REVERT 6.0941816f
-#define VEHICLE_POWER 34.89f
+#define VEHICLE_POWER 97.89f
 #define VEHICLE_BRAKE_FORCE 0.84f
 
 void VehicleHandling(ecs_iter_t *it) {

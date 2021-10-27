@@ -1,9 +1,10 @@
 #include "zpl.h"
 #include "camera.h"
+#include "platform.h"
 #include "entity_view.h"
 #include "game.h"
 
-#define CAMERA_LERP_FACTOR 0.13
+#define CAMERA_LERP_FACTOR 11.2f
 
 static camera main_camera;
 
@@ -20,9 +21,10 @@ void camera_update(void) {
             if (!world) break;
             entity_view *view = entity_view_get(&world->entities, main_camera.ent_id);
             if (!view) break;
+            float smooth_ms = zpl_clamp((float)platform_frametime(), 0.0f, 1.0f);
             
-            main_camera.x = zpl_lerp(main_camera.x, view->x, CAMERA_LERP_FACTOR);
-            main_camera.y = zpl_lerp(main_camera.y, view->y, CAMERA_LERP_FACTOR);
+            main_camera.x = zpl_lerp(main_camera.x, view->x, CAMERA_LERP_FACTOR*smooth_ms);
+            main_camera.y = zpl_lerp(main_camera.y, view->y, CAMERA_LERP_FACTOR*smooth_ms);
             
             if (main_camera.first_time) {
                 main_camera.first_time = false;

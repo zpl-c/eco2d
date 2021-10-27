@@ -4,8 +4,8 @@
 #include "world/world.h"
 #include "game.h"
 
-#define PREDICT_SMOOTH_FACTOR_LO 10.5
-#define PREDICT_SMOOTH_FACTOR_HI 20.5
+#define PREDICT_SMOOTH_FACTOR_LO 7.5
+#define PREDICT_SMOOTH_FACTOR_HI 12.5
 
 static inline float map_factor(float x) {
     x = 1.0f - zpl_clamp01(x);
@@ -69,7 +69,7 @@ void predict_receive_update(entity_view *d, entity_view *data) {
     data->tran_time = d->tran_time;
 }
 
-#define ENTITY_DO_LERP_SP 1
+#define ENTITY_DO_LERP_SP 0
 
 void lerp_entity_positions(uint64_t key, entity_view *data) {
     (void)key;
