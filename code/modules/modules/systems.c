@@ -56,8 +56,8 @@ void IntegratePositions(ecs_iter_t *it) {
             }
 #endif
             
-            p[i].x += v[i].x * it->delta_time;
-            p[i].y += v[i].y * it->delta_time;
+            p[i].x += v[i].x * safe_dt(it);
+            p[i].y += v[i].y * safe_dt(it);
             
             {
                 debug_v2 a = {p[i].x, p[i].y};
@@ -127,8 +127,8 @@ void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
         float friction = blocks_get_friction(lookup.block_id);
-        v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG*drag*friction*it->delta_time);
-        v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG*drag*friction*it->delta_time);
+        v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG*drag*friction*safe_dt(it));
+        v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG*drag*friction*safe_dt(it));
     }
 }
 

@@ -42,13 +42,13 @@ float smooth_val(float cur, float tgt, uint64_t dt) {
     zpl_exit(0);
 #endif
     
-    return zpl_lerp(cur, tgt, zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor)*platform_frametime());
+    return zpl_lerp(cur, tgt, zpl_clamp01(zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor)*platform_frametime()));
 }
 
 float smooth_val_spherical(float cur, float tgt, uint64_t dt) {
     float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS)));
     
-    return spherical_lerp(cur, tgt, zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor)*platform_frametime());
+    return spherical_lerp(cur, tgt, zpl_clamp01(zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor)*platform_frametime()));
 }
 
 void predict_receive_update(entity_view *d, entity_view *data) {

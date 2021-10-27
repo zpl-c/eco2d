@@ -105,15 +105,15 @@ void VehicleHandling(ecs_iter_t *it) {
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
                 
-                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL*it->delta_time);
+                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL*safe_dt(it));
                 if (in->sprint) {
-                    car->force = zpl_lerp(car->force, 0.0f, VEHICLE_BRAKE_FORCE*it->delta_time);
+                    car->force = zpl_lerp(car->force, 0.0f, VEHICLE_BRAKE_FORCE*safe_dt(it));
                     
                     if (zpl_abs(car->force) < 5.5f) 
                         car->force = 0.0f;
                 }
                 car->steer *= 0.97f;
-                car->steer += (in->x * VEHICLE_STEER)*it->delta_time;
+                car->steer += (in->x * VEHICLE_STEER)*safe_dt(it);
                 car->steer = zpl_clamp(car->steer, -40.0f, 40.0f);
             }
         }
@@ -135,8 +135,8 @@ void VehicleHandling(ecs_iter_t *it) {
         fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer));
         fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer));
         
-        v[i].x += ((fr_x + bk_x) / 2.0f - p[i].x)*it->delta_time*VEHICLE_POWER;
-        v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y)*it->delta_time*VEHICLE_POWER;
+        v[i].x += ((fr_x + bk_x) / 2.0f - p[i].x)*safe_dt(it)*VEHICLE_POWER;
+        v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y)*safe_dt(it)*VEHICLE_POWER;
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
         
         world_block_lookup lookahead = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y+PHY_LOOKAHEAD(v[i].y));
