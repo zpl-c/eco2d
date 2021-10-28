@@ -4296,12 +4296,15 @@ zpl_array(ZPL_JOIN2(NAME, Entry)) entries;                                      
 PREFIX void ZPL_JOIN2(FUNC, init)(NAME * h, zpl_allocator a);                                                      \
 PREFIX void ZPL_JOIN2(FUNC, destroy)(NAME * h);                                                                    \
 PREFIX VALUE *ZPL_JOIN2(FUNC, get)(NAME * h, zpl_u64 key);                                                             \
+PREFIX zpl_isize ZPL_JOIN2(FUNC, slot)(NAME * h, zpl_u64 key);                                                             \
 PREFIX void ZPL_JOIN2(FUNC, set)(NAME * h, zpl_u64 key, VALUE value);                                                  \
 PREFIX void ZPL_JOIN2(FUNC, grow)(NAME * h);                                                                       \
 PREFIX void ZPL_JOIN2(FUNC, rehash)(NAME * h, zpl_isize new_count);                                                    \
+PREFIX void ZPL_JOIN2(FUNC, rehash_fast)(NAME * h); \
 PREFIX void ZPL_JOIN2(FUNC, map)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value));                                                    \
 PREFIX void ZPL_JOIN2(FUNC, map_mut)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value));                                                    \
-PREFIX void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key);
+PREFIX void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key); \
+PREFIX void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, zpl_isize idx);
 
 #define ZPL_TABLE_DEFINE(NAME, FUNC, VALUE)                                                                            \
 void ZPL_JOIN2(FUNC, init)(NAME * h, zpl_allocator a) {                                                            \
@@ -4313,6 +4316,15 @@ void ZPL_JOIN2(FUNC, destroy)(NAME * h) {                                       
 if (h->entries) zpl_array_free(h->entries);                                                                    \
 if (h->hashes) zpl_array_free(h->hashes);                                                                      \
 }                                                                                                                  \
+\
+zpl_isize ZPL_JOIN2(FUNC, slot)(NAME * h, zpl_u64 key) {                                                \
+for (zpl_isize i = 0; i < zpl_array_count(h->entries); i++) {\
+if (h->entries[i].key == key) {\
+return i; \
+} \
+}\
+return -1;\
+}\
 \
 zpl_internal zpl_isize ZPL_JOIN2(FUNC, _add_entry)(NAME * h, zpl_u64 key) {                                                \
 zpl_isize index;                                                                                                   \
@@ -4373,6 +4385,22 @@ h->hashes = nh.hashes;                                                          
 h->entries = nh.entries;                                                                                       \
 }                                                                                                                  \
 \
+void ZPL_JOIN2(FUNC, rehash_fast)(NAME * h) {                                                          \
+zpl_isize i;                                                                                                    \
+for (i = 0; i < zpl_array_count(h->entries); i++) h->entries[i].next = -1;                                                             \
+for (i = 0; i < zpl_array_count(h->hashes); i++) h->hashes[i] = -1;                                                             \
+for (i = 0; i < zpl_array_count(h->entries); i++) {                                                            \
+ZPL_JOIN2(NAME, Entry) * e;                                                                                \
+zpl_hash_table_find_result fr;                                                                             \
+e = &h->entries[i];                                                                                        \
+fr = ZPL_JOIN2(FUNC, _find)(h, e->key);                                                                  \
+if (fr.entry_prev < 0)                                                                                     \
+h->hashes[fr.hash_index] = i;                                                                          \
+else \
+h->entries[fr.entry_prev].next = i; \
+}                                                                                                              \
+}                                                                                                                  \
+\
 VALUE *ZPL_JOIN2(FUNC, get)(NAME * h, zpl_u64 key) {                                                                   \
 zpl_isize index = ZPL_JOIN2(FUNC, _find)(h, key).entry_index;                                                      \
 if (index >= 0) return &h->entries[index].value;                                                               \
@@ -4380,16 +4408,16 @@ return NULL;                                                                    
 }                                                                                                                  \
 \
 void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key) {                                                                  \
+zpl_isize i; \
 zpl_hash_table_find_result fr = ZPL_JOIN2(FUNC, _find)(h, key);                                                \
 if (fr.entry_index >= 0) {                                                                                     \
-if (fr.entry_prev >= 0) {                                                                                  \
-h->entries[fr.entry_prev].next = h->entries[fr.entry_index].next;                                      \
-} else {                                                                                                   \
-h->hashes[fr.hash_index] = fr.entry_index;                                                             \
-}                                                                                                          \
 zpl_array_remove_at(h->entries, fr.entry_index);                                                           \
-}                                                                                                              \
-ZPL_JOIN2(FUNC, rehash)(h, zpl_array_count(h->entries));                                                       \
+ZPL_JOIN2(FUNC, rehash_fast)(h); \
+} \
+}                                                                                                                  \
+\
+void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, size_t idx) {                                                                  \
+zpl_array_remove_at(h->entries, idx);                                                           \
 }                                                                                                                  \
 \
 void ZPL_JOIN2(FUNC, map)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value)) {                                                    \
@@ -5850,14 +5878,14 @@ ZPL_IMPL_INLINE zpl_u16 zpl_endian_swap16(zpl_u16 i) {
 
 ZPL_IMPL_INLINE zpl_u32 zpl_endian_swap32(zpl_u32 i) {
     return (i>>24) |(i<<24) |
-        ((i&0x00ff0000u)>>8)  | ((i&0x0000ff00u)<<8);
+    ((i&0x00ff0000u)>>8)  | ((i&0x0000ff00u)<<8);
 }
 
 ZPL_IMPL_INLINE zpl_u64 zpl_endian_swap64(zpl_u64 i) {
     return (i>>56) | (i<<56) |
-        ((i&0x00ff000000000000ull)>>40) | ((i&0x000000000000ff00ull)<<40) |
-        ((i&0x0000ff0000000000ull)>>24) | ((i&0x0000000000ff0000ull)<<24) |
-        ((i&0x000000ff00000000ull)>>8)  | ((i&0x00000000ff000000ull)<<8);
+    ((i&0x00ff000000000000ull)>>40) | ((i&0x000000000000ff00ull)<<40) |
+    ((i&0x0000ff0000000000ull)>>24) | ((i&0x0000000000ff0000ull)<<24) |
+    ((i&0x000000ff00000000ull)>>8)  | ((i&0x00000000ff000000ull)<<8);
 }
 
 ZPL_IMPL_INLINE zpl_i32 zpl_next_pow2(zpl_i32 x) {
@@ -9160,7 +9188,7 @@ zpl_isize zpl_utf8_decode(zpl_u8 const *str, zpl_isize str_len, zpl_rune *codepo
         if (!zpl_is_between(b3, 0x80, 0xbf)) goto invalid_codepoint;
         
         codepoint = (cast(zpl_rune) s0 & 0x07) << 18 | (cast(zpl_rune) b1 & 0x3f) << 12 | (cast(zpl_rune) b2 & 0x3f) << 6 |
-            (cast(zpl_rune) b3 & 0x3f);
+        (cast(zpl_rune) b3 & 0x3f);
         width = 4;
         goto end;
         

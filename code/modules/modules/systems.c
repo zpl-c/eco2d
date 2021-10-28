@@ -92,8 +92,8 @@ void HurtOnHazardBlock(ecs_iter_t *it) {
     for (int i = 0; i < it->count; i++) {
         world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
         if (blocks_get_flags(l.block_id) & BLOCK_FLAG_HAZARD) {
-            if (h->pain_time < game_time()) {
-                h->pain_time = game_time() + HAZARD_BLOCK_TIME;
+            if (h->pain_time < 0.0f) {
+                h->pain_time = HAZARD_BLOCK_TIME;
                 h->hp -= HAZARD_BLOCK_DMG;
                 h->hp = zpl_max(0.0f, h->hp);
             }
@@ -109,12 +109,16 @@ void RegenerateHP(ecs_iter_t *it) {
     Health *h = ecs_column(it, Health, 1);
     
     for (int i = 0; i < it->count; i++) {
-        if (h->pain_time < game_time() - HP_REGEN_PAIN_COOLDOWN) {
-            if (h->heal_time < game_time() && h->hp < h->max_hp) {
-                h->heal_time = game_time() + HP_REGEN_TIME;
-                h->hp += HP_REGEN_RECOVERY;
-                h->hp = zpl_min(h->max_hp, h->hp);
+        if (h[i].pain_time < 0.0f) {
+            if (h[i].heal_time < 0.0f && h[i].hp < h[i].max_hp) {
+                h[i].heal_time = HP_REGEN_TIME;
+                h[i].hp += HP_REGEN_RECOVERY;
+                h[i].hp = zpl_min(h[i].max_hp, h[i].hp);
+            } else {
+                h[i].heal_time -= safe_dt(it);
             }
+        } else {
+            h[i].pain_time -= safe_dt(it);
         }
     }
 }

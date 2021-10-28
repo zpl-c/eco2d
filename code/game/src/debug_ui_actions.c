@@ -226,9 +226,7 @@ void
 ActDespawnDemoNPCs(void) {
     if (!demo_npcs) return;
     
-    for (uint32_t i = 0; i < zpl_array_count(demo_npcs); i++) {
-        entity_despawn(demo_npcs[i]);
-    }
+    entity_batch_despawn(demo_npcs, zpl_array_count(demo_npcs));
     
     zpl_array_free(demo_npcs);
     demo_npcs = 0;

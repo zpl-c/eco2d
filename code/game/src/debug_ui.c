@@ -90,7 +90,6 @@ static debug_item items[] = {
                 { .kind = DITEM_TEXT, .name = "delta time", .proc = DrawDeltaTime },
                 { .kind = DITEM_TEXT, .name = "pos", .proc = DrawCameraPos },
                 { .kind = DITEM_TEXT, .name = "zoom", .proc = DrawZoom },
-                { .kind = DITEM_SLIDER, .name = "slider", .slider = { .min = 0.0f, .max = 1.0f, .val = 0.5f } },
                 { .kind = DITEM_END },
             }
         }
@@ -180,6 +179,7 @@ static debug_item items[] = {
                 { .kind = DITEM_END },
             },
             .is_sp_only = true,
+            .is_collapsed = true,
         }
     },
     {
