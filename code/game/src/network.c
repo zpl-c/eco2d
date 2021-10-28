@@ -10,6 +10,7 @@
 
 #include "network.h"
 #include "packet.h"
+#include "packets/pkt_00_init.h"
 #include "world/world.h"
 #include "game.h"
 #include "player.h"
