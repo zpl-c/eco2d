@@ -19,7 +19,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
             float y = data->y * size + offset;
             
             RenderTexture2D tex = GetChunkTexture(key);
-            DrawTextureEx(tex.texture, (Vector2){x, y}, 0.0f, size / (float)tex.texture.width, ColorAlpha(WHITE, data->tran_time));
+            DrawTextureEx(tex.texture, (Vector2){x, y}, 0.0f, -(size / (float)tex.texture.width), ColorAlpha(WHITE, data->tran_time));
             
             if (zoom_overlay_tran > 0.02f) {
                 DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV(data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
