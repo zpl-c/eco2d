@@ -99,7 +99,8 @@ void *blocks_get_img(uint8_t id) {
 
 void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_chunk_blocks, void *raw_view) {
     world_view *view = (world_view*)raw_view;
-    uint16_t dims = WORLD_BLOCK_SIZE * view->chunk_size;
+    uint16_t blk_dims = WORLD_BLOCK_SIZE * 0.5f;
+    uint16_t dims = blk_dims * view->chunk_size;
     RenderTexture2D canvas = LoadRenderTexture(dims, dims);
     BeginTextureMode(canvas);
     ClearBackground(WHITE);
@@ -108,15 +109,15 @@ void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_c
 #if 0
             Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
-            Rectangle dst = {x*WORLD_BLOCK_SIZE, y*WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
+            Rectangle dst = {x*blk_dims, y*blk_dims, blk_dims, blk_dims};
             DrawTexturePro(blk, src, dst, (Vector2){0.0f,0.0f}, 0.0f, WHITE);
 #else
             static float rots[] = { 0.0f, 90.0f, 180.f, 270.0f };
             float rot = rots[(int32_t)(perlin_fbm(view->seed, x, y, 1.2f, 3) * 4.0f) % 4];
-            float half_block = WORLD_BLOCK_SIZE / 2.0f;
+            float half_block = blk_dims / 2.0f;
             Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
-            Rectangle dst = {x*WORLD_BLOCK_SIZE + half_block, y*WORLD_BLOCK_SIZE + half_block, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
+            Rectangle dst = {x*blk_dims + half_block, y*blk_dims + half_block, blk_dims, blk_dims};
             DrawTexturePro(blk, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
             
             if (outer_chunk_blocks[(y*view->chunk_size)+x] != 0) {
