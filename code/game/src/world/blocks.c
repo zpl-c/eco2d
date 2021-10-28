@@ -8,6 +8,7 @@
 #include "perlin.h"
 
 #define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
+#define WORLD_TEXTURE_BLOCK_SCALE 0.5f
 
 ZPL_TABLE(static, blocks__chunk_tbl, blocks__chunk_tbl_, RenderTexture2D);
 
@@ -99,7 +100,7 @@ void *blocks_get_img(uint8_t id) {
 
 void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_chunk_blocks, void *raw_view) {
     world_view *view = (world_view*)raw_view;
-    uint16_t blk_dims = WORLD_BLOCK_SIZE * 0.5f;
+    uint16_t blk_dims = WORLD_BLOCK_SIZE * WORLD_TEXTURE_BLOCK_SCALE;
     uint16_t dims = blk_dims * view->chunk_size;
     RenderTexture2D canvas = LoadRenderTexture(dims, dims);
     BeginTextureMode(canvas);
