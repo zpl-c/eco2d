@@ -16,7 +16,7 @@
 #include "source/system_vehicle.c"
 #include "source/system_items.c"
 
-inline float physics_correction(float x, float vx, float bounce) {
+static inline float physics_correction(float x, float vx, float bounce) {
     float r = (((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f));
     return r + (-vx*bounce);
 }

@@ -2,7 +2,7 @@
 
 static uint8_t inv_selected_item = 0;
 static bool inv_drop_item = false;
-static bool inv_is_open = false;
+bool inv_is_open = false;
 
 static bool inv_item_is_held = false;
 static uint8_t inv_held_item_idx = 0;

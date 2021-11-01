@@ -25,7 +25,7 @@ bool debug_draw_state(void) {
     return draw_is_enabled;
 }
 
-inline void debug_push_entry(debug_draw_entry entry) {
+static inline void debug_push_entry(debug_draw_entry entry) {
     if (!draw_is_enabled) return;
     if (game_get_kind() == GAMEKIND_HEADLESS) return;
     ZPL_ASSERT(draw_queue.num_entries < DEBUG_DRAW_MAX_ENTRIES);
