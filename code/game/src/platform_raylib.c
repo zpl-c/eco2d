@@ -57,6 +57,29 @@ uint8_t platform_is_running() {
     return !WindowShouldClose();
 }
 
+static game_keystate_data last_input_data = {0};
+
+void platform_input_update_input_frame(game_keystate_data data) {
+    // NOTE(zaklaus): Test if there are any changes
+    if (data.x != last_input_data.x) goto send_data;
+    if (data.y != last_input_data.y) goto send_data;
+    if (data.use != last_input_data.use) goto send_data;
+    if (data.sprint != last_input_data.sprint) goto send_data;
+    if (data.ctrl != last_input_data.ctrl) goto send_data;
+    if (data.selected_item != last_input_data.selected_item) goto send_data;
+    if (data.drop != last_input_data.drop) goto send_data;
+    if (data.swap != last_input_data.swap) goto send_data;
+    if (data.swap_from != last_input_data.swap_from) goto send_data;
+    if (data.swap_to != last_input_data.swap_to) goto send_data;
+    if (data.placement_num != last_input_data.placement_num) goto send_data;
+    if (zpl_memcompare(data.placements, last_input_data.placements, zpl_size_of(data.placements))) goto send_data;
+    return;
+    
+    send_data:
+    last_input_data = data;
+    game_action_send_keystate(&data);
+}
+
 void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
     
@@ -91,7 +114,7 @@ void platform_input() {
             y = -mouse_pos.y;
         }
         
-        game_keystate_data data = {
+        game_keystate_data in_data = {
             .x = x,
             .y = y,
             .mx = mouse_pos.x,
@@ -110,11 +133,11 @@ void platform_input() {
         if (build_submit_placements) {
             build_submit_placements = false;
             
-            data.placement_num = build_num_placements;
-            zpl_memcopy(data.placements, build_placements, build_num_placements*zpl_size_of(item_placement));
+            in_data.placement_num = build_num_placements;
+            zpl_memcopy(in_data.placements, build_placements, build_num_placements*zpl_size_of(item_placement));
         }
         
-        game_action_send_keystate(&data);
+        platform_input_update_input_frame(in_data);
     }
     
     // NOTE(zaklaus): cycle through viewers
