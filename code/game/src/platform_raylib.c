@@ -30,6 +30,8 @@ void platform_init() {
     
     screenWidth = GetScreenWidth();
     screenHeight = GetScreenHeight();
+    ToggleFullscreen();
+    
     renderer_init();
 }
 
@@ -88,7 +90,23 @@ void platform_input() {
             y = -mouse_pos.y;
         }
         
-        game_action_send_keystate(x, y, mouse_pos.x, mouse_pos.y, use, sprint, ctrl, drop, inv_selected_item, inv_swap, inv_swap_from, inv_swap_to);
+        game_keystate_data data = {
+            .x = x,
+            .y = y,
+            .mx = mouse_pos.x,
+            .my = mouse_pos.y,
+            .use = use,
+            .sprint = sprint,
+            .ctrl = ctrl,
+            
+            .drop = drop,
+            .selected_item = inv_selected_item,
+            .swap = inv_swap,
+            .swap_from = inv_swap_from,
+            .swap_to = inv_swap_to,
+        };
+        
+        game_action_send_keystate(&data);
     }
     
     // NOTE(zaklaus): cycle through viewers

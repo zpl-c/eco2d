@@ -17,19 +17,10 @@ typedef struct {
     uint8_t swap_to;
 } pkt_send_keystate;
 
+typedef pkt_send_keystate game_keystate_data;
+
 size_t pkt_send_keystate_send(uint16_t view_id,
-                              float x,
-                              float y,
-                              float mx,
-                              float my,
-                              uint8_t use,
-                              uint8_t sprint,
-                              uint8_t ctrl,
-                              uint8_t drop,
-                              uint8_t selected_item,
-                              uint8_t swap,
-                              uint8_t swap_from,
-                              uint8_t swap_to);
+                              game_keystate_data *data);
 size_t pkt_send_keystate_encode(pkt_send_keystate *table);
 extern pkt_desc pkt_send_keystate_desc[];
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "system.h"
 #include "world_view.h"
+#include "packets/pkt_send_keystate.h"
 
 typedef enum {
     GAMEKIND_SINGLE,
@@ -32,15 +33,4 @@ void game_world_view_active_entity_map(void (*map_proc)(uint64_t key, entity_vie
 entity_view *game_world_view_active_get_entity(uint64_t ent_id);
 
 //~ NOTE(zaklaus): viewer -> host actions
-void game_action_send_keystate(float x, 
-                               float y,
-                               float mx, 
-                               float my,
-                               uint8_t use,
-                               uint8_t sprint,
-                               uint8_t ctrl,
-                               uint8_t drop,
-                               uint8_t selected_item,
-                               uint8_t swap,
-                               uint8_t swap_from,
-                               uint8_t swap_to);
+void game_action_send_keystate(game_keystate_data *data);

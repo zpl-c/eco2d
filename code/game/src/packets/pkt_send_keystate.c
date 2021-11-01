@@ -24,20 +24,8 @@ pkt_desc pkt_send_keystate_desc[] = {
 };
 
 size_t pkt_send_keystate_send(uint16_t view_id,
-                              float x,
-                              float y,
-                              float mx,
-                              float my,
-                              uint8_t use,
-                              uint8_t sprint,
-                              uint8_t ctrl,
-                              uint8_t drop,
-                              uint8_t selected_item,
-                              uint8_t swap,
-                              uint8_t swap_from,
-                              uint8_t swap_to) {
-    pkt_send_keystate table = { .x = x, .y = y, .mx = mx, .my = my, .use = use, .sprint = sprint, .ctrl = ctrl, .drop = drop, .selected_item = selected_item, .swap = swap, .swap_from = swap_from, .swap_to = swap_to };
-    return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_send_keystate_encode(&table), 1, view_id, NULL, 1);
+                              game_keystate_data *data) {
+    return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_send_keystate_encode(data), 1, view_id, NULL, 1);
 }
 
 size_t pkt_send_keystate_encode(pkt_send_keystate *table) {
