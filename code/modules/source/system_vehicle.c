@@ -77,10 +77,11 @@ void EnterVehicle(ecs_iter_t *it) {
     }
 }
 
-#define VEHICLE_FORCE 340.8f
-#define VEHICLE_ACCEL 0.12f
+#define VEHICLE_FORCE 240.8f
+#define VEHICLE_ACCEL 0.032f
 #define VEHICLE_DECEL 0.28f
-#define VEHICLE_STEER 19.89f
+#define VEHICLE_STEER 35.89f
+#define VEHICLE_STEER_COMPENSATION 4.0f
 #define VEHICLE_STEER_REVERT 6.0941816f
 #define VEHICLE_POWER 97.89f
 #define VEHICLE_BRAKE_FORCE 0.84f
@@ -106,14 +107,14 @@ void VehicleHandling(ecs_iter_t *it) {
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
 
-                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, VEHICLE_ACCEL*safe_dt(it));
+                car->force += zpl_lerp(0.0f, in->y * VEHICLE_FORCE, (zpl_sign(in->y) == zpl_sign(car->force) ? 1.0f : 3.0f) * VEHICLE_ACCEL*safe_dt(it));
                 if (in->sprint) {
                     car->force = zpl_lerp(car->force, 0.0f, VEHICLE_BRAKE_FORCE*safe_dt(it));
 
                     if (zpl_abs(car->force) < 5.5f)
                         car->force = 0.0f;
                 }
-                float steer_mod = (1 - car->force / car->speed) + 0.10f;
+                float steer_mod = (1 - zpl_abs(car->force) / car->speed) + VEHICLE_STEER_COMPENSATION * safe_dt(it);
                 car->steer = zpl_lerp(car->steer, 0.0f, safe_dt(it)*VEHICLE_STEER_REVERT);
                 car->steer += (in->x * VEHICLE_STEER * steer_mod)*safe_dt(it);
                 car->steer = zpl_clamp(car->steer, -60.0f, 60.0f);
@@ -132,8 +133,8 @@ void VehicleHandling(ecs_iter_t *it) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
 
-        bk_x += car->force * drag * zpl_cos(car->heading) * safe_dt(it);
-        bk_y += car->force * drag * zpl_sin(car->heading) * safe_dt(it);
+        bk_x += car->force * drag * zpl_cos(car->heading) * safe_dt(it)*VEHICLE_POWER;
+        bk_y += car->force * drag * zpl_sin(car->heading) * safe_dt(it)*VEHICLE_POWER;
         fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer)) * safe_dt(it)*VEHICLE_POWER;
         fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer)) * safe_dt(it)*VEHICLE_POWER;
 

@@ -3,6 +3,7 @@
 
 static debug_draw_queue draw_queue = {0};
 
+#define _DEBUG 1
 #ifndef _DEBUG
 static bool draw_is_enabled = false;
 #else

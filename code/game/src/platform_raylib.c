@@ -32,6 +32,7 @@ void platform_init() {
     screenWidth = GetScreenWidth();
     screenHeight = GetScreenHeight();
     // ToggleFullscreen();
+    // SetTargetFPS(60.0);
     
     renderer_init();
 }
