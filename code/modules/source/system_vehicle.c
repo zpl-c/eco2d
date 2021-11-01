@@ -80,7 +80,7 @@ void EnterVehicle(ecs_iter_t *it) {
 #define VEHICLE_FORCE 340.8f
 #define VEHICLE_ACCEL 0.12f
 #define VEHICLE_DECEL 0.28f
-#define VEHICLE_STEER 9.89f
+#define VEHICLE_STEER 19.89f
 #define VEHICLE_STEER_REVERT 6.0941816f
 #define VEHICLE_POWER 97.89f
 #define VEHICLE_BRAKE_FORCE 0.84f
@@ -113,8 +113,9 @@ void VehicleHandling(ecs_iter_t *it) {
                     if (zpl_abs(car->force) < 5.5f)
                         car->force = 0.0f;
                 }
+                float steer_mod = (1 - car->force / car->speed) + 0.10f;
                 car->steer = zpl_lerp(car->steer, 0.0f, safe_dt(it)*VEHICLE_STEER_REVERT);
-                car->steer += (in->x * VEHICLE_STEER)*safe_dt(it);
+                car->steer += (in->x * VEHICLE_STEER * steer_mod)*safe_dt(it);
                 car->steer = zpl_clamp(car->steer, -60.0f, 60.0f);
             }
         }
