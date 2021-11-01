@@ -4416,7 +4416,7 @@ ZPL_JOIN2(FUNC, rehash_fast)(h); \
 } \
 }                                                                                                                  \
 \
-void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, size_t idx) {                                                                  \
+void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, zpl_isize idx) {                                                                  \
 zpl_array_remove_at(h->entries, idx);                                                           \
 }                                                                                                                  \
 \
