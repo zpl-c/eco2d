@@ -1,6 +1,7 @@
 #pragma once
 #include "system.h"
 #include "packet_utils.h"
+#include "item_placement.h"
 
 typedef struct {
     float x;
@@ -15,6 +16,10 @@ typedef struct {
     uint8_t swap;
     uint8_t swap_from;
     uint8_t swap_to;
+    
+    // TODO(zaklaus): build mode
+    uint8_t placement_num;
+    item_placement placements[BUILD_MAX_PLACEMENTS];
 } pkt_send_keystate;
 
 typedef pkt_send_keystate game_keystate_data;

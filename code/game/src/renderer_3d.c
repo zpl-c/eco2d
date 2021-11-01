@@ -134,3 +134,14 @@ void renderer_shutdown_3d(void) {
 void renderer_debug_draw_3d(void) {
     
 }
+
+float renderer_zoom_get_3d(void) {
+    return 1.0f;
+}
+
+void renderer_draw_single_3d(float x, float y, asset_id id, Color color) {
+    (void)color;
+    BeginMode3D(render_camera_3d);
+    EcoDrawCube((Vector3){x, 15.0f, y}, 16, 16, 16, 0.0f, PINK);
+    EndMode3D();
+}

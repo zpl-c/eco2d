@@ -23,6 +23,7 @@ static bool request_shutdown;
 
 // NOTE(zaklaus): add-ins
 #include "gui/inventory.c"
+#include "gui/build_mode.c"
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
@@ -106,6 +107,13 @@ void platform_input() {
             .swap_to = inv_swap_to,
         };
         
+        if (build_submit_placements) {
+            build_submit_placements = false;
+            
+            data.placement_num = build_num_placements;
+            zpl_memcopy(data.placements, build_placements, build_num_placements*zpl_size_of(item_placement));
+        }
+        
         game_action_send_keystate(&data);
     }
     
@@ -151,6 +159,7 @@ void platform_render() {
         {
             // NOTE(zaklaus): add-ins
             inventory_draw();
+            buildmode_draw();
         }
         display_conn_status();
         debug_draw();

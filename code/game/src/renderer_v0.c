@@ -127,6 +127,10 @@ void renderer_draw_v0(void) {
     EndMode2D();
 }
 
+float renderer_zoom_get_v0(void) {
+    return render_camera.zoom;
+}
+
 void renderer_init_v0(void) {
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){screenWidth >> 1, screenHeight >> 1};
@@ -189,6 +193,17 @@ void renderer_debug_draw_v0(void) {
             }break;
         }
     }
+    
+    EndMode2D();
+}
+
+void renderer_draw_single_v0(float x, float y, asset_id id, Color color) {
+    BeginMode2D(render_camera);
+    
+    x -= 32.0f;
+    y -= 32.0f;
+    
+    DrawTexturePro(GetSpriteTexture2D(assets_find(id)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, color);
     
     EndMode2D();
 }

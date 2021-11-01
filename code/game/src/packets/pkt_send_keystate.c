@@ -20,6 +20,8 @@ pkt_desc pkt_send_keystate_desc[] = {
     { PKT_UINT(pkt_send_keystate, swap) },
     { PKT_UINT(pkt_send_keystate, swap_from) },
     { PKT_UINT(pkt_send_keystate, swap_to) },
+    { PKT_UINT(pkt_send_keystate, placement_num) },
+    { PKT_ARRAY(pkt_send_keystate, placements) },
     { PKT_END },
 };
 
@@ -57,6 +59,11 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
         i->swap = table.swap;
         i->swap_from = zpl_clamp(table.swap_from, 0, ITEMS_INVENTORY_SIZE-1);
         i->swap_to = zpl_clamp(table.swap_to, 0, ITEMS_INVENTORY_SIZE-1);
+        i->num_placements = zpl_clamp(table.placement_num, 0, BUILD_MAX_PLACEMENTS);
+        for (uint8_t j = 0; j < i->num_placements; j++) {
+            i->placements_x[j] = table.placements[j].x;
+            i->placements_y[j] = table.placements[j].y;
+        }
         debug_replay_record_keystate(table);
     }
     

@@ -36,6 +36,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p) {
     (void)ecs;
     uint16_t item_id = item_find(it->kind);
     item_desc *desc = &items[item_id];
+    if (it->quantity <= 0) return;
     switch (item_get_usage(item_id)) {
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);

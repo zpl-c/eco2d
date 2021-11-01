@@ -182,10 +182,20 @@ void UseItem(ecs_iter_t *it) {
     Inventory *inv = ecs_column(it, Inventory, 3);
     
     for (int i = 0; i < it->count; i++) {
-        if (!in[i].use) continue;
+        if (!in[i].use && !in[i].num_placements) continue;
         
         ItemDrop *item = &inv[i].items[in[i].selected_item];
         if (!item || item->quantity <= 0) continue;
-        item_use(it->world, item, p[i]);
+        uint16_t item_id = item_find(item ->kind);
+        item_usage usage = item_get_usage(item_id);
+        
+        if (in[i].use && usage > UKIND_END_PLACE)
+            item_use(it->world, item, p[i]);
+        else if (in[i].num_placements > 0 && usage < UKIND_END_PLACE) {
+            for (size_t j = 0; j < in[i].num_placements; j++) {
+                Position pos = {.x = in[i].placements_x[j], .y = in[i].placements_y[j]};
+                item_use(it->world, item, pos);
+            }
+        }
     }
 }

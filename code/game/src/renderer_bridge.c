@@ -6,7 +6,9 @@
 #define renderer_init renderer_init_v0
 #define renderer_shutdown renderer_shutdown_v0
 #define renderer_draw renderer_draw_v0
+#define renderer_draw_single renderer_draw_single_v0
 #define renderer_debug_draw renderer_debug_draw_v0
+#define renderer_zoom_get renderer_zoom_get_v0
 void renderer_switch(int kind) {}
 #elif GFX_KIND == 1
 // NOTE(zaklaus): renderer_3d
@@ -14,7 +16,9 @@ void renderer_switch(int kind) {}
 #define renderer_init renderer_init_3d
 #define renderer_shutdown renderer_shutdown_3d
 #define renderer_draw renderer_draw_3d
+#define renderer_draw_single renderer_draw_single_3d
 #define renderer_debug_draw renderer_debug_draw_3d
+#define renderer_zoom_get renderer_zoom_get_3d
 void renderer_switch(int kind) {}
 #elif GFX_KIND == 2
 #include "renderer_3d.c"
@@ -62,6 +66,29 @@ void renderer_debug_draw(void) {
         }break;
         case 1:{
             renderer_debug_draw_3d();
+        }break;
+    }
+}
+
+float renderer_zoom_get(void) {
+    switch (gfx_kind) {
+        case 0:{
+            return renderer_zoom_get_v0();
+        }break;
+        case 1:{
+            return renderer_zoom_get_3d();
+        }break;
+    }
+    return 1.0f;
+}
+
+void renderer_draw_single(float x, float y, asset_id id, Color color) {
+    switch (gfx_kind) {
+        case 0:{
+            renderer_draw_single_v0(x, y, id, color);
+        }break;
+        case 1:{
+            renderer_draw_single_3d(x, y, id, color);
         }break;
     }
 }

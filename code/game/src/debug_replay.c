@@ -197,6 +197,11 @@ void debug_replay_update(void) {
             i->swap = r->pkt.swap;
             i->swap_from = r->pkt.swap_from;
             i->swap_to = r->pkt.swap_to;
+            i->num_placements = r->pkt.placement_num;
+            for (uint8_t j = 0; j < i->num_placements; j++) {
+                i->placements_x[j] = r->pkt.placements[j].x;
+                i->placements_y[j] = r->pkt.placements[j].y;
+            }
         }break;
         case RPKIND_SPAWN_CAR: {
             ecs_entity_t e = vehicle_spawn();

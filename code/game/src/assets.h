@@ -4,6 +4,9 @@
 #define ASSET_INVALID 0xFF
 
 typedef enum {
+    // NOTE(zaklaus): Debug
+    ASSET_DEBUG_TILE,
+    
     // NOTE(zaklaus): entities
     ASSET_PLAYER,
     ASSET_THING,

@@ -52,6 +52,11 @@ ECS_STRUCT(Input, {
                uint8_t swap;
                uint8_t swap_from;
                uint8_t swap_to;
+               
+               // NOTE(zaklaus): build mode
+               uint8_t num_placements;
+               float placements_x[20];
+               float placements_y[20];
            });
 
 ECS_STRUCT(ClientInfo, {

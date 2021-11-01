@@ -24,7 +24,9 @@ void inventory_draw() {
         inv_is_open = !inv_is_open;
     }
     
-    if (!inv_is_open) return;
+    if (!inv_is_open) {
+        return;
+    }
     
     float sx = screenWidth/2.0f + 128;
     float sy = screenHeight/2.0f - 96;

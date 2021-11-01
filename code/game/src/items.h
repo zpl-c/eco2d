@@ -13,6 +13,8 @@ typedef enum {
 
 typedef enum {
     UKIND_PLACE,
+    UKIND_PLACE_ITEM,
+    UKIND_END_PLACE,
 } item_usage;
 
 typedef struct {
