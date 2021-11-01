@@ -22,6 +22,15 @@ void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
             RenderTexture2D tex = GetChunkTexture(key);
             DrawCubeTexture(tex.texture, (Vector3){x+half_size, 0.0f, y+half_size}, size, 0.01f, size, WHITE);
             
+            for (size_t ty = 0; ty < view->chunk_size; ty++) {
+                for (size_t tx = 0; tx < view->chunk_size; tx++) {
+                    uint8_t blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
+                    if (blk_id != 0) {
+                        DrawCubeTexture(GetBlockImage(blk_id), (Vector3){x + tx*WORLD_BLOCK_SIZE+half_block_size, 32.0f, y + ty*WORLD_BLOCK_SIZE+half_block_size}, 64, 0.01f, 64, WHITE);
+                    }
+                }
+            }
+            
             for (int by = 0; by < 16; by++) {
                 for (int bx = 0; bx < 16; bx++) {
                     switch (blocks_get_flags(data->blocks[by*16+bx])) {

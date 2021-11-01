@@ -121,10 +121,12 @@ void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_c
             Rectangle dst = {x*blk_dims + half_block, y*blk_dims + half_block, blk_dims, blk_dims};
             DrawTexturePro(blk, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
             
+#if 0
             if (outer_chunk_blocks[(y*view->chunk_size)+x] != 0) {
                 Texture2D blk2 = blocks[outer_chunk_blocks[(y*view->chunk_size)+x]].img;
                 DrawTexturePro(blk2, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
             }
+#endif
 #endif
         }
     }

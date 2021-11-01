@@ -30,6 +30,15 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
                 DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
                 
             }
+            
+            for (size_t ty = 0; ty < view->chunk_size; ty++) {
+                for (size_t tx = 0; tx < view->chunk_size; tx++) {
+                    uint8_t blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
+                    if (blk_id != 0) {
+                        DrawTextureRec(GetBlockImage(blk_id), ASSET_SRC_RECT(), (Vector2){x+tx*WORLD_BLOCK_SIZE, y+ty*WORLD_BLOCK_SIZE}, ColorAlpha(WHITE, data->tran_time));
+                    }
+                }
+            }
         }break;
         
         default:break;
