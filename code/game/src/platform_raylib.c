@@ -31,7 +31,7 @@ void platform_init() {
     
     screenWidth = GetScreenWidth();
     screenHeight = GetScreenHeight();
-    ToggleFullscreen();
+    // ToggleFullscreen();
     
     renderer_init();
 }
