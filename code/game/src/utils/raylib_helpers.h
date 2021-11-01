@@ -157,6 +157,7 @@ void EcoDrawCube(Vector3 position, float width, float height, float length, floa
 // Draw codepoint at specified position in 3D space
 void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontSize, bool backface, Color tint)
 {
+#if 0
     // Character index position in sprite font
     // NOTE: In case a codepoint is not available in the font, index returned points to '?'
     int index = GetGlyphIndex(font, codepoint);
@@ -227,9 +228,11 @@ void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontS
         rlDisableTexture();
 #endif
     }
+#endif
 }
 
 void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, float fontSpacing, float lineSpacing, bool backface, Color tint) {
+#if 0
     int length = TextLength(text);          // Total length in bytes of the text, scanned by codepoints in loop
     
     float textOffsetY = 0.0f;               // Offset between lines (on line break '\n')
@@ -267,10 +270,14 @@ void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, f
         }
         
         i += codepointByteCount;   // Move text bytes counter to next codepoint
+        
     }
+#endif
 }
 
 Vector3 MeasureText3D(Font font, const char* text, float fontSize, float fontSpacing, float lineSpacing) {
+    
+#if 0    
     int len = TextLength(text);
     int tempLen = 0;                // Used to count longer text line num chars
     int lenCounter = 0;
@@ -321,6 +328,8 @@ Vector3 MeasureText3D(Font font, const char* text, float fontSize, float fontSpa
     vec.z = textHeight;
     
     return vec;
+#endif
+    
 }
 
 
