@@ -7,6 +7,7 @@
 
 typedef enum {
     UKIND_HOLD,
+    UKIND_PROXY,
     UKIND_PLACE,
     UKIND_PLACE_ITEM,
     UKIND_END_PLACE,
@@ -21,7 +22,12 @@ typedef struct {
     union {
         struct {
             asset_id kind;
+            bool directional; // NOTE(zaklaus): expects next 4 asset entries to be direction assets
         } place;
+        
+        struct {
+            asset_id id;
+        } proxy;
     };
 } item_desc;
 
@@ -31,7 +37,8 @@ void item_despawn(uint64_t id);
 
 // NOTE(zaklaus): items
 uint16_t item_find(asset_id kind);
-void item_use(ecs_world_t *ecs, ItemDrop *it, Position p);
+void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata);
 
 uint32_t item_max_quantity(uint16_t id);
 item_usage item_get_usage(uint16_t id);
+bool item_get_place_directional(uint16_t id);

@@ -24,15 +24,24 @@ uint64_t item_spawn(asset_id kind, uint32_t qty) {
     return (uint64_t)e;
 }
 
+static inline uint16_t item_resolve_proxy(uint16_t id) {
+    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+    item_usage usage = items[id].usage;
+    if (usage == UKIND_PROXY) {
+        return item_find(items[id].proxy.id);
+    }
+    return id;
+}
+
 uint16_t item_find(asset_id kind) {
     for (uint16_t i=0; i<ITEMS_COUNT; i++) {
         if (items[i].kind == kind)
-            return i;
+            return item_resolve_proxy(i);
     }
     return ASSET_INVALID;
 }
 
-void item_use(ecs_world_t *ecs, ItemDrop *it, Position p) {
+void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
     (void)ecs;
     uint16_t item_id = item_find(it->kind);
     item_desc *desc = &items[item_id];
@@ -41,7 +50,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p) {
         case UKIND_HOLD: /* NOOP */ break;
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
-            if (world_chunk_place_block(l.chunk_id, l.id, blocks_find(desc->place.kind)) )
+            if (world_chunk_place_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata)) )
                 it->quantity--;
         }break;
     }
@@ -59,4 +68,9 @@ uint32_t item_max_quantity(uint16_t id) {
 item_usage item_get_usage(uint16_t id) {
     ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     return items[id].usage;
+}
+
+bool item_get_place_directional(uint16_t id) {
+    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+    return items[id].place.directional;
 }

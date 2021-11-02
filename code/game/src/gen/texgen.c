@@ -27,8 +27,10 @@ Texture2D texgen_build_sprite(asset_id id) {
         case ASSET_LAVA: return LoadImageEco("lava");
         case ASSET_WOOD: return LoadImageEco("wood");
         case ASSET_TREE: return LoadImageEco("tree");
-        case ASSET_BELT_LEFT: return LoadImageEco("belt_left");
+        
+        case ASSET_BELT:
         case ASSET_BELT_RIGHT: return LoadImageEco("belt_right");
+        case ASSET_BELT_LEFT: return LoadImageEco("belt_left");
         case ASSET_BELT_UP: return LoadImageEco("belt_up");
         case ASSET_BELT_DOWN: return LoadImageEco("belt_down");
         

@@ -244,8 +244,8 @@ int32_t worldgen_test(world_data *wld) {
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
     }
     
-    for (int i=0; i<RAND_RANGE(328, 164); i++) {
-        uint64_t e = item_spawn(ASSET_BELT_LEFT, 999);
+    for (int i=0; i<RAND_RANGE(128, 564); i++) {
+        uint64_t e = item_spawn(ASSET_BELT, 999);
         
         Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);

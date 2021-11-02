@@ -182,6 +182,10 @@ void SwapItems(ecs_iter_t *it) {
     }
 }
 
+#ifndef zpl_sign0
+#define zpl_sign0(x) (x == 0.0f) ? 0 : ((x) >= 0 ? 1 : -1)
+#endif
+
 void UseItem(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);
     Position *p = ecs_column(it, Position, 2);
@@ -192,16 +196,34 @@ void UseItem(ecs_iter_t *it) {
         
         ItemDrop *item = &inv[i].items[in[i].selected_item];
         if (!item || item->quantity <= 0) continue;
-        uint16_t item_id = item_find(item ->kind);
+        uint16_t item_id = item_find(item->kind);
         item_usage usage = item_get_usage(item_id);
         
         if (in[i].use && usage > UKIND_END_PLACE)
-            item_use(it->world, item, p[i]);
+            item_use(it->world, item, p[i], 0);
         else if (in[i].num_placements > 0 && usage < UKIND_END_PLACE) {
+            asset_id ofs = 0;
+            if (item_get_place_directional(item_id) && in[i].num_placements >= 2) {
+                float p1x = in[i].placements_x[0];
+                float p1y = in[i].placements_y[0];
+                float p2x = in[i].placements_x[1];
+                float p2y = in[i].placements_y[1];
+                float sx = zpl_sign0(p2x-p1x);
+                float sy = zpl_sign0(p2y-p1y);
+                ofs = (sx < 0.0f) ? 1 : 2;
+                if (sx == 0.0f) {
+                    ofs = (sy < 0.0f) ? 3 : 4;
+                }
+            } else if(item_get_place_directional(item_id)) {
+                // NOTE(zaklaus): ensure we pick the first variant
+                ofs = 1;
+            }
+            
             for (size_t j = 0; j < in[i].num_placements; j++) {
                 Position pos = {.x = in[i].placements_x[j], .y = in[i].placements_y[j]};
-                item_use(it->world, item, pos);
+                item_use(it->world, item, pos, ofs);
             }
+            
             in[i].num_placements = 0;
         }
     }

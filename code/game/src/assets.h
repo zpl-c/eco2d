@@ -28,6 +28,7 @@ typedef enum {
     ASSET_WOOD,
     ASSET_TREE,
     
+    ASSET_BELT,
     ASSET_BELT_LEFT,
     ASSET_BELT_RIGHT,
     ASSET_BELT_UP,
