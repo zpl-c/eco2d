@@ -5,7 +5,7 @@
 
 typedef enum {
     // NOTE(zaklaus): Debug
-    ASSET_DEBUG_TILE,
+    ASSET_EMPTY,
     
     // NOTE(zaklaus): entities
     ASSET_PLAYER,
@@ -13,6 +13,9 @@ typedef enum {
     
     // NOTE(zaklaus): items
     ASSET_DEMO_ICEMAKER,
+    
+    // NOTE(zaklaus): blocks
+    ASSET_FENCE,
     
     MAX_ASSETS,
     FORCE_ASSET_UINT16 = UINT16_MAX

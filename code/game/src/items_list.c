@@ -2,9 +2,12 @@
 
 static item_desc items[] = {
     {
-        .kind = IKIND_DEMO_ICEMAKER,
+        .kind = 0,
+        .max_quantity = 0,
+    },
+    {
+        .kind = ASSET_DEMO_ICEMAKER,
         .usage = UKIND_PLACE,
-        .asset = ASSET_DEMO_ICEMAKER,
         .max_quantity = 64,
         
         .place = {

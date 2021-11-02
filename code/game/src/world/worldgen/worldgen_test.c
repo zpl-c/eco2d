@@ -191,7 +191,7 @@ int32_t worldgen_test(world_data *wld) {
     // items
 #if 1
     for (int i=0; i<RAND_RANGE(328, 164); i++) {
-        uint64_t e = item_spawn(IKIND_DEMO_ICEMAKER, 32);
+        uint64_t e = item_spawn(ASSET_DEMO_ICEMAKER, 32);
         
         Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
         dest->x = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);

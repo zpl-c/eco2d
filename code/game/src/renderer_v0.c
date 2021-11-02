@@ -75,10 +75,9 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
                 float ix = data->x;
                 float iy = data->y;
                 if (data->items[data->selected_item].quantity > 0) {
-                    item_kind it_kind = data->items[data->selected_item].kind;
+                    asset_id it_kind = data->items[data->selected_item].kind;
                     uint32_t qty = data->items[data->selected_item].quantity;
-                    uint16_t it_id = item_find(it_kind);
-                    DrawTexturePro(GetSpriteTexture2D(assets_find(item_get_asset(it_id))), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+                    DrawTexturePro(GetSpriteTexture2D(assets_find(it_kind)), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
                     
                     if (!inv_is_open)
                         DrawTextEco(zpl_bprintf("%d", qty), ix+24, iy+24, 8, RAYWHITE, 0.0f); 

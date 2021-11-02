@@ -55,7 +55,7 @@ entity_view world_build_entity_view(int64_t e) {
     
     if (ecs_get(world_ecs(), e, ItemDrop)) {
         ItemDrop const* dr = ecs_get(world_ecs(), e, ItemDrop);
-        view.asset = item_get_asset(dr->kind);
+        view.asset = dr->kind;
         view.quantity = dr->quantity;
     }
     

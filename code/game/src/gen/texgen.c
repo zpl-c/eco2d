@@ -36,6 +36,7 @@ Texture2D texgen_build_block(uint32_t biome, uint32_t kind) {
 Texture2D texgen_build_sprite(asset_id id) {
     switch (id) {
         case ASSET_DEMO_ICEMAKER: return LoadImageEco("demo_icemaker");
+        case ASSET_FENCE: return LoadImageEco("fence");
         
         default: {
             Image img = GenImageColor(1, 1, RAYWHITE);

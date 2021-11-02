@@ -23,14 +23,16 @@ void PickItem(ecs_iter_t *it) {
                 float dy = p2->y - p[i].y;
                 float range = zpl_sqrt(dx*dx + dy*dy);
                 if (range <= ITEM_PICK_RADIUS) {
+                    uint16_t drop_id = item_find(drop->kind);
                     for (size_t k = 0; k < ITEMS_INVENTORY_SIZE; k += 1) {
                         ItemDrop *item = &inv[i].items[k];
                         uint16_t item_id = item_find(item->kind);
-                        if ((item->quantity == 0 || (item->quantity != 0 && item->kind == drop->kind)) && item->quantity < item_max_quantity(item_id)) {
+                        if (item_id != ASSET_INVALID && (item->quantity == 0 || (item->quantity != 0 && item->kind == drop->kind)) && item->quantity < item_max_quantity(drop_id)) {
                             uint32_t picked_count = zpl_max(0, drop->quantity);
-                            picked_count = zpl_clamp(picked_count, 0, item_max_quantity(item_id) - item->quantity);
+                            picked_count = zpl_clamp(picked_count, 0, item_max_quantity(drop_id) - item->quantity);
                             item->quantity += picked_count;
                             drop->quantity -= picked_count;
+                            item->kind = drop->kind;
                             
                             if (drop->quantity == 0)
                                 item_despawn(ents[j]);
@@ -91,6 +93,10 @@ void DropItem(ecs_iter_t *it) {
         
         inv[i].pickup_time = game_time() + ITEM_DROP_PICKUP_TIME;
         in[i].drop = false;
+        
+        if (item->quantity == 0) {
+            item->kind = 0;
+        }
     }
 }
 

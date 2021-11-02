@@ -70,14 +70,14 @@ void buildmode_draw(void) {
         }
         
         if (!is_outside_range)
-            renderer_draw_single(cam.x, cam.y, ASSET_DEBUG_TILE, ColorAlpha(BLUE, 0.4f));
+            renderer_draw_single(cam.x, cam.y, ASSET_EMPTY, ColorAlpha(BLUE, 0.4f));
         
         build_num_placements = zpl_min(build_num_placements, qty);
     }
     
     for (size_t i = 0; i < build_num_placements; i++) {
         item_placement *it = &build_placements[i];
-        renderer_draw_single(it->x, it->y, ASSET_DEBUG_TILE, ColorAlpha(BLUE, 0.4f));
+        renderer_draw_single(it->x, it->y, ASSET_EMPTY, ColorAlpha(BLUE, 0.4f));
     }
     
     if (build_is_in_draw_mode) {

@@ -64,8 +64,7 @@ void inventory_draw() {
             DrawRectangleLinesEco(x, y, 64, 64, color);
             
             if (item->quantity > 0) {
-                asset_id asset = item_get_asset(item->kind);
-                DrawTexturePro(GetSpriteTexture2D(assets_find(asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, WHITE);
+                DrawTexturePro(GetSpriteTexture2D(assets_find(item->kind)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, WHITE);
                 DrawTextEco(zpl_bprintf("%d", item->quantity), x+5, y+5, 16, RAYWHITE, 0.0f); 
             }
         }
@@ -81,8 +80,7 @@ void inventory_draw() {
         Vector2 mpos = GetMousePosition();
         mpos.x -= 32;
         mpos.y -= 32;
-        asset_id asset = item_get_asset(item_find(inv_held_item.kind));
-        DrawTexturePro(GetSpriteTexture2D(assets_find(asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(mpos.x, mpos.y), (Vector2){0.5f,0.5f}, 0.0f, ColorAlpha(WHITE, 0.8f));
+        DrawTexturePro(GetSpriteTexture2D(assets_find(inv_held_item.kind)), ASSET_SRC_RECT(), ASSET_DST_RECT(mpos.x, mpos.y), (Vector2){0.5f,0.5f}, 0.0f, ColorAlpha(WHITE, 0.8f));
         DrawTextEco(zpl_bprintf("%d", inv_held_item.quantity), mpos.x, mpos.y, 16, RAYWHITE, 0.0f); 
         
         debug_area_status area = check_mouse_area(sx, sy, 64*3, 64*3);
