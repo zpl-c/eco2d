@@ -51,18 +51,21 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
         i->y = zpl_clamp(table.y, -1.0f, 1.0f);
         i->mx = table.mx;
         i->my = table.my;
-        i->use = table.use;
+        i->use |= table.use;
         i->sprint = table.sprint;
         i->ctrl = table.ctrl;
         i->selected_item = zpl_clamp(table.selected_item, 0, ITEMS_INVENTORY_SIZE-1);
-        i->drop = table.drop;
-        i->swap = table.swap;
+        i->drop |= table.drop;
+        i->swap |= table.swap;
         i->swap_from = zpl_clamp(table.swap_from, 0, ITEMS_INVENTORY_SIZE-1);
         i->swap_to = zpl_clamp(table.swap_to, 0, ITEMS_INVENTORY_SIZE-1);
-        i->num_placements = zpl_clamp(table.placement_num, 0, BUILD_MAX_PLACEMENTS);
-        for (uint8_t j = 0; j < i->num_placements; j++) {
-            i->placements_x[j] = table.placements[j].x;
-            i->placements_y[j] = table.placements[j].y;
+        
+        if (table.placement_num > 0) {
+            i->num_placements = zpl_clamp(table.placement_num, 0, BUILD_MAX_PLACEMENTS);
+            for (uint8_t j = 0; j < i->num_placements; j++) {
+                i->placements_x[j] = table.placements[j].x;
+                i->placements_y[j] = table.placements[j].y;
+            }
         }
         debug_replay_record_keystate(table);
     }

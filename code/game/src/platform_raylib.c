@@ -22,15 +22,15 @@ static bool request_shutdown;
 #include "renderer_bridge.c"
 
 // NOTE(zaklaus): add-ins
-#include "gui/inventory.c"
 #include "gui/build_mode.c"
+#include "gui/inventory.c"
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
     SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
     
-    screenWidth = GetScreenWidth();
-    screenHeight = GetScreenHeight();
+    screenWidth = (uint16_t)GetScreenWidth();
+    screenHeight = (uint16_t)GetScreenHeight();
     // ToggleFullscreen();
     // SetTargetFPS(60.0);
     
@@ -110,7 +110,7 @@ void platform_input() {
         mouse_pos.y -= 0.5f;
         mouse_pos = Vector2Normalize(mouse_pos);
         
-        if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+        if (IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
             x = mouse_pos.x;
             y = -mouse_pos.y;
         }
@@ -132,8 +132,6 @@ void platform_input() {
         };
         
         if (build_submit_placements) {
-            build_submit_placements = false;
-            
             in_data.placement_num = build_num_placements;
             zpl_memcopy(in_data.placements, build_placements, build_num_placements*zpl_size_of(item_placement));
         }
@@ -182,8 +180,8 @@ void platform_render() {
         renderer_debug_draw();
         {
             // NOTE(zaklaus): add-ins
-            inventory_draw();
             buildmode_draw();
+            inventory_draw();
         }
         display_conn_status();
         debug_draw();

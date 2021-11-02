@@ -123,6 +123,17 @@ void RegenerateHP(ecs_iter_t *it) {
     }
 }
 
+void ResetActivators(ecs_iter_t *it) {
+    Input *in = ecs_column(it, Input, 1);
+    
+    for (int i = 0; i < it->count; i++) {
+        in[i].use = false;
+        in[i].swap = false;
+        in[i].drop = false;
+        in[i].num_placements = 0;
+    }
+}
+
 void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
     Position *p = ecs_column(it, Position, 1);
     Velocity *v = ecs_column(it, Velocity, 2);
@@ -167,6 +178,8 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, SwapItems, EcsPostUpdate, components.Input, components.Inventory);
     //ECS_SYSTEM(ecs, MergeItems, EcsPostUpdate, components.Position, components.ItemDrop);
     ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
+    
+    ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
     
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position, components.Velocity);
     

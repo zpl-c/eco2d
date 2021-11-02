@@ -24,7 +24,7 @@ void inventory_draw() {
         inv_is_open = !inv_is_open;
     }
     
-    if (!inv_is_open) {
+    if (!inv_is_open || build_is_in_draw_mode) {
         return;
     }
     

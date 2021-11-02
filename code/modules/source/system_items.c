@@ -196,6 +196,7 @@ void UseItem(ecs_iter_t *it) {
                 Position pos = {.x = in[i].placements_x[j], .y = in[i].placements_y[j]};
                 item_use(it->world, item, pos);
             }
+            in[i].num_placements = 0;
         }
     }
 }
