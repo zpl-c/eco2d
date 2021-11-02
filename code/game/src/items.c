@@ -40,7 +40,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p) {
     switch (item_get_usage(item_id)) {
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
-            if (world_chunk_place_block(l.chunk_id, l.id, blocks_find(desc->place.biome, desc->place.kind)) )
+            if (world_chunk_place_block(l.chunk_id, l.id, blocks_find(desc->place.kind)) )
                 it->quantity--;
         }break;
     }

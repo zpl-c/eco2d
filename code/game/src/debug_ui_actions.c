@@ -58,7 +58,7 @@ ActSpawnCirclingDriver(void) {
 void
 ActPlaceIceRink(void) {
     ecs_entity_t plr = camera_get().ent_id;
-    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    uint8_t watr_id = blocks_find(ASSET_WATER);
     Position const *p = ecs_get(world_ecs(), plr, Position);
     float const bs = WORLD_BLOCK_SIZE;
     

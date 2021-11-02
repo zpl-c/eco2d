@@ -96,7 +96,7 @@ void entity_view_mark_for_fadein(entity_view_tbl *map, uint64_t ent_id) {
 void entity_view_update_chunk_texture(entity_view_tbl *map, uint64_t ent_id, void *world_view) {
     entity_view *view = entity_view_tbl_get(map, ent_id);
     if (view->kind != EKIND_CHUNK) return;
-    blocks_build_chunk_tex(ent_id, view->blocks, view->outer_blocks, world_view);
+    blocks_build_chunk_tex(ent_id, view->blocks, world_view);
 }
 
 void entity_view_remove_chunk_texture(entity_view_tbl *map, uint64_t ent_id) {

@@ -19,8 +19,7 @@ typedef struct {
     // NOTE(zaklaus): usage data
     union {
         struct {
-            block_biome biome;
-            block_kind kind;
+            asset_id kind;
         } place;
     };
 } item_desc;

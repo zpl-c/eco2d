@@ -1,12 +1,18 @@
 #include "world/blocks.h"
 
+#define BLOCK(a, f, s, ...)\
+{\
+.kind = a, .flags = f, .symbol = s, __VA_ARGS__\
+}
+
 static block blocks[] = {
-    {.name = "empty", .flags = 0, .kind = BLOCK_KIND_EMPTY, .biome = 0, .symbol = ' ', .drag = 1.0f, .friction = 1.0f },
-    {.name = "base-ground", .flags = 0, .kind = BLOCK_KIND_GROUND, .biome = 0, .symbol = '.', .drag = 1.0f, .friction = 1.0f },
-    {.name = "base-dirt", .flags = 0, .kind = BLOCK_KIND_DIRT, .biome = 0, .symbol = ',', .drag = 2.1f , .friction = 1.0f },
-    {.name = "base-wall", .flags = BLOCK_FLAG_COLLISION, .kind = BLOCK_KIND_WALL, .biome = 0, .symbol = '#', .drag = 1.0f , .friction = 1.0f, .bounce = 1.0f },
-    {.name = "base-hill", .flags = BLOCK_FLAG_COLLISION, .kind = BLOCK_KIND_HILL, .biome = 0, .symbol = '^', .drag = 1.0f , .friction = 1.0f },
-    {.name = "base-hill-snow", .flags = BLOCK_FLAG_COLLISION, .kind = BLOCK_KIND_HILL_SNOW, .biome = 0, .symbol = '*', .drag = 1.0f , .friction = 1.0f },
-    {.name = "base-water", .flags = 0, .kind = BLOCK_KIND_WATER, .biome = 0, .symbol = '~', .drag = 0.11f , .friction = 1.0f },
-    {.name = "base-lava", .flags = BLOCK_FLAG_HAZARD, .kind = BLOCK_KIND_LAVA, .biome = 0, .symbol = '!', .drag = 6.2f , .friction = 4.0f },
+    BLOCK(ASSET_EMPTY, 0, ' ', .drag = 1.0f, .friction = 1.0f),
+    BLOCK(ASSET_GROUND, 0, '.', .drag = 1.0f, .friction = 1.0f),
+    BLOCK(ASSET_DIRT, 0, ',', .drag = 2.1f , .friction = 1.0f),
+    BLOCK(ASSET_WALL, BLOCK_FLAG_COLLISION, '#', .drag = 1.0f , .friction = 1.0f, .bounce = 1.0f),
+    BLOCK(ASSET_HILL, BLOCK_FLAG_COLLISION, '^', .drag = 1.0f , .friction = 1.0f),
+    BLOCK(ASSET_HILL_SNOW, BLOCK_FLAG_COLLISION, '*', .drag = 1.0f , .friction = 1.0f),
+    BLOCK(ASSET_WATER, 0, '~', .drag = 0.11f , .friction = 1.0f),
+    BLOCK(ASSET_LAVA, BLOCK_FLAG_HAZARD, '!', .drag = 6.2f , .friction = 4.0f),
+    BLOCK(ASSET_FENCE, BLOCK_FLAG_COLLISION, '#', .drag = 1.0f , .friction = 1.0f, .bounce = 1.0f),
 };

@@ -20,50 +20,38 @@ static void chunks_unload_textures(uint64_t key, RenderTexture2D *value) {
 }
 
 typedef struct {
-    char *name;
+    asset_id kind;
     uint32_t flags;
-    uint32_t kind;
-    uint32_t biome;
     char symbol;
     float drag;
     float friction;
     float bounce;
     
     // NOTE(zaklaus): viewer data
-    Texture2D img;
+    uint16_t slot;
 } block;
 
 #include "blocks_list.c"
 
 int32_t blocks_setup(void) {
     for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
-        block *b = &blocks[i];
-        b->img = texgen_build_block(b->biome, b->kind);
+        blocks[i].slot = assets_find(blocks[i].kind);
     }
-    
     blocks__chunk_tbl_init(&baked_chunks, zpl_heap());
     return 0;
 }
 
 void blocks_destroy(void) {
-    for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
-        UnloadTexture(blocks[i].img);
-    }
-    
     blocks__chunk_tbl_map_mut(&baked_chunks, chunks_unload_textures);
     blocks__chunk_tbl_destroy(&baked_chunks);
 }
 
-uint8_t blocks_find(uint32_t biome, uint32_t kind) {
-    for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
-        if (blocks[i].biome == biome && blocks[i].kind == kind)
+uint8_t blocks_find(asset_id kind) {
+    for (uint8_t i=0; i<BLOCKS_COUNT; i++) {
+        if (blocks[i].kind == kind)
             return i;
     }
-    return BLOCK_INVALID;
-}
-
-char *blocks_get_name(uint8_t id) {
-    return blocks[id].name;
+    return 0xF;
 }
 
 char blocks_get_symbol(uint8_t id) {
@@ -72,14 +60,6 @@ char blocks_get_symbol(uint8_t id) {
 
 uint32_t blocks_get_flags(uint8_t id) {
     return blocks[id].flags;
-}
-
-uint32_t blocks_get_biome(uint8_t id) {
-    return blocks[id].biome;
-}
-
-uint32_t blocks_get_kind(uint8_t id) {
-    return blocks[id].kind;
 }
 
 float blocks_get_drag(uint8_t id) {
@@ -95,39 +75,25 @@ float blocks_get_bounce(uint8_t id) {
 }
 
 void *blocks_get_img(uint8_t id) {
-    return (void*)&blocks[id].img;
+    return assets_get_tex(blocks[id].slot);
 }
 
-void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, uint8_t *outer_chunk_blocks, void *raw_view) {
+void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, void *raw_view) {
     world_view *view = (world_view*)raw_view;
-    uint16_t blk_dims = WORLD_BLOCK_SIZE * WORLD_TEXTURE_BLOCK_SCALE;
+    uint16_t blk_dims = (uint16_t)(WORLD_BLOCK_SIZE * WORLD_TEXTURE_BLOCK_SCALE);
     uint16_t dims = blk_dims * view->chunk_size;
     RenderTexture2D canvas = LoadRenderTexture(dims, dims);
     BeginTextureMode(canvas);
     ClearBackground(WHITE);
     for (int y = 0; y < view->chunk_size; y += 1) {
         for (int x = 0; x < view->chunk_size; x += 1) {
-#if 0
-            Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
-            Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
-            Rectangle dst = {x*blk_dims, y*blk_dims, blk_dims, blk_dims};
-            DrawTexturePro(blk, src, dst, (Vector2){0.0f,0.0f}, 0.0f, WHITE);
-#else
             static float rots[] = { 0.0f, 90.0f, 180.f, 270.0f };
             float rot = rots[(int32_t)(perlin_fbm(view->seed, x, y, 1.2f, 3) * 4.0f) % 4];
             float half_block = blk_dims / 2.0f;
-            Texture2D blk = blocks[chunk_blocks[(y*view->chunk_size)+x]].img;
+            Texture2D blk = *(Texture2D*)blocks_get_img(chunk_blocks[(y*view->chunk_size)+x]);
             Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             Rectangle dst = {x*blk_dims + half_block, y*blk_dims + half_block, blk_dims, blk_dims};
             DrawTexturePro(blk, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
-            
-#if 0
-            if (outer_chunk_blocks[(y*view->chunk_size)+x] != 0) {
-                Texture2D blk2 = blocks[outer_chunk_blocks[(y*view->chunk_size)+x]].img;
-                DrawTexturePro(blk2, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
-            }
-#endif
-#endif
         }
     }
     EndTextureMode();

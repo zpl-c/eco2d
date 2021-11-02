@@ -12,31 +12,19 @@ Texture2D LoadImageEco(const char *name) {
     return LoadTexture(filename);
 }
 
-Texture2D texgen_build_block(uint32_t biome, uint32_t kind) {
-    switch (biome) {
-        case BLOCK_BIOME_DEV: {
-            switch (kind) {
-                case BLOCK_KIND_GROUND: return LoadImageEco("grass");
-                case BLOCK_KIND_DIRT: return LoadImageEco("dirt");
-                case BLOCK_KIND_WALL: return LoadImageEco("asphalt");
-                case BLOCK_KIND_HILL_SNOW:
-                case BLOCK_KIND_HILL: return LoadImageEco("rock");
-                case BLOCK_KIND_WATER: return LoadImageEco("water");
-                case BLOCK_KIND_LAVA: return LoadImageEco("lava");
-            }
-        }
-    }
-    
-    Image img = GenImageColor(WORLD_BLOCK_SIZE,WORLD_BLOCK_SIZE,ColorFromHSV(biome+kind*30, 0.13f, 0.89f));
-    Texture2D tex = LoadTextureFromImage(img);
-    UnloadImage(img);
-    return tex;
-}
-
 Texture2D texgen_build_sprite(asset_id id) {
     switch (id) {
         case ASSET_DEMO_ICEMAKER: return LoadImageEco("demo_icemaker");
+        
+        // NOTE(zaklaus): blocks
         case ASSET_FENCE: return LoadImageEco("fence");
+        case ASSET_GROUND: return LoadImageEco("grass");
+        case ASSET_DIRT: return LoadImageEco("dirt");
+        case ASSET_WALL: return LoadImageEco("asphalt");
+        case ASSET_HILL_SNOW:
+        case ASSET_HILL: return LoadImageEco("rock");
+        case ASSET_WATER: return LoadImageEco("water");
+        case ASSET_LAVA: return LoadImageEco("lava");
         
         default: {
             Image img = GenImageColor(1, 1, RAYWHITE);

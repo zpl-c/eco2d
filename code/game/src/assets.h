@@ -16,6 +16,15 @@ typedef enum {
     
     // NOTE(zaklaus): blocks
     ASSET_FENCE,
+    ASSET_DEV,
+    ASSET_GROUND,
+    ASSET_DIRT,
+    ASSET_WATER,
+    ASSET_LAVA,
+    ASSET_WALL,
+    ASSET_HILL,
+    ASSET_HILL_SNOW,
+    ASSET_HOLE,
     
     MAX_ASSETS,
     FORCE_ASSET_UINT16 = UINT16_MAX

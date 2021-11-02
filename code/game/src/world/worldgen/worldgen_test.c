@@ -10,12 +10,34 @@
 #include "modules/components.h"
 #include "vehicle.h"
 #include "items.h"
+#include "world/blocks_info.h"
 
 #define WORLD_BLOCK_OBSERVER(name) uint8_t name(uint8_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
 #define WORLD_PERLIN_FREQ    100
 #define WORLD_PERLIN_OCTAVES 1
+
+#define BLOCK_INVALID 0xF
+
+uint8_t worldgen_biome_find(uint32_t biome, uint32_t kind) {
+    asset_id asset = ASSET_INVALID;
+    switch (biome) {
+        case BLOCK_BIOME_DEV: {
+            switch (kind) {
+                case BLOCK_KIND_GROUND: asset = ASSET_GROUND; break;
+                case BLOCK_KIND_DIRT: asset = ASSET_DIRT; break;
+                case BLOCK_KIND_WALL: asset = ASSET_WALL; break;
+                case BLOCK_KIND_HILL_SNOW:
+                case BLOCK_KIND_HILL: asset = ASSET_HILL; break;
+                case BLOCK_KIND_WATER: asset = ASSET_WATER; break;
+                case BLOCK_KIND_LAVA: asset = ASSET_LAVA; break;
+            }
+        }
+    }
+    
+    return blocks_find(asset);
+}
 
 static world_data *world;
 
@@ -66,18 +88,14 @@ static void world_fill_rect_anchor(uint8_t id, uint32_t x, uint32_t y, uint32_t 
 }
 
 static WORLD_BLOCK_OBSERVER(shaper) {
-    uint32_t biome = blocks_get_biome(id);
-    uint32_t kind = blocks_get_kind(id);
-    uint32_t old_biome = blocks_get_biome(world->data[block_idx]);
-    uint32_t old_kind = blocks_get_kind(world->data[block_idx]);
+    uint32_t kind = id;
+    uint32_t old_kind = world->data[block_idx];
     
-    if (biome == old_biome) {
-        if (kind == BLOCK_KIND_WALL && kind == old_kind) {
-            return blocks_find(biome, BLOCK_KIND_HILL);
-        }
-        if (kind == BLOCK_KIND_HILL && kind == old_kind) {
-            return blocks_find(biome, BLOCK_KIND_HILL_SNOW);
-        }
+    if (kind == BLOCK_KIND_WALL && kind == old_kind) {
+        return worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_HILL);
+    }
+    if (kind == BLOCK_KIND_HILL && kind == old_kind) {
+        return worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_HILL_SNOW);
     }
     
     return id;
@@ -134,11 +152,11 @@ int32_t worldgen_test(world_data *wld) {
     
     // TODO: perform world gen
     // atm, we will fill the world with ground and surround it by walls
-    uint8_t wall_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
-    uint8_t grnd_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
-    uint8_t dirt_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_DIRT);
-    uint8_t watr_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
-    uint8_t lava_id = blocks_find(BLOCK_BIOME_DEV, BLOCK_KIND_LAVA);
+    uint8_t wall_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
+    uint8_t grnd_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
+    uint8_t dirt_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_DIRT);
+    uint8_t watr_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    uint8_t lava_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_LAVA);
     
     srand(world->seed);
     
@@ -192,6 +210,14 @@ int32_t worldgen_test(world_data *wld) {
 #if 1
     for (int i=0; i<RAND_RANGE(328, 164); i++) {
         uint64_t e = item_spawn(ASSET_DEMO_ICEMAKER, 32);
+        
+        Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+        dest->x = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
+        dest->y = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
+    }
+    
+    for (int i=0; i<RAND_RANGE(328, 164); i++) {
+        uint64_t e = item_spawn(ASSET_FENCE, 64);
         
         Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
         dest->x = RAND_RANGE(0, world->dim*WORLD_BLOCK_SIZE);
