@@ -6,11 +6,14 @@
 #include "modules/components.h"
 
 typedef enum {
-    UKIND_HOLD,
-    UKIND_PROXY,
+    // NOTE(zaklaus): hardcoded fields for placement ops
     UKIND_PLACE,
     UKIND_PLACE_ITEM,
     UKIND_END_PLACE,
+    
+    // NOTE(zaklaus): the rest of possible actions
+    UKIND_HOLD,
+    UKIND_PROXY,
 } item_usage;
 
 typedef struct {

@@ -182,8 +182,9 @@ void SwapItems(ecs_iter_t *it) {
     }
 }
 
+// TODO(zaklaus): 
 #ifndef zpl_sign0
-#define zpl_sign0(x) (x == 0.0f) ? 0 : ((x) >= 0 ? 1 : -1)
+#define zpl_sign0(x) (x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f)
 #endif
 
 void UseItem(ecs_iter_t *it) {

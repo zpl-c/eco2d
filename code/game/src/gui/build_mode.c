@@ -17,6 +17,11 @@ void buildmode_clear_buffers(void) {
     }
 }
 
+// TODO(zaklaus): 
+#ifndef zpl_sign0
+#define zpl_sign0(x) (x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f)
+#endif
+
 void buildmode_draw(void) {
     camera cam = camera_get();
     camera old_cam = cam;
@@ -44,35 +49,56 @@ void buildmode_draw(void) {
         buildmode_clear_buffers();
     }
     
-    if (e->has_items && !e->inside_vehicle && e->items[e->selected_item].quantity > 0 && !is_outside_range) {
-        if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !build_is_in_draw_mode) {
-            build_is_in_draw_mode = true;
-            build_num_placements = 0;
-            buildmode_clear_buffers();
-        }
-        
-        uint32_t qty = e->items[e->selected_item].quantity;
-        
-        if (build_is_in_draw_mode) {
-            for (size_t i = 0; i < BUILD_MAX_PLACEMENTS; i++) {
-                item_placement *it = &build_placements[i];
-                if (it->kind == -1) {
-                    it->x = (float)cam.x;
-                    it->y = (float)cam.y;
-                    it->kind = 0;
-                    build_num_placements++;
-                    break;
-                } else if (it->x == (float)cam.x && it->y == (float)cam.y) {
-                    break;
-                }
+    ItemDrop *item = &e->items[e->selected_item];
+    
+    if (e->has_items && !e->inside_vehicle && item->quantity > 0 && !is_outside_range) {
+        uint16_t item_id = item_find(item->kind);
+        item_usage usage = item_get_usage(item_id);
+        if (usage < UKIND_END_PLACE) {
+            if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !build_is_in_draw_mode) {
+                build_is_in_draw_mode = true;
+                build_num_placements = 0;
+                buildmode_clear_buffers();
             }
             
+            uint32_t qty = item->quantity;
+            bool directional = item_get_place_directional(item_id);
+            
+            if (build_is_in_draw_mode) {
+                for (size_t i = 0; i < BUILD_MAX_PLACEMENTS; i++) {
+                    item_placement *it = &build_placements[i];
+                    if (it->kind == -1) {
+                        if (directional && build_num_placements > 2) {
+                            float p1x = build_placements[0].x;
+                            float p1y = build_placements[0].y;
+                            float p2x = build_placements[1].x;
+                            float p2y = build_placements[1].y;
+                            float p3x = (float)cam.x;
+                            float p3y = (float)cam.y;
+                            float sx = zpl_sign0(p2x-p1x);
+                            float sy = zpl_sign0(p2y-p1y);
+                            float sxx = zpl_sign0(p3x-p1x);
+                            float syy = zpl_sign0(p3y-p1y);
+                            
+                            if (sx != sxx || sy != syy) break;
+                        }
+                        it->x = (float)cam.x;
+                        it->y = (float)cam.y;
+                        it->kind = 0;
+                        build_num_placements++;
+                        break;
+                    } else if (it->x == (float)cam.x && it->y == (float)cam.y) {
+                        break;
+                    }
+                }
+                
+            }
+            
+            if (!is_outside_range)
+                renderer_draw_single(cam.x, cam.y, ASSET_EMPTY, ColorAlpha(BLUE, 0.4f));
+            
+            build_num_placements = zpl_min(build_num_placements, qty);
         }
-        
-        if (!is_outside_range)
-            renderer_draw_single(cam.x, cam.y, ASSET_EMPTY, ColorAlpha(BLUE, 0.4f));
-        
-        build_num_placements = zpl_min(build_num_placements, qty);
     }
     
     for (size_t i = 0; i < build_num_placements; i++) {
