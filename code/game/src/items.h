@@ -6,6 +6,7 @@
 #include "modules/components.h"
 
 typedef enum {
+    UKIND_HOLD,
     UKIND_PLACE,
     UKIND_PLACE_ITEM,
     UKIND_END_PLACE,

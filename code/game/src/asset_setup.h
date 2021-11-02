@@ -9,11 +9,14 @@
 // 2) Add the asset to the asset list
 #include "assets_list.c"
 
+// 3) Assign a texture (if applicable)
+#include "texgen.c"
+
 // NOTE(zaklaus): Now that your asset is registered, we
 // can use it in other systems
 
 // NOTE(zaklaus): Register a block
-#include "blocks_list.c"
+#include "blocks/blocks_list.c"
 
 // NOTE(zaklaus): Register an item
 #include "items_list.c"

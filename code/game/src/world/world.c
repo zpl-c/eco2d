@@ -174,8 +174,9 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
     
     world.data = zpl_malloc(sizeof(uint8_t)*world.size);
+    world.outer_data = zpl_malloc(sizeof(uint8_t)*world.size);
     
-    if (!world.data) {
+    if (!world.data || !world.outer_data) {
         return WORLD_ERROR_OUTOFMEM;
     }
     
@@ -214,13 +215,15 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
                 *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
                 
                 c = &world.outer_block_mapping[i][(y*chunk_size)+x];
-                *c = 0;
+                *c = world.outer_data[(chk_y+y)*world.dim + (chk_x+x)];
             }
         }
     }
     
     zpl_mfree(world.data);
+    zpl_mfree(world.outer_data);
     world.data = NULL;
+    world.outer_data = NULL;
     
     zpl_printf("[INFO] Created a new server world\n");
     

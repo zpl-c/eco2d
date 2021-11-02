@@ -142,8 +142,10 @@ void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
         float friction = blocks_get_friction(lookup.block_id);
-        v[i].x = zpl_lerp(v[i].x, 0.0f, PHY_WALK_DRAG*drag*friction*safe_dt(it));
-        v[i].y = zpl_lerp(v[i].y, 0.0f, PHY_WALK_DRAG*drag*friction*safe_dt(it));
+        float velx = blocks_get_velx(lookup.block_id);
+        float vely = blocks_get_vely(lookup.block_id);
+        v[i].x = zpl_lerp(v[i].x, zpl_max(0.0f, zpl_abs(velx))*zpl_sign(velx), PHY_WALK_DRAG*drag*friction*safe_dt(it));
+        v[i].y = zpl_lerp(v[i].y, zpl_max(0.0f, zpl_abs(vely))*zpl_sign(vely), PHY_WALK_DRAG*drag*friction*safe_dt(it));
     }
 }
 

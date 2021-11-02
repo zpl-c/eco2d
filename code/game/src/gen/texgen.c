@@ -25,6 +25,12 @@ Texture2D texgen_build_sprite(asset_id id) {
         case ASSET_HILL: return LoadImageEco("rock");
         case ASSET_WATER: return LoadImageEco("water");
         case ASSET_LAVA: return LoadImageEco("lava");
+        case ASSET_WOOD: return LoadImageEco("wood");
+        case ASSET_TREE: return LoadImageEco("tree");
+        case ASSET_BELT_LEFT: return LoadImageEco("belt_left");
+        case ASSET_BELT_RIGHT: return LoadImageEco("belt_right");
+        case ASSET_BELT_UP: return LoadImageEco("belt_up");
+        case ASSET_BELT_DOWN: return LoadImageEco("belt_down");
         
         default: {
             Image img = GenImageColor(1, 1, RAYWHITE);

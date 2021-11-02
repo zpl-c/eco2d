@@ -18,6 +18,8 @@ uint32_t blocks_get_flags(uint8_t id);
 float blocks_get_drag(uint8_t id);
 float blocks_get_friction(uint8_t id);
 float blocks_get_bounce(uint8_t id);
+float blocks_get_velx(uint8_t id);
+float blocks_get_vely(uint8_t id);
 
 // NOTE(zaklaus): viewer-related functions
 void *blocks_get_img(uint8_t id);

@@ -38,6 +38,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p) {
     item_desc *desc = &items[item_id];
     if (it->quantity <= 0) return;
     switch (item_get_usage(item_id)) {
+        case UKIND_HOLD: /* NOOP */ break;
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
             if (world_chunk_place_block(l.chunk_id, l.id, blocks_find(desc->place.kind)) )

@@ -15,4 +15,11 @@ static block blocks[] = {
     BLOCK(ASSET_WATER, 0, '~', .drag = 0.11f , .friction = 1.0f),
     BLOCK(ASSET_LAVA, BLOCK_FLAG_HAZARD, '!', .drag = 6.2f , .friction = 4.0f),
     BLOCK(ASSET_FENCE, BLOCK_FLAG_COLLISION, '#', .drag = 1.0f , .friction = 1.0f, .bounce = 1.0f),
+    BLOCK(ASSET_WOOD, BLOCK_FLAG_COLLISION, '#', .drag = 1.0f , .friction = 1.0f, .bounce = 0.0f),
+    BLOCK(ASSET_TREE, BLOCK_FLAG_COLLISION, '@', .drag = 1.0f , .friction = 1.0f, .bounce = 0.0f),
+    
+    BLOCK(ASSET_BELT_LEFT, 0, '@', .drag = 1.0f , .friction = 1.0f, .velx = -90.0f),
+    BLOCK(ASSET_BELT_RIGHT, 0, '@', .drag = 1.0f , .friction = 1.0f, .velx = 90.0f),
+    BLOCK(ASSET_BELT_UP, 0, '@', .drag = 1.0f , .friction = 1.0f, .vely = -90.0f),
+    BLOCK(ASSET_BELT_DOWN, 0, '@', .drag = 1.0f , .friction = 1.0f, .vely = 90.0f),
 };

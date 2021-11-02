@@ -32,6 +32,7 @@ typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 typedef struct {
     bool is_paused;
     uint8_t *data;
+    uint8_t *outer_data;
     uint32_t seed;
     uint32_t size;
     uint16_t chunk_size;

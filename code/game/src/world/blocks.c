@@ -27,6 +27,9 @@ typedef struct {
     float friction;
     float bounce;
     
+    float velx;
+    float vely;
+    
     // NOTE(zaklaus): viewer data
     uint16_t slot;
 } block;
@@ -72,6 +75,14 @@ float blocks_get_friction(uint8_t id) {
 
 float blocks_get_bounce(uint8_t id) {
     return blocks[id].bounce;
+}
+
+float blocks_get_velx(uint8_t id) {
+    return blocks[id].velx;
+}
+
+float blocks_get_vely(uint8_t id) {
+    return blocks[id].vely;
 }
 
 void *blocks_get_img(uint8_t id) {
