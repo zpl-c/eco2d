@@ -38,8 +38,8 @@ void IntegratePositions(ecs_iter_t *it) {
             // NOTE(zaklaus): X axis
             {
                 world_block_lookup lookup = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y);
-                uint32_t flags = blocks_get_flags(lookup.block_id);
-                float bounce = blocks_get_bounce(lookup.block_id);
+                uint32_t flags = blocks_get_flags(lookup.bid);
+                float bounce = blocks_get_bounce(lookup.bid);
                 if (flags & BLOCK_FLAG_COLLISION) {
                     v[i].x = physics_correction(lookup.ox, v[i].x, bounce);
                 }
@@ -48,8 +48,8 @@ void IntegratePositions(ecs_iter_t *it) {
             // NOTE(zaklaus): Y axis
             {
                 world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y+PHY_LOOKAHEAD(v[i].y));
-                uint32_t flags = blocks_get_flags(lookup.block_id);
-                float bounce = blocks_get_bounce(lookup.block_id);
+                uint32_t flags = blocks_get_flags(lookup.bid);
+                float bounce = blocks_get_bounce(lookup.bid);
                 if (flags & BLOCK_FLAG_COLLISION) {
                     v[i].y = physics_correction(lookup.oy, v[i].y, bounce);
                 }
@@ -91,7 +91,7 @@ void HurtOnHazardBlock(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
-        if (blocks_get_flags(l.block_id) & BLOCK_FLAG_HAZARD) {
+        if (blocks_get_flags(l.bid) & BLOCK_FLAG_HAZARD) {
             if (h->pain_time < 0.0f) {
                 h->pain_time = HAZARD_BLOCK_TIME;
                 h->hp -= HAZARD_BLOCK_DMG;
@@ -140,10 +140,10 @@ void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
-        float drag = zpl_clamp(blocks_get_drag(lookup.block_id), 0.0f, 1.0f);
-        float friction = blocks_get_friction(lookup.block_id);
-        float velx = blocks_get_velx(lookup.block_id);
-        float vely = blocks_get_vely(lookup.block_id);
+        float drag = zpl_clamp(blocks_get_drag(lookup.bid), 0.0f, 1.0f);
+        float friction = blocks_get_friction(lookup.bid);
+        float velx = blocks_get_velx(lookup.bid);
+        float vely = blocks_get_vely(lookup.bid);
         v[i].x = zpl_lerp(v[i].x, zpl_max(0.0f, zpl_abs(velx))*zpl_sign(velx), PHY_WALK_DRAG*drag*friction*safe_dt(it));
         v[i].y = zpl_lerp(v[i].y, zpl_max(0.0f, zpl_abs(vely))*zpl_sign(vely), PHY_WALK_DRAG*drag*friction*safe_dt(it));
     }

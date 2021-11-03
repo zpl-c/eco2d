@@ -4,6 +4,7 @@
 #include "packet.h"
 #include "flecs/flecs.h"
 #include "flecs/flecs_meta.h"
+#include "world/blocks.h"
 #include "modules/components.h"
 
 #define WORLD_ERROR_NONE                +0x0000
@@ -31,14 +32,14 @@ typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 
 typedef struct {
     bool is_paused;
-    uint16_t *data;
-    uint16_t *outer_data;
+    block_id *data;
+    block_id *outer_data;
     uint32_t seed;
     uint32_t size;
     uint16_t chunk_size;
     uint16_t chunk_amount;
-    uint16_t **block_mapping;
-    uint16_t **outer_block_mapping;
+    block_id **block_mapping;
+    block_id **outer_block_mapping;
     uint16_t dim;
     uint64_t tracker_update[3];
     uint8_t active_layer_id;
@@ -59,7 +60,7 @@ int32_t world_update(void);
 int32_t world_read(void* data, uint32_t datalen, void *udata);
 int32_t world_write(pkt_header *pkt, void *udata);
 
-uint32_t world_buf(uint16_t const **ptr, uint32_t *width);
+uint32_t world_buf(block_id const **ptr, uint32_t *width);
 uint32_t world_seed(void);
 ecs_world_t *world_ecs(void);
 void world_set_stage(ecs_world_t *ecs);
@@ -78,7 +79,7 @@ ecs_entity_t world_chunk_mapping(librg_chunk id);
 
 typedef struct {
     uint16_t id;
-    uint16_t block_id;
+    block_id bid;
     ecs_entity_t chunk_e;
     int64_t chunk_id;
     float ox, oy;
@@ -91,21 +92,21 @@ int64_t world_chunk_from_realpos(float x, float y);
 int64_t world_chunk_from_entity(ecs_entity_t id);
 
 // NOTE(zaklaus): This changes the inner chunk layer, it should only be used for terraforming!
-void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, uint16_t block_id);
+void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, block_id bid);
 
 // NOTE(zaklaus): Replaces a block unconditionally
-void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint16_t block_id);
+void world_chunk_replace_block(int64_t id, uint16_t block_idx, block_id bid);
 
 // NOTE(zaklaus): Places a block only if the outer layer's chunk slot is empty,
 // it also allows us to remove a block from outer layer unconditionally
-bool world_chunk_place_block(int64_t id, uint16_t block_idx, uint16_t block_id);
+bool world_chunk_place_block(int64_t id, uint16_t block_idx, block_id bid);
 
 // NOTE(zaklaus): Convenience method to replace block with air and drop item optionally
 void world_chunk_destroy_block(float x, float y, bool drop_item);
 
-uint16_t *world_chunk_get_blocks(int64_t id);
+block_id *world_chunk_get_blocks(int64_t id);
 void world_chunk_mark_dirty(ecs_entity_t e);
-uint16_t world_chunk_is_dirty(ecs_entity_t e);
+bool world_chunk_is_dirty(ecs_entity_t e);
 
 // NOTE(zaklaus): Uses locally persistent buffer !!
 int64_t *world_chunk_fetch_entities(librg_chunk chunk_id, size_t *ents_len);

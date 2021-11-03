@@ -54,8 +54,8 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
         case UKIND_HOLD: /* NOOP */ break;
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
-            if (l.is_outer && l.block_id > 0) {
-                asset_id item_asset = blocks_get_asset(l.block_id);
+            if (l.is_outer && l.bid > 0) {
+                asset_id item_asset = blocks_get_asset(l.bid);
                 uint16_t item_asset_id = item_find(item_asset);
                 if (item_asset_id == ASSET_INVALID) return;
                 
@@ -67,7 +67,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
                 }
             } 
             // NOTE(zaklaus): This is an inner layer block, we can't build over it if it has a collision!
-            else if (l.block_id > 0 && blocks_get_flags(l.block_id) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
+            else if (l.bid > 0 && blocks_get_flags(l.bid) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
                 return;
             } 
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
