@@ -11,19 +11,6 @@
 #include "items_list.c"
 #define ITEMS_COUNT (sizeof(items)/sizeof(item_desc))
 
-uint64_t item_spawn(asset_id kind, uint32_t qty) {
-    ecs_entity_t e = entity_spawn(EKIND_ITEM);
-    
-    ItemDrop *d = ecs_get_mut(world_ecs(), e, ItemDrop, NULL);
-    *d = (ItemDrop){
-        .kind = kind,
-        .quantity = qty,
-        .merger_time = 0,
-    };
-    
-    return (uint64_t)e;
-}
-
 static inline uint16_t item_resolve_proxy(uint16_t id) {
     ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     item_usage usage = items[id].usage;
@@ -33,11 +20,30 @@ static inline uint16_t item_resolve_proxy(uint16_t id) {
     return id;
 }
 
+static inline asset_id item_fix_kind(asset_id id) {
+    return items[item_find(id)].kind;
+}
+
+uint64_t item_spawn(asset_id kind, uint32_t qty) {
+    ecs_entity_t e = entity_spawn(EKIND_ITEM);
+    
+    ItemDrop *d = ecs_get_mut(world_ecs(), e, ItemDrop, NULL);
+    *d = (ItemDrop){
+        .kind = item_fix_kind(kind),
+        .quantity = qty,
+        .merger_time = 0,
+    };
+    
+    return (uint64_t)e;
+}
+
 uint16_t item_find(asset_id kind) {
     for (uint16_t i=0; i<ITEMS_COUNT; i++) {
         if (items[i].kind == kind)
             return item_resolve_proxy(i);
     }
+    
+    ZPL_PANIC("Unknown asset id: %d\n", kind);
     return ASSET_INVALID;
 }
 

@@ -403,12 +403,14 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     float chx = x - chunk_x * size;
     float chy = y - chunk_y * size;
     
-    uint32_t bx = (uint32_t)chx / WORLD_BLOCK_SIZE;
-    uint32_t by = (uint32_t)chy / WORLD_BLOCK_SIZE;
-    uint32_t block_idx = (by*world.chunk_size)+bx;
+    uint16_t bx = (uint16_t)chx / WORLD_BLOCK_SIZE;
+    uint16_t by = (uint16_t)chy / WORLD_BLOCK_SIZE;
+    uint16_t block_idx = (by*world.chunk_size)+bx;
     uint8_t block_id = world.outer_block_mapping[chunk_id][block_idx];
+    bool is_outer = true;
     if (block_id == 0) {
         block_id = world.block_mapping[chunk_id][block_idx];
+        is_outer = false;
     }
     
     // NOTE(zaklaus): pos relative to block's center
@@ -422,6 +424,7 @@ world_block_lookup world_block_from_realpos(float x, float y) {
         .chunk_e = e,
         .ox = box,
         .oy = boy,
+        .is_outer = is_outer,
     };
     
     return lookup;

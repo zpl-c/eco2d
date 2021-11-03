@@ -57,6 +57,10 @@ uint8_t blocks_find(asset_id kind) {
     return 0xF;
 }
 
+asset_id blocks_get_asset(uint8_t id) {
+    return blocks[id].kind;
+}
+
 char blocks_get_symbol(uint8_t id) {
     return blocks[id].symbol;
 }

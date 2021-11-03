@@ -77,11 +77,12 @@ uint16_t world_dim(void);
 ecs_entity_t world_chunk_mapping(librg_chunk id);
 
 typedef struct {
-    uint32_t id;
+    uint16_t id;
     uint8_t block_id;
     ecs_entity_t chunk_e;
     int64_t chunk_id;
     float ox, oy;
+    bool is_outer;
 } world_block_lookup;
 
 world_block_lookup world_block_from_realpos(float x, float y);

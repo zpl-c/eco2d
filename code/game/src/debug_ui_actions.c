@@ -82,6 +82,15 @@ ActEraseWorldChanges(void) {
         for (int x = 0; x < 100; x++) {
             world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
             world_chunk_place_block(l.chunk_id, l.id, 0);
+            
+            if (l.is_outer && l.block_id > 0) {
+                asset_id item_asset = blocks_get_asset(l.block_id);
+                uint64_t e = item_spawn(item_asset, 1);
+                
+                Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+                dest->x = (p->x - (x*bs)/2.0f);
+                dest->y = (p->y - (y*bs)/2.0f);
+            }
         }
     }
     

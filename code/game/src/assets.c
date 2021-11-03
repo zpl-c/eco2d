@@ -59,10 +59,12 @@ void assets_destroy(void) {
 }
 
 uint16_t assets_find(asset_id id) {
-    for (uint32_t i=0; i<ASSETS_COUNT; i++) {
+    for (uint16_t i=0; i<ASSETS_COUNT; i++) {
         if (assets[i].id == id)
             return i;
     }
+    
+    ZPL_PANIC("Unknown asset id: %d\n", id);
     return ASSET_INVALID;
 }
 

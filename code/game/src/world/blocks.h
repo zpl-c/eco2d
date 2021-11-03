@@ -12,7 +12,7 @@ void blocks_destroy(void);
 
 uint8_t blocks_find(asset_id kind);
 
-char *blocks_get_name(uint8_t id);
+asset_id blocks_get_asset(uint8_t id);
 char blocks_get_symbol(uint8_t id);
 uint32_t blocks_get_flags(uint8_t id);
 float blocks_get_drag(uint8_t id);
