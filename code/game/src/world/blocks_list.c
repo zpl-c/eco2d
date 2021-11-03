@@ -23,3 +23,5 @@ static block blocks[] = {
     BLOCK(ASSET_BELT_UP, 0, '@', .drag = 1.0f , .friction = 1.0f, .vely = -150.0f),
     BLOCK(ASSET_BELT_DOWN, 0, '@', .drag = 1.0f , .friction = 1.0f, .vely = 150.0f),
 };
+
+ZPL_STATIC_ASSERT(sizeof(blocks)/sizeof(blocks[0]) < 256, "too many registered blocks! (max. 256)");
