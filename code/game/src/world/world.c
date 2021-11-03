@@ -173,8 +173,8 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
     
-    world.data = zpl_malloc(sizeof(uint8_t)*world.size);
-    world.outer_data = zpl_malloc(sizeof(uint8_t)*world.size);
+    world.data = zpl_malloc(sizeof(uint16_t)*world.size);
+    world.outer_data = zpl_malloc(sizeof(uint16_t)*world.size);
     
     if (!world.data || !world.outer_data) {
         return WORLD_ERROR_OUTOFMEM;
@@ -186,8 +186,8 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     ECS_IMPORT(world.ecs, Systems);
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
-    world.block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
-    world.outer_block_mapping = zpl_malloc(sizeof(uint8_t*)*zpl_square(chunk_amount));
+    world.block_mapping = zpl_malloc(sizeof(uint16_t*)*zpl_square(chunk_amount));
+    world.outer_block_mapping = zpl_malloc(sizeof(uint16_t*)*zpl_square(chunk_amount));
     world_snapshot_init(&streamer_snapshot, zpl_heap());
     
     int32_t world_build_status = worldgen_test(&world);
@@ -208,8 +208,8 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
         librg_entity_chunk_set(world.tracker, e, i);
         librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
         world.chunk_mapping[i] = e;
-        world.block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
-        world.outer_block_mapping[i] = zpl_malloc(sizeof(uint8_t)*zpl_square(chunk_size));
+        world.block_mapping[i] = zpl_malloc(sizeof(uint16_t)*zpl_square(chunk_size));
+        world.outer_block_mapping[i] = zpl_malloc(sizeof(uint16_t)*zpl_square(chunk_size));
         chunk->id = i;
         chunk->is_dirty = false;
         
@@ -218,7 +218,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
                 int chk_x = chunk->x * chunk_size;
                 int chk_y = chunk->y * chunk_size;
                 
-                uint8_t *c = &world.block_mapping[i][(y*chunk_size)+x];
+                uint16_t *c = &world.block_mapping[i][(y*chunk_size)+x];
                 *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
                 
                 c = &world.outer_block_mapping[i][(y*chunk_size)+x];
@@ -255,7 +255,7 @@ int32_t world_destroy(void) {
 
 #define WORLD_LIBRG_BUFSIZ 2000000
 
-static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) {
+static void world_tracker_update(uint16_t ticker, uint32_t freq, uint8_t radius) {
     if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;
     world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
     
@@ -333,7 +333,7 @@ int32_t world_write(pkt_header *pkt, void *udata) {
     return -1;
 }
 
-uint32_t world_buf(uint8_t const **ptr, uint32_t *width) {
+uint32_t world_buf(uint16_t const **ptr, uint32_t *width) {
     ZPL_ASSERT_NOT_NULL(world.data);
     ZPL_ASSERT_NOT_NULL(ptr);
     *ptr = world.data;
@@ -413,7 +413,7 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     uint16_t bx = (uint16_t)chx / WORLD_BLOCK_SIZE;
     uint16_t by = (uint16_t)chy / WORLD_BLOCK_SIZE;
     uint16_t block_idx = (by*world.chunk_size)+bx;
-    uint8_t block_id = world.outer_block_mapping[chunk_id][block_idx];
+    uint16_t block_id = world.outer_block_mapping[chunk_id][block_idx];
     bool is_outer = true;
     if (block_id == 0) {
         block_id = world.block_mapping[chunk_id][block_idx];
@@ -453,7 +453,7 @@ void world_chunk_destroy_block(float x, float y, bool drop_item) {
 }
 
 world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx) {
-    uint8_t block_id = world.outer_block_mapping[id][block_idx];
+    uint16_t block_id = world.outer_block_mapping[id][block_idx];
     if (block_id == 0) {
         block_id = world.block_mapping[id][block_idx];
     }
@@ -477,19 +477,19 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
     return librg_entity_chunk_get(world.tracker, id);
 }
 
-void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, uint16_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
     world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
-void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint16_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.outer_block_mapping[id][block_idx] = block_id;
     world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
-bool world_chunk_place_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+bool world_chunk_place_block(int64_t id, uint16_t block_idx, uint16_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     if (world.outer_block_mapping[id][block_idx] != 0 && block_id != 0) return false;
     world.outer_block_mapping[id][block_idx] = block_id;
@@ -497,7 +497,7 @@ bool world_chunk_place_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     return true;
 }
 
-uint8_t *world_chunk_get_blocks(int64_t id) {
+uint16_t *world_chunk_get_blocks(int64_t id) {
     return world.block_mapping[id];
 }
 
@@ -508,7 +508,7 @@ void world_chunk_mark_dirty(ecs_entity_t e) {
     if (chunk) chunk->is_dirty = true;
 }
 
-uint8_t world_chunk_is_dirty(ecs_entity_t e) {
+uint16_t world_chunk_is_dirty(ecs_entity_t e) {
     bool was_added=false;
     Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
     ZPL_ASSERT(!was_added);
@@ -537,7 +537,7 @@ int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) 
     return ents;
 }
 
-uint8_t world_entity_valid(ecs_entity_t e) {
+bool world_entity_valid(ecs_entity_t e) {
     if (!e) return false;
     return ecs_is_alive(world_ecs(), e);
 }

@@ -11,20 +11,20 @@ typedef enum {
 int32_t blocks_setup(void);
 void blocks_destroy(void);
 
-uint8_t blocks_find(asset_id kind);
+uint16_t blocks_find(asset_id kind);
 
-asset_id blocks_get_asset(uint8_t id);
-char blocks_get_symbol(uint8_t id);
-uint32_t blocks_get_flags(uint8_t id);
-float blocks_get_drag(uint8_t id);
-float blocks_get_friction(uint8_t id);
-float blocks_get_bounce(uint8_t id);
-float blocks_get_velx(uint8_t id);
-float blocks_get_vely(uint8_t id);
+asset_id blocks_get_asset(uint16_t id);
+char blocks_get_symbol(uint16_t id);
+uint32_t blocks_get_flags(uint16_t id);
+float blocks_get_drag(uint16_t id);
+float blocks_get_friction(uint16_t id);
+float blocks_get_bounce(uint16_t id);
+float blocks_get_velx(uint16_t id);
+float blocks_get_vely(uint16_t id);
 
 // NOTE(zaklaus): viewer-related functions
-void *blocks_get_img(uint8_t id);
+void *blocks_get_img(uint16_t id);
 
-void blocks_build_chunk_tex(uint64_t id, uint8_t *blocks, void *view);
+void blocks_build_chunk_tex(uint64_t id, uint16_t *blocks, void *view);
 void *blocks_get_chunk_tex(uint64_t id);
 void blocks_remove_chunk_tex(uint64_t id);

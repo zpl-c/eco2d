@@ -37,7 +37,7 @@ typedef struct {
 #include "blocks_list.c"
 
 int32_t blocks_setup(void) {
-    for (uint32_t i=0; i<BLOCKS_COUNT; i++) {
+    for (uint16_t i=0; i<BLOCKS_COUNT; i++) {
         blocks[i].slot = assets_find(blocks[i].kind);
     }
     blocks__chunk_tbl_init(&baked_chunks, zpl_heap());
@@ -49,51 +49,51 @@ void blocks_destroy(void) {
     blocks__chunk_tbl_destroy(&baked_chunks);
 }
 
-uint8_t blocks_find(asset_id kind) {
-    for (uint8_t i=0; i<BLOCKS_COUNT; i++) {
+uint16_t blocks_find(asset_id kind) {
+    for (uint16_t i=0; i<BLOCKS_COUNT; i++) {
         if (blocks[i].kind == kind)
             return i;
     }
     return 0xF;
 }
 
-asset_id blocks_get_asset(uint8_t id) {
+asset_id blocks_get_asset(uint16_t id) {
     return blocks[id].kind;
 }
 
-char blocks_get_symbol(uint8_t id) {
+char blocks_get_symbol(uint16_t id) {
     return blocks[id].symbol;
 }
 
-uint32_t blocks_get_flags(uint8_t id) {
+uint32_t blocks_get_flags(uint16_t id) {
     return blocks[id].flags;
 }
 
-float blocks_get_drag(uint8_t id) {
+float blocks_get_drag(uint16_t id) {
     return blocks[id].drag;
 }
 
-float blocks_get_friction(uint8_t id) {
+float blocks_get_friction(uint16_t id) {
     return blocks[id].friction;
 }
 
-float blocks_get_bounce(uint8_t id) {
+float blocks_get_bounce(uint16_t id) {
     return blocks[id].bounce;
 }
 
-float blocks_get_velx(uint8_t id) {
+float blocks_get_velx(uint16_t id) {
     return blocks[id].velx;
 }
 
-float blocks_get_vely(uint8_t id) {
+float blocks_get_vely(uint16_t id) {
     return blocks[id].vely;
 }
 
-void *blocks_get_img(uint8_t id) {
+void *blocks_get_img(uint16_t id) {
     return assets_get_tex(blocks[id].slot);
 }
 
-void blocks_build_chunk_tex(uint64_t id, uint8_t *chunk_blocks, void *raw_view) {
+void blocks_build_chunk_tex(uint64_t id, uint16_t *chunk_blocks, void *raw_view) {
     world_view *view = (world_view*)raw_view;
     uint16_t blk_dims = (uint16_t)(WORLD_BLOCK_SIZE * WORLD_TEXTURE_BLOCK_SCALE);
     uint16_t dims = blk_dims * view->chunk_size;

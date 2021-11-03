@@ -12,7 +12,7 @@
 #include "items.h"
 #include "world/blocks_info.h"
 
-#define WORLD_BLOCK_OBSERVER(name) uint8_t name(uint8_t *data, uint8_t id, uint32_t block_idx)
+#define WORLD_BLOCK_OBSERVER(name) uint16_t name(uint16_t *data, uint16_t id, uint32_t block_idx)
 typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
 #define WORLD_PERLIN_FREQ    100
@@ -20,7 +20,7 @@ typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
 #define BLOCK_INVALID 0xF
 
-uint8_t worldgen_biome_find(uint32_t biome, uint32_t kind) {
+uint16_t worldgen_biome_find(uint32_t biome, uint32_t kind) {
     asset_id asset = ASSET_INVALID;
     switch (biome) {
         case BLOCK_BIOME_DEV: {
@@ -41,7 +41,7 @@ uint8_t worldgen_biome_find(uint32_t biome, uint32_t kind) {
 
 static world_data *world;
 
-static void world_fill_rect(uint8_t *data, uint8_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
+static void world_fill_rect(uint16_t *data, uint16_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
             if (cx < 0 || cx >= world->dim) continue;
@@ -49,7 +49,7 @@ static void world_fill_rect(uint8_t *data, uint8_t id, uint32_t x, uint32_t y, u
             uint32_t i = (cy*world->dim) + cx;
             
             if (proc) {
-                uint8_t new_id = (*proc)(data, id, i);
+                uint16_t new_id = (*proc)(data, id, i);
                 if (new_id != BLOCK_INVALID) {
                     id = new_id;
                 }
@@ -61,7 +61,7 @@ static void world_fill_rect(uint8_t *data, uint8_t id, uint32_t x, uint32_t y, u
     }
 }
 
-static void world_fill_circle(uint8_t *data, uint8_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
+static void world_fill_circle(uint16_t *data, uint16_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
             if (cx < 0 || cx >= world->dim) continue;
@@ -69,7 +69,7 @@ static void world_fill_circle(uint8_t *data, uint8_t id, uint32_t x, uint32_t y,
             uint32_t i = (cy*world->dim) + cx;
             
             if (proc) {
-                uint8_t new_id = (*proc)(data, id, i);
+                uint16_t new_id = (*proc)(data, id, i);
                 if (new_id != BLOCK_INVALID) {
                     id = new_id;
                 }
@@ -81,7 +81,7 @@ static void world_fill_circle(uint8_t *data, uint8_t id, uint32_t x, uint32_t y,
     }
 }
 
-static void world_fill_rect_anchor(uint8_t *data, uint8_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, float ax, float ay, world_block_observer_proc *proc) {
+static void world_fill_rect_anchor(uint16_t *data, uint16_t id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, float ax, float ay, world_block_observer_proc *proc) {
     uint32_t w2 = (uint32_t)floorf(w*ax);
     uint32_t h2 = (uint32_t)floorf(h*ay);
     world_fill_rect(data, id, x-w2, y-h2, w, h, proc);
@@ -101,14 +101,14 @@ static WORLD_BLOCK_OBSERVER(shaper) {
     return id;
 }
 
-static uint8_t world_perlin_cond_offset(uint32_t block_idx, double chance, uint32_t ofx, uint32_t ofy) {
+static uint16_t world_perlin_cond_offset(uint32_t block_idx, double chance, uint32_t ofx, uint32_t ofy) {
     uint32_t x = block_idx % world->dim + ofx;
     uint32_t y = block_idx / world->dim + ofy;
     
     return perlin_fbm(world->seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
 }
 
-static uint8_t world_perlin_cond(uint32_t block_idx, double chance) {
+static uint16_t world_perlin_cond(uint32_t block_idx, double chance) {
     return world_perlin_cond_offset(block_idx, chance, 0, 0);
 }
 
@@ -162,12 +162,12 @@ int32_t worldgen_test(world_data *wld) {
     
     // TODO: perform world gen
     // atm, we will fill the world with ground and surround it by walls
-    uint8_t wall_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
-    uint8_t grnd_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
-    uint8_t dirt_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_DIRT);
-    uint8_t watr_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
-    uint8_t lava_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_LAVA);
-    uint8_t tree_id = blocks_find(ASSET_TREE);
+    uint16_t wall_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
+    uint16_t grnd_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_GROUND);
+    uint16_t dirt_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_DIRT);
+    uint16_t watr_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
+    uint16_t lava_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_LAVA);
+    uint16_t tree_id = blocks_find(ASSET_TREE);
     
     srand(world->seed);
     
