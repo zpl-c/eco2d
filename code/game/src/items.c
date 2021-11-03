@@ -65,7 +65,11 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
                 } else {
                     return;
                 }
-            }
+            } 
+            // NOTE(zaklaus): This is an inner layer block, we can't build over it if it has a collision!
+            else if (l.block_id > 0 && blocks_get_flags(l.block_id) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
+                return;
+            } 
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
             it->quantity--;
         }break;

@@ -5,6 +5,7 @@
 typedef enum {
     BLOCK_FLAG_COLLISION = (1 << 1),
     BLOCK_FLAG_HAZARD = (1 << 2),
+    BLOCK_FLAG_ESSENTIAL = (1 << 3),
 } block_flags;
 
 int32_t blocks_setup(void);
