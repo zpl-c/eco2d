@@ -11,6 +11,7 @@
 
 static asset assets[] = {
     ASSET_TEX(ASSET_EMPTY),
+    ASSET_TEX(ASSET_BUILDMODE_HIGHLIGHT),
     ASSET_TEX(ASSET_DEMO_ICEMAKER),
     
     // NOTE(zaklaus): blocks

@@ -8,7 +8,7 @@ typedef enum {
     BLOCK_FLAG_ESSENTIAL = (1 << 3),
 } block_flags;
 
-typedef uint8_t block_id;
+typedef uint16_t block_id;
 
 int32_t blocks_setup(void);
 void blocks_destroy(void);

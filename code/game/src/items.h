@@ -34,14 +34,16 @@ typedef struct {
     };
 } item_desc;
 
+typedef uint16_t item_id;
+
 // NOTE(zaklaus): item drops
 uint64_t item_spawn(asset_id kind, uint32_t qty);
 void item_despawn(uint64_t id);
 
 // NOTE(zaklaus): items
-uint16_t item_find(asset_id kind);
+item_id item_find(asset_id kind);
 void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata);
 
-uint32_t item_max_quantity(uint16_t id);
-item_usage item_get_usage(uint16_t id);
-bool item_get_place_directional(uint16_t id);
+uint32_t item_max_quantity(item_id id);
+item_usage item_get_usage(item_id id);
+bool item_get_place_directional(item_id id);
