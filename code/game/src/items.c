@@ -62,6 +62,8 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
                 // NOTE(zaklaus): If we replace the same item, refund 1 qty and let it replace it
                 if (item_asset_id == item_id) {
                     it->quantity++;
+                } else {
+                    return;
                 }
             }
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
