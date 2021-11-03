@@ -430,6 +430,21 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     return lookup;
 }
 
+void world_chunk_destroy_block(float x, float y, bool drop_item) {
+    world_block_lookup l = world_block_from_realpos(x, y);
+    world_chunk_replace_block(l.chunk_id, l.id, 0);
+    
+    if (l.is_outer && l.block_id > 0 && drop_item) {
+        asset_id item_asset = blocks_get_asset(l.block_id);
+        if (item_find(item_asset) == ASSET_INVALID) return;
+        uint64_t e = item_spawn(item_asset, 1);
+        
+        Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+        dest->x = x;
+        dest->y = y;
+    }
+}
+
 world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx) {
     uint8_t block_id = world.outer_block_mapping[id][block_idx];
     if (block_id == 0) {
@@ -455,9 +470,15 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
     return librg_entity_chunk_get(world.tracker, id);
 }
 
-void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     world.block_mapping[id][block_idx] = block_id;
+    world_chunk_mark_dirty(world.chunk_mapping[id]);
+}
+
+void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id) {
+    ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
+    world.outer_block_mapping[id][block_idx] = block_id;
     world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 

@@ -54,8 +54,11 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
         case UKIND_HOLD: /* NOOP */ break;
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
-            if (world_chunk_place_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata)) )
-                it->quantity--;
+            if (l.block_id > 0) {
+                world_chunk_destroy_block(p.x, p.y, true);
+            }
+            world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
+            it->quantity--;
         }break;
     }
 }
