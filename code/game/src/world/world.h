@@ -90,11 +90,17 @@ world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx);
 int64_t world_chunk_from_realpos(float x, float y);
 int64_t world_chunk_from_entity(ecs_entity_t id);
 
+// NOTE(zaklaus): This changes the inner chunk layer, it should only be used for terraforming!
 void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, uint8_t block_id);
 
+// NOTE(zaklaus): Replaces a block unconditionally
 void world_chunk_replace_block(int64_t id, uint16_t block_idx, uint8_t block_id);
+
+// NOTE(zaklaus): Places a block only if the outer layer's chunk slot is empty,
+// it also allows us to remove a block from outer layer unconditionally
 bool world_chunk_place_block(int64_t id, uint16_t block_idx, uint8_t block_id);
 
+// NOTE(zaklaus): Convenience method to replace block with air and drop item optionally
 void world_chunk_destroy_block(float x, float y, bool drop_item);
 
 uint8_t *world_chunk_get_blocks(int64_t id);
