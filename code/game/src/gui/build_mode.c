@@ -33,7 +33,7 @@ void buildmode_draw(void) {
     double dx = old_cam.x - cam.x;
     double dy = old_cam.y - cam.y;
     double dsq = (dx*dx + dy*dy);
-    bool is_outside_range = (dsq > zpl_square(WORLD_BLOCK_SIZE*8));
+    bool is_outside_range = (dsq > zpl_square(WORLD_BLOCK_SIZE*14));
     
     if (build_submit_placements) {
         build_submit_placements = false;
