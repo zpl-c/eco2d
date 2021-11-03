@@ -42,7 +42,6 @@ uint16_t item_find(asset_id kind) {
         if (items[i].kind == kind)
             return item_resolve_proxy(i);
     }
-    
     return ASSET_INVALID;
 }
 

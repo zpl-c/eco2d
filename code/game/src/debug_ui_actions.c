@@ -85,7 +85,7 @@ ActEraseWorldChanges(void) {
             
             if (l.is_outer && l.block_id > 0) {
                 asset_id item_asset = blocks_get_asset(l.block_id);
-                if (item_asset == ASSET_INVALID) continue;
+                if (item_find(item_asset) == ASSET_INVALID) continue;
                 uint64_t e = item_spawn(item_asset, 1);
                 
                 Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);

@@ -1,10 +1,13 @@
 #include "assets.h"
 
-#define ASSET_TEX(asset)\
+#define ASSET_ENTRY(asset, asset_kind)\
 {\
 .id = asset,\
-.kind = AKIND_TEXTURE,\
+.kind = asset_kind,\
 }
+
+#define ASSET_SND(asset) ASSET_ENTRY(asset, AKIND_SOUND)
+#define ASSET_TEX(asset) ASSET_ENTRY(asset, AKIND_TEXTURE)
 
 static asset assets[] = {
     ASSET_TEX(ASSET_EMPTY),
