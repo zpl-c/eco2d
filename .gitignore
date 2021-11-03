@@ -1,4 +1,5 @@
 build
+build_rel
 build.bat
 run.bat
 clean.bat
@@ -12,3 +13,5 @@ GTAGS
 /run_release.bat
 /package.bat
 pkg
+pkg.zip
+eco2d.zip

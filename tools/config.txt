@@ -1,0 +1,4 @@
+;!@Install@!UTF-8!
+Title="eco2d"
+RunProgram="eco2d.exe"
+;!@InstallEnd@!
