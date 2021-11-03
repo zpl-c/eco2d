@@ -55,13 +55,14 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
         case UKIND_PLACE:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
             if (l.is_outer && l.block_id > 0) {
-                // NOTE(zaklaus): Check if block is a placeable item, cancel the placement if not met
                 asset_id item_asset = blocks_get_asset(l.block_id);
                 uint16_t item_asset_id = item_find(item_asset);
                 if (item_asset_id == ASSET_INVALID) return;
-                if (item_get_usage(item_asset_id) > UKIND_END_PLACE) return;
                 
-                world_chunk_destroy_block(p.x, p.y, true);
+                // NOTE(zaklaus): If we replace the same item, refund 1 qty and let it replace it
+                if (item_asset_id == item_id) {
+                    it->quantity++;
+                }
             }
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
             it->quantity--;
