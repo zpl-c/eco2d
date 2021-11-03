@@ -31,13 +31,21 @@ GitHub:
   https://github.com/zpl-c/zpl
 
 Version History:
+  15.0.1  - hashtable performance improvements
+  		- zpl_sign(0) returns 0
+  15.0.0  - Rework zpl ring buffer
+  		- various code improvements
+  
+  14.1.7  - fix zpl_random_range_i64
+  		- set thread's is_running before we start a thread
+  14.1.6  - remove windows.h dependency for header part
   14.1.5  - fix array append_at
   14.1.4  - Fix win32 missing CRITICAL_SECTION definition if
   		- ZPL_NO_WINDOWS_H is defined
   14.1.0  - add hashtable map_mut method
   14.0.1  - fix zpl_array_remove_at boundary bug
   14.0.0  - heap memory allocator analysis
-
+  
   13.4.1  - adt optimizations
   13.4.0  - new adt manipulation methods
   13.3.3  - fix zpl_str_skip_literal bug
@@ -52,7 +60,7 @@ Version History:
   13.1.1  - fix emscripten support
   13.1.0  - abstract data tree naming update
   13.0.0  - text parsers refactor
-
+  
   12.8.0  - zpl_opts improvements
   12.7.0  - math improvements
   12.6.2  - remove register usage (BeastLe9enD)
@@ -69,7 +77,7 @@ Version History:
   12.1.0  - Add rectangle partitioning
   12.0.1  - Optimize zpl_strlen
   12.0.0  - JSON API revamp + improvements
-
+  
   11.3.0  - JSON zpl_json_str_to_flt + cleanup
   11.2.5  - fix small atomics typo
   11.2.4  - JSON rewrite core parser
@@ -91,7 +99,7 @@ Version History:
   11.0.0  - New jobs system
           - Rewrite the timer module
           - zpl_ring rework
-
+  
   10.13.0 - Initial ARM threading support
   10.12.1 - Fix missing zpL_alloc_str
   10.12.0 - Add zpl_crc64
@@ -135,7 +143,7 @@ Version History:
   10.0.4 - Flush tester output to fix ordering
   10.0.3 - Fix ZPL_STATIC_ASSERT under MSVC
   10.0.0 - Major overhaul of the library
-
+  
   9.8.10 - JSON fix array-based documents with objects
   9.8.9 - JSON document structured as array now properly recognizes the root object as array.
   9.8.8 - Fixed an incorrect parsing of empty array nodes.
@@ -168,7 +176,7 @@ Version History:
   9.1.0 - get_env rework and fixes
   9.0.3 - Small fixes and removals
   9.0.0 - New documentation format, removed deprecated code, changed styles
-
+  
   8.14.1 - Fix string library
   8.14.0 - Added zpl_re_match_all
   8.13.0 - Update system command API
@@ -187,7 +195,7 @@ Version History:
   8.10.0 - Added zpl_strchr
   8.9.0  - API improvements for JSON5 parser
   8.8.4  - Add support for SJSON formatting http://bitsquid.blogspot.com/2009/10/simplified-json-notation.html
-
+  
   6.8.3  - JSON5 exp fix
   6.8.2  - Bugfixes applied from gb
   6.8.1  - Performance improvements for JSON5 parser
@@ -207,7 +215,7 @@ Version History:
   6.0.2  - Fixed warnings for json5 i64 printfs
   6.0.1  - Fixed warnings for particual win compiler in dirlist method
   6.0.0  - New build, include/ was renamed to code/
-
+  
   5.8.3  - Naming fixes
   5.8.2  - Job system now supports prioritized tasks
   5.8.1  - Renames zpl_pad to zpl_ring
@@ -235,7 +243,7 @@ Version History:
   5.0.2  - Fix segfault when using zpl_stack_memory
   5.0.1  - Small code improvements
   5.0.0  - Project structure changes
-
+  
   4.7.2  - Got rid of size arg for zpl_str_split_lines
   4.7.1  - Added an example
   4.7.0  - Added zpl_path_dirlist
@@ -260,7 +268,7 @@ Version History:
   4.0.2  - Warning fix for _LARGEFILE64_SOURCE
   4.0.1  - include stdlib.h for getenv (temp)
   4.0.0  - ARM support, coding style changes and various improvements
-
+  
   3.4.1  - zpl_memcopy now uses memcpy for ARM arch-family
   3.4.0  - Removed obsolete code
   3.3.4  - Added Travis CI config
@@ -281,7 +289,7 @@ Version History:
   3.0.2  - Fixed linux part, and removed trailing spaces
   3.0.1  - Small bugfix in zpl_file_open
   3.0.0  - Added several fixes and features
-
+  
   2.4.0  - Added remove to hash table
   2.3.3  - Removed redundant code
   2.3.2  - Eliminated extra warnings
@@ -294,7 +302,7 @@ Version History:
   2.0.8  - Small adjustments
   2.0.7  - MinGW related fixes
   2.0.0  - New NPM based version
-
+  
   1.2.2  - Small fix
   1.2.1  - Macro fixes
   1.2.0  - Added zpl_async macro
@@ -304,15 +312,15 @@ Version History:
 
 License:
   This Software is dual licensed under the following licenses:
-
+  
   Unlicense
   This is free and unencumbered software released into the public domain.
-
+  
   Anyone is free to copy, modify, publish, use, compile, sell, or
   distribute this software, either in source code form or as a compiled
   binary, for any purpose, commercial or non-commercial, and by any
   means.
-
+  
   In jurisdictions that recognize copyright laws, the author or authors
   of this software dedicate any and all copyright interest in the
   software to the public domain. We make this dedication for the benefit
@@ -320,7 +328,7 @@ License:
   successors. We intend this dedication to be an overt act of
   relinquishment in perpetuity of all present and future rights to this
   software under copyright law.
-
+  
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -328,15 +336,15 @@ License:
   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
   OTHER DEALINGS IN THE SOFTWARE.
-
+  
   For more information, please refer to <http://unlicense.org/>
-
+  
   BSD 3-Clause
   Copyright (c) 2016-2021 Dominik Madarász. All rights reserved.
-
+  
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-
+  
   1. Redistributions of source code must retain the above copyright notice, this
   list of conditions and the following disclaimer.
   2. Redistributions in binary form must reproduce the above copyright notice,
@@ -345,7 +353,7 @@ License:
   3. Neither the name of the copyright holder nor the names of its contributors
   may be used to endorse or promote products derived from this software without
   specific prior written permission.
-
+  
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -362,9 +370,9 @@ License:
 #ifndef ZPL_H
 #define ZPL_H
 
-#define ZPL_VERSION_MAJOR 14
-#define ZPL_VERSION_MINOR 1
-#define ZPL_VERSION_PATCH 6
+#define ZPL_VERSION_MAJOR 15
+#define ZPL_VERSION_MINOR 0
+#define ZPL_VERSION_PATCH 0
 #define ZPL_VERSION_PRE ""
 
 // file: zpl_hedley.h
@@ -2964,22 +2972,6 @@ Type tmp = (a);          \
 #    define zpl_abs(x) ((x) < 0 ? -(x) : (x))
 #endif
 
-#ifndef hard_cast
-#    define hard_cast(type) *cast(type) &
-#endif
-
-// WARN(ZaKlaus): Supported only on GCC via GNU extensions!!!
-#ifndef zpl_lambda
-#    define zpl_lambda(b_) ({ b_ _; })
-#endif
-
-#ifndef zpl_when
-#    define zpl_when(init, type, name) \
-type name = init;                  \
-if (name)
-#endif
-
-/* NOTE: Very useful bit setting */
 #ifndef ZPL_MASK_SET
 #    define ZPL_MASK_SET(var, set, mask) \
 do {                                 \
@@ -3509,6 +3501,9 @@ ZPL_DEF_INLINE void zpl_pool_free(zpl_pool *pool);
 ZPL_DEF_INLINE zpl_allocator zpl_pool_allocator(zpl_pool *pool);
 ZPL_DEF ZPL_ALLOCATOR_PROC(zpl_pool_allocator_proc);
 
+//
+// Scratch Memory Allocator - Ring Buffer Based Arena
+//
 
 typedef struct zpl_allocation_header_ev {
     zpl_isize size;
@@ -3524,11 +3519,6 @@ ZPL_DEF_INLINE void zpl_allocation_header_fill(zpl_allocation_header_ev *header,
 #else
 #error
 #endif
-
-//
-// Scratch Memory Allocator - Ring Buffer Based Arena
-//
-
 
 typedef struct zpl_scratch_memory {
     void *physical_start;
@@ -3575,10 +3565,6 @@ ZPL_DEF_INLINE void zpl_stack_memory_free(zpl_stack_memory *s);
 //! Allocation Types: alloc, free, free_all
 ZPL_DEF_INLINE zpl_allocator zpl_stack_allocator(zpl_stack_memory *s);
 ZPL_DEF ZPL_ALLOCATOR_PROC(zpl_stack_allocator_proc);
-
-// TODO: Fixed heap allocator
-// TODO: General heap allocator. Maybe a TCMalloc like clone?
-
 
 /* inlines */
 
@@ -3637,7 +3623,6 @@ ZPL_IMPL_INLINE void *zpl_default_resize_align(zpl_allocator a, void *old_memory
         return new_memory;
     }
 }
-
 
 //
 // Heap Allocator
@@ -4166,30 +4151,50 @@ ZPL_END_C_DECLS
 // Instantiated Circular buffer
 //
 
+/*
+Buffer type and function declaration, call: ZPL_RING_DECLARE(PREFIX, FUNC, VALUE)
+Buffer function definitions, call: ZPL_RING_DEFINE(PREFIX, FUNC, VALUE)
 
+PREFIX  - a prefix for function prototypes e.g. extern, static, etc.
+     FUNC    - the name will prefix function names
+     VALUE   - the type of the value to be stored
+
+funcname_init(VALUE * pad, zpl_allocator a, zpl_isize max_size) 
+ funcname_free(VALUE * pad)                                  
+ funcname_full(VALUE * pad)                                   
+ funcname_empty(VALUE * pad)                                  
+ funcname_append(VALUE * pad, type data)                     
+ funcname_append_array(VALUE * pad, zpl_array(type) data)    
+ funcname_get(VALUE * pad)                                  
+funcname_get_array(VALUE * pad, zpl_usize max_size, zpl_allocator a)
+*/
 ZPL_BEGIN_C_DECLS
 
-#define ZPL_RING_DECLARE(prefix,type)                                                                                         \
+#define ZPL_RING(PREFIX, FUNC, VALUE)                                                                           \
+ZPL_RING_DECLARE(PREFIX, FUNC, VALUE);                                                                      \
+ZPL_RING_DEFINE(FUNC, VALUE);
+
+#define ZPL_RING_DECLARE(prefix,func,type)                                                                                         \
 typedef struct {                                                                                                   \
 zpl_allocator backing;                                                                                         \
 zpl_buffer(type) buf;                                                                                          \
 zpl_usize head, tail;                                                                                              \
 zpl_usize capacity;                                                                                                \
-} ZPL_JOIN2(prefix, type);                                                                                      \
+} ZPL_JOIN2(func, type);                                                                                      \
 \
-ZPL_DEF void ZPL_JOIN2(prefix, init)(ZPL_JOIN2(prefix, type) * pad, zpl_allocator a, zpl_isize max_size); \
-ZPL_DEF void ZPL_JOIN2(prefix, free)(ZPL_JOIN2(prefix, type) * pad);                                  \
-ZPL_DEF zpl_b32 ZPL_JOIN2(prefix, full)(ZPL_JOIN2(prefix, type) * pad);                                   \
-ZPL_DEF zpl_b32 ZPL_JOIN2(prefix, empty)(ZPL_JOIN2(prefix, type) * pad);                                  \
-ZPL_DEF void ZPL_JOIN2(prefix, append)(ZPL_JOIN2(prefix, type) * pad, type data);                     \
-ZPL_DEF void ZPL_JOIN2(prefix, append_array)(ZPL_JOIN2(prefix, type) * pad, zpl_array(type) data);    \
-ZPL_DEF type *ZPL_JOIN2(prefix, get)(ZPL_JOIN2(prefix, type) * pad);                                  \
-ZPL_DEF zpl_array(type)                                                                                            \
-ZPL_JOIN2(prefix, get_array)(ZPL_JOIN2(prefix, type) * pad, zpl_usize max_size, zpl_allocator a);
+prefix void ZPL_JOIN2(func, init)(ZPL_JOIN2(func, type) * pad, zpl_allocator a, zpl_isize max_size); \
+prefix void ZPL_JOIN2(func, free)(ZPL_JOIN2(func, type) * pad);                                  \
+prefix zpl_b32 ZPL_JOIN2(func, full)(ZPL_JOIN2(func, type) * pad);                                   \
+prefix zpl_b32 ZPL_JOIN2(func, empty)(ZPL_JOIN2(func, type) * pad);                                  \
+prefix void ZPL_JOIN2(func, append)(ZPL_JOIN2(func, type) * pad, type data);                     \
+prefix void ZPL_JOIN2(func, append_array)(ZPL_JOIN2(func, type) * pad, zpl_array(type) data);    \
+prefix type *ZPL_JOIN2(func, get)(ZPL_JOIN2(func, type) * pad);                                  \
+prefix zpl_array(type)                                                                                            \
+ZPL_JOIN2(func, get_array)(ZPL_JOIN2(func, type) * pad, zpl_usize max_size, zpl_allocator a);
 
-#define ZPL_RING_DEFINE(prefix,type)                                                                                          \
-void ZPL_JOIN2(prefix, init)(ZPL_JOIN2(prefix, type) * pad, zpl_allocator a, zpl_isize max_size) {        \
-ZPL_JOIN2(prefix, type) pad_ = { 0 };                                                                       \
+#define ZPL_RING_DEFINE(func,type)                                                                                          \
+void ZPL_JOIN2(func, init)(ZPL_JOIN2(func, type) * pad, zpl_allocator a, zpl_isize max_size) {        \
+ZPL_JOIN2(func, type) pad_ = { 0 };                                                                       \
 *pad = pad_;                                                                                                   \
 \
 pad->backing = a;                                                                                              \
@@ -4197,30 +4202,30 @@ zpl_buffer_init(pad->buf, a, max_size + 1);                                     
 pad->capacity = max_size + 1;                                                                                  \
 pad->head = pad->tail = 0;                                                                                     \
 }                                                                                                                  \
-void ZPL_JOIN2(prefix, free)(ZPL_JOIN2(prefix, type) * pad) {                                         \
+void ZPL_JOIN2(func, free)(ZPL_JOIN2(func, type) * pad) {                                         \
 zpl_buffer_free(pad->buf);                                                                       \
 }                                                                                                                  \
 \
-zpl_b32 ZPL_JOIN2(prefix, full)(ZPL_JOIN2(prefix, type) * pad) {                                          \
+zpl_b32 ZPL_JOIN2(func, full)(ZPL_JOIN2(func, type) * pad) {                                          \
 return ((pad->head + 1) % pad->capacity) == pad->tail;                                                         \
 }                                                                                                                  \
 \
-zpl_b32 ZPL_JOIN2(prefix, empty)(ZPL_JOIN2(prefix, type) * pad) { return pad->head == pad->tail; }        \
+zpl_b32 ZPL_JOIN2(func, empty)(ZPL_JOIN2(func, type) * pad) { return pad->head == pad->tail; }        \
 \
-void ZPL_JOIN2(prefix, append)(ZPL_JOIN2(prefix, type) * pad, type data) {                            \
+void ZPL_JOIN2(func, append)(ZPL_JOIN2(func, type) * pad, type data) {                            \
 pad->buf[pad->head] = data;                                                                                    \
 pad->head = (pad->head + 1) % pad->capacity;                                                                   \
 \
 if (pad->head == pad->tail) { pad->tail = (pad->tail + 1) % pad->capacity; }                                   \
 }                                                                                                                  \
 \
-void ZPL_JOIN2(prefix, append_array)(ZPL_JOIN2(prefix, type) * pad, zpl_array(type) data) {           \
+void ZPL_JOIN2(func, append_array)(ZPL_JOIN2(func, type) * pad, zpl_array(type) data) {           \
 zpl_usize c = zpl_array_count(data);                                                                               \
-for (zpl_usize i = 0; i < c; ++i) { ZPL_JOIN2(prefix, append)(pad, data[i]); }                           \
+for (zpl_usize i = 0; i < c; ++i) { ZPL_JOIN2(func, append)(pad, data[i]); }                           \
 }                                                                                                                  \
 \
-type *ZPL_JOIN2(prefix, get)(ZPL_JOIN2(prefix, type) * pad) {                                         \
-if (ZPL_JOIN2(prefix, empty)(pad)) { return NULL; }                                                  \
+type *ZPL_JOIN2(func, get)(ZPL_JOIN2(func, type) * pad) {                                         \
+if (ZPL_JOIN2(func, empty)(pad)) { return NULL; }                                                  \
 \
 type *data = &pad->buf[pad->tail];                                                                             \
 pad->tail = (pad->tail + 1) % pad->capacity;                                                                   \
@@ -4229,11 +4234,11 @@ return data;                                                                    
 }                                                                                                                  \
 \
 zpl_array(type)                                                                                                    \
-ZPL_JOIN2(prefix, get_array)(ZPL_JOIN2(prefix, type) * pad, zpl_usize max_size, zpl_allocator a) {    \
+ZPL_JOIN2(func, get_array)(ZPL_JOIN2(func, type) * pad, zpl_usize max_size, zpl_allocator a) {    \
 zpl_array(type) vals = 0;                                                                                          \
 zpl_array_init(vals, a);                                                                                       \
-while (--max_size && !ZPL_JOIN2(prefix, empty)(pad)) {                                               \
-zpl_array_append(vals, *ZPL_JOIN2(prefix, get)(pad));                                            \
+while (--max_size && !ZPL_JOIN2(func, empty)(pad)) {                                               \
+zpl_array_append(vals, *ZPL_JOIN2(func, get)(pad));                                            \
 }                                                                                                              \
 return vals;                                                                                                   \
 }
@@ -4245,25 +4250,27 @@ ZPL_END_C_DECLS
 @brief Instantiated hash table
 @defgroup hashtable Instantiated hash table
 
-@n
-@n This is an attempt to implement a templated hash table
-@n NOTE: The key is always a zpl_u64 for simplicity and you will _probably_ _never_ need anything bigger.
-@n
-@n Hash table type and function declaration, call: ZPL_TABLE_DECLARE(PREFIX, NAME, N, VALUE)
-@n Hash table function definitions, call: ZPL_TABLE_DEFINE(NAME, N, VALUE)
-@n
-@n     PREFIX  - a prefix for function prototypes e.g. extern, static, etc.
-@n     NAME    - Name of the Hash Table
-@n     FUNC    - the name will prefix function names
-@n     VALUE   - the type of the value to be stored
-@n
-@n tablename_init(NAME * h, zpl_allocator a);
-@n tablename_destroy(NAME * h);
-@n tablename_get(NAME * h, zpl_u64 key);
-@n tablename_set(NAME * h, zpl_u64 key, VALUE value);
-@n tablename_grow(NAME * h);
-@n tablename_rehash(NAME * h, zpl_isize new_count);
-@n tablename_remove(NAME * h, zpl_u64 key);
+
+ This is an attempt to implement a templated hash table
+ NOTE: The key is always a zpl_u64 for simplicity and you will _probably_ _never_ need anything bigger.
+
+ Hash table type and function declaration, call: ZPL_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE)
+ Hash table function definitions, call: ZPL_TABLE_DEFINE(NAME, FUNC, VALUE)
+
+     PREFIX  - a prefix for function prototypes e.g. extern, static, etc.
+     NAME    - Name of the Hash Table
+     FUNC    - the name will prefix function names
+     VALUE   - the type of the value to be stored
+
+ tablename_init(NAME * h, zpl_allocator a);
+ tablename_destroy(NAME * h);
+ tablename_get(NAME * h, zpl_u64 key);
+ tablename_set(NAME * h, zpl_u64 key, VALUE value);
+ tablename_grow(NAME * h);
+tablename_map(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value))
+tablename_map_mut(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value))
+ tablename_rehash(NAME * h, zpl_isize new_count);
+ tablename_remove(NAME * h, zpl_u64 key);
 
  @{
 */
@@ -4480,7 +4487,7 @@ ZPL_DEF zpl_virtual_memory zpl_vm(void *data, zpl_isize size);
 //! Allocate virtual memory at address with size.
 
 //! @param addr The starting address of the region to reserve. If NULL, it lets operating system to decide where to allocate it.
-//! @param size The size to server.
+//! @param size The size to serve.
 ZPL_DEF zpl_virtual_memory zpl_vm_alloc(void *addr, zpl_isize size);
 
 //! Release the virtual memory.
@@ -6588,7 +6595,7 @@ typedef short zpl_half;
 #endif
 
 #ifndef zpl_sign
-#define zpl_sign(x) ((x) >= 0 ? 1 : -1)
+#define zpl_sign(x) (x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f)
 #endif
 
 ZPL_DEF zpl_f32 zpl_to_radians(zpl_f32 degrees);
@@ -7642,7 +7649,7 @@ typedef struct {
     void *data;
 } zpl_thread_job;
 
-ZPL_RING_DECLARE(zpl__jobs_ring_, zpl_thread_job);
+ZPL_RING_DECLARE(extern, zpl__jobs_ring_, zpl_thread_job);
 
 typedef struct {
     zpl_thread thread;
@@ -11603,19 +11610,20 @@ zpl_isize zpl_random_gen_isize(zpl_random *r) {
 
 zpl_i64 zpl_random_range_i64(zpl_random *r, zpl_i64 lower_inc, zpl_i64 higher_inc) {
     zpl_u64 u = zpl_random_gen_u64(r);
-    zpl_i64 i = *cast(zpl_i64 *)&u;
     zpl_i64 diff = higher_inc-lower_inc+1;
-    i %= diff;
+    u %= diff;
+    zpl_i64 i;
+    zpl_memcopy(&i, &u, zpl_size_of(u));
     i += lower_inc;
     return i;
 }
 
 zpl_isize zpl_random_range_isize(zpl_random *r, zpl_isize lower_inc, zpl_isize higher_inc) {
     zpl_u64 u = zpl_random_gen_u64(r);
+    zpl_isize diff = higher_inc-lower_inc+1;
+    u %= diff;
     zpl_isize i;
     zpl_memcopy(&i, &u, zpl_size_of(u));
-    zpl_isize diff = higher_inc-lower_inc+1;
-    i %= diff;
     i += lower_inc;
     return i;
 }
@@ -16288,6 +16296,7 @@ void zpl_thread_start_with_stack(zpl_thread *t, zpl_thread_proc proc, void *user
     t->proc = proc;
     t->user_data = user_data;
     t->stack_size = stack_size;
+    t->is_running = true;
     
 #    if defined(ZPL_SYSTEM_WINDOWS)
     t->win32_handle = CreateThread(NULL, stack_size, zpl__thread_proc, t, 0, NULL);
@@ -16303,8 +16312,6 @@ void zpl_thread_start_with_stack(zpl_thread *t, zpl_thread_proc proc, void *user
         pthread_attr_destroy(&attr);
     }
 #    endif
-    
-    t->is_running = true;
     zpl_semaphore_wait(&t->semaphore);
 }
 

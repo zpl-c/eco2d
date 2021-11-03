@@ -1,14 +1,13 @@
 #include "camera.h"
 #include "item_placement.h"
 
+#define ZPL_ENABLE_MATH
+#include "zpl.h"
+
 static bool build_submit_placements = false;
 static bool build_is_in_draw_mode = false;
 static uint8_t build_num_placements = 0;
 static item_placement build_placements[BUILD_MAX_PLACEMENTS] = {0};
-
-#ifndef zpl_square
-#define zpl_square(x) ((x) * (x))
-#endif
 
 void buildmode_clear_buffers(void) {
     item_placement empty_placement = { .x = 0.0f, .y = 0.0f, .kind = -1 };
@@ -16,11 +15,6 @@ void buildmode_clear_buffers(void) {
         zpl_memcopy(&build_placements[i], &empty_placement, zpl_size_of(item_placement));
     }
 }
-
-// TODO(zaklaus): 
-#ifndef zpl_sign0
-#define zpl_sign0(x) (x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f)
-#endif
 
 void buildmode_draw(void) {
     camera cam = camera_get();
@@ -75,10 +69,10 @@ void buildmode_draw(void) {
                             float p2y = build_placements[1].y;
                             float p3x = (float)cam.x;
                             float p3y = (float)cam.y;
-                            float sx = zpl_sign0(p2x-p1x);
-                            float sy = zpl_sign0(p2y-p1y);
-                            float sxx = zpl_sign0(p3x-p1x);
-                            float syy = zpl_sign0(p3y-p1y);
+                            float sx = zpl_sign(p2x-p1x);
+                            float sy = zpl_sign(p2y-p1y);
+                            float sxx = zpl_sign(p3x-p1x);
+                            float syy = zpl_sign(p3y-p1y);
                             
                             if (sx != sxx || sy != syy) break;
                         }

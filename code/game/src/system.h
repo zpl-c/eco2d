@@ -6,6 +6,7 @@
 #include <inttypes.h>
 
 #define ZPL_NANO
+#define ZPL_ENABLE_MATH
 #include "zpl.h"
 
 #define defer_var ZPL_CONCAT(_i_,__LINE__)

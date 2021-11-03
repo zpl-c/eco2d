@@ -182,11 +182,6 @@ void SwapItems(ecs_iter_t *it) {
     }
 }
 
-// TODO(zaklaus): 
-#ifndef zpl_sign0
-#define zpl_sign0(x) (x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f)
-#endif
-
 void UseItem(ecs_iter_t *it) {
     Input *in = ecs_column(it, Input, 1);
     Position *p = ecs_column(it, Position, 2);
@@ -209,8 +204,8 @@ void UseItem(ecs_iter_t *it) {
                 float p1y = in[i].placements_y[0];
                 float p2x = in[i].placements_x[1];
                 float p2y = in[i].placements_y[1];
-                float sx = zpl_sign0(p2x-p1x);
-                float sy = zpl_sign0(p2y-p1y);
+                float sx = zpl_sign(p2x-p1x);
+                float sy = zpl_sign(p2y-p1y);
                 ofs = (sx < 0.0f) ? 1 : 2;
                 if (sx == 0.0f) {
                     ofs = (sy < 0.0f) ? 3 : 4;
