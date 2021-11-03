@@ -1,9 +1,6 @@
 #include "camera.h"
 #include "item_placement.h"
 
-#define ZPL_ENABLE_MATH
-#include "zpl.h"
-
 static bool build_submit_placements = false;
 static bool build_is_in_draw_mode = false;
 static uint8_t build_num_placements = 0;
@@ -69,10 +66,10 @@ void buildmode_draw(void) {
                             float p2y = build_placements[1].y;
                             float p3x = (float)cam.x;
                             float p3y = (float)cam.y;
-                            float sx = zpl_sign(p2x-p1x);
-                            float sy = zpl_sign(p2y-p1y);
-                            float sxx = zpl_sign(p3x-p1x);
-                            float syy = zpl_sign(p3y-p1y);
+                            float sx = zpl_sign0(p2x-p1x);
+                            float sy = zpl_sign0(p2y-p1y);
+                            float sxx = zpl_sign0(p3x-p1x);
+                            float syy = zpl_sign0(p3y-p1y);
                             
                             if (sx != sxx || sy != syy) break;
                         }
@@ -103,6 +100,7 @@ void buildmode_draw(void) {
     if (build_is_in_draw_mode) {
         if (IsKeyPressed(KEY_SPACE)) {
             build_is_in_draw_mode = false;
+            buildmode_clear_buffers();
         }
         
         if (IsMouseButtonReleased(MOUSE_RIGHT_BUTTON)) {

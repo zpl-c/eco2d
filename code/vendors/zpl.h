@@ -31,6 +31,7 @@ GitHub:
   https://github.com/zpl-c/zpl
 
 Version History:
+  15.0.2  - zpl_sign0 was introduced
   15.0.1  - hashtable performance improvements
   		- zpl_sign(0) returns 0
   15.0.0  - Rework zpl ring buffer
@@ -4415,7 +4416,6 @@ return NULL;                                                                    
 }                                                                                                                  \
 \
 void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key) {                                                                  \
-zpl_isize i; \
 zpl_hash_table_find_result fr = ZPL_JOIN2(FUNC, _find)(h, key);                                                \
 if (fr.entry_index >= 0) {                                                                                     \
 zpl_array_remove_at(h->entries, fr.entry_index);                                                           \
@@ -6595,7 +6595,11 @@ typedef short zpl_half;
 #endif
 
 #ifndef zpl_sign
-#define zpl_sign(x) (x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f)
+#define zpl_sign(x) ((x) >= 0.0f ? 1.0f : -1.0f)
+#endif
+
+#ifndef zpl_sign0
+#define zpl_sign0(x) ((x == 0.0f) ? 0.0f : ((x) >= 0.0f ? 1.0f : -1.0f))
 #endif
 
 ZPL_DEF zpl_f32 zpl_to_radians(zpl_f32 degrees);
@@ -18171,9 +18175,4 @@ typedef zpl_intptr intptr;
 // source/core/print.c
 // source/core/time.c
 // source/core/string.c
-// source/core/random.c
-// source/core/sort.c
-// source/core/file_tar.c
-// source/opts.c
-// source/timer.c
-// source/math.c
+// source/c

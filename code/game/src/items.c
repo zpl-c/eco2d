@@ -43,7 +43,6 @@ uint16_t item_find(asset_id kind) {
             return item_resolve_proxy(i);
     }
     
-    ZPL_PANIC("Unknown asset id: %d\n", kind);
     return ASSET_INVALID;
 }
 
