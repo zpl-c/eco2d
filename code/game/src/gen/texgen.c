@@ -14,6 +14,13 @@ Texture2D LoadImageEco(const char *name) {
 
 Texture2D texgen_build_sprite(asset_id id) {
     switch (id) {
+        case ASSET_EMPTY: {
+            Image img = GenImageColor(1, 1, PINK);
+            Texture2D tex = LoadTextureFromImage(img);
+            UnloadImage(img);
+            return tex;
+        }break;
+        
         case ASSET_DEMO_ICEMAKER: return LoadImageEco("demo_icemaker");
         
         // NOTE(zaklaus): blocks
@@ -41,6 +48,4 @@ Texture2D texgen_build_sprite(asset_id id) {
             return tex;
         }break;
     }
-    
-    ZPL_PANIC("unreachable code");
 }

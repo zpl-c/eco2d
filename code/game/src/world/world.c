@@ -193,7 +193,14 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
     
-    for (int i = 0; i < world.chunk_amount * world.chunk_amount; ++i) {
+    for (int i = 0; i < zpl_square(world.dim); ++i) {
+        if (world.data[i] == 0) {
+            ZPL_PANIC("Worldgen failure! Block %d is unset!\n", i);
+            return -1;
+        }
+    }
+    
+    for (int i = 0; i < zpl_square(world.chunk_amount); ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
         ecs_set(world.ecs, e, Classify, {.id = EKIND_CHUNK });
         Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);

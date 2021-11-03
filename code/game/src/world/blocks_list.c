@@ -6,7 +6,7 @@
 }
 
 static block blocks[] = {
-    BLOCK(ASSET_EMPTY, 0, ' ', .drag = 1.0f, .friction = 1.0f),
+    BLOCK(ASSET_EMPTY, 0, 'E'),
     BLOCK(ASSET_GROUND, 0, '.', .drag = 1.0f, .friction = 1.0f),
     BLOCK(ASSET_DIRT, 0, ',', .drag = 2.1f , .friction = 1.0f),
     BLOCK(ASSET_WALL, BLOCK_FLAG_COLLISION, '#', .drag = 1.0f , .friction = 1.0f, .bounce = 1.0f),
