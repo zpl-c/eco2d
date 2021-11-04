@@ -46,10 +46,10 @@ int main(int argc, char** argv) {
     int8_t is_viewer_only = zpl_opts_has_arg(&opts, "viewer-only");
     int8_t is_server_only = zpl_opts_has_arg(&opts, "server-only");
     int8_t is_dash_enabled = zpl_opts_has_arg(&opts, "enable-dash");
-    int32_t seed = zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
-    uint16_t num_viewers = zpl_opts_integer(&opts, "viewer-count", 1);
+    int32_t seed = (int32_t)zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
+    uint16_t num_viewers = (uint16_t)zpl_opts_integer(&opts, "viewer-count", 1);
+    uint16_t world_size = (uint16_t)zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
     uint16_t chunk_size = DEFAULT_CHUNK_SIZE; //zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
-    uint16_t world_size = zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
     
     game_kind play_mode = GAMEKIND_SINGLE;
     

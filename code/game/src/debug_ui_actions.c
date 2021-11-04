@@ -58,7 +58,7 @@ ActSpawnCirclingDriver(void) {
 void
 ActPlaceIceRink(void) {
     ecs_entity_t plr = camera_get().ent_id;
-    uint8_t watr_id = blocks_find(ASSET_WATER);
+    block_id watr_id = blocks_find(ASSET_WATER);
     Position const *p = ecs_get(world_ecs(), plr, Position);
     float const bs = WORLD_BLOCK_SIZE;
     
@@ -210,12 +210,12 @@ ActSpawnDemoNPCs(void) {
         uint64_t e = entity_spawn(EKIND_DEMO_NPC);
         ecs_add(world_ecs(), e, EcsDemoNPC);
         Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
-        pos->x=rand() % world_dim();
-        pos->y=rand() % world_dim();        
+        pos->x=(float)(rand() % world_dim());
+        pos->y=(float)(rand() % world_dim());        
         
         Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
-        v->x = (rand()%3-1) * 10;
-        v->y = (rand()%3-1) * 10;
+        v->x = (float)((rand()%3-1) * 10);
+        v->y = (float)((rand()%3-1) * 10);
         
         zpl_array_append(demo_npcs, e);
     }

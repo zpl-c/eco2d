@@ -24,5 +24,5 @@ void debug_replay_load_record_v2(replay_record *rec, void const *buf) {
     
     rec->kind = v2_rec.kind;
     rec->pkt = pkt;
-    rec->delay = v2_rec.delay;
+    rec->delay = (double)v2_rec.delay;
 }

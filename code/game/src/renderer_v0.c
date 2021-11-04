@@ -12,28 +12,28 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
-            int32_t size = view->chunk_size * WORLD_BLOCK_SIZE;
-            int16_t offset = 0;
+            float size = (float)(view->chunk_size * WORLD_BLOCK_SIZE);
+            float offset = 0.0;
             
             float x = data->x * size + offset;
             float y = data->y * size + offset;
             
             RenderTexture2D tex = GetChunkTexture(key);
             float scale = (size)/(float)(tex.texture.width);
-            tex.texture.width *= scale;
-            tex.texture.height *= scale;
+            tex.texture.width *= (int32_t)scale;
+            tex.texture.height *= (int32_t)scale;
             DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
             
             if (zoom_overlay_tran > 0.02f) {
-                DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV(data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
+                DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV((float)data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
                 
-                DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), (int16_t)x+15, (int16_t)y+15, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
+                DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), x+15.0f, y+15.0f, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0); 
                 
             }
             
             for (size_t ty = 0; ty < view->chunk_size; ty++) {
                 for (size_t tx = 0; tx < view->chunk_size; tx++) {
-                    uint8_t blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
+                    block_id blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
                     if (blk_id != 0) {
                         DrawTextureRec(GetBlockImage(blk_id), ASSET_SRC_RECT(), (Vector2){x+tx*WORLD_BLOCK_SIZE, y+ty*WORLD_BLOCK_SIZE}, ColorAlpha(WHITE, data->tran_time));
                     }
@@ -123,7 +123,7 @@ void renderer_draw_v0(void) {
     camera_update();
     
     camera game_camera = camera_get();
-    render_camera.target = (Vector2){game_camera.x, game_camera.y};
+    render_camera.target = (Vector2){(float)game_camera.x, (float)game_camera.y};
     zoom_overlay_tran = zpl_lerp(zoom_overlay_tran, (target_zoom <= CAM_OVERLAY_ZOOM_LEVEL) ? 1.0f : 0.0f, GetFrameTime()*2.0f);
     
     
@@ -141,7 +141,7 @@ float renderer_zoom_get_v0(void) {
 
 void renderer_init_v0(void) {
     render_camera.target = (Vector2){0.0f,0.0f};
-    render_camera.offset = (Vector2){screenWidth >> 1, screenHeight >> 1};
+    render_camera.offset = (Vector2){(float)(screenWidth >> 1), (float)(screenHeight >> 1)};
     render_camera.rotation = 0.0f;
     render_camera.zoom = 1.5f;
     

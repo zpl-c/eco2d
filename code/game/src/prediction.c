@@ -4,8 +4,8 @@
 #include "world/world.h"
 #include "game.h"
 
-#define PREDICT_SMOOTH_FACTOR_LO 7.5
-#define PREDICT_SMOOTH_FACTOR_HI 12.5
+#define PREDICT_SMOOTH_FACTOR_LO 7.5f
+#define PREDICT_SMOOTH_FACTOR_HI 12.5f
 
 static inline float map_factor(float x) {
     x = 1.0f - zpl_clamp01(x);
@@ -32,20 +32,13 @@ static inline float spherical_lerp(float a, float b, float t) {
     return base_angle(zpl_lerp(a, b, t));
 }
 
-float smooth_val(float cur, float tgt, uint64_t dt) {
+float smooth_val(float cur, float tgt, float dt) {
     float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS)));
-    
-#if 0
-    dt = 200;
-    factor = map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS));
-    zpl_printf("lerp factor: %f\n", factor);
-    zpl_exit(0);
-#endif
     
     return zpl_lerp(cur, tgt, zpl_clamp01(zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor)*platform_frametime()));
 }
 
-float smooth_val_spherical(float cur, float tgt, uint64_t dt) {
+float smooth_val_spherical(float cur, float tgt, float dt) {
     float factor = zpl_clamp01(map_factor(zpl_unlerp(dt, WORLD_TRACKER_UPDATE_MP_FAST_MS, WORLD_TRACKER_UPDATE_MP_SLOW_MS)));
     
     return spherical_lerp(cur, tgt, zpl_clamp01(zpl_lerp(PREDICT_SMOOTH_FACTOR_LO, PREDICT_SMOOTH_FACTOR_HI, factor)*platform_frametime()));

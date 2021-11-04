@@ -86,7 +86,7 @@ void buildmode_draw(void) {
             }
             
             if (!is_outside_range)
-                renderer_draw_single(cam.x, cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(WHITE, 0.2f));
+                renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(WHITE, 0.2f));
             
             build_num_placements = zpl_min(build_num_placements, qty);
         }

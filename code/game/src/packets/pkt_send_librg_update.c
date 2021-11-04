@@ -41,7 +41,7 @@ int32_t pkt_send_librg_update_handler(pkt_header *header) {
     int32_t state = librg_world_read(view->tracker, header->view_id, uc.item.as.bin.start, uc.item.as.bin.length, NULL);
     if (state < 0) zpl_printf("[ERROR] world read error: %d\n", state);
     
-    uint64_t now = zpl_time_rel_ms();
+    float now = (float)zpl_time_rel();
     view->delta_time[layer_id] = now - view->last_update[layer_id];
     view->last_update[layer_id] = now;
     

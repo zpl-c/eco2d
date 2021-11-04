@@ -11,9 +11,9 @@ void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
-            int32_t size = view->chunk_size * WORLD_BLOCK_SIZE;
-            int32_t half_size = size >> 1;
-            int32_t half_block_size = WORLD_BLOCK_SIZE >> 1;
+            float size = (float)(view->chunk_size * WORLD_BLOCK_SIZE);
+            float half_size = size / 2.0f;
+            float half_block_size = (float)(WORLD_BLOCK_SIZE >> 1);
             int16_t offset = 0;
             
             float x = data->x * size + offset;
@@ -24,7 +24,7 @@ void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
             
             for (size_t ty = 0; ty < view->chunk_size; ty++) {
                 for (size_t tx = 0; tx < view->chunk_size; tx++) {
-                    uint8_t blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
+                    block_id blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
                     if (blk_id != 0) {
                         DrawCubeTexture(GetBlockImage(blk_id), (Vector3){x + tx*WORLD_BLOCK_SIZE+half_block_size, 32.0f, y + ty*WORLD_BLOCK_SIZE+half_block_size}, 64, 0.01f, 64, WHITE);
                     }
@@ -96,8 +96,8 @@ void renderer_draw_3d(void) {
     
     camera game_camera_3d = camera_get();
 #if 1
-    render_camera_3d.position = (Vector3){game_camera_3d.x, 260.0f*(10.0f-cam_zoom), game_camera_3d.y+50.0f*(10.0f-cam_zoom/2.0f)};
-    render_camera_3d.target = (Vector3){game_camera_3d.x, 0.0f, game_camera_3d.y};
+    render_camera_3d.position = (Vector3){(float)game_camera_3d.x, 260.0f*(10.0f-cam_zoom), (float)game_camera_3d.y+50.0f*(10.0f-cam_zoom/2.0f)};
+    render_camera_3d.target = (Vector3){(float)game_camera_3d.x, 0.0f, (float)game_camera_3d.y};
 #else
     UpdateCamera(&render_camera_3d);
 #endif

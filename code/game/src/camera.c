@@ -23,8 +23,8 @@ void camera_update(void) {
             if (!view) break;
             float smooth_ms = zpl_clamp((float)platform_frametime(), 0.0f, 1.0f);
             
-            main_camera.x = zpl_lerp(main_camera.x, view->x, CAMERA_LERP_FACTOR*smooth_ms);
-            main_camera.y = zpl_lerp(main_camera.y, view->y, CAMERA_LERP_FACTOR*smooth_ms);
+            main_camera.x = zpl_lerp((float)main_camera.x, view->x, CAMERA_LERP_FACTOR*smooth_ms);
+            main_camera.y = zpl_lerp((float)main_camera.y, view->y, CAMERA_LERP_FACTOR*smooth_ms);
             
             if (main_camera.first_time) {
                 main_camera.first_time = false;

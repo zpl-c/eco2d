@@ -18,24 +18,24 @@ typedef enum {
 typedef struct {
     replay_kind kind;
     pkt_send_keystate pkt;
-    uint64_t delay;
+    double delay;
 } replay_record;
 
 #include "debug_replay_compat_v2.c"
 
 static uint8_t is_recording = false;
 static replay_record *records = NULL;
-static uint64_t last_record_time = 0.0f;
+static double last_record_time = 0;
 
 static uint8_t is_playing = false;
 static int record_pos = 0;
-static uint64_t playback_time = 0;
+static double playback_time = 0;
 static ecs_entity_t mime = 0;
 static ecs_entity_t plr = 0;
 static ecs_entity_t *temp_actors = NULL;
 
 #define REPLAY_MAGIC 0x421DC97E
-#define REPLAY_VERSION 3
+#define REPLAY_VERSION 4
 
 static char replay_filename[1024] = {0};
 static char replaybuf[sizeof(replay_record)*UINT16_MAX + 32];
@@ -48,7 +48,7 @@ void debug_replay_store(void) {
     cw_pack_context_init(&pc, replaybuf, sizeof(replaybuf), 0);
     cw_pack_unsigned(&pc, REPLAY_MAGIC);
     cw_pack_unsigned(&pc, REPLAY_VERSION);
-    cw_pack_array_size(&pc, zpl_array_count(records));
+    cw_pack_array_size(&pc, (uint32_t)zpl_array_count(records));
     
     for (int i = 0; i < zpl_array_count(records); i++) {
         cw_pack_bin(&pc, &records[i], sizeof(replay_record));
@@ -72,7 +72,7 @@ void debug_replay_load(void) {
     zpl_file_close(&f);
     
     cw_unpack_context uc = {0};
-    cw_unpack_context_init(&uc, replaybuf, file_size, 0);
+    cw_unpack_context_init(&uc, replaybuf, (uint32_t)file_size, 0);
     
     cw_unpack_next(&uc);
     ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_MAGIC);
@@ -114,7 +114,7 @@ void debug_replay_start(void) {
     if (records) zpl_array_free(records);
     zpl_array_init_reserve(records, zpl_heap(), UINT16_MAX);
     
-    last_record_time = zpl_time_rel_ms();
+    last_record_time = zpl_time_rel();
     SetTargetFPS(60);
 }
 
@@ -153,7 +153,7 @@ void debug_replay_run(void) {
     if (mime) return;
     is_playing = true;
     record_pos = 0;
-    playback_time = zpl_time_rel_ms();
+    playback_time = zpl_time_rel();
     zpl_array_init(temp_actors, zpl_heap());
     
     plr = camera_get().ent_id;
@@ -177,7 +177,7 @@ void ActSpawnIcemaker(void);
 
 void debug_replay_update(void) {
     if (!is_playing) return;
-    if (playback_time >= zpl_time_rel_ms()) return;
+    if (playback_time >= zpl_time_rel()) return;
     
     replay_record *r = &records[record_pos];
     playback_time = zpl_time_rel() + r->delay;
@@ -239,7 +239,7 @@ void debug_replay_update(void) {
 
 void debug_replay_record_keystate(pkt_send_keystate state) {
     if (!is_recording) return;
-    float record_time = zpl_time_rel_ms();
+    double record_time = zpl_time_rel();
     
     replay_record rec = {
         .kind = RPKIND_KEY,
@@ -248,13 +248,13 @@ void debug_replay_record_keystate(pkt_send_keystate state) {
     };
     
     zpl_array_append(records, rec);
-    last_record_time = zpl_time_rel_ms();
+    last_record_time = zpl_time_rel();
 }
 
 void debug_replay_special_action(replay_kind kind) {
     ZPL_ASSERT(kind != RPKIND_KEY);
     if (!is_recording || is_playing) return;
-    float record_time = zpl_time_rel_ms();
+    double record_time = zpl_time_rel();
     
     replay_record rec = {
         .kind = kind,
@@ -262,5 +262,5 @@ void debug_replay_special_action(replay_kind kind) {
     };
     
     zpl_array_append(records, rec);
-    last_record_time = zpl_time_rel_ms();
+    last_record_time = zpl_time_rel();
 }

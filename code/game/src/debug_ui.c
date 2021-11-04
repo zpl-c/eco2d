@@ -224,7 +224,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
             case DITEM_LIST: {
                 // NOTE(zaklaus): calculate and cache name width for future use
                 if (it->name_width == 0) {
-                    it->name_width = UIMeasureText(it->name, DBG_FONT_SIZE);
+                    it->name_width = (float)UIMeasureText(it->name, DBG_FONT_SIZE);
                 }
                 Color color = RAYWHITE;
                 if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color)) {
@@ -242,7 +242,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
             case DITEM_TEXT: {
                 char const *text = TextFormat("%s: ", it->name);
                 if (it->name_width == 0) {
-                    it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
+                    it->name_width = (float)UIMeasureText(text, DBG_FONT_SIZE);
                 }
                 UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
                 ZPL_ASSERT(it->proc);
@@ -261,7 +261,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
             case DITEM_BUTTON: {
                 char const *text = TextFormat("> %s", it->name);
                 if (it->name_width == 0) {
-                    it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
+                    it->name_width = (float)UIMeasureText(text, DBG_FONT_SIZE);
                 }
                 Color color = RAYWHITE;
                 if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color) && it->on_click) {
@@ -280,15 +280,15 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 ZPL_ASSERT(it->slider.min != it->slider.max);
                 char const *text = TextFormat("%s: ", it->name);
                 if (it->name_width == 0) {
-                    it->name_width = UIMeasureText(text, DBG_FONT_SIZE);
+                    it->name_width = (float)UIMeasureText(text, DBG_FONT_SIZE);
                 }
                 UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
                 xpos += it->name_width;
                 
-                DrawRectangleLines(xpos, ypos, 100.0f, DBG_FONT_SIZE, RAYWHITE);
+                DrawRectangleLines((int)xpos, (int)ypos, 100, DBG_FONT_SIZE, RAYWHITE);
                 
                 float stick_x = xpos + ((it->slider.val / it->slider.max) * 100.0f) - 5.0f;
-                DrawRectangle(stick_x, ypos, 10.0f, DBG_FONT_SIZE, RED);
+                DrawRectangle((int)stick_x, (int)ypos, 10, DBG_FONT_SIZE, RED);
                 
                 xpos += 100.0f + 5.0f;
                 DrawFloat(xpos, ypos, it->slider.val);
@@ -322,15 +322,15 @@ void debug_draw(void) {
         }
         
         if (is_handle_ctrl_held) {
-            debug_xpos = xpos = GetMouseX() - DBG_CTRL_HANDLE_DIM/2;
-            debug_ypos = ypos = GetMouseY() - DBG_CTRL_HANDLE_DIM/2;
+            debug_xpos = xpos = (float)(GetMouseX() - DBG_CTRL_HANDLE_DIM/2);
+            debug_ypos = ypos = (float)(GetMouseY() - DBG_CTRL_HANDLE_DIM/2);
             
             if (area == DAREA_PRESS) {
                 is_handle_ctrl_held = 0;
             }
         }
         
-        DrawRectangle(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
+        DrawRectangle((int)xpos, (int)ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
     }
     
     // NOTE(zaklaus): toggle debug ui

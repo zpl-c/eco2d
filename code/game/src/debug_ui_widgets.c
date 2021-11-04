@@ -36,8 +36,8 @@ DrawCameraPos(debug_item *it, float xpos, float ypos) {
 static inline debug_draw_result 
 DrawUnmeasuredTime(debug_item *it, float xpos, float ypos) {
     (void)it;
-    float total_time = profiler_delta(PROF_TOTAL_TIME);
-    float acc_time = profiler_delta(PROF_MAIN_LOOP);
+    float total_time = (float)profiler_delta(PROF_TOTAL_TIME);
+    float acc_time = (float)profiler_delta(PROF_MAIN_LOOP);
     
     return DrawFormattedText(xpos, ypos, TextFormat("%.02f ms", (total_time-acc_time) * 1000.0f));
 }
@@ -64,7 +64,7 @@ DrawLiteral(debug_item *it, float xpos, float ypos) {
 
 static inline debug_draw_result 
 DrawProfilerDelta(debug_item *it, float xpos, float ypos) {
-    float dt = profiler_delta(it->val);
+    float dt = (float)profiler_delta(it->val);
     return DrawFormattedText(xpos, ypos, TextFormat("%s: %.02f ms", profiler_name(it->val), dt * 1000.0f));
 }
 

@@ -25,13 +25,13 @@ int32_t pkt_header_encode(pkt_messages id, uint16_t view_id, void *data, size_t 
     pkt_pack_msg(&pc, PKT_HEADER_ELEMENTS);
     cw_pack_unsigned(&pc, id);
     cw_pack_unsigned(&pc, view_id);
-    cw_pack_bin(&pc, data, datalen);
-    return pkt_pack_msg_size(&pc);
+    cw_pack_bin(&pc, data, (uint32_t)datalen);
+    return (int32_t)pkt_pack_msg_size(&pc);
 }
 
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     cw_unpack_context uc = {0};
-    pkt_unpack_msg_raw(&uc, data, datalen, PKT_HEADER_ELEMENTS);
+    pkt_unpack_msg_raw(&uc, data, (uint32_t)datalen, PKT_HEADER_ELEMENTS);
     
     cw_unpack_next(&uc);
     if (uc.item.type != CWP_ITEM_POSITIVE_INTEGER || uc.item.as.u64 > UINT16_MAX) {
@@ -53,7 +53,7 @@ int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     
     table->id = pkt_id;
     table->view_id = view_id;
-    table->data = packed_blob;
+    table->data = (void *)packed_blob;
     table->datalen = packed_size;
     table->ok = 1;
     
@@ -87,7 +87,7 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
             case CWP_ITEM_BIN: {
                 if (uc->item.as.bin.length >= PKT_BUFSIZ) return -1; // bin blob too big
                 static uint8_t bin_buf[PKT_BUFSIZ] = {0};
-                uint32_t actual_size = decompress_rle(uc->item.as.bin.start, uc->item.as.bin.length, bin_buf);
+                uint32_t actual_size = decompress_rle((void *)uc->item.as.bin.start, uc->item.as.bin.length, bin_buf);
                 if (actual_size != field->size) return -1; // bin size mismatch
                 zpl_memcopy(blob + field->offset, bin_buf, actual_size);
             }break;
@@ -121,7 +121,7 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
             case CWP_ITEM_BIN: {
                 if (field->size >= PKT_BUFSIZ) return -1; // bin blob too big
                 static uint8_t bin_buf[PKT_BUFSIZ] = {0};
-                uint32_t size = compress_rle(blob + field->offset, field->size, bin_buf);
+                uint32_t size = compress_rle((void *)(blob + field->offset), (uint32_t)field->size, bin_buf);
                 cw_pack_bin(pc, bin_buf, size);
             }break;
             case CWP_ITEM_POSITIVE_INTEGER: {

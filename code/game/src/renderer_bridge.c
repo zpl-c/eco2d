@@ -96,7 +96,7 @@ void renderer_draw_single(float x, float y, asset_id id, Color color) {
 void renderer_bake_chunk(uint64_t key, entity_view * data) {
     if (data->kind != EKIND_CHUNK) return;
     world_view *view = game_world_view_get_active();
-    blocks_build_chunk_tex(key, data->blocks, data->outer_blocks, view);
+    blocks_build_chunk_tex(key, data->blocks, view);
 }
 
 void renderer_switch(int kind) {

@@ -41,7 +41,7 @@ typedef struct {
     block_id **block_mapping;
     block_id **outer_block_mapping;
     uint16_t dim;
-    uint64_t tracker_update[3];
+    float tracker_update[3];
     uint8_t active_layer_id;
     ecs_world_t *ecs;
     ecs_world_t *ecs_stage;

@@ -16,8 +16,8 @@ void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color c
     if (GetFontDefault().texture.id != 0) {
         Vector2 position = { (float)posX , (float)posY  };
         
-        int defaultFontSize = 10;   // Default Font chars height in pixel
-        int new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
+        float defaultFontSize = 10.0;   // Default Font chars height in pixel
+        float new_spacing = spacing == 0.0f ? (float)fontSize/defaultFontSize : spacing;
         
         DrawTextEx(GetFontDefault(), text, position, (float)fontSize , (float)new_spacing , color);
     }
@@ -31,8 +31,8 @@ int MeasureTextEco(const char *text, int fontSize, float spacing) {
     
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
-        int defaultFontSize = 10;   // Default Font chars height in pixel
-        int new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
+        float defaultFontSize = 10.0;   // Default Font chars height in pixel
+        float new_spacing = spacing == 0.0f ? (float)fontSize/defaultFontSize : spacing;
         
         vec = MeasureTextEx(GetFontDefault(), text, (float)fontSize, (float)new_spacing);
     }
@@ -56,7 +56,7 @@ void DrawRectangleEco(float posX, float posY, float width, float height, Color c
 }
 
 static inline
-Texture2D GetBlockImage(uint8_t id) {
+Texture2D GetBlockImage(block_id id) {
     return *(Texture2D*)blocks_get_img(id);
 }
 
@@ -329,13 +329,14 @@ Vector3 MeasureText3D(Font font, const char* text, float fontSize, float fontSpa
     
     return vec;
 #endif
-    
+    Vector3 todo = {0};
+    return todo;
 }
 
 
 Color GenerateRandomColor(float s, float v) {
     const float Phi = 0.618033988749895f; // Golden ratio conjugate
-    float h = GetRandomValue(0, 360);
+    float h = (float)GetRandomValue(0, 360);
     h = fmodf((h + h*Phi), 360.0f);
     return ColorFromHSV(h, s, v);
 }

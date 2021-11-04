@@ -255,9 +255,9 @@ int32_t world_destroy(void) {
 
 #define WORLD_LIBRG_BUFSIZ 2000000
 
-static void world_tracker_update(uint16_t ticker, uint32_t freq, uint8_t radius) {
-    if (world.tracker_update[ticker] > zpl_time_rel_ms()) return;
-    world.tracker_update[ticker] = zpl_time_rel_ms() + freq;
+static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) {
+    if (world.tracker_update[ticker] > (float)zpl_time_rel()) return;
+    world.tracker_update[ticker] = (float)zpl_time_rel() + freq;
     
     profile(PROF_WORLD_WRITE) {
         ecs_iter_t it = ecs_query_iter(world.ecs_update);

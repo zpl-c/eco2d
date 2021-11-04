@@ -37,8 +37,8 @@ static double perlin_smooth_lerp(double x, double y, double t) {
 }
 
 double perlin_noise2d(int32_t seed, double x, double y) {
-    int32_t x_int = floor(x);
-    int32_t y_int = floor(y);
+    int32_t x_int = (int32_t)floor(x);
+    int32_t y_int = (int32_t)floor(y);
     double x_frac = x - x_int;
     double y_frac = y - y_int;
     int32_t s = perlin_noise2_sample(seed, x_int, y_int);
@@ -57,7 +57,7 @@ double perlin_fbm(int32_t seed, double x, double y, double freq, uint32_t octave
     double amp = 1.0;
     double res = 0.0;
     double div = 0.0;
-
+    
     for (uint32_t i=0; i<octaves; i++) {
         div += 256.0 * amp;
         res += perlin_noise2d(seed, xa, ya) * amp;
@@ -65,6 +65,6 @@ double perlin_fbm(int32_t seed, double x, double y, double freq, uint32_t octave
         xa *= 2.0;
         ya *= 2.0;
     }
-
+    
     return res/div;
 }

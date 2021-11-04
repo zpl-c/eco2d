@@ -119,7 +119,7 @@ void flecs_dash_init() {
 }
 
 float game_time() {
-    return zpl_time_rel();
+    return (float)zpl_time_rel();
 }
 
 void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
