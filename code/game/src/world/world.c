@@ -255,7 +255,7 @@ int32_t world_destroy(void) {
 
 #define WORLD_LIBRG_BUFSIZ 2000000
 
-static void world_tracker_update(uint8_t ticker, uint32_t freq, uint8_t radius) {
+static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
     if (world.tracker_update[ticker] > (float)zpl_time_rel()) return;
     world.tracker_update[ticker] = (float)zpl_time_rel() + freq;
     
@@ -301,9 +301,9 @@ int32_t world_update() {
         ecs_progress(world.ecs, 0.0f);
     }
     
-    uint32_t fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
-    uint32_t normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
-    uint32_t slow_ms = WORLD_TRACKER_UPDATE_SLOW_MS;
+    float fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
+    float normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
+    float slow_ms = WORLD_TRACKER_UPDATE_SLOW_MS;
     
     if (game_get_kind() != GAMEKIND_SINGLE) {
         fast_ms = WORLD_TRACKER_UPDATE_MP_FAST_MS;
