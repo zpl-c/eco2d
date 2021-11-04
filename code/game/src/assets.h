@@ -41,12 +41,14 @@ typedef enum {
 
 typedef enum {
     AKIND_TEXTURE,
+    AKIND_ANIM,
     AKIND_SOUND,
     
     FORCE_AKIND_UINT8 = UINT8_MAX
 } asset_kind;
 
 int32_t assets_setup(void);
+int32_t assets_frame(void);
 void assets_destroy(void);
 
 uint16_t assets_find(asset_id id);

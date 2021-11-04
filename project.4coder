@@ -16,6 +16,7 @@ patterns =
     "*.4coder",
     "*.txt",
     "*.cmake",
+    "*.md",
 };
 
 blacklist_patterns =
@@ -26,14 +27,14 @@ blacklist_patterns =
 load_paths =
 {
     {{
-        { ".", .recursive = false, .relative = true },
-        { "code/game", .recursive = true, .relative = true },
-        { "code/common", .recursive = true, .relative = true },
-        { "code/modules", .recursive = true, .relative = true },
-        { "code/vendors", .recursive = true, .relative = true },
-        { "cmake", .recursive = true, .relative = true },
-        { "build/_deps/raylib-src/src", .recursive = true, .relative = true }
-    }, .os = "win"}
+            { ".", .recursive = false, .relative = true },
+            { "code/game", .recursive = true, .relative = true },
+            { "code/common", .recursive = true, .relative = true },
+            { "code/modules", .recursive = true, .relative = true },
+            { "code/vendors", .recursive = true, .relative = true },
+            { "cmake", .recursive = true, .relative = true },
+            { "build/_deps/raylib-src/src", .recursive = true, .relative = true }
+        }, .os = "win"}
 };
 
 command_list =

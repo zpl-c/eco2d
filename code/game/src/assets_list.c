@@ -8,6 +8,7 @@
 
 #define ASSET_SND(asset) ASSET_ENTRY(asset, AKIND_SOUND)
 #define ASSET_TEX(asset) ASSET_ENTRY(asset, AKIND_TEXTURE)
+#define ASSET_ANI(asset) ASSET_ENTRY(asset, AKIND_ANIM)
 
 static asset assets[] = {
     ASSET_TEX(ASSET_EMPTY),
@@ -19,7 +20,7 @@ static asset assets[] = {
     ASSET_TEX(ASSET_DEV),
     ASSET_TEX(ASSET_GROUND),
     ASSET_TEX(ASSET_DIRT),
-    ASSET_TEX(ASSET_WATER),
+    ASSET_ANI(ASSET_WATER),
     ASSET_TEX(ASSET_LAVA),
     ASSET_TEX(ASSET_WALL),
     ASSET_TEX(ASSET_HILL),
