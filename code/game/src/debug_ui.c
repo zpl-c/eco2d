@@ -42,11 +42,18 @@ static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
 
+typedef enum {
+    L_NONE = 0,
+    L_SP,
+    L_MP,
+} limit_kind;
+
 typedef struct debug_item {
     debug_kind kind;
     char const *name;
     float name_width;
     uint8_t skip;
+    limit_kind limit_to;
     
     union {
         union {
@@ -57,7 +64,6 @@ typedef struct debug_item {
         struct {
             struct debug_item *items;
             uint8_t is_collapsed;
-            uint8_t is_sp_only;
         } list;
         
         struct {
@@ -114,8 +120,8 @@ static debug_item items[] = {
                 
                 { .kind = DITEM_END },
             },
-            .is_sp_only = true,
-        }
+        },
+        .limit_to = L_SP,
     },
     {
         .kind = DITEM_LIST,
@@ -142,8 +148,27 @@ static debug_item items[] = {
                 },
                 { .kind = DITEM_END },
             },
-            .is_sp_only = true,
-        }
+        },
+        .limit_to = L_SP,
+    },
+    {
+        .kind = DITEM_LIST,
+        .name = "conn metrics",
+        .list = {
+            .items = (debug_item[]) {
+                { .kind = DITEM_COND, .on_success = CondClientDisconnected },
+                { .kind = DITEM_TEXT, .name = "status", .proc = DrawLiteral, .text = "disconnected" },
+                
+                { .kind = DITEM_COND, .on_success = CondClientConnected },
+                { .kind = DITEM_TEXT, .name = "status", .proc = DrawLiteral, .text = "connected" },
+                
+                { .kind = DITEM_COND, .on_success = CondClientConnected },
+                { .kind = DITEM_TEXT, .proc = DrawNetworkStats },
+                
+                { .kind = DITEM_END },
+            },
+        },
+        .limit_to = L_MP,
     },
     {
         .kind = DITEM_LIST,
@@ -178,9 +203,9 @@ static debug_item items[] = {
                 
                 { .kind = DITEM_END },
             },
-            .is_sp_only = true,
             .is_collapsed = true,
-        }
+        },
+        .limit_to = L_SP,
     },
     {
         .kind = DITEM_LIST,
@@ -210,6 +235,8 @@ static debug_item items[] = {
 debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool is_shadow) {
     is_shadow_rendered = is_shadow;
     for (debug_item *it = list; it->kind != DITEM_END; it += 1) {
+        if (it->limit_to == L_SP && game_get_kind() != GAMEKIND_SINGLE) continue;
+        if (it->limit_to == L_MP && game_get_kind() == GAMEKIND_SINGLE) continue;
         switch (it->kind) {
             case DITEM_GAP: {
                 ypos += DBG_GAP_HEIGHT;
@@ -234,18 +261,20 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 UIDrawText(it->name, xpos, ypos, DBG_FONT_SIZE, color);
                 ypos += DBG_FONT_SPACING;
                 if (it->list.is_collapsed) break;
-                if (it->list.is_sp_only && game_get_kind() != GAMEKIND_SINGLE) break;
+                
                 debug_draw_result res = debug_draw_list(it->list.items, xpos+DBG_LIST_XPOS_OFFSET, ypos, is_shadow);
                 ypos = res.y;
             }break;
             
             case DITEM_TEXT: {
-                char const *text = TextFormat("%s: ", it->name);
-                if (it->name_width == 0) {
-                    it->name_width = (float)UIMeasureText(text, DBG_FONT_SIZE);
+                if (it->name) {
+                    char const *text = TextFormat("%s: ", it->name);
+                    if (it->name_width == 0) {
+                        it->name_width = (float)UIMeasureText(text, DBG_FONT_SIZE);
+                    }
+                    UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
+                    ZPL_ASSERT(it->proc);
                 }
-                UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
-                ZPL_ASSERT(it->proc);
                 
                 debug_draw_result res = it->proc(it, xpos + it->name_width, ypos);
                 ypos = res.y;

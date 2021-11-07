@@ -1,6 +1,7 @@
 #include "debug_ui.h"
 #include "raylib.h"
 #include "platform.h"
+#include "network.h"
 #include "profiler.h"
 
 //~ NOTE(zaklaus): helpers
@@ -16,7 +17,16 @@ static inline debug_draw_result
 DrawColoredText(float xpos, float ypos, char const *text, Color color) {
     ZPL_ASSERT(text);
     UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, color);
-    return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING};
+    
+    char const *p = text;
+    uint8_t newlines = 1;
+    
+    do {
+        if (*p == '\n')
+            ++newlines;
+    } while (*p++ != 0);
+    
+    return (debug_draw_result){.x = xpos + UIMeasureText(text, DBG_FONT_SIZE), .y = ypos + DBG_FONT_SPACING*newlines};
 }
 
 static inline debug_draw_result 
@@ -98,4 +108,32 @@ static inline debug_draw_result
 DrawWorldStepSize(debug_item *it, float xpos, float ypos) {
     (void)it;
     return DrawFormattedText(xpos, ypos, TextFormat("%d ms", (int16_t)(sim_step_size*1000.f)));
+}
+
+// NOTE(zaklaus): network stats
+static inline debug_draw_result 
+DrawNetworkStats(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    
+    network_client_stats s = network_client_fetch_stats();
+    
+#define _kb(x) ((x) / 1024)
+    
+    debug_draw_result r;
+    r = DrawFormattedText(xpos, ypos, TextFormat("dn total: %d kb", _kb(s.incoming_total)));
+    r = DrawFormattedText(xpos, r.y, TextFormat("recv total: %lld kb", _kb(s.total_received)));
+    
+    r = DrawFormattedText(xpos, r.y, TextFormat("up total: %lld kb", _kb(s.outgoing_total)));
+    r = DrawFormattedText(xpos, r.y, TextFormat("sent total: %lld kb", _kb(s.total_sent)));
+    
+    r = DrawFormattedText(xpos, r.y, TextFormat("dn rate: %.02f kb/sec (%.02f kbit/sec)", _kb(s.incoming_bandwidth), _kb(s.incoming_bandwidth * 8.0f)));
+    r = DrawFormattedText(xpos, r.y, TextFormat("up rate: %.02f kb/sec (%.02f kbit/sec)", _kb(s.outgoing_bandwidth), _kb(s.outgoing_bandwidth * 8.0f)));
+    
+    r = DrawFormattedText(xpos, r.y, TextFormat("packets sent: %lld", s.packets_sent));
+    r = DrawFormattedText(xpos, r.y, TextFormat("packets lost: %d (%.02f%%)", s.packets_lost, s.packet_loss));
+    
+    r = DrawFormattedText(xpos, r.y, TextFormat("ping: %d ms", s.ping));
+    
+#undef _kb
+    return r;
 }

@@ -1,6 +1,7 @@
 #include "debug_ui.h"
 #include "world/blocks.h"
 #include "items.h"
+#include "network.h"
 
 void
 ActExitGame(void) {
@@ -268,4 +269,16 @@ CondIsWorldPaused(void) {
 uint8_t
 CondIsWorldRunning(void) {
     return !world_is_paused();
+}
+
+// NOTE(zaklaus): connection metrics
+
+uint8_t
+CondClientConnected(void) {
+    return network_client_is_connected();
+}
+
+uint8_t
+CondClientDisconnected(void) {
+    return !network_client_is_connected();
 }

@@ -98,6 +98,65 @@ int32_t network_client_tick() {
 bool network_client_is_connected() {
     return peer ? enet_peer_get_state(peer) == ENET_PEER_STATE_CONNECTED : false;
 }
+network_client_stats
+network_client_fetch_stats(void) {
+    if (!network_client_is_connected())
+        return (network_client_stats){0};
+    
+    network_client_stats stats = {0};
+    
+    stats.incoming_total = peer->incomingDataTotal;
+    stats.total_received = peer->totalDataReceived;
+    stats.outgoing_total = peer->outgoingDataTotal;
+    stats.total_sent = peer->totalDataSent;
+    
+    static double next_measure = 0.0;
+    static float incoming_bandwidth = 0.0f;
+    static float outgoing_bandwidth = 0.0f;
+    
+    if (next_measure < zpl_time_rel()) {
+#define MAX_RATE_SAMPLES 8
+        static uint64_t last_total_sent = 0;
+        static uint64_t last_total_recv = 0;
+        static uint64_t rolling_counter = 0;
+        static uint64_t sent_buffer[MAX_RATE_SAMPLES] = {0}; 
+        static uint64_t recv_buffer[MAX_RATE_SAMPLES] = {0}; 
+        
+        uint64_t sent_delta = stats.total_sent - last_total_sent;
+        uint64_t recv_delta = stats.total_received - last_total_recv;
+        last_total_sent = stats.total_sent;
+        last_total_recv = stats.total_received;
+        
+        sent_buffer[rolling_counter % MAX_RATE_SAMPLES] = sent_delta;
+        recv_buffer[rolling_counter % MAX_RATE_SAMPLES] = recv_delta;
+        ++rolling_counter;
+        
+        for (int i = 0; i < MAX_RATE_SAMPLES; i++) {
+            stats.incoming_bandwidth += recv_buffer[i];
+            stats.outgoing_bandwidth += sent_buffer[i];
+        }
+        
+        incoming_bandwidth = stats.incoming_bandwidth /= MAX_RATE_SAMPLES;
+        outgoing_bandwidth = stats.outgoing_bandwidth /= MAX_RATE_SAMPLES;
+        
+        next_measure = zpl_time_rel() + 1.0;
+    } else {
+        stats.incoming_bandwidth = incoming_bandwidth;
+        stats.outgoing_bandwidth = outgoing_bandwidth;
+    }
+    
+    stats.packets_sent = peer->totalPacketsSent;
+    stats.packets_lost = peer->totalPacketsLost;
+    
+    if (stats.packets_sent > 0) {
+        stats.packet_loss = stats.packets_lost / (float)stats.packets_sent;
+    }
+    
+    stats.ping = peer->roundTripTime;
+    stats.low_ping = peer->lowestRoundTripTime;
+    
+    return stats;
+}
 
 //~ NOTE(zaklaus): server
 

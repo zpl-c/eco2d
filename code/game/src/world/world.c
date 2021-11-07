@@ -311,9 +311,9 @@ int32_t world_update() {
         slow_ms = WORLD_TRACKER_UPDATE_MP_SLOW_MS;
     }
     
-    world_tracker_update(0, fast_ms, 2);
-    world_tracker_update(1, normal_ms, 4);
-    world_tracker_update(2, slow_ms, 6);
+    world_tracker_update(0, fast_ms, 1);
+    world_tracker_update(1, normal_ms, 2);
+    world_tracker_update(2, slow_ms, 3);
     
     debug_replay_update();
     return 0;

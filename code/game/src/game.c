@@ -152,7 +152,7 @@ void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t
         
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_start(0, 27000);
-            ecs_set_target_fps(world_ecs(), 60);
+            //ecs_set_target_fps(world_ecs(), 60);
         }
     }
     
