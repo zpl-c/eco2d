@@ -37,6 +37,7 @@ void platform_init() {
     renderer_init();
 }
 
+inline static
 void display_conn_status() {
     if (game_is_networked()) {
         if (network_client_is_connected()) {
@@ -60,6 +61,7 @@ uint8_t platform_is_running() {
 
 static game_keystate_data last_input_data = {0};
 
+inline static
 void platform_input_update_input_frame(game_keystate_data data) {
     // NOTE(zaklaus): Test if there are any changes
     if (data.x != last_input_data.x) goto send_data;
@@ -110,7 +112,7 @@ void platform_input() {
         mouse_pos.y -= 0.5f;
         mouse_pos = Vector2Normalize(mouse_pos);
         
-        if (IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
+        if (game_get_kind() == GAMEKIND_SINGLE && IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
             x = mouse_pos.x;
             y = -mouse_pos.y;
         }

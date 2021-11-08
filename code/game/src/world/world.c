@@ -142,27 +142,41 @@ void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writ
     world.writer_proc = writer_proc;
 }
 
-int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
-    if (world.data) {
-        return 0;
+static inline
+world_chunk_setup_grid(void) {
+    for (int i = 0; i < zpl_square(world.chunk_amount); ++i) {
+        ecs_entity_t e = ecs_new(world.ecs, 0);
+        ecs_set(world.ecs, e, Classify, {.id = EKIND_CHUNK });
+        Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
+        librg_entity_track(world.tracker, e);
+        librg_entity_chunk_set(world.tracker, e, i);
+        librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
+        world.chunk_mapping[i] = e;
+        world.block_mapping[i] = zpl_malloc(sizeof(block_id)*zpl_square(world.chunk_size));
+        world.outer_block_mapping[i] = zpl_malloc(sizeof(block_id)*zpl_square(world.chunk_size));
+        chunk->id = i;
+        chunk->is_dirty = false;
+        
+        for (int y = 0; y < world.chunk_size; y += 1) {
+            for (int x = 0; x < world.chunk_size; x += 1) {
+                int chk_x = chunk->x * world.chunk_size;
+                int chk_y = chunk->y * world.chunk_size;
+                
+                block_id *c = &world.block_mapping[i][(y*world.chunk_size)+x];
+                *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
+                
+                c = &world.outer_block_mapping[i][(y*world.chunk_size)+x];
+                *c = world.outer_data[(chk_y+y)*world.dim + (chk_x+x)];
+            }
+        }
     }
+}
+
+static inline 
+void world_configure_tracker(void) {
+    world.tracker = librg_world_create();
     
-    world.is_paused = false;
-    world.seed = seed;
-    world.chunk_size = chunk_size;
-    world.chunk_amount = chunk_amount;
-    
-    world.dim = (world.chunk_size * world.chunk_amount);
-    world.size = world.dim * world.dim;
-    
-    if (world.tracker == NULL) {
-        world.tracker = librg_world_create();
-    }
-    
-    if (world.tracker == NULL) {
-        zpl_printf("[ERROR] An error occurred while trying to create a server world.\n");
-        return WORLD_ERROR_TRACKER_FAILED;
-    }
+    ZPL_ASSERT_MSG(world.tracker, "[ERROR] An error occurred while trying to create a server world.");
     
     /* config our world grid */
     librg_config_chunksize_set(world.tracker, WORLD_BLOCK_SIZE * world.chunk_size, WORLD_BLOCK_SIZE * world.chunk_size, 0);
@@ -172,69 +186,74 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
     librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
-    
+}
+
+static inline
+void world_init_worldgen_data(void) {
     world.data = zpl_malloc(sizeof(block_id)*world.size);
     world.outer_data = zpl_malloc(sizeof(block_id)*world.size);
     
-    if (!world.data || !world.outer_data) {
-        return WORLD_ERROR_OUTOFMEM;
-    }
-    
+    ZPL_ASSERT(world.data && world.outer_data);
+}
+
+static inline
+void world_setup_ecs(void) {
     world.ecs = ecs_init();
     
     ECS_IMPORT(world.ecs, Components);
     ECS_IMPORT(world.ecs, Systems);
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
-    world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(chunk_amount));
-    world.block_mapping = zpl_malloc(sizeof(block_id*)*zpl_square(chunk_amount));
-    world.outer_block_mapping = zpl_malloc(sizeof(block_id*)*zpl_square(chunk_amount));
+}
+
+static inline
+void world_init_mapping(void) {
+    world.chunk_mapping = zpl_malloc(sizeof(ecs_entity_t)*zpl_square(world.chunk_amount));
+    world.block_mapping = zpl_malloc(sizeof(block_id*)*zpl_square(world.chunk_amount));
+    world.outer_block_mapping = zpl_malloc(sizeof(block_id*)*zpl_square(world.chunk_amount));
     world_snapshot_init(&streamer_snapshot, zpl_heap());
-    
+}
+
+static inline
+void world_generate_instance(void) {
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
     
     for (int i = 0; i < zpl_square(world.dim); ++i) {
         if (world.data[i] == 0) {
             ZPL_PANIC("Worldgen failure! Block %d is unset!\n", i);
-            return -1;
+            return;
         }
     }
-    
-    for (int i = 0; i < zpl_square(world.chunk_amount); ++i) {
-        ecs_entity_t e = ecs_new(world.ecs, 0);
-        ecs_set(world.ecs, e, Classify, {.id = EKIND_CHUNK });
-        Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
-        librg_entity_track(world.tracker, e);
-        librg_entity_chunk_set(world.tracker, e, i);
-        librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
-        world.chunk_mapping[i] = e;
-        world.block_mapping[i] = zpl_malloc(sizeof(block_id)*zpl_square(chunk_size));
-        world.outer_block_mapping[i] = zpl_malloc(sizeof(block_id)*zpl_square(chunk_size));
-        chunk->id = i;
-        chunk->is_dirty = false;
-        
-        for (int y = 0; y < chunk_size; y += 1) {
-            for (int x = 0; x < chunk_size; x += 1) {
-                int chk_x = chunk->x * chunk_size;
-                int chk_y = chunk->y * chunk_size;
-                
-                block_id *c = &world.block_mapping[i][(y*chunk_size)+x];
-                *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
-                
-                c = &world.outer_block_mapping[i][(y*chunk_size)+x];
-                *c = world.outer_data[(chk_y+y)*world.dim + (chk_x+x)];
-            }
-        }
-    }
-    
+}
+
+static inline
+void world_free_worldgen_data(void) {
     zpl_mfree(world.data);
     zpl_mfree(world.outer_data);
     world.data = NULL;
     world.outer_data = NULL;
+}
+
+int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
+    world.is_paused = false;
+    world.seed = seed;
+    world.chunk_size = chunk_size;
+    world.chunk_amount = chunk_amount;
+    
+    world.dim = (world.chunk_size * world.chunk_amount);
+    world.size = world.dim * world.dim;
+    
+    world_configure_tracker();
+    world_setup_ecs();
+    world_init_worldgen_data();
+    world_generate_instance();
+    world_init_mapping();
+    world_chunk_setup_grid();
+    world_free_worldgen_data();
     
     zpl_printf("[INFO] Created a new server world\n");
     
-    return world_build_status;
+    return WORLD_ERROR_NONE;
 }
 
 int32_t world_destroy(void) {

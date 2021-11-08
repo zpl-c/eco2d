@@ -120,10 +120,7 @@ DrawNetworkStats(debug_item *it, float xpos, float ypos) {
 #define _kb(x) ((x) / 1024)
     
     debug_draw_result r;
-    r = DrawFormattedText(xpos, ypos, TextFormat("dn total: %d kb", _kb(s.incoming_total)));
-    r = DrawFormattedText(xpos, r.y, TextFormat("recv total: %lld kb", _kb(s.total_received)));
-    
-    r = DrawFormattedText(xpos, r.y, TextFormat("up total: %lld kb", _kb(s.outgoing_total)));
+    r = DrawFormattedText(xpos, ypos, TextFormat("recv total: %lld kb", _kb(s.total_received)));
     r = DrawFormattedText(xpos, r.y, TextFormat("sent total: %lld kb", _kb(s.total_sent)));
     
     r = DrawFormattedText(xpos, r.y, TextFormat("dn rate: %.02f kb/sec (%.02f kbit/sec)", _kb(s.incoming_bandwidth), _kb(s.incoming_bandwidth * 8.0f)));
