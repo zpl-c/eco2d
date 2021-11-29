@@ -119,6 +119,7 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
 }
 
 void renderer_draw_v0(void) {
+    render_camera.offset = (Vector2){(float)(screenWidth >> 1), (float)(screenHeight >> 1)};
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, GetFrameTime()*2.9978f);
     camera_update();
     

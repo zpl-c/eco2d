@@ -27,7 +27,7 @@ static bool request_shutdown;
 
 void platform_init() {
     InitWindow(screenWidth, screenHeight, "eco2d");
-    SetWindowState(FLAG_WINDOW_UNDECORATED|FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
+    SetWindowState(/*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
     
     screenWidth = (uint16_t)GetScreenWidth();
     screenHeight = (uint16_t)GetScreenHeight();
@@ -169,6 +169,9 @@ void platform_input() {
 }
 
 void platform_render() {
+    screenWidth = (uint16_t)GetScreenWidth();
+    screenHeight = (uint16_t)GetScreenHeight();
+    
     profile(PROF_ENTITY_LERP) {
         game_world_view_active_entity_map(lerp_entity_positions);
         game_world_view_active_entity_map(do_entity_fadeinout);
