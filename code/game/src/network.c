@@ -53,7 +53,7 @@ int32_t network_client_connect(const char *hostname, uint16_t port) {
 }
 
 int32_t network_client_disconnect() {
-    enet_peer_disconnect_now(peer, 0);
+    enet_peer_disconnect(peer, 0);
     enet_host_destroy(host);
     
     librg_world_destroy(world);
