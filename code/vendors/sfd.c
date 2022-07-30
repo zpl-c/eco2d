@@ -89,7 +89,7 @@ static HWND find_main_window() {
   FindMainWindowInfo info = {
     .process_id = GetCurrentProcessId()
   };
-  EnumWindows(find_main_window_callback, (LPARAM)&info);
+  EnumWindows((WNDENUMPROC)find_main_window_callback, (LPARAM)&info);
   return info.handle_root;
 }
 
