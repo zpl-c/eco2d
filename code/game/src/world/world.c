@@ -294,7 +294,7 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
                     librg_entity_radius_set(world_tracker(), it.entities[i], radius);
                 }
                 // TODO(zaklaus): push radius once librg patch comes in
-                int32_t result = librg_world_write(world_tracker(), it.entities[i], buffer, &datalen, NULL);
+                int32_t result = librg_world_write(world_tracker(), it.entities[i], radius, buffer, &datalen, NULL);
 
                 if (result > 0) {
                     zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
@@ -552,7 +552,7 @@ int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) 
     static int64_t ents[UINT16_MAX];
     *ents_len = UINT16_MAX;
     librg_entity_radius_set(world.tracker, e, radius);
-    librg_world_query(world.tracker, e, ents, ents_len);
+    librg_world_query(world.tracker, e, radius, ents, ents_len);
     return ents;
 }
 
