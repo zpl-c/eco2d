@@ -289,11 +289,6 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
             for (int i = 0; i < it.count; i++) {
                 size_t datalen = WORLD_LIBRG_BUFSIZ;
 
-                // TODO(zaklaus): SUPER TEMPORARY HOT !!! simulate variable radius queries
-                {
-                    librg_entity_radius_set(world_tracker(), it.entities[i], radius);
-                }
-                // TODO(zaklaus): push radius once librg patch comes in
                 int32_t result = librg_world_write(world_tracker(), it.entities[i], radius, buffer, &datalen, NULL);
 
                 if (result > 0) {
