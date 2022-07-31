@@ -31,7 +31,7 @@ static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
     uint32_t ok = pkt_header_decode(&header, data, datalen);
     header.udata = udata;
-    
+
     if (ok && header.ok) {
         return pkt_handlers[header.id].handler(&header) >= 0;
     } else {
@@ -66,7 +66,7 @@ static WORLD_PKT_WRITER(mp_cli_pkt_writer) {
 
 void world_viewers_init(uint32_t num_viewers) {
     zpl_buffer_init(world_viewers, zpl_heap(), num_viewers);
-    
+
     for (uint32_t i = 0; i < num_viewers; i++) {
         zpl_buffer_append(world_viewers, world_view_create(i));
     }
@@ -113,7 +113,7 @@ void flecs_dash_init() {
 #if 0
     ECS_IMPORT(world_ecs(), FlecsDash);
     ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
-    
+
     ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
 #endif
 }
@@ -122,40 +122,48 @@ float game_time() {
     return (float)zpl_time_rel();
 }
 
-void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
+void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
     game_mode = play_mode;
-    
+
+#ifndef _DEBUG
+    const char *host_ip = "lab.zakto.pw";
+#else
+    const char *host_ip = "127.0.0.1";
+#endif
+
+    uint16_t host_port = (port > 0) ? port : 27000;
+
+    if (ip != NULL) {
+        host_ip = ip;
+    }
+
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_init();
-        
+
         world_viewers_init(num_viewers);
         active_viewer = &world_viewers[0];
         camera_reset();
     }
-    
+
     if (game_mode != GAMEKIND_SINGLE) {
         network_init();
     }
-    
+
     if (game_mode == GAMEKIND_CLIENT) {
         world_setup_pkt_handlers(pkt_reader, mp_cli_pkt_writer);
-#ifndef _DEBUG
-        network_client_connect("lab.zakto.pw", 27000);
-#else
-        network_client_connect("127.0.0.1", 27000);
-#endif
+        network_client_connect(host_ip, host_port);
     } else {
         stdcpp_set_os_api();
         world_setup_pkt_handlers(pkt_reader, game_mode == GAMEKIND_SINGLE ? sp_pkt_writer : mp_pkt_writer);
         world_init(seed, chunk_size, chunk_amount);
         if (is_dash_enabled) flecs_dash_init();
-        
+
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_start(0, 27000);
             //ecs_set_target_fps(world_ecs(), 60);
         }
     }
-    
+
     if (game_mode == GAMEKIND_SINGLE) {
         for (uint32_t i = 0; i < num_viewers; i++) {
             pkt_00_init_send(i);
@@ -168,24 +176,24 @@ int8_t game_is_networked() {
 }
 
 void game_shutdown() {
-    
+
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_disconnect();
     } else {
         world_destroy();
-        
+
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_stop();
         }
     }
-    
+
     if (game_mode != GAMEKIND_SINGLE) {
         network_destroy();
     }
-    
+
     if (game_mode != GAMEKIND_HEADLESS) {
         world_viewers_destroy();
-        
+
         // TODO(zaklaus): crashes on exit
         //platform_shutdown();
     }
@@ -205,13 +213,13 @@ void game_input() {
     }
 }
 
-void game_update() { 
+void game_update() {
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_tick();
     }
     else {
         world_update();
-        
+
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_tick();
         }

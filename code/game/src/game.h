@@ -10,7 +10,7 @@ typedef enum {
     FORCE_GAMEKIND_UINT8 = UINT8_MAX
 } game_kind;
 
-void game_init(game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled);
+void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled);
 void game_shutdown();
 void game_request_close();
 uint8_t game_is_running();
