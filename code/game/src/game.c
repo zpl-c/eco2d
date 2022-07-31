@@ -23,6 +23,7 @@
 #include "packets/pkt_01_welcome.h"
 
 static uint8_t game_mode;
+static uint8_t game_should_close;
 
 static world_view *world_viewers;
 static world_view *active_viewer;
@@ -124,6 +125,7 @@ float game_time() {
 
 void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
     game_mode = play_mode;
+    game_should_close = false;
 
 #ifndef _DEBUG
     const char *host_ip = "lab.zakto.pw";
@@ -200,7 +202,11 @@ void game_shutdown() {
 }
 
 uint8_t game_is_running() {
-    return game_mode == GAMEKIND_HEADLESS || platform_is_running();
+    uint8_t is_running = !game_should_close;
+    if (game_mode != GAMEKIND_HEADLESS) {
+        is_running = platform_is_running();
+    }
+    return is_running;
 }
 
 game_kind game_get_kind(void) {
@@ -237,5 +243,8 @@ void game_action_send_keystate(game_keystate_data *data) {
 }
 
 void game_request_close() {
-    platform_request_close();
+    game_should_close = true;
+    if (game_mode != GAMEKIND_HEADLESS) {
+        platform_request_close();
+    }
 }
