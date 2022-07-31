@@ -13,4 +13,4 @@
 #define defer(s,e) for ( \
 uint32_t defer_var = (s, 0); \
 !defer_var; \
-(defer_var += 1), e) \
+(defer_var += 1), e)
