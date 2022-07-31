@@ -14,7 +14,7 @@ ActSpawnCar(void) {
     ecs_entity_t plr = camera_get().ent_id;
     
     Position const* origin = ecs_get(world_ecs(), plr, Position);
-    Position * dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+    Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     
     debug_replay_special_action(RPKIND_SPAWN_CAR);
@@ -26,7 +26,7 @@ ActSpawnIcemaker(void) {
     ecs_entity_t plr = camera_get().ent_id;
     
     Position const* origin = ecs_get(world_ecs(), plr, Position);
-    Position * dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+    Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     
     debug_replay_special_action(RPKIND_SPAWN_ICEMAKER_ITEM);
@@ -39,16 +39,16 @@ ActSpawnCirclingDriver(void) {
     ecs_entity_t e = entity_spawn(EKIND_DEMO_NPC);
     
     Position const *origin = ecs_get(world_ecs(), plr, Position);
-    Position *veh_dest = ecs_get_mut(world_ecs(), ve, Position, NULL);
-    Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+    Position *veh_dest = ecs_get_mut(world_ecs(), ve, Position);
+    Position *dest = ecs_get_mut(world_ecs(), e, Position);
     *veh_dest = *origin;
     *dest = *origin;
     
-    Input *input = ecs_get_mut(world_ecs(), e, Input, NULL);
+    Input *input = ecs_get_mut(world_ecs(), e, Input);
     zpl_zero_item(input);
     input->x = input->y = 1.0f;
     
-    Vehicle *veh = ecs_get_mut(world_ecs(), ve, Vehicle, NULL);
+    Vehicle *veh = ecs_get_mut(world_ecs(), ve, Vehicle);
     veh->seats[0] = e;
     
     ecs_set(world_ecs(), e, IsInVehicle, { .veh = ve });
@@ -209,12 +209,12 @@ ActSpawnDemoNPCs(void) {
     
     for (uint32_t i = 0; i < 1000; i++) {
         uint64_t e = entity_spawn(EKIND_DEMO_NPC);
-        ecs_add(world_ecs(), e, EcsDemoNPC);
-        Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+        ecs_add(world_ecs(), e, DemoNPC);
+        Position *pos = ecs_get_mut(world_ecs(), e, Position);
         pos->x=(float)(rand() % world_dim());
         pos->y=(float)(rand() % world_dim());        
         
-        Velocity *v = ecs_get_mut(world_ecs(), e, Velocity, NULL);
+        Velocity *v = ecs_get_mut(world_ecs(), e, Velocity);
         v->x = (float)((rand()%3-1) * 10);
         v->y = (float)((rand()%3-1) * 10);
         

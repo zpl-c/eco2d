@@ -3,9 +3,7 @@
 #include "librg.h"
 #include "packet.h"
 #include "flecs/flecs.h"
-#include "flecs/flecs_meta.h"
 #include "world/blocks.h"
-#include "modules/components.h"
 
 #define WORLD_ERROR_NONE                +0x0000
 #define WORLD_ERROR_OUTOFMEM            -0x0001

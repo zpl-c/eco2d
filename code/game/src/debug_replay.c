@@ -160,7 +160,7 @@ void debug_replay_run(void) {
     Position const *p1 = ecs_get(world_ecs(), plr, Position);
     
     mime = entity_spawn(EKIND_MACRO_BOT);
-    Position *pos = ecs_get_mut(world_ecs(), mime, Position, NULL);
+    Position *pos = ecs_get_mut(world_ecs(), mime, Position);
     *pos = *p1;
     
     ecs_set(world_ecs(), mime, Input, {0});
@@ -184,7 +184,7 @@ void debug_replay_update(void) {
     
     switch (r->kind) {
         case RPKIND_KEY: {
-            Input *i = ecs_get_mut(world_ecs(), mime, Input, NULL);
+            Input *i = ecs_get_mut(world_ecs(), mime, Input);
             i->x = r->pkt.x;
             i->y = r->pkt.y;
             i->mx = r->pkt.mx;
@@ -207,7 +207,7 @@ void debug_replay_update(void) {
             ecs_entity_t e = vehicle_spawn();
             
             Position const *origin = ecs_get(world_ecs(), mime, Position);
-            Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+            Position *dest = ecs_get_mut(world_ecs(), e, Position);
             *dest = *origin;
             
             zpl_array_append(temp_actors, e);

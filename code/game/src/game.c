@@ -11,9 +11,6 @@
 #include "camera.h"
 #include "profiler.h"
 
-#include "flecs/flecs.h"
-//#include "flecs/flecs_dash.h"
-//#include "flecs/flecs_systems_civetweb.h"
 #include "flecs/flecs_os_api_stdcpp.h"
 
 #include "modules/components.h"
@@ -117,12 +114,7 @@ size_t game_world_view_count(void) {
 }
 
 void flecs_dash_init() {
-#if 0
-    ECS_IMPORT(world_ecs(), FlecsDash);
-    ECS_IMPORT(world_ecs(), FlecsSystemsCivetweb);
-
-    ecs_set(world_ecs(), 0, EcsDashServer, {.port = 27001});
-#endif
+    ecs_singleton_set(world_ecs(), EcsRest, {0});
 }
 
 float game_time() {

@@ -1,7 +1,6 @@
 #include "entity.h"
 #include "entity_view.h"
 #include "flecs/flecs.h"
-#include "flecs/flecs_meta.h"
 #include "librg.h"
 #include "world/world.h"
 
@@ -16,8 +15,7 @@ uint64_t entity_spawn(uint16_t class_id) {
     
     if (class_id != EKIND_SERVER) {
         ecs_set(world_ecs(), e, Velocity, {0});
-        ecs_add(world_ecs(), e, Walking);
-        Position *pos = ecs_get_mut(world_ecs(), e, Position, NULL);
+        Position *pos = ecs_get_mut(world_ecs(), e, Position);
 #if 1
         pos->x=(float)(rand() % world_dim());
         pos->y=(float)(rand() % world_dim());

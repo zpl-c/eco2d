@@ -27,7 +27,7 @@ static inline asset_id item_fix_kind(asset_id id) {
 uint64_t item_spawn(asset_id kind, uint32_t qty) {
     ecs_entity_t e = entity_spawn(EKIND_ITEM);
     
-    ItemDrop *d = ecs_get_mut(world_ecs(), e, ItemDrop, NULL);
+    ItemDrop *d = ecs_get_mut(world_ecs(), e, ItemDrop);
     *d = (ItemDrop){
         .kind = item_fix_kind(kind),
         .quantity = qty,

@@ -2,7 +2,6 @@
 #include "entity.h"
 #include "entity_view.h"
 #include "flecs/flecs.h"
-#include "flecs/flecs_meta.h"
 #include "librg.h"
 #include "world/world.h"
 
@@ -24,7 +23,6 @@ uint64_t player_spawn(char *name) {
     ecs_set(world_ecs(), e, Input, {0});
     ecs_set(world_ecs(), e, Inventory, {0});
     ecs_set(world_ecs(), e, Health, {.hp = PLAYER_MAX_HP, .max_hp = PLAYER_MAX_HP});
-    ecs_add(world_ecs(), e, Player);
     
     librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     

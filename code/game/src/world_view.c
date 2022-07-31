@@ -6,6 +6,8 @@
 #include "world/world.h"
 #include "game.h"
 
+#include <math.h>
+
 int32_t tracker_read_remove(librg_world *w, librg_event *e) {
     int64_t entity_id = librg_event_entity_get(w, e);
     world_view *view = (world_view*)librg_world_userdata_get(w);

@@ -1,94 +1,85 @@
 #pragma once
 #include "flecs/flecs.h"
-#include "flecs/flecs_meta.h"
-
-//NOTE(zaklaus): custom macro to define meta components outside the current scope
-
-#ifndef ECS_META_DEFINE
-#define ECS_META_DEFINE(world, T)\
-ECS_COMPONENT_DEFINE(world, T);\
-ecs_new_meta(world, ecs_entity(T), &__##T##__);
-#endif
 
 #ifndef ecs_get_mut_if
 #define ecs_get_mut_if(world, entity, component)\
-(ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component, NULL) : NULL)
+(ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component) : NULL)
 #endif
 
 #define ITEMS_INVENTORY_SIZE 9
 
-ECS_STRUCT(Vector2D, {
-               float x;
-               float y;
-           });
+typedef struct {
+    float x;
+    float y;
+} Vector2D;
 
-ECS_STRUCT(Chunk, {
-               uint32_t id;
-               int16_t x;
-               int16_t y;
-               uint8_t is_dirty;
-           });
+typedef struct {
+    uint32_t id;
+    int16_t x;
+    int16_t y;
+    uint8_t is_dirty;
+} Chunk;
 
-ECS_STRUCT(Drawable, {
-               uint16_t id;
-           });
+typedef struct {
+    uint16_t id;
+} Drawable;
 
-ECS_ALIAS(Vector2D, Position);
-ECS_ALIAS(Vector2D, Velocity);
+typedef Vector2D Position;
+typedef Vector2D Velocity;
 
-ECS_STRUCT(Input, {
-               float x;
-               float y;
-               float mx;
-               float my;
-               uint8_t use;
-               uint8_t sprint;
-               uint8_t ctrl;
-               uint8_t is_blocked;
-               
-               // NOTE(zaklaus): inventory
-               uint8_t selected_item;
-               uint8_t drop;
-               uint8_t swap;
-               uint8_t swap_from;
-               uint8_t swap_to;
-               
-               // NOTE(zaklaus): build mode
-               uint8_t num_placements;
-               float placements_x[20];
-               float placements_y[20];
-           });
+typedef struct {
+    float x;
+    float y;
+    float mx;
+    float my;
+    uint8_t use;
+    uint8_t sprint;
+    uint8_t ctrl;
+    uint8_t is_blocked;
+    
+    // NOTE(zaklaus): inventory
+    uint8_t selected_item;
+    uint8_t drop;
+    uint8_t swap;
+    uint8_t swap_from;
+    uint8_t swap_to;
+    
+    // NOTE(zaklaus): build mode
+    uint8_t num_placements;
+    float placements_x[20];
+    float placements_y[20];
+} Input;
 
-ECS_STRUCT(ClientInfo, {
-               uintptr_t peer;
-               uint16_t view_id;
-               uint8_t active;
-           });
+typedef struct {
+    uintptr_t peer;
+    uint16_t view_id;
+    uint8_t active;
+} ClientInfo;
 
-ECS_STRUCT(Health, {
-               float hp;
-               float max_hp;
-               
-               //NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
-               float pain_time;
-               float heal_time;
-           });
+typedef struct {
+    float hp;
+    float max_hp;
+    
+    //NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
+    float pain_time;
+    float heal_time;
+} Health;
 
-ECS_STRUCT(Classify, {
-               uint16_t id;
-           });
+typedef struct {
+    uint16_t id;
+} Classify;
 
-ECS_STRUCT(Vehicle, {
-               uint64_t seats[4];
-               
-               float force;
-               float heading;
-               float steer;
-               float wheel_base;
-               
-               float speed;
-               float reverse_speed;
-           });
+typedef struct {
+    uint64_t seats[4];
+    
+    float force;
+    float heading;
+    float steer;
+    float wheel_base;
+    
+    float speed;
+    float reverse_speed;
+} Vehicle;
 
 typedef struct {
     ecs_entity_t veh;
@@ -105,73 +96,21 @@ typedef struct {
     float pickup_time;
 } Inventory;
 
-ECS_COMPONENT_EXTERN(Chunk);
-ECS_COMPONENT_EXTERN(Position);
-ECS_COMPONENT_EXTERN(Vector2D);
-ECS_COMPONENT_EXTERN(Drawable);
-ECS_COMPONENT_EXTERN(Input);
-ECS_COMPONENT_EXTERN(Velocity);
-ECS_COMPONENT_EXTERN(ClientInfo);
-ECS_COMPONENT_EXTERN(Health);
-ECS_COMPONENT_EXTERN(Classify);
-ECS_COMPONENT_EXTERN(Vehicle);
-ECS_COMPONENT_EXTERN(IsInVehicle);
-ECS_COMPONENT_EXTERN(ItemDrop);
-ECS_COMPONENT_EXTERN(Inventory);
-ECS_TAG_EXTERN(EcsActor);
-ECS_TAG_EXTERN(EcsDemoNPC);
-ECS_TYPE_EXTERN(Player);
-ECS_TYPE_EXTERN(Movement);
-ECS_TYPE_EXTERN(Walking);
-ECS_TYPE_EXTERN(Flying);
-ECS_TYPE_EXTERN(EcsClient);
-// NOTE(zaklaus): @1 EXTERN
+typedef struct {char _unused;} DemoNPC;
 
-typedef struct {
-    ECS_DECLARE_COMPONENT(Chunk);
-    ECS_DECLARE_COMPONENT(Position);
-    ECS_DECLARE_COMPONENT(Vector2D);
-    ECS_DECLARE_COMPONENT(Drawable);
-    ECS_DECLARE_COMPONENT(Input);
-    ECS_DECLARE_COMPONENT(Velocity);
-    ECS_DECLARE_COMPONENT(ClientInfo);
-    ECS_DECLARE_COMPONENT(Health);
-    ECS_DECLARE_COMPONENT(Classify);
-    ECS_DECLARE_COMPONENT(Vehicle);
-    ECS_DECLARE_COMPONENT(IsInVehicle);
-    ECS_DECLARE_COMPONENT(ItemDrop);
-    ECS_DECLARE_COMPONENT(Inventory);
-    ECS_DECLARE_ENTITY(EcsActor);
-    ECS_DECLARE_ENTITY(EcsDemoNPC);
-    ECS_DECLARE_TYPE(Player);
-    ECS_DECLARE_TYPE(Builder);
-    ECS_DECLARE_TYPE(Movement);
-    ECS_DECLARE_ENTITY(Walking);
-    ECS_DECLARE_ENTITY(Flying);
-    // NOTE(zaklaus): @2 DECLARE
-} Components;
-
-#define ComponentsImportHandles(handles)\
-ECS_IMPORT_COMPONENT(handles, Chunk);\
-ECS_IMPORT_COMPONENT(handles, Vector2D);\
-ECS_IMPORT_COMPONENT(handles, Position);\
-ECS_IMPORT_COMPONENT(handles, Drawable);\
-ECS_IMPORT_COMPONENT(handles, Input);\
-ECS_IMPORT_COMPONENT(handles, Velocity);\
-ECS_IMPORT_COMPONENT(handles, ClientInfo);\
-ECS_IMPORT_COMPONENT(handles, Health);\
-ECS_IMPORT_COMPONENT(handles, Classify);\
-ECS_IMPORT_COMPONENT(handles, Vehicle);\
-ECS_IMPORT_COMPONENT(handles, IsInVehicle);\
-ECS_IMPORT_COMPONENT(handles, ItemDrop);\
-ECS_IMPORT_COMPONENT(handles, Inventory);\
-ECS_IMPORT_TYPE(handles, Player);\
-ECS_IMPORT_TYPE(handles, Builder);\
-ECS_IMPORT_TYPE(handles, Movement);\
-ECS_IMPORT_ENTITY(handles, EcsActor);\
-ECS_IMPORT_ENTITY(handles, EcsDemoNPC);\
-ECS_IMPORT_ENTITY(handles, Walking);\
-ECS_IMPORT_ENTITY(handles, Flying);\
-// NOTE(zaklaus): @3 IMPORT
+extern ECS_COMPONENT_DECLARE(Vector2D);
+extern ECS_COMPONENT_DECLARE(Position);
+extern ECS_COMPONENT_DECLARE(Velocity);
+extern ECS_COMPONENT_DECLARE(Chunk);
+extern ECS_COMPONENT_DECLARE(Drawable);
+extern ECS_COMPONENT_DECLARE(Input);
+extern ECS_COMPONENT_DECLARE(ClientInfo);
+extern ECS_COMPONENT_DECLARE(Health);
+extern ECS_COMPONENT_DECLARE(Classify);
+extern ECS_COMPONENT_DECLARE(Vehicle);
+extern ECS_COMPONENT_DECLARE(IsInVehicle);
+extern ECS_COMPONENT_DECLARE(ItemDrop);
+extern ECS_COMPONENT_DECLARE(Inventory);
+extern ECS_COMPONENT_DECLARE(DemoNPC);
 
 void ComponentsImport(ecs_world_t *ecs);

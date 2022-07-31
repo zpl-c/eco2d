@@ -28,7 +28,7 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     uint64_t peer_id = (uint64_t)header->udata;
     uint64_t ent_id = player_spawn(NULL);
 
-    Position *pos = ecs_get_mut(world_ecs(), ent_id, Position, NULL);
+    Position *pos = ecs_get_mut(world_ecs(), ent_id, Position);
 
 #if 0
     pos->x = world_dim()/2.0f + rand()%15*15.0f;

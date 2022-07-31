@@ -3,8 +3,6 @@
 #include "assets.h"
 #include "items.h"
 
-#include "modules/components.h"
-
 #define ZPL_PICO
 #include "zpl.h"
 

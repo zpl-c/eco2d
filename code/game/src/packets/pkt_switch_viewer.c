@@ -30,10 +30,10 @@ int32_t pkt_switch_viewer_handler(pkt_header *header) {
     if (!world_entity_valid(e))
         return 1;
 
-    ecs_iter_t it = ecs_query_iter(world_ecs_clientinfo());
+    ecs_iter_t it = ecs_query_iter(world_ecs(), world_ecs_clientinfo());
 
     while (ecs_query_next(&it)) {
-        ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+        ClientInfo *p = ecs_field(&it, ClientInfo, 1);
 
         for (int i = 0; i < it.count; i++) {
             if (p[i].peer == (uintptr_t)peer_id && p[i].view_id == table.view_id) {

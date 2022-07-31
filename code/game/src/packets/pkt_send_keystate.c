@@ -38,7 +38,7 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
     if (!world_entity_valid(e))
         return 1;
     
-    Input *i = ecs_get_mut(world_ecs(), e, Input, NULL);
+    Input *i = ecs_get_mut(world_ecs(), e, Input);
     if (i && !i->is_blocked) {
         i->x = zpl_clamp(table.x, -1.0f, 1.0f);
         i->y = zpl_clamp(table.y, -1.0f, 1.0f);

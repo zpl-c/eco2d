@@ -23,9 +23,9 @@ static inline float physics_correction(float x, float vx, float bounce) {
 
 void IntegratePositions(ecs_iter_t *it) {
     profile(PROF_INTEGRATE_POS) {
-        Position *p = ecs_column(it, Position, 1);
-        Velocity *v = ecs_column(it, Velocity, 2);
-        
+        Position *p = ecs_field(it, Position, 1);
+        Velocity *v = ecs_field(it, Velocity, 2);
+
         for (int i = 0; i < it->count; i++) {
             // NOTE(zaklaus): world bounds
             {
@@ -33,7 +33,7 @@ void IntegratePositions(ecs_iter_t *it) {
                 p[i].x = zpl_clamp(p[i].x, 0, w-1);
                 p[i].y = zpl_clamp(p[i].y, 0, w-1);
             }
-            
+
 #if PHY_BLOCK_COLLISION==1
             // NOTE(zaklaus): X axis
             {
@@ -44,7 +44,7 @@ void IntegratePositions(ecs_iter_t *it) {
                     v[i].x = physics_correction(lookup.ox, v[i].x, bounce);
                 }
             }
-            
+
             // NOTE(zaklaus): Y axis
             {
                 world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y+PHY_LOOKAHEAD(v[i].y));
@@ -55,10 +55,10 @@ void IntegratePositions(ecs_iter_t *it) {
                 }
             }
 #endif
-            
+
             p[i].x += v[i].x * safe_dt(it);
             p[i].y += v[i].y * safe_dt(it);
-            
+
             {
                 debug_v2 a = {p[i].x, p[i].y};
                 debug_v2 b = {p[i].x+v[i].x, p[i].y+v[i].y};
@@ -69,11 +69,11 @@ void IntegratePositions(ecs_iter_t *it) {
 }
 
 void UpdateTrackerPos(ecs_iter_t *it) {
-    Position *p = ecs_column(it, Position, 1);
-    
+    Position *p = ecs_field(it, Position, 1);
+
     for (int i = 0; i < it->count; i++){
         librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
-        
+
         {
             debug_v2 a = {p[i].x-2.5f, p[i].y-2.5f};
             debug_v2 b = {p[i].x+2.5f, p[i].y+2.5f};
@@ -86,9 +86,9 @@ void UpdateTrackerPos(ecs_iter_t *it) {
 #define HAZARD_BLOCK_DMG 5.0f
 
 void HurtOnHazardBlock(ecs_iter_t *it) {
-    Position *p = ecs_column(it, Position, 1);
-    Health *h = ecs_column(it, Health, 2);
-    
+    Position *p = ecs_field(it, Position, 1);
+    Health *h = ecs_field(it, Health, 2);
+
     for (int i = 0; i < it->count; i++) {
         world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
         if (blocks_get_flags(l.bid) & BLOCK_FLAG_HAZARD) {
@@ -106,8 +106,8 @@ void HurtOnHazardBlock(ecs_iter_t *it) {
 #define HP_REGEN_RECOVERY 15.0f
 
 void RegenerateHP(ecs_iter_t *it) {
-    Health *h = ecs_column(it, Health, 1);
-    
+    Health *h = ecs_field(it, Health, 1);
+
     for (int i = 0; i < it->count; i++) {
         if (h[i].pain_time < 0.0f) {
             if (h[i].heal_time < 0.0f && h[i].hp < h[i].max_hp) {
@@ -124,8 +124,8 @@ void RegenerateHP(ecs_iter_t *it) {
 }
 
 void ResetActivators(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    
+    Input *in = ecs_field(it, Input, 1);
+
     for (int i = 0; i < it->count; i++) {
         in[i].use = false;
         in[i].swap = false;
@@ -135,9 +135,9 @@ void ResetActivators(ecs_iter_t *it) {
 }
 
 void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
-    Position *p = ecs_column(it, Position, 1);
-    Velocity *v = ecs_column(it, Velocity, 2);
-    
+    Position *p = ecs_field(it, Position, 1);
+    Velocity *v = ecs_field(it, Velocity, 2);
+
     for (int i = 0; i < it->count; i++) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.bid), 0.0f, 1.0f);
@@ -160,33 +160,33 @@ void DisableWorldEdit(ecs_iter_t *it) {
 
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
-    
+
     ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
-    ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.EcsDemoNPC);
-    
+    ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.DemoNPC);
+
     ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
     ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
     ECS_SYSTEM(ecs, RegenerateHP, EcsOnUpdate, components.Health);
     ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
-    
+
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
-    
+
     ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, LeaveVehicle, EcsPostUpdate, components.Input, components.IsInVehicle, components.Velocity);
-    
+
     ECS_SYSTEM(ecs, PickItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DropItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, SwapItems, EcsPostUpdate, components.Input, components.Inventory);
     //ECS_SYSTEM(ecs, MergeItems, EcsPostUpdate, components.Position, components.ItemDrop);
     ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
-    
+
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
-    
+
     ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position, components.Velocity);
-    
+
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
-    
+
     ECS_SYSTEM(ecs, DisableWorldEdit, EcsPostUpdate);
-    
+
 }

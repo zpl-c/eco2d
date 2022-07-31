@@ -18,6 +18,8 @@
 #include "game.h"
 #include "player.h"
 
+#include "modules/components.h"
+
 #define NETWORK_UPDATE_DELAY 0.100
 
 static ENetHost *host = NULL;
@@ -218,10 +220,10 @@ int32_t network_server_tick(void) {
 }
 
 void network_server_despawn_viewers(void *peer_id) {
-    ecs_iter_t it = ecs_query_iter(world_ecs_clientinfo());
+    ecs_iter_t it = ecs_query_iter(world_ecs(), world_ecs_clientinfo());
 
     while (ecs_query_next(&it)) {
-        ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+        ClientInfo *p = ecs_field(&it, ClientInfo, 1);
 
         for (int i = 0; i < it.count; i++) {
             if (p[i].peer == (uintptr_t)peer_id) {
@@ -232,10 +234,10 @@ void network_server_despawn_viewers(void *peer_id) {
 }
 
 uint64_t network_server_get_entity(void *peer_id, uint16_t view_id) {
-    ecs_iter_t it = ecs_query_iter(world_ecs_clientinfo());
+    ecs_iter_t it = ecs_query_iter(world_ecs(), world_ecs_clientinfo());
 
     while (ecs_query_next(&it)) {
-        ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+        ClientInfo *p = ecs_field(&it, ClientInfo, 1);
 
         for (int i = 0; i < it.count; i++) {
             if (p[i].peer == (uintptr_t)peer_id && p[i].view_id == view_id) {

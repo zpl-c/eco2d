@@ -2,9 +2,9 @@
 #define PLR_MOVE_SPEED_MULT 1.5f
 
 void MovementImpulse(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    Velocity *v = ecs_column(it, Velocity, 2);
-    Position *p = ecs_column(it, Position, 3);
+    Input *in = ecs_field(it, Input, 1);
+    Velocity *v = ecs_field(it, Velocity, 2);
+    Position *p = ecs_field(it, Position, 3);
     
     for (int i = 0; i < it->count; i++) {
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);

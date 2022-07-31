@@ -8,7 +8,7 @@
 uint64_t vehicle_spawn(void) {    
     ecs_entity_t e = entity_spawn(EKIND_VEHICLE);
     
-    Vehicle *veh = ecs_get_mut(world_ecs(), e, Vehicle, NULL);
+    Vehicle *veh = ecs_get_mut(world_ecs(), e, Vehicle);
     *veh = (Vehicle){
         .wheel_base = 50.0f,
         .speed = 50.0f,

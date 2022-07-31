@@ -3,9 +3,9 @@
 #define VEH_ENTER_RADIUS 45.0f
 
 void LeaveVehicle(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    IsInVehicle *vehp = ecs_column(it, IsInVehicle, 2);
-    Velocity *v = ecs_column(it, Velocity, 3);
+    Input *in = ecs_field(it, Input, 1);
+    IsInVehicle *vehp = ecs_field(it, IsInVehicle, 2);
+    Velocity *v = ecs_field(it, Velocity, 3);
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
@@ -36,8 +36,8 @@ void LeaveVehicle(ecs_iter_t *it) {
 }
 
 void EnterVehicle(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    Position *p = ecs_column(it, Position, 2);
+    Input *in = ecs_field(it, Input, 1);
+    Position *p = ecs_field(it, Position, 2);
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
@@ -87,9 +87,9 @@ void EnterVehicle(ecs_iter_t *it) {
 #define VEHICLE_BRAKE_FORCE 0.84f
 
 void VehicleHandling(ecs_iter_t *it) {
-    Vehicle *veh = ecs_column(it, Vehicle, 1);
-    Position *p = ecs_column(it, Position, 2);
-    Velocity *v = ecs_column(it, Velocity, 3);
+    Vehicle *veh = ecs_field(it, Vehicle, 1);
+    Position *p = ecs_field(it, Position, 2);
+    Velocity *v = ecs_field(it, Velocity, 3);
     
     for (int i = 0; i < it->count; i++) {
         Vehicle *car = &veh[i];
@@ -154,8 +154,8 @@ void VehicleHandling(ecs_iter_t *it) {
             
             // NOTE(zaklaus): Update passenger position
             {
-                Position *p2 = ecs_get_mut(it->world, pe, Position, NULL);
-                Velocity *v2 = ecs_get_mut(it->world, pe, Velocity, NULL);
+                Position *p2 = ecs_get_mut(it->world, pe, Position);
+                Velocity *v2 = ecs_get_mut(it->world, pe, Velocity);
                 *p2 = p[i];
                 *v2 = v[i];
             }
@@ -184,7 +184,7 @@ void VehicleHandling(ecs_iter_t *it) {
 }
 
 void ClearVehicle(ecs_iter_t *it) {
-    Vehicle *veh = ecs_column(it, Vehicle, 1);
+    Vehicle *veh = ecs_field(it, Vehicle, 1);
     
     for (int i = 0; i < it->count; i++) {
         for (int k = 0; k < 4; k++) {

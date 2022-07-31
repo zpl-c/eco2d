@@ -6,8 +6,8 @@
 #define ITEM_ATTRACT_FORCE 0.63f
 
 void PickItem(ecs_iter_t *it) {
-    Position *p = ecs_column(it, Position, 2);
-    Inventory *inv = ecs_column(it, Inventory, 3);
+    Position *p = ecs_field(it, Position, 2);
+    Inventory *inv = ecs_field(it, Inventory, 3);
     
     for (int i = 0; i < it->count; i++) {
         if (inv[i].pickup_time > game_time()) continue;
@@ -17,7 +17,7 @@ void PickItem(ecs_iter_t *it) {
         for (size_t j = 0; j < ents_count; j++) {
             ItemDrop *drop = 0;
             if ((drop = ecs_get_mut_if(it->world, ents[j], ItemDrop))) {
-                Position *p2 = ecs_get_mut(it->world, ents[j], Position, NULL);
+                Position *p2 = ecs_get_mut(it->world, ents[j], Position);
                 
                 float dx = p2->x - p[i].x;
                 float dy = p2->y - p[i].y;
@@ -52,9 +52,9 @@ void PickItem(ecs_iter_t *it) {
 #define ITEM_DROP_MERGER_TIME 6.5f
 
 void DropItem(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    Position *p = ecs_column(it, Position, 2);
-    Inventory *inv = ecs_column(it, Inventory, 3);
+    Input *in = ecs_field(it, Input, 1);
+    Position *p = ecs_field(it, Position, 2);
+    Inventory *inv = ecs_field(it, Inventory, 3);
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].drop) continue;
@@ -77,17 +77,17 @@ void DropItem(ecs_iter_t *it) {
         ecs_entity_t te = item_spawn(item->kind, dropped_count);
         item->quantity -= dropped_count;
         
-        ItemDrop *d = ecs_get_mut(world_ecs(), te, ItemDrop, NULL);
+        ItemDrop *d = ecs_get_mut(world_ecs(), te, ItemDrop);
         *d = (ItemDrop){
             .kind = item->kind,
             .quantity = dropped_count,
             .merger_time = game_time() + ITEM_DROP_MERGER_TIME,
         };
         
-        Position *ipos = ecs_get_mut(it->world, te, Position, NULL);
+        Position *ipos = ecs_get_mut(it->world, te, Position);
         *ipos = p[i];
         
-        Velocity *v = ecs_get_mut(it->world, te, Velocity, NULL);
+        Velocity *v = ecs_get_mut(it->world, te, Velocity);
         v->x = in[i].mx * 800.0f;
         v->y = in[i].my * 800.0f;
         
@@ -101,8 +101,8 @@ void DropItem(ecs_iter_t *it) {
 }
 
 void MergeItems(ecs_iter_t *it) {
-    Position *p = ecs_column(it, Position, 1);
-    ItemDrop *id = ecs_column(it, ItemDrop, 2);
+    Position *p = ecs_field(it, Position, 1);
+    ItemDrop *id = ecs_field(it, ItemDrop, 2);
     
     for (int i = 0; i < it->count; i += 1) {
         ItemDrop *item = &id[i];
@@ -135,8 +135,8 @@ void MergeItems(ecs_iter_t *it) {
 }
 
 void SwapItems(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    Inventory *inv = ecs_column(it, Inventory, 2);
+    Input *in = ecs_field(it, Input, 1);
+    Inventory *inv = ecs_field(it, Inventory, 2);
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].swap) continue;
@@ -183,9 +183,9 @@ void SwapItems(ecs_iter_t *it) {
 }
 
 void UseItem(ecs_iter_t *it) {
-    Input *in = ecs_column(it, Input, 1);
-    Position *p = ecs_column(it, Position, 2);
-    Inventory *inv = ecs_column(it, Inventory, 3);
+    Input *in = ecs_field(it, Input, 1);
+    Position *p = ecs_field(it, Position, 2);
+    Inventory *inv = ecs_field(it, Inventory, 3);
     
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use && !in[i].num_placements) continue;

@@ -147,7 +147,7 @@ void world_chunk_setup_grid(void) {
     for (int i = 0; i < zpl_square(world.chunk_amount); ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
         ecs_set(world.ecs, e, Classify, {.id = EKIND_CHUNK });
-        Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk, NULL);
+        Chunk *chunk = ecs_get_mut(world.ecs, e, Chunk);
         librg_entity_track(world.tracker, e);
         librg_entity_chunk_set(world.tracker, e, i);
         librg_chunk_to_chunkpos(world.tracker, i, &chunk->x, &chunk->y, NULL);
@@ -280,12 +280,12 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
     world.tracker_update[ticker] = (float)zpl_time_rel() + freq;
 
     profile(PROF_WORLD_WRITE) {
-        ecs_iter_t it = ecs_query_iter(world.ecs_update);
+        ecs_iter_t it = ecs_query_iter(world_ecs(), world.ecs_update);
         static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
         world.active_layer_id = ticker;
 
         while (ecs_query_next(&it)) {
-            ClientInfo *p = ecs_column(&it, ClientInfo, 1);
+            ClientInfo *p = ecs_field(&it, ClientInfo, 1);
 
             for (int i = 0; i < it.count; i++) {
                 size_t datalen = WORLD_LIBRG_BUFSIZ;
@@ -468,7 +468,7 @@ void world_chunk_destroy_block(float x, float y, bool drop_item) {
         if (item_find(item_asset) == ASSET_INVALID) return;
         uint64_t e = item_spawn(item_asset, 1);
 
-        Position *dest = ecs_get_mut(world_ecs(), e, Position, NULL);
+        Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = x;
         dest->y = y;
     }
@@ -525,15 +525,13 @@ block_id *world_chunk_get_blocks(int64_t id) {
 
 void world_chunk_mark_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
-    ZPL_ASSERT(!was_added);
+    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk);
     if (chunk) chunk->is_dirty = true;
 }
 
 bool world_chunk_is_dirty(ecs_entity_t e) {
     bool was_added=false;
-    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk, &was_added);
-    ZPL_ASSERT(!was_added);
+    Chunk *chunk = ecs_get_mut(world_ecs(), e, Chunk);
     if (chunk) return chunk->is_dirty;
     return false;
 }
