@@ -1,5 +1,3 @@
-#include "items.h"
-
 static uint8_t inv_selected_item = 0;
 static bool inv_drop_item = false;
 bool inv_is_open = false;
