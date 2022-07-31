@@ -200,10 +200,7 @@ int32_t network_server_tick(void) {
             case ENET_EVENT_TYPE_DISCONNECT:
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 zpl_printf("[INFO] A user %d disconnected.\n", event.peer->incomingPeerID);
-
-                if (event.peer->data) {
-                    network_server_despawn_viewers(event.peer);
-                }
+                network_server_despawn_viewers(event.peer);
             } break;
 
             case ENET_EVENT_TYPE_RECEIVE: {
