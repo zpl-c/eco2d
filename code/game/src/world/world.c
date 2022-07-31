@@ -143,7 +143,7 @@ void world_setup_pkt_handlers(world_pkt_reader_proc *reader_proc, world_pkt_writ
 }
 
 static inline
-world_chunk_setup_grid(void) {
+void world_chunk_setup_grid(void) {
     for (int i = 0; i < zpl_square(world.chunk_amount); ++i) {
         ecs_entity_t e = ecs_new(world.ecs, 0);
         ecs_set(world.ecs, e, Classify, {.id = EKIND_CHUNK });

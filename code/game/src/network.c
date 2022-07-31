@@ -1,12 +1,15 @@
 #include "zpl.h"
 
 #define ENET_IMPLEMENTATION
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#pragma warning(push, 0)
 #include "enet.h"
 
 #define LIBRG_IMPL
 #define LIBRG_CUSTOM_ZPL
 #define LIBRG_ENTITY_MAXCHUNKS 1
 #include "librg.h"
+#pragma warning(pop)
 
 #include "network.h"
 #include "packet.h"
@@ -80,7 +83,7 @@ int32_t network_client_tick() {
             } break;
             
             case ENET_EVENT_TYPE_RECEIVE: {
-                if (!world_read(event.packet->data, event.packet->dataLength, event.peer)) {
+                if (!world_read(event.packet->data, (uint32_t)event.packet->dataLength, event.peer)) {
                     zpl_printf("[INFO] Server sent us an unsupported packet.\n");
                 }
                 
@@ -202,7 +205,7 @@ int32_t network_server_tick(void) {
             } break;
             
             case ENET_EVENT_TYPE_RECEIVE: {
-                if (!world_read(event.packet->data, event.packet->dataLength, event.peer)) {
+                if (!world_read(event.packet->data, (uint32_t)event.packet->dataLength, event.peer)) {
                     zpl_printf("[INFO] User %d sent us a malformed packet.\n", event.peer->incomingPeerID);
                 }
                 
@@ -236,7 +239,7 @@ uint64_t network_server_get_entity(void *peer_id) {
 static int32_t network_msg_send_raw(ENetPeer *peer_id, void *data, size_t datalen, uint32_t flags, uint16_t channel_id) {
     if (peer_id == 0) peer_id = peer;
     ENetPacket *packet = enet_packet_create(data, datalen, flags);
-    return enet_peer_send(peer_id, channel_id, packet);
+    return enet_peer_send(peer_id, (enet_uint8)channel_id, packet);
 }
 
 int32_t network_msg_send(void *peer_id, void *data, size_t datalen, uint16_t channel_id) {
