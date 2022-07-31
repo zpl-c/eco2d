@@ -24,19 +24,22 @@ size_t pkt_00_init_send(uint16_t view_id) {
 int32_t pkt_00_init_handler(pkt_header *header) {
     pkt_00_init table;
     PKT_IF(pkt_msg_decode(header, pkt_00_init_desc, pkt_pack_desc_args(pkt_00_init_desc), PKT_STRUCT_PTR(&table)));
-    
+
     uint64_t peer_id = (uint64_t)header->udata;
     uint64_t ent_id = player_spawn(NULL);
-    
+
     Position *pos = ecs_get_mut(world_ecs(), ent_id, Position, NULL);
+
+#if 0
     pos->x = world_dim()/2.0f + rand()%15*15.0f;
     pos->y = world_dim()/2.0f + rand()%15*15.0f;
-    
-    
-    if (game_get_kind() == GAMEKIND_SINGLE) peer_id = ent_id;
-    
+#else
+    pos->x = rand()%world_dim();
+    pos->y = rand()%world_dim();
+#endif
+
     zpl_printf("[INFO] initializing player entity id: %d with view id: %d for peer id: %d...\n", ent_id, table.view_id, peer_id);
-    ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id });
+    ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id, .active = false });
     pkt_01_welcome_send(world_seed(), peer_id, header->view_id, ent_id, world_chunk_size(), world_chunk_amount());
     return 0;
 }

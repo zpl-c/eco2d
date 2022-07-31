@@ -203,6 +203,7 @@ void world_setup_ecs(void) {
     ECS_IMPORT(world.ecs, Components);
     ECS_IMPORT(world.ecs, Systems);
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
+    world.ecs_clientinfo = ecs_query_new(world.ecs, "components.ClientInfo");
 }
 
 static inline
@@ -289,6 +290,9 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
             for (int i = 0; i < it.count; i++) {
                 size_t datalen = WORLD_LIBRG_BUFSIZ;
 
+                if (!p[i].active)
+                    continue;
+
                 int32_t result = librg_world_write(world_tracker(), it.entities[i], radius, buffer, &datalen, NULL);
 
                 if (result > 0) {
@@ -364,6 +368,10 @@ ecs_world_t * world_ecs() {
         return world.ecs_stage;
     }
     return world.ecs;
+}
+
+ecs_query_t *world_ecs_clientinfo(void) {
+    return world.ecs_clientinfo;
 }
 
 void world_set_stage(ecs_world_t *ecs) {

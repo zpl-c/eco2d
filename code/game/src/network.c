@@ -24,7 +24,6 @@ static ENetHost *host = NULL;
 static ENetHost *server = NULL;
 static ENetPeer *peer = NULL;
 static librg_world *world = NULL;
-static ecs_query_t *clientinfo_query = NULL;
 
 int32_t network_init() {
     return enet_initialize() != 0;
@@ -180,7 +179,6 @@ int32_t network_server_start(const char *host, uint16_t port) {
         return 1;
     }
 
-    clientinfo_query = ecs_query_new(world_ecs(), "components.ClientInfo");
     return 0;
 }
 
@@ -220,7 +218,7 @@ int32_t network_server_tick(void) {
 }
 
 void network_server_despawn_viewers(void *peer_id) {
-    ecs_iter_t it = ecs_query_iter(clientinfo_query);
+    ecs_iter_t it = ecs_query_iter(world_ecs_clientinfo());
 
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);
@@ -234,11 +232,7 @@ void network_server_despawn_viewers(void *peer_id) {
 }
 
 uint64_t network_server_get_entity(void *peer_id, uint16_t view_id) {
-    if (game_get_kind() == GAMEKIND_SINGLE) {
-        return (uint64_t)peer_id;
-    }
-
-    ecs_iter_t it = ecs_query_iter(clientinfo_query);
+    ecs_iter_t it = ecs_query_iter(world_ecs_clientinfo());
 
     while (ecs_query_next(&it)) {
         ClientInfo *p = ecs_column(&it, ClientInfo, 1);

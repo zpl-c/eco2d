@@ -61,7 +61,8 @@ ECS_STRUCT(Input, {
 
 ECS_STRUCT(ClientInfo, {
                uintptr_t peer;
-               uint16_t view_id;                                             
+               uint16_t view_id;
+               uint8_t active;
            });
 
 ECS_STRUCT(Health, {

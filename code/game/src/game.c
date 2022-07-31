@@ -21,6 +21,7 @@
 
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"
+#include "packets/pkt_switch_viewer.h"
 
 static uint8_t game_mode;
 static uint8_t game_should_close;
@@ -43,7 +44,7 @@ static WORLD_PKT_READER(pkt_reader) {
 
 static WORLD_PKT_WRITER(sp_pkt_writer) {
     (void)udata;
-    return world_read(pkt->data, pkt->datalen, (void*)game_world_view_get_active()->owner_id);
+    return world_read(pkt->data, pkt->datalen, 0);
 }
 
 static WORLD_PKT_WRITER(mp_pkt_writer) {
@@ -108,6 +109,7 @@ entity_view *game_world_view_active_get_entity(uint64_t ent_id) {
 void game_world_view_set_active(world_view *view) {
     active_viewer = view;
     camera_set_follow(view->owner_id);
+    pkt_switch_viewer_send(view->view_id);
 }
 
 size_t game_world_view_count(void) {
@@ -224,6 +226,7 @@ void game_input() {
 }
 
 void game_update() {
+    static double last_update = 0.0f;
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_tick();
     }
@@ -232,8 +235,16 @@ void game_update() {
 
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_tick();
+
+            static uint64_t ms_report = 2500;
+            if (ms_report < zpl_time_rel_ms()) {
+                ms_report = zpl_time_rel_ms() + 5000;
+                zpl_printf("delta: %f ms.\n", (zpl_time_rel() - last_update)*1000.0f);
+            }
         }
     }
+
+    last_update = zpl_time_rel();
 }
 
 void game_render() {
