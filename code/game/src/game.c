@@ -115,6 +115,7 @@ size_t game_world_view_count(void) {
 
 void flecs_dash_init() {
     ecs_singleton_set(world_ecs(), EcsRest, {0});
+    ECS_IMPORT(world_ecs(), FlecsMonitor);
 }
 
 float game_time() {
