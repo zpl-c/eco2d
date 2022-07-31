@@ -110,6 +110,10 @@ void game_world_view_set_active(world_view *view) {
     camera_set_follow(view->owner_id);
 }
 
+size_t game_world_view_count(void) {
+    return zpl_buffer_count(world_viewers);
+}
+
 void flecs_dash_init() {
 #if 0
     ECS_IMPORT(world_ecs(), FlecsDash);

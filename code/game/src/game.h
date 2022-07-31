@@ -26,6 +26,7 @@ void game_render();
 //~ NOTE(zaklaus): world view management
 world_view *game_world_view_get_active(void);
 world_view *game_world_view_get(uint16_t idx);
+size_t game_world_view_count(void);
 void game_world_view_set_active_by_idx(uint16_t idx);
 void game_world_view_set_active(world_view *view);
 void game_world_view_cycle_active(int8_t dir);

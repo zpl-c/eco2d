@@ -26,6 +26,7 @@ static bool request_shutdown;
 #include "gui/inventory.c"
 
 void platform_init() {
+    SetTraceLogLevel(LOG_ERROR);
     InitWindow(screenWidth, screenHeight, "eco2d");
     SetWindowState(/*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
     

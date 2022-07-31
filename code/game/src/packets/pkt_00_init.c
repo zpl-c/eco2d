@@ -34,7 +34,6 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     
     
     if (game_get_kind() == GAMEKIND_SINGLE) peer_id = ent_id;
-    else network_server_assign_entity(header->udata, ent_id);
     
     ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id });
     pkt_01_welcome_send(world_seed(), peer_id, header->view_id, ent_id, world_chunk_size(), world_chunk_amount());

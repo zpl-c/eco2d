@@ -39,8 +39,8 @@ network_client_fetch_stats(void);
 int32_t network_server_start(const char *host, uint16_t port);
 int32_t network_server_stop(void);
 int32_t network_server_tick(void);
-void    network_server_assign_entity(void *peer_id, uint64_t ent_id);
-uint64_t network_server_get_entity(void *peer_id);
+void   network_server_despawn_viewers(void *peer_id);
+uint64_t network_server_get_entity(void *peer_id, uint16_t view_id);
 
 // NOTE(zaklaus): messaging
 int32_t network_msg_send(void *peer_id, void *data, size_t datalen, uint16_t channel_id);
