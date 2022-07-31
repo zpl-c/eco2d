@@ -16,16 +16,9 @@ pkt_desc pkt_00_init_desc[] = {
     { PKT_END },
 };
 
-size_t pkt_00_init_encode(pkt_00_init *table) {
-    cw_pack_context pc = {0};
-    pkt_pack_msg(&pc, pkt_pack_desc_args(pkt_00_init_desc));
-    pkt_pack_struct(&pc, pkt_00_init_desc, PKT_STRUCT_PTR(table));
-    return pkt_pack_msg_size(&pc);
-}
-
 size_t pkt_00_init_send(uint16_t view_id) {
     pkt_00_init table = {.view_id = view_id };
-    return pkt_world_write(MSG_ID_00_INIT, pkt_00_init_encode(&table), 1, view_id, NULL, 1);
+    return pkt_world_write(MSG_ID_00_INIT, pkt_table_encode(pkt_00_init_desc, PKT_STRUCT_PTR(&table)), 1, view_id, NULL, 1);
 }
 
 int32_t pkt_00_init_handler(pkt_header *header) {

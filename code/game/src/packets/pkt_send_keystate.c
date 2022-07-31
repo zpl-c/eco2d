@@ -27,14 +27,7 @@ pkt_desc pkt_send_keystate_desc[] = {
 
 size_t pkt_send_keystate_send(uint16_t view_id,
                               game_keystate_data *data) {
-    return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_send_keystate_encode(data), 1, view_id, NULL, 1);
-}
-
-size_t pkt_send_keystate_encode(pkt_send_keystate *table) {
-    cw_pack_context pc = {0};
-    pkt_pack_msg(&pc, pkt_pack_desc_args(pkt_send_keystate_desc));
-    pkt_pack_struct(&pc, pkt_send_keystate_desc, PKT_STRUCT_PTR(table));
-    return pkt_pack_msg_size(&pc);
+    return pkt_world_write(MSG_ID_SEND_KEYSTATE, pkt_table_encode(pkt_send_keystate_desc, PKT_STRUCT_PTR(data)), 1, view_id, NULL, 1);
 }
 
 int32_t pkt_send_keystate_handler(pkt_header *header) {

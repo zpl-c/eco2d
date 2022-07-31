@@ -137,4 +137,12 @@ static inline uint32_t pkt_pack_desc_args(pkt_desc *desc) {
     return cnt;
 }
 
+static inline size_t pkt_table_encode(pkt_desc *desc, void *raw_blob, uint32_t blob_size) {
+    assert(desc && raw_blob && blob_size > 0);
+    cw_pack_context pc = {0};
+    pkt_pack_msg(&pc, pkt_pack_desc_args(desc));
+    pkt_pack_struct(&pc, desc, raw_blob, blob_size);
+    return pkt_pack_msg_size(&pc);
+}
+
 void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size);
