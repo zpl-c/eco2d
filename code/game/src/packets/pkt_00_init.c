@@ -35,6 +35,7 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     
     if (game_get_kind() == GAMEKIND_SINGLE) peer_id = ent_id;
     
+    zpl_printf("[INFO] initializing player entity id: %d with view id: %d for peer id: %d...\n", ent_id, table.view_id, peer_id);
     ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id });
     pkt_01_welcome_send(world_seed(), peer_id, header->view_id, ent_id, world_chunk_size(), world_chunk_amount());
     return 0;
