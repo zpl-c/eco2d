@@ -96,6 +96,11 @@ typedef struct {
     float pickup_time;
 } Inventory;
 
+typedef struct {
+    double last_update;
+    double tick_delay;
+} StreamInfo;
+
 typedef struct {char _unused;} DemoNPC;
 
 extern ECS_COMPONENT_DECLARE(Vector2D);
@@ -112,5 +117,6 @@ extern ECS_COMPONENT_DECLARE(IsInVehicle);
 extern ECS_COMPONENT_DECLARE(ItemDrop);
 extern ECS_COMPONENT_DECLARE(Inventory);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
+extern ECS_COMPONENT_DECLARE(StreamInfo);
 
 void ComponentsImport(ecs_world_t *ecs);

@@ -26,14 +26,14 @@ static inline asset_id item_fix_kind(asset_id id) {
 
 uint64_t item_spawn(asset_id kind, uint32_t qty) {
     ecs_entity_t e = entity_spawn(EKIND_ITEM);
-    
+
     ItemDrop *d = ecs_get_mut(world_ecs(), e, ItemDrop);
     *d = (ItemDrop){
         .kind = item_fix_kind(kind),
         .quantity = qty,
         .merger_time = 0,
     };
-    
+
     return (uint64_t)e;
 }
 
@@ -58,18 +58,18 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
                 asset_id item_asset = blocks_get_asset(l.bid);
                 item_id item_asset_id = item_find(item_asset);
                 if (item_asset_id == ASSET_INVALID) return;
-                
+
                 // NOTE(zaklaus): If we replace the same item, refund 1 qty and let it replace it
                 if (item_asset_id == it_id) {
                     it->quantity++;
                 } else {
                     return;
                 }
-            } 
+            }
             // NOTE(zaklaus): This is an inner layer block, we can't build over it if it has a collision!
             else if (l.bid > 0 && blocks_get_flags(l.bid) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
                 return;
-            } 
+            }
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
             it->quantity--;
         }break;

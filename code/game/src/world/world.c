@@ -10,6 +10,7 @@
 #include "platform.h"
 #include "profiler.h"
 #include "game.h"
+#include "entity.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -130,6 +131,13 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     // NOTE(zaklaus): exclude chunks from updates as they never move
     {
         if (view.kind == EKIND_CHUNK && !view.is_dirty) {
+            return LIBRG_WRITE_REJECT;
+        }
+    }
+
+    // NOTE(zaklaus): action-based updates
+    {
+        if (view.kind != EKIND_CHUNK && !entity_can_stream(entity_id)) {
             return LIBRG_WRITE_REJECT;
         }
     }
@@ -333,6 +341,7 @@ int32_t world_update() {
     world_tracker_update(1, normal_ms, 2);
     world_tracker_update(2, slow_ms, 3);
 
+    entity_update_action_timers();
     debug_replay_update();
     return 0;
 }

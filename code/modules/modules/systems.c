@@ -114,6 +114,7 @@ void RegenerateHP(ecs_iter_t *it) {
                 h[i].heal_time = HP_REGEN_TIME;
                 h[i].hp += HP_REGEN_RECOVERY;
                 h[i].hp = zpl_min(h[i].max_hp, h[i].hp);
+                entity_wake(it->entities[i]);
             } else {
                 h[i].heal_time -= safe_dt(it);
             }
