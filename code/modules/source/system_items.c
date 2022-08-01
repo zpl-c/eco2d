@@ -41,9 +41,9 @@ void PickItem(ecs_iter_t *it) {
                         }
                     }
                 } else if (range <= ITEM_ATTRACT_RADIUS) {
-                    p2->x = zpl_lerp(p2->x, p[i].x, ITEM_ATTRACT_FORCE*it->delta_time);
-                    p2->y = zpl_lerp(p2->y, p[i].y, ITEM_ATTRACT_FORCE*it->delta_time);
-                    entity_wake(ents[j]);
+                    entity_set_position(ents[j],
+                                        zpl_lerp(p2->x, p[i].x, ITEM_ATTRACT_FORCE*it->delta_time),
+                                        zpl_lerp(p2->y, p[i].y, ITEM_ATTRACT_FORCE*it->delta_time));
                 }
             }
         }

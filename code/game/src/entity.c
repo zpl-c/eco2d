@@ -45,6 +45,14 @@ void entity_despawn(uint64_t ent_id) {
     ecs_delete(world_ecs(), ent_id);
 }
 
+void entity_set_position(uint64_t ent_id, float x, float y) {
+    Position *p = ecs_get_mut(world_ecs(), ent_id, Position);
+    p->x = x;
+    p->y = y;
+
+    entity_wake(ent_id);
+}
+
 void entity_wake(uint64_t ent_id) {
     StreamInfo *si = ecs_get_mut(world_ecs(), ent_id, StreamInfo);
     si->tick_delay = 0.0f;
