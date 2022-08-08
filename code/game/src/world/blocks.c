@@ -106,7 +106,7 @@ void blocks_build_chunk_tex(uint64_t id, block_id *chunk_blocks, void *raw_view)
             float rot = rots[(int32_t)(perlin_fbm(view->seed, x, y, 1.2f, 3) * 4.0f) % 4];
             float half_block = blk_dims / 2.0f;
             Texture2D blk = *(Texture2D*)blocks_get_img(chunk_blocks[(y*view->chunk_size)+x]);
-            Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
+            static Rectangle src = {0, 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE};
             Rectangle dst = {x*blk_dims + half_block, y*blk_dims + half_block, blk_dims, blk_dims};
             DrawTexturePro(blk, src, dst, (Vector2){half_block, half_block}, rot, WHITE);
         }

@@ -41,10 +41,10 @@ typedef struct entity_view {
     float vy;
     float tx;
     float ty;
-    
+
     float hp;
     float max_hp;
-    
+
     // TODO(zaklaus): Find a way to stream dynamic arrays
     uint8_t blocks_used;
     block_id blocks[256];
@@ -52,24 +52,24 @@ typedef struct entity_view {
     uint32_t color;
     uint8_t is_dirty;
     int64_t tex;
-    
+
     // NOTE(zaklaus): vehicle
     float heading, theading;
     bool inside_vehicle;
-    
+
     // NOTE(zaklaus): items, ...
     asset_id asset;
     uint32_t quantity;
-    
+
     // NOTE(zaklaus): inventory
     uint8_t has_items;
     ItemDrop items[ITEMS_INVENTORY_SIZE];
     uint8_t selected_item;
-    
+
     // NOTE(zaklaus): internals
     uint8_t layer_id;
     uint64_t last_update;
-    
+
     // NOTE(zaklaus): fade in-out effect
     entity_transition_effect tran_effect;
     float tran_time;

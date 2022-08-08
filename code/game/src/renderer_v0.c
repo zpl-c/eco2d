@@ -8,7 +8,6 @@ float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
-    (void)key;
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
