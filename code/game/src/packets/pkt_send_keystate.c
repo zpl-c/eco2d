@@ -4,6 +4,7 @@
 #include "modules/components.h"
 #include "modules/systems.h"
 #include "world/world.h"
+#include "entity.h"
 
 #include "debug_replay.h"
 
@@ -61,6 +62,7 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
             }
         }
         debug_replay_record_keystate(table);
+        entity_wake(e);
     }
     
     return 0;

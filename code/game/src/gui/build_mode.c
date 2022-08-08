@@ -3,6 +3,8 @@
 
 static bool build_submit_placements = false;
 static bool build_is_in_draw_mode = false;
+extern bool inv_is_inside;
+
 static uint8_t build_num_placements = 0;
 static item_placement build_placements[BUILD_MAX_PLACEMENTS] = {0};
 
@@ -14,6 +16,7 @@ void buildmode_clear_buffers(void) {
 }
 
 void buildmode_draw(void) {
+    if (inv_is_inside) return;
     camera cam = camera_get();
     camera old_cam = cam;
     Vector2 mpos = GetMousePosition();

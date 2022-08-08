@@ -9,6 +9,7 @@ static ItemDrop inv_held_item = {0};
 static bool inv_swap = false;
 static uint8_t inv_swap_from = 0;
 static uint8_t inv_swap_to = 0;
+bool inv_is_inside = false;
 
 void inventory_draw() {
     inv_drop_item = false;
@@ -31,6 +32,8 @@ void inventory_draw() {
     
     float x = sx;
     float y = sy;
+    
+    inv_is_inside = check_mouse_area(sx, sy, 64*3, 64*3) != DAREA_OUTSIDE;
     
     for (int32_t i = 0; i < ITEMS_INVENTORY_SIZE; i += 1) {
         {
