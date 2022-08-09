@@ -60,16 +60,46 @@ uint8_t platform_is_running() {
     return !WindowShouldClose();
 }
 
+void platform_get_block_realpos(float *x, float *y){
+    camera cam = camera_get();
+    Vector2 mpos = GetMousePosition();
+    entity_view *e = game_world_view_active_get_entity(cam.ent_id);
+    if (!e) return;
+    float zoom = renderer_zoom_get();
+    mpos.x -= screenWidth/2.0f;
+    mpos.y -= screenHeight/2.0f;
+    cam.x += mpos.x*(1.0f/zoom);
+    cam.y += mpos.y*(1.0f/zoom);
+    cam.x = ((int32_t)cam.x / (int32_t)(WORLD_BLOCK_SIZE)) * WORLD_BLOCK_SIZE;
+    cam.y = ((int32_t)cam.y / (int32_t)(WORLD_BLOCK_SIZE)) * WORLD_BLOCK_SIZE;
+    cam.x += WORLD_BLOCK_SIZE/2.0f;
+    cam.y += WORLD_BLOCK_SIZE/2.0f;
+    if (x) *x = (float)cam.x;
+    if (y) *y = (float)cam.y;
+}
+
 static game_keystate_data last_input_data = {0};
+static pkt_send_blockpos last_blockpos_data = {0};
 
 inline static
 void platform_input_update_input_frame(game_keystate_data data) {
+    float mx = 0, my = 0;
+    platform_get_block_realpos(&mx, &my);
+    
+    if (mx != last_blockpos_data.mx || my != last_blockpos_data.my){
+        last_blockpos_data.mx = mx;
+        last_blockpos_data.my = my;
+        game_action_send_blockpos(mx, my);
+    }
+    
     // NOTE(zaklaus): Test if there are any changes
     if (data.x != last_input_data.x) goto send_data;
     if (data.y != last_input_data.y) goto send_data;
     if (data.use != last_input_data.use) goto send_data;
     if (data.sprint != last_input_data.sprint) goto send_data;
     if (data.ctrl != last_input_data.ctrl) goto send_data;
+    if (data.pick != last_input_data.pick) goto send_data;
+    if (data.storage_action != last_input_data.storage_action) goto send_data;
     if (data.selected_item != last_input_data.selected_item) goto send_data;
     if (data.drop != last_input_data.drop) goto send_data;
     if (data.swap != last_input_data.swap) goto send_data;
@@ -94,7 +124,7 @@ void platform_input() {
     // NOTE(zaklaus): keystate handling
     {
         float x=0.0f, y=0.0f;
-        uint8_t use, sprint, drop, ctrl;
+        uint8_t use, sprint, drop, ctrl, pick;
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
         if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
         if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y += 1.0f;
@@ -103,7 +133,7 @@ void platform_input() {
         use = IsKeyPressed(KEY_SPACE);
         sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
         ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-        drop = IsKeyPressed(KEY_G) || inv_drop_item;
+        drop = IsKeyPressed(KEY_G) || player_inv.drop_item || storage_inv.drop_item;
         
         // NOTE(zaklaus): NEW! mouse movement
         Vector2 mouse_pos = GetMousePosition();
@@ -118,6 +148,11 @@ void platform_input() {
             y = -mouse_pos.y;
         }
         
+        inv_keystate *inv = (inv_is_storage_action) ? &storage_inv : &player_inv;
+        
+        // NOTE(zaklaus): don't perform picking if we manipulate our inventories
+        pick = (inv_is_inside||inv->item_is_held) ? false : IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+        
         game_keystate_data in_data = {
             .x = x,
             .y = y,
@@ -126,12 +161,16 @@ void platform_input() {
             .use = use,
             .sprint = sprint,
             .ctrl = ctrl,
+            .pick = pick,
             
             .drop = drop,
-            .selected_item = inv_selected_item,
-            .swap = inv_swap,
-            .swap_from = inv_swap_from,
-            .swap_to = inv_swap_to,
+            .storage_action = inv_is_storage_action,
+            .selected_item = player_inv.selected_item,
+            .storage_selected_item = storage_inv.selected_item,
+            .swap = inv->swap,
+            .swap_storage = inv_swap_storage,
+            .swap_from = inv->swap_from,
+            .swap_to = inv->swap_to,
         };
         
         if (build_submit_placements) {
@@ -169,6 +208,26 @@ void platform_input() {
 #endif
 }
 
+void draw_selected_item() {
+    camera cam = camera_get();
+    entity_view *oe = game_world_view_active_get_entity(cam.ent_id);
+    if (oe) {
+        // NOTE(zaklaus): sel item
+        entity_view *e = game_world_view_active_get_entity(oe->sel_ent);
+        
+        if (e && e->kind == EKIND_DEVICE) {
+            renderer_draw_single(e->x, e->y, ASSET_BLANK, ColorAlpha(RED, 0.4f));
+        }else{
+            // NOTE(zaklaus): hover item
+            entity_view *e = game_world_view_active_get_entity(oe->pick_ent);
+            
+            if (e && e->kind == EKIND_DEVICE) {
+                renderer_draw_single(e->x, e->y, ASSET_BLANK, ColorAlpha(RED, 0.1f));
+            }
+        }
+    }
+}
+
 void platform_render() {
     screenWidth = (uint16_t)GetScreenWidth();
     screenHeight = (uint16_t)GetScreenHeight();
@@ -184,6 +243,7 @@ void platform_render() {
     {
         profile (PROF_RENDER) {
             renderer_draw();
+            draw_selected_item();
         }
         renderer_debug_draw();
         {

@@ -35,3 +35,4 @@ entity_view *game_world_view_active_get_entity(uint64_t ent_id);
 
 //~ NOTE(zaklaus): viewer -> host actions
 void game_action_send_keystate(game_keystate_data *data);
+void game_action_send_blockpos(float mx, float my);

@@ -36,6 +36,14 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_UINT(entity_view, selected_item) },
     { PKT_ARRAY(entity_view, items) },
     
+    { PKT_UINT(entity_view, pick_ent) },
+    { PKT_UINT(entity_view, sel_ent) },
+    
+    { PKT_KEEP_IF(entity_view, has_storage_items, true, 3) },
+    { PKT_UINT(entity_view, has_storage_items) },
+    { PKT_UINT(entity_view, storage_selected_item) },
+    { PKT_ARRAY(entity_view, storage_items) },
+    
     { PKT_END }, 
 };
 

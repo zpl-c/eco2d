@@ -113,6 +113,11 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
             float const h = 50;
             DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(RED, data->tran_time));
         }break;
+        case EKIND_DEVICE:{
+            float x = data->x - 32.f;
+            float y = data->y - 32.f;
+            DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+        }break;
         default:break;
     }
 }

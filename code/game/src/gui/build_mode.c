@@ -19,18 +19,13 @@ void buildmode_draw(void) {
     if (inv_is_inside) return;
     camera cam = camera_get();
     camera old_cam = cam;
-    Vector2 mpos = GetMousePosition();
     entity_view *e = game_world_view_active_get_entity(cam.ent_id);
     if (!e) return;
     float zoom = renderer_zoom_get();
-    mpos.x -= screenWidth/2.0f;
-    mpos.y -= screenHeight/2.0f;
-    cam.x += mpos.x*(1.0f/zoom);
-    cam.y += mpos.y*(1.0f/zoom);
-    cam.x = ((int32_t)cam.x / (int32_t)(WORLD_BLOCK_SIZE)) * WORLD_BLOCK_SIZE;
-    cam.y = ((int32_t)cam.y / (int32_t)(WORLD_BLOCK_SIZE)) * WORLD_BLOCK_SIZE;
-    cam.x += WORLD_BLOCK_SIZE/2.0f;
-    cam.y += WORLD_BLOCK_SIZE/2.0f;
+    float mx = 0, my = 0;
+    platform_get_block_realpos(&mx, &my);
+    cam.x = (double)mx;
+    cam.y = (double)my;
     
     // NOTE(zaklaus): Check distance
     double dx = old_cam.x - cam.x;

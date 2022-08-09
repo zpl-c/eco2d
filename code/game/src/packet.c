@@ -2,7 +2,7 @@
 #include "compress.h"
 #include "cwpack/cwpack.h"
 
-// NOTE(zaklaus): packets
+//NOTE(zaklaus): packets
 
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"
@@ -17,6 +17,7 @@ pkt_handler pkt_handlers[] = {
     {.id = MSG_ID_01_WELCOME, .handler = pkt_01_welcome_handler},
     {.id = MSG_ID_LIBRG_UPDATE, .handler = pkt_send_librg_update_handler},
     {.id = MSG_ID_SEND_KEYSTATE, .handler = pkt_send_keystate_handler},
+    {.id = MSG_ID_SEND_BLOCKPOS, .handler = pkt_send_blockpos_handler},
     {.id = MSG_ID_SWITCH_VIEWER, .handler = pkt_switch_viewer_handler},
 };
 

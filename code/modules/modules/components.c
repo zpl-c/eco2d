@@ -13,12 +13,13 @@ ECS_COMPONENT_DECLARE(Vehicle);
 ECS_COMPONENT_DECLARE(IsInVehicle);
 ECS_COMPONENT_DECLARE(ItemDrop);
 ECS_COMPONENT_DECLARE(Inventory);
+ECS_COMPONENT_DECLARE(ItemContainer);
 ECS_COMPONENT_DECLARE(DemoNPC);
 ECS_COMPONENT_DECLARE(StreamInfo);
 
 void ComponentsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Components);
-
+    
     ECS_COMPONENT_DEFINE(ecs, Vector2D);
     ECS_COMPONENT_DEFINE(ecs, Position);
     ECS_COMPONENT_DEFINE(ecs, Velocity);
@@ -32,6 +33,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_COMPONENT_DEFINE(ecs, IsInVehicle);
     ECS_COMPONENT_DEFINE(ecs, ItemDrop);
     ECS_COMPONENT_DEFINE(ecs, Inventory);
+    ECS_COMPONENT_DEFINE(ecs, ItemContainer);
     ECS_COMPONENT_DEFINE(ecs, DemoNPC);
     ECS_COMPONENT_DEFINE(ecs, StreamInfo);
 }

@@ -45,6 +45,7 @@ Texture2D texgen_build_anim(asset_id id, int64_t counter) {
 
 Texture2D texgen_build_sprite(asset_id id) {
     switch (id) {
+        case ASSET_BLANK: return GenColorEco(WHITE); break;
         case ASSET_BUILDMODE_HIGHLIGHT: return GenColorEco(WHITE); break;
         
         // NOTE(zaklaus): items

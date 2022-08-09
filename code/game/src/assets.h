@@ -6,11 +6,13 @@
 typedef enum {
     // NOTE(zaklaus): Debug
     ASSET_EMPTY,
+    ASSET_BLANK,
     ASSET_BUILDMODE_HIGHLIGHT,
     
     // NOTE(zaklaus): entities
     ASSET_PLAYER,
     ASSET_THING,
+    ASSET_CHEST,
     
     // NOTE(zaklaus): items
     ASSET_DEMO_ICEMAKER,

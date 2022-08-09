@@ -71,8 +71,24 @@ entity_view world_build_entity_view(int64_t e) {
         }
         
         const Input *in = ecs_get(world_ecs(), e, Input);
-        if (in)
+        if (in){
             view.selected_item = in->selected_item;
+            view.pick_ent = (uint64_t)in->pick_ent;
+            view.sel_ent = (uint64_t)in->sel_ent;
+            
+            if (world_entity_valid(in->storage_ent)){
+                ItemContainer *ic = 0;
+                if ((ic = ecs_get_mut_if(world_ecs(), in->storage_ent, ItemContainer))){
+                    view.has_storage_items = true;
+                    
+                    for (int i = 0; i < ITEMS_CONTAINER_SIZE; i += 1) {
+                        view.storage_items[i] = ic->items[i];
+                    }
+                    
+                    view.storage_selected_item = in->storage_selected_item;
+                }
+            }
+        }
     }
     
     Chunk *chunk = 0;

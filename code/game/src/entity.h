@@ -12,3 +12,4 @@ void entity_set_position(uint64_t ent_id, float x, float y);
 void entity_wake(uint64_t ent_id);
 void entity_update_action_timers();
 bool entity_can_stream(uint64_t ent_id);
+

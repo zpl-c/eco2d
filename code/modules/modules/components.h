@@ -7,6 +7,7 @@
 #endif
 
 #define ITEMS_INVENTORY_SIZE 9
+#define ITEMS_CONTAINER_SIZE 16
 
 typedef struct {
     float x;
@@ -32,15 +33,24 @@ typedef struct {
     float y;
     float mx;
     float my;
+    float bx;
+    float by;
     uint8_t use;
     uint8_t sprint;
     uint8_t ctrl;
+    uint8_t pick;
     uint8_t is_blocked;
+    ecs_entity_t pick_ent;
+    ecs_entity_t sel_ent;
     
     // NOTE(zaklaus): inventory
+    ecs_entity_t storage_ent;
+    uint8_t storage_action;
     uint8_t selected_item;
+    uint8_t storage_selected_item;
     uint8_t drop;
     uint8_t swap;
+    uint8_t swap_storage;
     uint8_t swap_from;
     uint8_t swap_to;
     
@@ -92,9 +102,13 @@ typedef struct {
 } ItemDrop;
 
 typedef struct {
-    ItemDrop items[ITEMS_INVENTORY_SIZE];
+    ItemDrop items[ITEMS_CONTAINER_SIZE];
     float pickup_time;
 } Inventory;
+
+typedef struct {
+    ItemDrop items[ITEMS_CONTAINER_SIZE];
+} ItemContainer;
 
 typedef struct {
     double last_update;
@@ -116,6 +130,7 @@ extern ECS_COMPONENT_DECLARE(Vehicle);
 extern ECS_COMPONENT_DECLARE(IsInVehicle);
 extern ECS_COMPONENT_DECLARE(ItemDrop);
 extern ECS_COMPONENT_DECLARE(Inventory);
+extern ECS_COMPONENT_DECLARE(ItemContainer);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
 extern ECS_COMPONENT_DECLARE(StreamInfo);
 

@@ -31,6 +31,10 @@ typedef struct {
         struct {
             asset_id id;
         } proxy;
+        
+        struct {
+            uint64_t (*spawn_proc)();
+        } place_item;
     };
 } item_desc;
 

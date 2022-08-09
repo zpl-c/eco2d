@@ -13,6 +13,8 @@ typedef enum {
     RPKIND_PLACE_ERASE_CHANGES,
     RPKIND_SPAWN_CIRCLING_DRIVER,
     RPKIND_SPAWN_ICEMAKER_ITEM,
+    RPKIND_SPAWN_CHEST,
+    RPKIND_SPAWN_BELT,
 } replay_kind;
 
 typedef struct {
@@ -174,6 +176,8 @@ void ActPlaceIceRink(void);
 void ActSpawnCirclingDriver(void);
 void ActEraseWorldChanges(void);
 void ActSpawnIcemaker(void);
+void ActSpawnChest(void);
+void ActSpawnBelt(void);
 
 void debug_replay_update(void) {
     if (!is_playing) return;
@@ -223,6 +227,12 @@ void debug_replay_update(void) {
         }break;
         case RPKIND_SPAWN_ICEMAKER_ITEM:{
             ActSpawnIcemaker();
+        }break;
+        case RPKIND_SPAWN_CHEST:{
+            ActSpawnChest();
+        }break;
+        case RPKIND_SPAWN_BELT:{
+            ActSpawnBelt();
         }break;
         default: {
             ZPL_PANIC("unreachable");
