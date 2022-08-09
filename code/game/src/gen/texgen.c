@@ -68,6 +68,9 @@ Texture2D texgen_build_sprite(asset_id id) {
         case ASSET_BELT_UP: return LoadTexEco("belt_up");
         case ASSET_BELT_DOWN: return LoadTexEco("belt_down");
         
+        // NOTE(zaklaus): devices
+        case ASSET_CHEST: return LoadTexEco("chest");
+        
         default: return GenColorEco(PINK); break;
     }
 }

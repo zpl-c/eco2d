@@ -14,6 +14,7 @@ ECS_COMPONENT_DECLARE(IsInVehicle);
 ECS_COMPONENT_DECLARE(ItemDrop);
 ECS_COMPONENT_DECLARE(Inventory);
 ECS_COMPONENT_DECLARE(ItemContainer);
+ECS_COMPONENT_DECLARE(Device);
 ECS_COMPONENT_DECLARE(DemoNPC);
 ECS_COMPONENT_DECLARE(StreamInfo);
 
@@ -34,6 +35,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_COMPONENT_DEFINE(ecs, ItemDrop);
     ECS_COMPONENT_DEFINE(ecs, Inventory);
     ECS_COMPONENT_DEFINE(ecs, ItemContainer);
+    ECS_COMPONENT_DEFINE(ecs, Device);
     ECS_COMPONENT_DEFINE(ecs, DemoNPC);
     ECS_COMPONENT_DEFINE(ecs, StreamInfo);
 }

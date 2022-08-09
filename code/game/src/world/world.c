@@ -60,6 +60,11 @@ entity_view world_build_entity_view(int64_t e) {
         view.quantity = dr->quantity;
     }
     
+    if (ecs_get(world_ecs(), e, Device)) {
+        Device const* dev = ecs_get(world_ecs(), e, Device);
+        view.asset = dev->asset;
+    }
+    
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
     
     Inventory *inv = 0;

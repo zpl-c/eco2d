@@ -8,6 +8,9 @@
 uint64_t storage_spawn(void) {    
     ecs_entity_t e = entity_spawn(EKIND_DEVICE);
     
+    Device *dev = ecs_get_mut(world_ecs(), e, Device);
+    dev->asset = ASSET_CHEST;
+    
     ItemContainer *storage = ecs_get_mut(world_ecs(), e, ItemContainer);
     *storage = (ItemContainer){0};
     return (uint64_t)e;

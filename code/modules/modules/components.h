@@ -111,6 +111,10 @@ typedef struct {
 } ItemContainer;
 
 typedef struct {
+    uint16_t asset;
+} Device;
+
+typedef struct {
     double last_update;
     double tick_delay;
 } StreamInfo;
@@ -131,6 +135,7 @@ extern ECS_COMPONENT_DECLARE(IsInVehicle);
 extern ECS_COMPONENT_DECLARE(ItemDrop);
 extern ECS_COMPONENT_DECLARE(Inventory);
 extern ECS_COMPONENT_DECLARE(ItemContainer);
+extern ECS_COMPONENT_DECLARE(Device);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
 extern ECS_COMPONENT_DECLARE(StreamInfo);
 

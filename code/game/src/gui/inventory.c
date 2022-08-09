@@ -95,6 +95,15 @@ void inventory_draw_panel(entity_view *e, bool is_player, float sx, float sy){
         }
     }
     
+    // NOTE(zaklaus): switch it off if is_player
+    if (is_player)
+        inv_is_storage_action = false;
+}
+
+void inventory_render_held_item(bool is_player){
+    inv_keystate *inv = (!is_player) ? &storage_inv : &player_inv;
+    inv_keystate *inv2 = (is_player) ? &storage_inv : &player_inv;
+    
     if (inv->item_is_held) {
         Vector2 mpos = GetMousePosition();
         mpos.x -= 32;
@@ -108,10 +117,6 @@ void inventory_draw_panel(entity_view *e, bool is_player, float sx, float sy){
             inv_is_storage_action = true;
         }
     }
-    
-    // NOTE(zaklaus): switch it off if is_player
-    if (is_player)
-        inv_is_storage_action = false;
 }
 
 void inventory_reset_states(inv_keystate *ik) {
@@ -140,4 +145,7 @@ void inventory_draw() {
     
     inventory_draw_panel(e, true, screenWidth/2.0f + 128, screenHeight/2.0f - 96);
     inventory_draw_panel(e, false, screenWidth/2.0f - 384, screenHeight/2.0f - 128);
+    
+    inventory_render_held_item(true);
+    inventory_render_held_item(false);
 }
