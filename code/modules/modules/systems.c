@@ -184,7 +184,7 @@ void PlayerClosestInteractable(ecs_iter_t *it){
         in[i].pick_ent = closest_pick;
         
         if (in[i].pick)
-            in[i].sel_ent = closest_pick;
+            in[i].sel_ent = (in[i].sel_ent == closest_pick) ? 0 : closest_pick;
     }
 }
 

@@ -297,7 +297,9 @@ void InspectContainers(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; ++i) {
         if (!in[i].pick) continue;
-        in[i].storage_ent = in[i].pick_ent;
+        
+        if ((in[i].sel_ent && ecs_get(it->world, in[i].sel_ent, ItemContainer)) || !in[i].sel_ent)
+            in[i].storage_ent = in[i].sel_ent;
     }
 }
 
@@ -342,6 +344,3 @@ void HarvestIntoContainers(ecs_iter_t *it) {
         }
     }
 }
-
-
-
