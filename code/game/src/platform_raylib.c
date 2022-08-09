@@ -149,9 +149,10 @@ void platform_input() {
         }
         
         inv_keystate *inv = (inv_is_storage_action) ? &storage_inv : &player_inv;
+        inv_keystate *inv2 = (!inv_is_storage_action) ? &storage_inv : &player_inv;
         
         // NOTE(zaklaus): don't perform picking if we manipulate our inventories
-        pick = (inv_is_inside||inv->item_is_held) ? false : IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+        pick = (inv_is_inside||inv->item_is_held||inv2->item_is_held) ? false : IsMouseButtonDown(MOUSE_LEFT_BUTTON);
         
         game_keystate_data in_data = {
             .x = x,
