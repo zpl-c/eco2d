@@ -58,24 +58,24 @@ void inventory_draw_panel(entity_view *e, bool is_player, float sx, float sy){
                 inv->swap = true;
                 inv->swap_from = inv2->held_item_idx;
                 inv->swap_to = i;
-            } else if (area == DAREA_PRESS && !inv->item_is_held) {
+            } else if (area == DAREA_PRESS && !inv->item_is_held && !inv2->item_is_held) {
                 color = VIOLET;
-                inv->selected_item = i;
                 inv_is_storage_action = true;
+                inv->selected_item = i;
             } else if (area == DAREA_PRESS && inv->item_is_held) {
                 color = VIOLET;
+                inv_is_storage_action = true;
                 inv->selected_item = i;
                 inv->item_is_held = false;
                 inv->swap = true;
                 inv->swap_from = inv->held_item_idx;
                 inv->swap_to = i;
+            } else if (area == DAREA_HELD && item->quantity > 0 && !inv->item_is_held && !inv2->item_is_held) {
                 inv_is_storage_action = true;
-            } else if (area == DAREA_HELD && item->quantity > 0 && !inv->item_is_held) {
                 inv->selected_item = i;
                 inv->item_is_held = true;
                 inv->held_item = *item;
                 inv->held_item_idx = i;
-                inv_is_storage_action = true;
             } else if (i == inv->selected_item) {
                 color = RED;
             }

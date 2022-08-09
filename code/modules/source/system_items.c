@@ -310,7 +310,7 @@ void HarvestIntoContainers(ecs_iter_t *it) {
     for (int i = 0; i < it->count; ++i) {
         // NOTE(zaklaus): find any item
         size_t ents_count;
-        int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
+        int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 0);
         
         for (size_t j = 0; j < ents_count; j++) {
             ItemDrop *drop = 0;
@@ -336,7 +336,6 @@ void HarvestIntoContainers(ecs_iter_t *it) {
                             
                             if (drop->quantity == 0)
                                 item_despawn(ents[j]);
-                            break;
                         }
                     }
                 }

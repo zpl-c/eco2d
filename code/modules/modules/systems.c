@@ -221,7 +221,7 @@ void SystemsImport(ecs_world_t *ecs) {
     //ECS_SYSTEM(ecs, MergeItems, EcsPostUpdate, components.Position, components.ItemDrop);
     ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, InspectContainers, EcsPostUpdate, components.Input, !components.IsInVehicle);
-    //ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position);
+    ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position);
     
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
     
