@@ -25,6 +25,7 @@ typedef struct {
     
     // TODO(zaklaus): build mode
     uint8_t placement_num;
+    uint8_t deletion_mode;
     item_placement placements[BUILD_MAX_PLACEMENTS];
 } pkt_send_keystate;
 

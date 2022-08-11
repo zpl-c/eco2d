@@ -7,6 +7,7 @@
 
 typedef enum {
     // NOTE(zaklaus): hardcoded fields for placement ops
+    UKIND_DELETE,
     UKIND_PLACE,
     UKIND_PLACE_ITEM,
     UKIND_END_PLACE,

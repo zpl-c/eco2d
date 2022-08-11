@@ -1,6 +1,6 @@
 #pragma once
 
-#define BUILD_MAX_PLACEMENTS 20
+#define BUILD_MAX_PLACEMENTS 40
 
 typedef struct {
     float x;

@@ -58,6 +58,7 @@ typedef struct {
     uint8_t num_placements;
     float placements_x[20];
     float placements_y[20];
+    uint8_t deletion_mode;
 } Input;
 
 typedef struct {

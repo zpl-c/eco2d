@@ -256,11 +256,21 @@ void UseItem(ecs_iter_t *it) {
         }
         
         ItemDrop *item = &inv[i].items[in[i].selected_item];
-        if (!item || item->quantity <= 0) continue;
-        uint16_t item_id = item_find(item->kind);
-        item_usage usage = item_get_usage(item_id);
+        uint16_t item_id = 0;
+        item_usage usage = UKIND_DELETE;
         
-        if (in[i].use && usage > UKIND_END_PLACE)
+        if (!in[i].deletion_mode){
+            item_id = item_find(item->kind);
+            usage = item_get_usage(item_id);
+            if (!item || item->quantity <= 0) continue;
+        }
+        
+        if (!in[i].use && usage == UKIND_DELETE){
+            for (size_t j = 0; j < in[i].num_placements; j++) {
+                world_chunk_destroy_block(in[i].placements_x[j], in[i].placements_y[j], true);
+            }
+        }
+        else if (in[i].use && usage > UKIND_END_PLACE)
             item_use(it->world, item, p[i], 0);
         else if (in[i].num_placements > 0 && usage < UKIND_END_PLACE) {
             asset_id ofs = 0;

@@ -106,6 +106,7 @@ void platform_input_update_input_frame(game_keystate_data data) {
     if (data.swap_from != last_input_data.swap_from) goto send_data;
     if (data.swap_to != last_input_data.swap_to) goto send_data;
     if (data.placement_num != last_input_data.placement_num) goto send_data;
+    if (data.deletion_mode != last_input_data.deletion_mode) goto send_data;
     if (zpl_memcompare(data.placements, last_input_data.placements, zpl_size_of(data.placements))) goto send_data;
     return;
     
@@ -172,6 +173,8 @@ void platform_input() {
             .swap_storage = inv_swap_storage,
             .swap_from = inv->swap_from,
             .swap_to = inv->swap_to,
+            
+            .deletion_mode = build_is_deletion_mode,
         };
         
         if (build_submit_placements) {

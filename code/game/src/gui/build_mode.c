@@ -7,6 +7,7 @@ extern bool inv_is_inside;
 
 static uint8_t build_num_placements = 0;
 static item_placement build_placements[BUILD_MAX_PLACEMENTS] = {0};
+bool build_is_deletion_mode = false;
 
 void buildmode_clear_buffers(void) {
     item_placement empty_placement = { .x = 0.0f, .y = 0.0f, .kind = -1 };
@@ -38,11 +39,19 @@ void buildmode_draw(void) {
         buildmode_clear_buffers();
     }
     
+    if (IsKeyPressed(KEY_B)){
+        build_is_deletion_mode = !build_is_deletion_mode;
+    }
+    
     ItemDrop *item = &e->items[e->selected_item];
     
-    if (e->has_items && !e->inside_vehicle && item->quantity > 0 && !is_outside_range) {
-        uint16_t item_id = item_find(item->kind);
-        item_usage usage = item_get_usage(item_id);
+    if (e->has_items && !e->inside_vehicle && item->quantity > 0 && !is_outside_range || build_is_deletion_mode) {
+        item_usage usage = 0;
+        uint16_t item_id = 0;
+        if (!build_is_deletion_mode){
+            item_id = item_find(item->kind);
+            usage = item_get_usage(item_id);
+        }
         if (usage < UKIND_END_PLACE) {
             if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !build_is_in_draw_mode) {
                 build_is_in_draw_mode = true;
@@ -50,8 +59,13 @@ void buildmode_draw(void) {
                 buildmode_clear_buffers();
             }
             
-            uint32_t qty = item->quantity;
-            bool directional = item_get_place_directional(item_id);
+            uint32_t qty = BUILD_MAX_PLACEMENTS;
+            bool directional = false;
+            
+            if (!build_is_deletion_mode){
+                directional = item_get_place_directional(item_id);
+                qty = item->quantity;
+            }
             
             if (build_is_in_draw_mode) {
                 for (size_t i = 0; i < BUILD_MAX_PLACEMENTS; i++) {
@@ -80,11 +94,10 @@ void buildmode_draw(void) {
                         break;
                     }
                 }
-                
             }
             
             if (!is_outside_range)
-                renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(WHITE, 0.2f));
+                renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : WHITE, 0.2f));
             
             build_num_placements = zpl_min(build_num_placements, qty);
         }
@@ -92,7 +105,7 @@ void buildmode_draw(void) {
     
     for (size_t i = 0; i < build_num_placements; i++) {
         item_placement *it = &build_placements[i];
-        renderer_draw_single(it->x, it->y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(WHITE, 0.4f));
+        renderer_draw_single(it->x, it->y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : WHITE, 0.4f));
     }
     
     if (build_is_in_draw_mode) {

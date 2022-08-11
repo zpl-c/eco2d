@@ -491,6 +491,7 @@ world_block_lookup world_block_from_realpos(float x, float y) {
 
 void world_chunk_destroy_block(float x, float y, bool drop_item) {
     world_block_lookup l = world_block_from_realpos(x, y);
+    if (blocks_get_flags(l.bid) & BLOCK_FLAG_ESSENTIAL) return;
     world_chunk_replace_block(l.chunk_id, l.id, 0);
     
     if (l.is_outer && l.bid > 0 && drop_item) {
