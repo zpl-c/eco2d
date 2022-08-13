@@ -84,7 +84,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
                 return;
             }
             
-            ecs_entity_t e = desc->place_item.spawn_proc();
+            ecs_entity_t e = entity_spawn_id(desc->place_item.id);
             ZPL_ASSERT(world_entity_valid(e));
             Position *pos = ecs_get_mut(ecs, e, Position);
             pos->x = p.x;

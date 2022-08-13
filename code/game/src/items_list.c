@@ -38,21 +38,18 @@
 }\
 }
 
-#define ITEM_ENT(asset, qty, proc)\
+#define ITEM_ENT(asset, qty, eid)\
 {\
 .kind = asset,\
 .usage = UKIND_PLACE_ITEM,\
 .max_quantity = qty,\
 .place_item = {\
-.spawn_proc = proc\
+.id = eid\
 }\
 }
 
 #define ITEM_SELF(asset, qty) ITEM_BLOCK(asset, qty, asset)
 #define ITEM_SELF_DIR(asset, qty) ITEM_BLOCK_DIR(asset, qty, asset)
-
-// NOTE(zaklaus): access to spawners
-#include "storage.h"
 
 static item_desc items[] = {
     {
@@ -70,5 +67,5 @@ static item_desc items[] = {
     ITEM_PROXY(ASSET_BELT_UP, ASSET_BELT),
     ITEM_PROXY(ASSET_BELT_DOWN, ASSET_BELT),
     
-    ITEM_ENT(ASSET_CHEST, 32, storage_spawn),
+    ITEM_ENT(ASSET_CHEST, 32, ASSET_CHEST),
 };

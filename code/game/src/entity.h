@@ -8,6 +8,8 @@ void entity_batch_despawn(uint64_t *ids, size_t num_ids);
 void entity_despawn(uint64_t ent_id);
 void entity_set_position(uint64_t ent_id, float x, float y);
 
+uint64_t entity_spawn_id(uint16_t id);
+
 // NOTE(zaklaus): action-based entity stream throttling
 void entity_wake(uint64_t ent_id);
 void entity_update_action_timers();

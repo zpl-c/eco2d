@@ -45,6 +45,20 @@ void entity_despawn(uint64_t ent_id) {
     ecs_delete(world_ecs(), ent_id);
 }
 
+// NOTE(zaklaus): bring in entity spawnlist
+#include "entity_spawnlist.c"
+
+uint64_t entity_spawn_id(uint16_t id){
+    for (size_t i = 0; i < MAX_ENTITY_SPAWNDEFS; ++i){
+        if (entity_spawnlist[i].id == id){
+            ZPL_ASSERT(entity_spawnlist[i].proc);
+            return entity_spawnlist[i].proc();
+        }
+    }
+    
+    return 0;
+}
+
 void entity_set_position(uint64_t ent_id, float x, float y) {
     Position *p = ecs_get_mut(world_ecs(), ent_id, Position);
     p->x = x;

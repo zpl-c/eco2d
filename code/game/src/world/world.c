@@ -157,11 +157,13 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     }
     
     // NOTE(zaklaus): action-based updates
+#if ECO2D_STREAM_ACTIONFILTER
     {
         if (view.kind != EKIND_CHUNK && !entity_can_stream(entity_id)) {
             return LIBRG_WRITE_REJECT;
         }
     }
+#endif
     
     return (int32_t)entity_view_pack_struct(buffer, actual_length, view);
 }
