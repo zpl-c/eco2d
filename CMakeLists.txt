@@ -13,6 +13,13 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+if (EMSCRIPTEN)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s INITIAL_MEMORY=268435456 -s FORCE_FILESYSTEM=1 --preload-file ${CMAKE_SOURCE_DIR}/art@art/")
+  set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your executable to build with the emscripten html template so that you can directly open it.
+  set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
+  set(CMAKE_CXX_)
+endif ()
+
 include_directories(code/common code/vendors code/vendors/flecs)
 
 include(cmake/FindRaylib.cmake)

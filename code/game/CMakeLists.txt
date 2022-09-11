@@ -18,7 +18,7 @@ add_executable(eco2d
     src/packet.c
     src/player.c
     src/vehicle.c
-	src/storage.c
+	  src/storage.c
     src/signal_handling.c
     src/profiler.c
     src/debug_ui.c

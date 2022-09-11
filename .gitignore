@@ -12,7 +12,6 @@ GPATH
 GRTAGS
 GTAGS
 /run_release.bat
-/package.bat
 pkg
 pkg.zip
 eco2d.zip

@@ -14,6 +14,11 @@
 #include "modules/components.h"
 #include "modules/systems.h"
 
+#if defined(PLATFORM_WEB)
+    #include <emscripten/emscripten.h>
+    void UpdateDrawFrame(void);
+#endif
+
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
 #define DEFAULT_WORLD_SIZE 32 /* amount of chunks within a world (single axis) */
@@ -73,6 +78,7 @@ int main(int argc, char** argv) {
     sighandler_register();
     game_init(host, port, play_mode, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
 
+#if !defined(PLATFORM_WEB)
     while (game_is_running()) {
         profile (PROF_MAIN_LOOP) {
             game_input();
@@ -82,6 +88,9 @@ int main(int argc, char** argv) {
 
         profiler_collate();
     }
+#else
+    emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
+#endif
 
     game_shutdown();
     sighandler_unregister();
@@ -90,3 +99,11 @@ int main(int argc, char** argv) {
     zpl_opts_free(&opts);
     return 0;
 }
+
+#if defined(EMSCRIPTEN)
+void UpdateDrawFrame(void) {
+    game_input();
+    game_update();
+    game_render();
+}
+#endif

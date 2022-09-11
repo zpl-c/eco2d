@@ -12,6 +12,7 @@
 #include "profiler.h"
 
 #include "flecs/flecs_os_api_stdcpp.h"
+#include "flecs/flecs.h"
 
 #include "modules/components.h"
 #include "modules/systems.h"
@@ -114,8 +115,10 @@ size_t game_world_view_count(void) {
 }
 
 void flecs_dash_init() {
+#if !defined(ZPL_SYSTEM_EMSCRIPTEN)
     ecs_singleton_set(world_ecs(), EcsRest, {0});
     ECS_IMPORT(world_ecs(), FlecsMonitor);
+#endif
 }
 
 float game_time() {
