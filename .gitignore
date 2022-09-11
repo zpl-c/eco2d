@@ -1,5 +1,9 @@
 build
 build_rel
+build_web
+emsdk
+deploy_web
+butler
 screenshots
 build.bat
 run.bat

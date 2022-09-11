@@ -13,8 +13,8 @@
 #include "debug_ui.h"
 #include "utils/raylib_helpers.h"
 
-static uint16_t screenWidth = 1600;
-static uint16_t screenHeight = 900;
+static uint16_t screenWidth = 1024;
+static uint16_t screenHeight = 768;
 static float target_zoom = 1.5f;
 static bool request_shutdown;
 
@@ -29,9 +29,11 @@ void platform_init() {
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(screenWidth, screenHeight, "eco2d");
     SetWindowState(/*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT);
-    
+
+#if !defined(PLATFORM_WEB)
     screenWidth = (uint16_t)GetScreenWidth();
     screenHeight = (uint16_t)GetScreenHeight();
+#endif
     // ToggleFullscreen();
     // SetTargetFPS(60.0);
     
