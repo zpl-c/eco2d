@@ -226,11 +226,13 @@ static debug_item items[] = {
             .is_collapsed = 1
         }
     },
+#if !defined(PLATFORM_WEB)
     {
         .kind = DITEM_BUTTON,
         .name = "exit game",
         .on_click = ActExitGame,
     },
+#endif
     {.kind = DITEM_END},
 };
 
