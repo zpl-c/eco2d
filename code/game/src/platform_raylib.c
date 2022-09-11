@@ -136,6 +136,9 @@ void platform_input_update_input_frame(game_keystate_data data) {
 
 void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
+#if defined(PLATFORM_WEB)
+    mouse_z *= 30.0f;
+#endif
 
     if (mouse_z != 0.0f) {
         target_zoom = zpl_clamp(target_zoom+mouse_z, 0.1f, 10.0f);
