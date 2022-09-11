@@ -3,6 +3,7 @@ build_rel
 build_web
 emsdk
 deploy_web
+run_web
 butler
 screenshots
 build.bat

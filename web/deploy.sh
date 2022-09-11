@@ -20,10 +20,12 @@ if [ ! -d "butler" ]; then
 fi
 
 # Build web
-if [ -f "build_web/eco2d.html" ]; then
-    rm -rf build_web/eco2d.html
+if [ -f "build_web/index.html" ]; then
+    rm -rf build_web/index.html
 fi
-cmake --build build_web
+
+# Build the project
+web/build.sh
 
 # Package all assets
 if [ ! -f "build_web/eco2d.html" ]; then
@@ -33,9 +35,7 @@ fi
 
 mkdir deploy_web
 cp build_web/eco2d.* deploy_web/
-pushd deploy_web/
-    mv eco2d.html index.html
-popd
+cp buiid_web/index.html deploy_web/
 
 # Deploy to itch.io
 ./butler/butler push deploy_web/ zaklaus/eco2d:html-latest
