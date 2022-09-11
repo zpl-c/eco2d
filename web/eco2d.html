@@ -28,9 +28,17 @@
     <meta name="twitter:description" content="Small C99 2D game engine with a focus on prototyping">
 
     <style>
-        body { margin: 0px; background-color: black;}
-        canvas.emscripten { border: 0px none; background-color: black; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        html, body { margin: 0px; padding: 0px; background-color: black; width: 100%; height: 100%;}
+        canvas.emscripten {
+            border: 0px none; background-color: black;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
     <script type='text/javascript'>
@@ -53,9 +61,6 @@
     </script>
     </head>
     <body>
-        <div class="overlay">
-            <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(false, true);">
-        </div>
         <canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
         <script>
             var Module = {
@@ -73,6 +78,13 @@
                 })(),
                 canvas: (function() {
                     var canvas = document.getElementById('canvas');
+                    canvas.width  = window.innerWidth;
+                    canvas.height = window.innerHeight;
+
+                    window.addEventListener('resize', () => {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                    })
 
                     canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
 
