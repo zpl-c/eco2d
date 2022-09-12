@@ -19,11 +19,6 @@ if [ ! -d "butler" ]; then
     popd
 fi
 
-# Build web
-if [ -f "build_web/index.html" ]; then
-    rm -rf build_web/index.html
-fi
-
 # Build the project
 web/build.sh
 
