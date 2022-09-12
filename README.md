@@ -6,6 +6,7 @@
 
 <div align="center">
     <a href="https://discord.gg/2fZVEym"><img src="https://img.shields.io/discord/354670964400848898?color=7289DA&style=for-the-badge" alt="discord" /></a>
+    <a href="https://itch.io/zaklaus/eco2d"><img src="https://static.itch.io/images/badge-color.svg" alt="play" height="28px"/></a>
 </div>
 
 <br />
