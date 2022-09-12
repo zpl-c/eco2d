@@ -1,12 +1,12 @@
 <div align="center">
-    <a href="https://itch.io/zaklaus/eco2d"><img src="https://user-images.githubusercontent.com/2182108/111983468-d5593e80-8b12-11eb-9c59-8c78ecc0504e.png" alt="eco2d" /></a>
+    <a href="https://zaklaus.itch.io/eco2d"><img src="https://user-images.githubusercontent.com/2182108/111983468-d5593e80-8b12-11eb-9c59-8c78ecc0504e.png" alt="eco2d" /></a>
 </div>
 
 <br />
 
 <div align="center">
     <a href="https://discord.gg/2fZVEym"><img src="https://img.shields.io/discord/354670964400848898?color=7289DA&style=for-the-badge" alt="discord" /></a>
-    <a href="https://itch.io/zaklaus/eco2d"><img src="https://static.itch.io/images/badge-color.svg" alt="play" height="28px"/></a>
+    <a href="https://zaklaus.itch.io/eco2d"><img src="https://static.itch.io/images/badge-color.svg" alt="play" height="28px"/></a>
 </div>
 
 <br />
