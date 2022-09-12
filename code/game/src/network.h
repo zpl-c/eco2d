@@ -17,16 +17,16 @@ typedef struct {
     uint64_t total_received;
     uint32_t outgoing_total;
     uint64_t total_sent;
-    
+
     // NOTE(zaklaus): bandwidth (bytes/sec)
     float incoming_bandwidth;
     float outgoing_bandwidth;
-    
+
     // NOTE(zaklaus): packet integrity
     uint64_t packets_sent;
     uint32_t packets_lost;
     float packet_loss;
-    
+
     // NOTE(zaklaus): ping
     uint32_t ping;
     uint32_t low_ping;

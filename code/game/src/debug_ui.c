@@ -172,6 +172,7 @@ static debug_item items[] = {
         },
         .limit_to = L_MP,
     },
+#if !defined(PLATFORM_WEB)
     {
         .kind = DITEM_LIST,
         .name = "replay system",
@@ -209,6 +210,7 @@ static debug_item items[] = {
         },
         .limit_to = L_SP,
     },
+#endif
     {
         .kind = DITEM_LIST,
         .name = "profilers",
