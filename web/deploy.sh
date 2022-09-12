@@ -28,14 +28,14 @@ fi
 web/build.sh
 
 # Package all assets
-if [ ! -f "build_web/eco2d.html" ]; then
+if [ ! -f "build_web/index.html" ]; then
     echo "Build data not found. Compilation errors?"
     exit 1
 fi
 
-mkdir deploy_web
+mkdir -p deploy_web
 cp build_web/eco2d.* deploy_web/
-cp buiid_web/index.html deploy_web/
+cp build_web/index.html deploy_web/
 
 # Deploy to itch.io
 ./butler/butler push deploy_web/ zaklaus/eco2d:html-latest
