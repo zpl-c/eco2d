@@ -51,6 +51,30 @@ In the abstract sense, we call the Server the game master hosting all gameplay r
 
 # Build the project
 We use CMake to generate project files and manage builds.
+
+## Web
+We have a set of scripts ready for web development, these steps will get you up and running with a web build:
+```sh
+# Setup emsdk locally and configure a web project
+web/setup.sh
+
+# Build the web project
+web/build.sh
+
+# Host the files on a web server (Python3)
+web/host.sh
+```
+
+## Desktop
+### Pre-requisites
+#### Linux
+Follow [raylib-linux](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux) guide to install dependencies on your system.
+
+#### macOS
+Follow [raylib-macos](https://github.com/raysan5/raylib/wiki/Working-on-macOS) guide to install dependencies on your system.
+#### Windows
+You need to have Visual Studio 2019+ installed on your system. Make sure to run the commands below in a VS Developer Command Prompt.
+### Build
 You can do the following on the command line to create and build this project:
 ```sh
 git clone https://github.com/zpl-c/eco2d.git
@@ -61,10 +85,6 @@ cmake --build build
 
 Run the following command to see all the options:
 ```sh
-Windows:
-build\Debug\eco2d.exe -?
-
-Linux:
 build\eco2d.exe -?
 ```
 
