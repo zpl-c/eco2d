@@ -37,7 +37,7 @@ typedef struct {
 #define DBG_GAP_HEIGHT DBG_FONT_SPACING * 0.5f
 
 static uint8_t is_shadow_rendered;
-static uint8_t is_debug_open = 1;
+static uint8_t is_debug_open = 0;
 static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
