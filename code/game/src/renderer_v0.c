@@ -79,7 +79,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
                     DrawTexturePro(GetSpriteTexture2D(assets_find(it_kind)), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
                     
                     if (!inv_is_open)
-                        DrawTextEco(zpl_bprintf("%d", qty), ix+24, iy+24, 8, RAYWHITE, 0.0f); 
+                        DrawTextEco(zpl_bprintf("%d", qty), x+24, y+24, 8, RAYWHITE, 0.0f); 
                 }
             }
         }break;
