@@ -1,7 +1,7 @@
 static Camera2D render_camera;
 static float zoom_overlay_tran = 0.0f;
 
-#define CAM_OVERLAY_ZOOM_LEVEL 0.80f
+#define CAM_OVERLAY_ZOOM_LEVEL 0.15f
 #define ALPHA(x) ColorAlpha(x, data->tran_time)
 
 float zpl_lerp(float,float,float);
@@ -47,10 +47,8 @@ void DEBUG_draw_overlay(uint64_t key, entity_view * data) {
             float x = data->x * size + offset;
             float y = data->y * size + offset;
 
-            if (zoom_overlay_tran > 0.02f) {
-                DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV((float)data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
-                DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), x+15.0f, y+15.0f, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0);
-            }
+            DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV((float)data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
+            DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), x+15.0f, y+15.0f, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0);
         }break;
 
         default:break;
@@ -150,7 +148,10 @@ void renderer_draw_v0(void) {
     game_world_view_active_entity_map(DEBUG_draw_ground);
     game_world_view_active_entity_map(DEBUG_draw_entities_low);
     game_world_view_active_entity_map(DEBUG_draw_entities);
-    game_world_view_active_entity_map(DEBUG_draw_overlay);
+
+    if (zoom_overlay_tran > 0.02f) {
+        game_world_view_active_entity_map(DEBUG_draw_overlay);
+    }
     EndMode2D();
 }
 

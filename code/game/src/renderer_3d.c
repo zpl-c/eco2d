@@ -1,8 +1,6 @@
 static Camera3D render_camera_3d;
 static float cam_zoom = 1.5f;
 
-#define CAM_OVERLAY_ZOOM_LEVEL 0.80f
-
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
