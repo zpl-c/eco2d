@@ -22,80 +22,80 @@ static world_snapshot streamer_snapshot;
 entity_view world_build_entity_view(int64_t e) {
     entity_view *cached_ev = world_snapshot_get(&streamer_snapshot, e);
     if (cached_ev) return *cached_ev;
-    
+
     entity_view view = {0};
-    
+
     const Classify *classify = ecs_get(world_ecs(), e, Classify);
     ZPL_ASSERT(classify);
-    
+
     view.kind = classify->id;
-    
+
     const Position *pos = ecs_get(world_ecs(), e, Position);
     if (pos) {
         view.x = pos->x;
         view.y = pos->y;
     }
-    
+
     const Velocity *vel = ecs_get(world_ecs(), e, Velocity);
     if (vel) {
         view.flag |= EFLAG_INTERP;
         view.vx = vel->x;
         view.vy = vel->y;
     }
-    
+
     const Health *health = ecs_get(world_ecs(), e, Health);
     if (health) {
         view.hp = health->hp;
         view.max_hp = health->max_hp;
     }
-    
+
     if (ecs_get(world_ecs(), e, Vehicle)) {
         Vehicle const* veh = ecs_get(world_ecs(), e, Vehicle);
         view.heading = veh->heading;
     }
-    
+
     if (ecs_get(world_ecs(), e, ItemDrop)) {
         ItemDrop const* dr = ecs_get(world_ecs(), e, ItemDrop);
         view.asset = dr->kind;
         view.quantity = dr->quantity;
     }
-    
+
     if (ecs_get(world_ecs(), e, Device)) {
         Device const* dev = ecs_get(world_ecs(), e, Device);
         view.asset = dev->asset;
     }
-    
+
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
-    
+
     Inventory *inv = 0;
     if ((inv = ecs_get_mut_if(world_ecs(), e, Inventory))) {
         view.has_items = true;
-        
+
         for (int i = 0; i < ITEMS_INVENTORY_SIZE; i += 1) {
             view.items[i] = inv->items[i];
         }
-        
+
         const Input *in = ecs_get(world_ecs(), e, Input);
         if (in){
             view.selected_item = in->selected_item;
             view.pick_ent = (uint64_t)in->pick_ent;
             view.sel_ent = (uint64_t)in->sel_ent;
-            
+
             if (world_entity_valid(in->storage_ent)){
                 ItemContainer *ic = 0;
                 if ((ic = ecs_get_mut_if(world_ecs(), in->storage_ent, ItemContainer))){
                     view.has_storage_items = true;
-                    
+
                     for (int i = 0; i < ITEMS_CONTAINER_SIZE; i += 1) {
                         view.storage_items[i] = ic->items[i];
                     }
-                    
+
                     view.storage_selected_item = in->storage_selected_item;
                 }
             }
         }
     }
-    
+
     Chunk *chunk = 0;
     if ((chunk = ecs_get_mut_if(world_ecs(), e, Chunk))) {
         view.x = chunk->x;
@@ -103,16 +103,16 @@ entity_view world_build_entity_view(int64_t e) {
         view.blocks_used = 1;
         view.is_dirty = chunk->is_dirty;
         chunk->is_dirty = false;
-        
+
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
             view.blocks[i] = world.block_mapping[chunk->id][i];
         }
-        
+
         for (int i = 0; i < world.chunk_size*world.chunk_size; i += 1) {
             view.outer_blocks[i] = world.outer_block_mapping[chunk->id][i];
         }
     }
-    
+
     world_snapshot_set(&streamer_snapshot, e, view);
     return view;
 }
@@ -127,7 +127,7 @@ int32_t tracker_write_create(librg_world *w, librg_event *e) {
 #endif
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
-    
+
     return (int32_t)entity_view_pack_struct(buffer, actual_length, world_build_entity_view(entity_id));
 }
 
@@ -148,14 +148,14 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
     entity_view view = world_build_entity_view(entity_id);
-    
+
     // NOTE(zaklaus): exclude chunks from updates as they never move
     {
         if (view.kind == EKIND_CHUNK && !view.is_dirty) {
             return LIBRG_WRITE_REJECT;
         }
     }
-    
+
     // NOTE(zaklaus): action-based updates
 #if ECO2D_STREAM_ACTIONFILTER
     {
@@ -164,7 +164,7 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
         }
     }
 #endif
-    
+
     return (int32_t)entity_view_pack_struct(buffer, actual_length, view);
 }
 
@@ -187,15 +187,15 @@ void world_chunk_setup_grid(void) {
         world.outer_block_mapping[i] = zpl_malloc(sizeof(block_id)*zpl_square(world.chunk_size));
         chunk->id = i;
         chunk->is_dirty = false;
-        
+
         for (int y = 0; y < world.chunk_size; y += 1) {
             for (int x = 0; x < world.chunk_size; x += 1) {
                 int chk_x = chunk->x * world.chunk_size;
                 int chk_y = chunk->y * world.chunk_size;
-                
+
                 block_id *c = &world.block_mapping[i][(y*world.chunk_size)+x];
                 *c = world.data[(chk_y+y)*world.dim + (chk_x+x)];
-                
+
                 c = &world.outer_block_mapping[i][(y*world.chunk_size)+x];
                 *c = world.outer_data[(chk_y+y)*world.dim + (chk_x+x)];
             }
@@ -206,14 +206,14 @@ void world_chunk_setup_grid(void) {
 static inline
 void world_configure_tracker(void) {
     world.tracker = librg_world_create();
-    
+
     ZPL_ASSERT_MSG(world.tracker, "[ERROR] An error occurred while trying to create a server world.");
-    
+
     /* config our world grid */
-    librg_config_chunksize_set(world.tracker, WORLD_BLOCK_SIZE * world.chunk_size, WORLD_BLOCK_SIZE * world.chunk_size, 0);
+    librg_config_chunksize_set(world.tracker, WORLD_BLOCK_SIZE * world.chunk_size, WORLD_BLOCK_SIZE * world.chunk_size, 1);
     librg_config_chunkamount_set(world.tracker, world.chunk_amount, world.chunk_amount, 0);
     librg_config_chunkoffset_set(world.tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG);
-    
+
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
     librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
@@ -223,14 +223,14 @@ static inline
 void world_init_worldgen_data(void) {
     world.data = zpl_malloc(sizeof(block_id)*world.size);
     world.outer_data = zpl_malloc(sizeof(block_id)*world.size);
-    
+
     ZPL_ASSERT(world.data && world.outer_data);
 }
 
 static inline
 void world_setup_ecs(void) {
     world.ecs = ecs_init();
-    
+
     ECS_IMPORT(world.ecs, Components);
     ECS_IMPORT(world.ecs, Systems);
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
@@ -249,7 +249,7 @@ static inline
 void world_generate_instance(void) {
     int32_t world_build_status = worldgen_test(&world);
     ZPL_ASSERT(world_build_status >= 0);
-    
+
     for (int i = 0; i < zpl_square(world.dim); ++i) {
         if (world.data[i] == 0) {
             ZPL_PANIC("Worldgen failure! Block %d is unset!\n", i);
@@ -271,10 +271,10 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.seed = seed;
     world.chunk_size = chunk_size;
     world.chunk_amount = chunk_amount;
-    
+
     world.dim = (world.chunk_size * world.chunk_amount);
     world.size = world.dim * world.dim;
-    
+
     world_configure_tracker();
     world_setup_ecs();
     world_init_worldgen_data();
@@ -282,9 +282,9 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world_init_mapping();
     world_chunk_setup_grid();
     world_free_worldgen_data();
-    
+
     zpl_printf("[INFO] Created a new server world\n");
-    
+
     return WORLD_ERROR_NONE;
 }
 
@@ -309,33 +309,33 @@ int32_t world_destroy(void) {
 static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
     if (world.tracker_update[ticker] > (float)zpl_time_rel()) return;
     world.tracker_update[ticker] = (float)zpl_time_rel() + freq;
-    
+
     profile(PROF_WORLD_WRITE) {
         ecs_iter_t it = ecs_query_iter(world_ecs(), world.ecs_update);
         static char buffer[WORLD_LIBRG_BUFSIZ] = {0};
         world.active_layer_id = ticker;
-        
+
         while (ecs_query_next(&it)) {
             ClientInfo *p = ecs_field(&it, ClientInfo, 1);
-            
+
             for (int i = 0; i < it.count; i++) {
                 size_t datalen = WORLD_LIBRG_BUFSIZ;
-                
+
                 if (!p[i].active)
                     continue;
-                
+
                 int32_t result = librg_world_write(world_tracker(), it.entities[i], radius, buffer, &datalen, NULL);
-                
+
                 if (result > 0) {
                     zpl_printf("[info] buffer size was not enough, please increase it by at least: %d\n", result);
                 } else if (result < 0) {
                     zpl_printf("[error] an error happened writing the world %d\n", result);
                 }
-                
+
                 pkt_send_librg_update((uint64_t)p[i].peer, p[i].view_id, ticker, buffer, datalen);
             }
         }
-        
+
         // NOTE(zaklaus): clear out our streaming snapshot
         // TODO(zaklaus): move this to zpl
         {
@@ -349,21 +349,21 @@ int32_t world_update() {
     profile (PROF_UPDATE_SYSTEMS) {
         ecs_progress(world.ecs, 0.0f);
     }
-    
+
     float fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
     float normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
     float slow_ms = WORLD_TRACKER_UPDATE_SLOW_MS;
-    
+
     if (game_get_kind() != GAMEKIND_SINGLE) {
         fast_ms = WORLD_TRACKER_UPDATE_MP_FAST_MS;
         normal_ms = WORLD_TRACKER_UPDATE_MP_NORMAL_MS;
         slow_ms = WORLD_TRACKER_UPDATE_MP_SLOW_MS;
     }
-    
+
     world_tracker_update(0, fast_ms, 1);
     world_tracker_update(1, normal_ms, 2);
     world_tracker_update(2, slow_ms, 3);
-    
+
     entity_update_action_timers();
     debug_replay_update();
     return 0;
@@ -459,11 +459,11 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     int32_t size = world.chunk_size * WORLD_BLOCK_SIZE;
     int16_t chunk_x, chunk_y;
     librg_chunk_to_chunkpos(world.tracker, chunk_id, &chunk_x, &chunk_y, NULL);
-    
+
     // NOTE(zaklaus): pos relative to chunk
     float chx = x - chunk_x * size;
     float chy = y - chunk_y * size;
-    
+
     uint16_t bx = (uint16_t)chx / WORLD_BLOCK_SIZE;
     uint16_t by = (uint16_t)chy / WORLD_BLOCK_SIZE;
     uint16_t block_idx = (by*world.chunk_size)+bx;
@@ -473,11 +473,11 @@ world_block_lookup world_block_from_realpos(float x, float y) {
         bid = world.block_mapping[chunk_id][block_idx];
         is_outer = false;
     }
-    
+
     // NOTE(zaklaus): pos relative to block's center
     float box = chx - bx * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
     float boy = chy - by * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
-    
+
     world_block_lookup lookup = {
         .id = block_idx,
         .bid = bid,
@@ -487,7 +487,7 @@ world_block_lookup world_block_from_realpos(float x, float y) {
         .oy = boy,
         .is_outer = is_outer,
     };
-    
+
     return lookup;
 }
 
@@ -495,12 +495,12 @@ void world_chunk_destroy_block(float x, float y, bool drop_item) {
     world_block_lookup l = world_block_from_realpos(x, y);
     if (blocks_get_flags(l.bid) & BLOCK_FLAG_ESSENTIAL) return;
     world_chunk_replace_block(l.chunk_id, l.id, 0);
-    
+
     if (l.is_outer && l.bid > 0 && drop_item) {
         asset_id item_asset = blocks_get_asset(l.bid);
         if (item_find(item_asset) == ASSET_INVALID) return;
         uint64_t e = item_spawn(item_asset, 1);
-        
+
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = x;
         dest->y = y;
@@ -512,14 +512,14 @@ world_block_lookup world_block_from_index(int64_t id, uint16_t block_idx) {
     if (bid == 0) {
         bid = world.block_mapping[id][block_idx];
     }
-    
+
     world_block_lookup lookup = {
         .id = block_idx,
         .bid = bid,
         .chunk_id = id,
         .chunk_e = world.chunk_mapping[id],
     };
-    
+
     return lookup;
 }
 

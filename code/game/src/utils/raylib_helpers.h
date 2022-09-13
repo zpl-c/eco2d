@@ -157,6 +157,12 @@ void EcoDrawCube(Vector3 position, float width, float height, float length, floa
 // Draw codepoint at specified position in 3D space
 void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontSize, bool backface, Color tint)
 {
+    (void)font;
+    (void)codepoint;
+    (void)position;
+    (void)fontSize;
+    (void)backface;
+    (void)tint;
 #if 0
     // Character index position in sprite font
     // NOTE: In case a codepoint is not available in the font, index returned points to '?'

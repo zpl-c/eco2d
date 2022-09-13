@@ -30,7 +30,7 @@ int32_t pkt_00_init_handler(pkt_header *header) {
 
     Position *pos = ecs_get_mut(world_ecs(), ent_id, Position);
 
-#if 0
+#if 1
     pos->x = world_dim()/2.0f + rand()%15*15.0f;
     pos->y = world_dim()/2.0f + rand()%15*15.0f;
 #else

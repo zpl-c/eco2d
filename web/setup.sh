@@ -17,4 +17,4 @@ emsdk activate latest
 source ./emsdk/emsdk_env.sh
 
 # Setup web build
-emcmake cmake -S . -B build_web -DCMAKE_BUILD_TYPE=Debug -DPLATFORM=Web
+emcmake cmake -S . -B build_web -DCMAKE_BUILD_TYPE=Release -DPLATFORM=Web

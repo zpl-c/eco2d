@@ -25,6 +25,7 @@ static BOOL WINAPI _sighandler_win32_control_handler(DWORD control_type)
 #else //POSIX complaint
 #include <sys/types.h>
 static void _sighandler_posix_signal_handler(int sig) {
+    (void)sig;
     game_request_close();
 }
 #endif

@@ -87,7 +87,7 @@ void entity_update_action_timers() {
     while (ecs_query_next(&it)) {
         StreamInfo *si = ecs_field(&it, StreamInfo, 1);
         
-        for (size_t i = 0; i < it.count; i++) {
+        for (int32_t i = 0; i < it.count; i++) {
             if (si[i].last_update < zpl_time_rel()) {
                 si[i].last_update = zpl_time_rel() + si[i].tick_delay;
                 si[i].tick_delay += (zpl_time_rel() - last_update_time) * 0.5f;

@@ -73,7 +73,7 @@ void world_viewers_init(uint32_t num_viewers) {
 }
 
 void world_viewers_destroy() {
-    for (uint32_t i = 0; i < zpl_buffer_count(world_viewers); i++) {
+    for (zpl_isize i = 0; i < zpl_buffer_count(world_viewers); i++) {
         world_view_destroy(&world_viewers[i]);
     }
     zpl_buffer_free(world_viewers);
