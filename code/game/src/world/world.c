@@ -19,9 +19,9 @@ ZPL_TABLE(static, world_snapshot, world_snapshot_, entity_view);
 static world_data world = {0};
 static world_snapshot streamer_snapshot;
 
-entity_view world_build_entity_view(int64_t e) {
+entity_view *world_build_entity_view(int64_t e) {
     entity_view *cached_ev = world_snapshot_get(&streamer_snapshot, e);
-    if (cached_ev) return *cached_ev;
+    if (cached_ev) return cached_ev;
 
     entity_view view = {0};
 
@@ -114,7 +114,7 @@ entity_view world_build_entity_view(int64_t e) {
     }
 
     world_snapshot_set(&streamer_snapshot, e, view);
-    return view;
+    return world_snapshot_get(&streamer_snapshot, e);
 }
 
 int32_t tracker_write_create(librg_world *w, librg_event *e) {
@@ -147,11 +147,11 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     int64_t entity_id = librg_event_entity_get(w, e);
     size_t actual_length = librg_event_size_get(w, e);
     char *buffer = librg_event_buffer_get(w, e);
-    entity_view view = world_build_entity_view(entity_id);
+    entity_view *view = world_build_entity_view(entity_id);
 
     // NOTE(zaklaus): exclude chunks from updates as they never move
     {
-        if (view.kind == EKIND_CHUNK && !view.is_dirty) {
+        if (view->kind == EKIND_CHUNK && !view->is_dirty) {
             return LIBRG_WRITE_REJECT;
         }
     }
@@ -159,7 +159,7 @@ int32_t tracker_write_update(librg_world *w, librg_event *e) {
     // NOTE(zaklaus): action-based updates
 #if ECO2D_STREAM_ACTIONFILTER
     {
-        if (view.kind != EKIND_CHUNK && !entity_can_stream(entity_id)) {
+        if (view->kind != EKIND_CHUNK && !entity_can_stream(entity_id)) {
             return LIBRG_WRITE_REJECT;
         }
     }

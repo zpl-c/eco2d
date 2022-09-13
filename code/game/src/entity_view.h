@@ -96,7 +96,7 @@ void entity_view_destroy(entity_view_tbl *map, uint64_t ent_id);
 entity_view *entity_view_get(entity_view_tbl *map, uint64_t ent_id);
 void entity_view_map(entity_view_tbl *map, void (*map_proc)(uint64_t key, entity_view *value));
 
-size_t entity_view_pack_struct(void *data, size_t len, entity_view view);
+size_t entity_view_pack_struct(void *data, size_t len, entity_view *view);
 entity_view entity_view_unpack_struct(void *data, size_t len);
 
 void entity_view_mark_for_removal(entity_view_tbl *map, uint64_t ent_id);
