@@ -10,115 +10,46 @@
 static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
 
 static inline
-void DrawTextCodepointEco(Font font, int codepoint, Vector2 position, float fontSize, Color tint)
-{
-    // Character index position in sprite font
-    // NOTE: In case a codepoint is not available in the font, index returned points to '?'
-    int index = GetGlyphIndex(font, codepoint);
-    float scaleFactor = fontSize/font.baseSize;     // Character quad scaling factor
-
-    // Character destination rectangle on screen
-    // NOTE: We consider glyphPadding on drawing
-    Rectangle dstRec = { position.x + font.glyphs[index].offsetX*scaleFactor - (float)font.glyphPadding*scaleFactor,
-                      position.y + font.glyphs[index].offsetY*scaleFactor - (float)font.glyphPadding*scaleFactor,
-                      (font.recs[index].width + 2.0f*font.glyphPadding)*scaleFactor,
-                      (font.recs[index].height + 2.0f*font.glyphPadding)*scaleFactor };
-
-    // Character source rectangle from font texture atlas
-    // NOTE: We consider chars padding when drawing, it could be required for outline/glow shader effects
-    Rectangle srcRec = { font.recs[index].x - (float)font.glyphPadding, font.recs[index].y - (float)font.glyphPadding,
-                         font.recs[index].width + 2.0f*font.glyphPadding, font.recs[index].height + 2.0f*font.glyphPadding };
-
-    // Draw the character texture on the screen
-    DrawTexturePro(font.texture, srcRec, dstRec, (Vector2){ 0, 0 }, 0.0f, tint);
-}
-
-static inline
-void DrawTextExEco(Font font, const char *text, Vector2 position, float fontSize, float spacing, Color tint)
-{
-    if (font.texture.id == 0) font = GetFontDefault();  // Security check in case of not valid font
-
-    int size = TextLength(text);    // Total size in bytes of the text, scanned by codepoints in loop
-
-    int textOffsetY = 0;            // Offset between lines (on line break '\n')
-    float textOffsetX = 0.0f;       // Offset X to next character to draw
-
-    float scaleFactor = fontSize/font.baseSize;         // Character quad scaling factor
-
-    for (int i = 0; i < size;)
-    {
-        // Get next codepoint from byte string and glyph index in font
-        int codepointByteCount = 0;
-        int codepoint = GetCodepoint(&text[i], &codepointByteCount);
-        int index = GetGlyphIndex(font, codepoint);
-
-        // NOTE: Normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
-        // but we need to draw all of the bad bytes using the '?' symbol moving one byte
-        if (codepoint == 0x3f) codepointByteCount = 1;
-
-        if (codepoint == '\n')
-        {
-            // NOTE: Fixed line spacing of 1.5 line-height
-            // TODO: Support custom line spacing defined by user
-            textOffsetY += (int)((font.baseSize + font.baseSize/2.0f)*scaleFactor);
-            textOffsetX = 0.0f;
-        }
-        else
-        {
-            if ((codepoint != ' ') && (codepoint != '\t'))
-            {
-                DrawTextCodepointEco(font, codepoint, (Vector2){ position.x + textOffsetX, position.y + textOffsetY }, fontSize, tint);
-            }
-
-            if (font.glyphs[index].advanceX == 0) textOffsetX += ((float)font.recs[index].width*scaleFactor + spacing);
-            else textOffsetX += ((float)font.glyphs[index].advanceX*scaleFactor + spacing);
-        }
-
-        i += codepointByteCount;   // Move text bytes counter to next codepoint
-    }
-}
-
-static inline 
 void DrawTextEco(const char *text, float posX, float posY, float fontSize, Color color, float spacing) {
 #if 1
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         Vector2 position = { posX , posY  };
-        
+
         float defaultFontSize = 10.0;   // Default Font chars height in pixel
         float new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
-        
-        DrawTextExEco(GetFontDefault(), text, position, fontSize , new_spacing , color);
+
+        DrawTextEx(GetFontDefault(), text, position, fontSize , new_spacing , color);
     }
 #endif
 }
 
-static inline 
+static inline
 float MeasureTextEco(const char *text, float fontSize, float spacing) {
 #if 1
     Vector2 vec = { 0.0f, 0.0f };
-    
+
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         float defaultFontSize = 10.0;   // Default Font chars height in pixel
         float new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
-        
+
         vec = MeasureTextEx(GetFontDefault(), text, fontSize, (float)new_spacing);
     }
-    
+
     return vec.x;
 #else
     return 0.f;
 #endif
 }
 
-static inline 
+static inline
 void DrawCircleEco(float centerX, float centerY, float radius, Color color)
 {
     DrawCircleV((Vector2){ (float)centerX , (float)centerY  }, radius , color);
 }
 
-static inline 
+static inline
 void DrawRectangleEco(float posX, float posY, float width, float height, Color color)
 {
     DrawRectangleV((Vector2){ (float)posX , (float)posY  }, (Vector2){ width , height  }, color);
@@ -154,68 +85,68 @@ void EcoDrawCube(Vector3 position, float width, float height, float length, floa
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
-    
+
     rlCheckRenderBatchLimit(36);
-    
+
     rlPushMatrix();
     // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
     rlTranslatef(position.x, position.y, position.z);
     rlRotatef(heading, 0, 1, 0);
     //rlScalef(1.0f, 1.0f, 1.0f);   // NOTE: Vertices are directly scaled on definition
-    
+
     rlBegin(RL_TRIANGLES);
     rlColor4ub(color.r, color.g, color.b, color.a);
-    
+
     // Front face
     rlVertex3f(x - width/2, y - height/2, z + length/2);  // Bottom Left
     rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
     rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
-    
+
     rlVertex3f(x + width/2, y + height/2, z + length/2);  // Top Right
     rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
     rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
-    
+
     // Back face
     rlVertex3f(x - width/2, y - height/2, z - length/2);  // Bottom Left
     rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
     rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
-    
+
     rlVertex3f(x + width/2, y + height/2, z - length/2);  // Top Right
     rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
     rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
-    
+
     // Top face
     rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
     rlVertex3f(x - width/2, y + height/2, z + length/2);  // Bottom Left
     rlVertex3f(x + width/2, y + height/2, z + length/2);  // Bottom Right
-    
+
     rlVertex3f(x + width/2, y + height/2, z - length/2);  // Top Right
     rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Left
     rlVertex3f(x + width/2, y + height/2, z + length/2);  // Bottom Right
-    
+
     // Bottom face
     rlVertex3f(x - width/2, y - height/2, z - length/2);  // Top Left
     rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
     rlVertex3f(x - width/2, y - height/2, z + length/2);  // Bottom Left
-    
+
     rlVertex3f(x + width/2, y - height/2, z - length/2);  // Top Right
     rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Right
     rlVertex3f(x - width/2, y - height/2, z - length/2);  // Top Left
-    
+
     // Right face
     rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
     rlVertex3f(x + width/2, y + height/2, z - length/2);  // Top Right
     rlVertex3f(x + width/2, y + height/2, z + length/2);  // Top Left
-    
+
     rlVertex3f(x + width/2, y - height/2, z + length/2);  // Bottom Left
     rlVertex3f(x + width/2, y - height/2, z - length/2);  // Bottom Right
     rlVertex3f(x + width/2, y + height/2, z + length/2);  // Top Left
-    
+
     // Left face
     rlVertex3f(x - width/2, y - height/2, z - length/2);  // Bottom Right
     rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
     rlVertex3f(x - width/2, y + height/2, z - length/2);  // Top Right
-    
+
     rlVertex3f(x - width/2, y - height/2, z + length/2);  // Bottom Left
     rlVertex3f(x - width/2, y + height/2, z + length/2);  // Top Left
     rlVertex3f(x - width/2, y - height/2, z - length/2);  // Bottom Right
@@ -237,32 +168,32 @@ void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontS
     // NOTE: In case a codepoint is not available in the font, index returned points to '?'
     int index = GetGlyphIndex(font, codepoint);
     float scale = fontSize/(float)font.baseSize;
-    
+
     // Character destination rectangle on screen
     // NOTE: We consider charsPadding on drawing
     position.x += (float)(font.chars[index].offsetX - font.charsPadding)/(float)font.baseSize*scale;
     position.z += (float)(font.chars[index].offsetY - font.charsPadding)/(float)font.baseSize*scale;
-    
+
     // Character source rectangle from font texture atlas
     // NOTE: We consider chars padding when drawing, it could be required for outline/glow shader effects
     Rectangle srcRec = { font.recs[index].x - (float)font.charsPadding, font.recs[index].y - (float)font.charsPadding,
         font.recs[index].width + 2.0f*font.charsPadding, font.recs[index].height + 2.0f*font.charsPadding };
-    
+
     float width = (float)(font.recs[index].width + 2.0f*font.charsPadding)/(float)font.baseSize*scale;
     float height = (float)(font.recs[index].height + 2.0f*font.charsPadding)/(float)font.baseSize*scale;
-    
+
     if (font.texture.id > 0)
     {
         const float x = 0.0f;
         const float y = 0.0f;
         const float z = 0.0f;
-        
+
         // normalized texture coordinates of the glyph inside the font texture (0.0f -> 1.0f)
         const float tx = srcRec.x/font.texture.width;
         const float ty = srcRec.y/font.texture.height;
         const float tw = (srcRec.x+srcRec.width)/font.texture.width;
         const float th = (srcRec.y+srcRec.height)/font.texture.height;
-        
+
         {
 #if defined(RAYLIB_NEW_RLGL)
         }
@@ -274,17 +205,17 @@ void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontS
 #endif
         rlPushMatrix();
         rlTranslatef(position.x, position.y, position.z);
-        
+
         rlBegin(RL_QUADS);
         rlColor4ub(tint.r, tint.g, tint.b, tint.a);
-        
+
         // Front Face
         rlNormal3f(0.0f, 1.0f, 0.0f);                                   // Normal Pointing Up
         rlTexCoord2f(tx, ty); rlVertex3f(x,         y, z);              // Top Left Of The Texture and Quad
         rlTexCoord2f(tx, th); rlVertex3f(x,         y, z + height);     // Bottom Left Of The Texture and Quad
         rlTexCoord2f(tw, th); rlVertex3f(x + width, y, z + height);     // Bottom Right Of The Texture and Quad
         rlTexCoord2f(tw, ty); rlVertex3f(x + width, y, z);              // Top Right Of The Texture and Quad
-        
+
         if (backface)
         {
             // Back Face
@@ -296,7 +227,7 @@ void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontS
         }
         rlEnd();
         rlPopMatrix();
-        
+
 #if defined(RAYLIB_NEW_RLGL)
         rlSetTexture(0);
 #else
@@ -309,23 +240,23 @@ void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontS
 void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, float fontSpacing, float lineSpacing, bool backface, Color tint) {
 #if 0
     int length = TextLength(text);          // Total length in bytes of the text, scanned by codepoints in loop
-    
+
     float textOffsetY = 0.0f;               // Offset between lines (on line break '\n')
     float textOffsetX = 0.0f;               // Offset X to next character to draw
-    
+
     float scale = fontSize/(float)font.baseSize;
-    
+
     for (int i = 0; i < length;)
     {
         // Get next codepoint from byte string and glyph index in font
         int codepointByteCount = 0;
         int codepoint = GetCodepoint(&text[i], &codepointByteCount);
         int index = GetGlyphIndex(font, codepoint);
-        
+
         // NOTE: Normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
         // but we need to draw all of the bad bytes using the '?' symbol moving one byte
         if (codepoint == 0x3f) codepointByteCount = 1;
-        
+
         if (codepoint == '\n')
         {
             // NOTE: Fixed line spacing of 1.5 line-height
@@ -339,46 +270,46 @@ void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, f
             {
                 DrawTextCodepoint3D(font, codepoint, (Vector3){ position.x + textOffsetX, position.y, position.z + textOffsetY }, fontSize, backface, tint);
             }
-            
+
             if (font.chars[index].advanceX == 0) textOffsetX += (float)(font.recs[index].width + fontSpacing)/(float)font.baseSize*scale;
             else textOffsetX += (float)(font.chars[index].advanceX + fontSpacing)/(float)font.baseSize*scale;
         }
-        
+
         i += codepointByteCount;   // Move text bytes counter to next codepoint
-        
+
     }
 #endif
 }
 
 Vector3 MeasureText3D(Font font, const char* text, float fontSize, float fontSpacing, float lineSpacing) {
-    
-#if 0    
+
+#if 0
     int len = TextLength(text);
     int tempLen = 0;                // Used to count longer text line num chars
     int lenCounter = 0;
-    
+
     float tempTextWidth = 0.0f;     // Used to count longer text line width
-    
+
     float scale = fontSize/(float)font.baseSize;
     float textHeight = scale;
     float textWidth = 0.0f;
-    
+
     int letter = 0;                 // Current character
     int index = 0;                  // Index position in sprite font
-    
+
     for (int i = 0; i < len; i++)
     {
         lenCounter++;
-        
+
         int next = 0;
         letter = GetCodepoint(&text[i], &next);
         index = GetGlyphIndex(font, letter);
-        
+
         // NOTE: normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
         // but we need to draw all of the bad bytes using the '?' symbol so to not skip any we set next = 1
         if (letter == 0x3f) next = 1;
         i += next - 1;
-        
+
         if (letter != '\n')
         {
             if (font.chars[index].advanceX != 0) textWidth += (font.chars[index].advanceX+fontSpacing)/(float)font.baseSize*scale;
@@ -391,17 +322,17 @@ Vector3 MeasureText3D(Font font, const char* text, float fontSize, float fontSpa
             textWidth = 0.0f;
             textHeight += scale + lineSpacing/(float)font.baseSize*scale;
         }
-        
+
         if (tempLen < lenCounter) tempLen = lenCounter;
     }
-    
+
     if (tempTextWidth < textWidth) tempTextWidth = textWidth;
-    
+
     Vector3 vec = { 0 };
     vec.x = tempTextWidth + (float)((tempLen - 1)*fontSpacing/(float)font.baseSize*scale); // Adds chars spacing to measure
     vec.y = 0.25f;
     vec.z = textHeight;
-    
+
     return vec;
 #endif
     Vector3 todo = {0};
@@ -421,10 +352,10 @@ Color GenerateRandomColor(float s, float v) {
 void DrawCircleLinesEco(float centerX, float centerY, float radius, Color color)
 {
     rlCheckRenderBatchLimit(2*36);
-    
+
     rlBegin(RL_LINES);
     rlColor4ub(color.r, color.g, color.b, color.a);
-    
+
     // NOTE: Circle outline is drawn pixel by pixel every degree (0 to 360)
     for (int i = 0; i < 360; i += 10)
     {
@@ -440,13 +371,13 @@ void DrawRectangleLinesEco(float posX, float posY, float width, float height, Co
     rlColor4ub(color.r, color.g, color.b, color.a);
     rlVertex2f(posX + 1, posY + 1);
     rlVertex2f(posX + width, posY + 1);
-    
+
     rlVertex2f(posX + width, posY + 1);
     rlVertex2f(posX + width, posY + height);
-    
+
     rlVertex2f(posX + width, posY + height);
     rlVertex2f(posX + 1, posY + height);
-    
+
     rlVertex2f(posX + 1, posY + height);
     rlVertex2f(posX + 1, posY + 1);
     rlEnd();
