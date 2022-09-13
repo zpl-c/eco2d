@@ -7,7 +7,6 @@ float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
 void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
-    (void)key;
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
@@ -145,7 +144,7 @@ void renderer_debug_draw_3d(void) {
 }
 
 float renderer_zoom_get_3d(void) {
-    return 1.0f;
+    return cam_zoom;
 }
 
 void renderer_draw_single_3d(float x, float y, asset_id id, Color color) {
