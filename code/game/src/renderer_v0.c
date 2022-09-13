@@ -100,7 +100,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             float x = data->x;
             float y = data->y;
             const char *title = TextFormat("Bot %d", key);
-            int title_w = MeasureTextEco(title, font_size, font_spacing);
+            float title_w = MeasureTextEco(title, font_size, font_spacing);
             DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(GRAY, data->tran_time));
             DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(BLACK, data->tran_time), font_spacing);
             DrawCircleEco(x, y, size, ColorAlpha(PURPLE, data->tran_time));
