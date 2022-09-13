@@ -79,36 +79,36 @@ void DrawTextExEco(Font font, const char *text, Vector2 position, float fontSize
 }
 
 static inline 
-void DrawTextEco(const char *text, float posX, float posY, int fontSize, Color color, float spacing) {
+void DrawTextEco(const char *text, float posX, float posY, float fontSize, Color color, float spacing) {
 #if 1
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         Vector2 position = { posX , posY  };
         
         float defaultFontSize = 10.0;   // Default Font chars height in pixel
-        float new_spacing = spacing == 0.0f ? fontSize/(float)defaultFontSize : spacing;
+        float new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
         
-        DrawTextExEco(GetFontDefault(), text, position, (float)fontSize , (float)new_spacing , color);
+        DrawTextExEco(GetFontDefault(), text, position, fontSize , new_spacing , color);
     }
 #endif
 }
 
 static inline 
-int MeasureTextEco(const char *text, int fontSize, float spacing) {
+float MeasureTextEco(const char *text, float fontSize, float spacing) {
 #if 1
     Vector2 vec = { 0.0f, 0.0f };
     
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         float defaultFontSize = 10.0;   // Default Font chars height in pixel
-        float new_spacing = spacing == 0.0f ? (float)fontSize/defaultFontSize : spacing;
+        float new_spacing = spacing == 0.0f ? fontSize/defaultFontSize : spacing;
         
-        vec = MeasureTextEx(GetFontDefault(), text, (float)fontSize, (float)new_spacing);
+        vec = MeasureTextEx(GetFontDefault(), text, fontSize, (float)new_spacing);
     }
     
-    return (int)vec.x;
+    return vec.x;
 #else
-    return 0;
+    return 0.f;
 #endif
 }
 
