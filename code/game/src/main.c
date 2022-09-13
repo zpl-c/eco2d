@@ -100,10 +100,14 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-#if defined(EMSCRIPTEN)
+#if defined(PLATFORM_WEB)
 void UpdateDrawFrame(void) {
-    game_input();
-    game_update();
-    game_render();
+    profile (PROF_MAIN_LOOP) {
+        game_input();
+        game_update();
+        game_render();
+    }
+
+    profiler_collate();
 }
 #endif
