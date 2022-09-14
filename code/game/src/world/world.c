@@ -508,6 +508,7 @@ void world_chunk_destroy_block(float x, float y, bool drop_item) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = x;
         dest->y = y;
+        entity_set_position(e, dest->x, dest->y);
     }
 }
 
