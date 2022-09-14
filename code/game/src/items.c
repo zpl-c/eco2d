@@ -86,9 +86,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
 
             ecs_entity_t e = entity_spawn_id(desc->place_item.id);
             ZPL_ASSERT(world_entity_valid(e));
-            Position *pos = ecs_get_mut(ecs, e, Position);
-            pos->x = p.x;
-            pos->y = p.y;
+            entity_set_position(e, p.x, p.y);
 
             it->quantity--;
         }break;

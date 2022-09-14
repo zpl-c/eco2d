@@ -16,6 +16,7 @@ ActSpawnCar(void) {
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
+    entity_set_position(e, dest->x, dest->y);
     
     debug_replay_special_action(RPKIND_SPAWN_CAR);
 }
@@ -28,6 +29,7 @@ ActSpawnIcemaker(void) {
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
+    entity_set_position(e, dest->x, dest->y);
     
     debug_replay_special_action(RPKIND_SPAWN_ICEMAKER_ITEM);
 }
@@ -40,6 +42,7 @@ ActSpawnChest(void) {
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
+    entity_set_position(e, dest->x, dest->y);
     
     debug_replay_special_action(RPKIND_SPAWN_CHEST);
 }
@@ -52,6 +55,7 @@ ActSpawnBelt(void) {
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
+    entity_set_position(e, dest->x, dest->y);
     
     debug_replay_special_action(RPKIND_SPAWN_BELT);
 }
@@ -67,6 +71,8 @@ ActSpawnCirclingDriver(void) {
     Position *dest = ecs_get_mut(world_ecs(), e, Position);
     *veh_dest = *origin;
     *dest = *origin;
+    entity_set_position(ve, veh_dest->x, veh_dest->y);
+    entity_set_position(e, dest->x, dest->y);
     
     Input *input = ecs_get_mut(world_ecs(), e, Input);
     zpl_zero_item(input);

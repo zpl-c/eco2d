@@ -7,6 +7,7 @@
 #include "entity_view.h"
 #include "camera.h"
 #include "player.h"
+#include "entity.h"
 
 #include "modules/components.h"
 #include "modules/systems.h"
@@ -31,8 +32,7 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     Position *pos = ecs_get_mut(world_ecs(), ent_id, Position);
 
 #if 1
-    pos->x = world_dim()/2.0f + rand()%15*15.0f;
-    pos->y = world_dim()/2.0f + rand()%15*15.0f;
+    entity_set_position(ent_id, world_dim()/2.0f + rand()%15*15.0f, world_dim()/2.0f + rand()%15*15.0f);
 #else
     pos->x = rand()%world_dim();
     pos->y = rand()%world_dim();

@@ -20,6 +20,7 @@ uint64_t entity_spawn(uint16_t class_id) {
 #if 1
         pos->x=(float)(rand() % world_dim());
         pos->y=(float)(rand() % world_dim());
+        entity_set_position(e, pos->x, pos->y);
 #else
         pos->x=350.0f;
         pos->y=88.0f;
@@ -63,7 +64,7 @@ void entity_set_position(uint64_t ent_id, float x, float y) {
     Position *p = ecs_get_mut(world_ecs(), ent_id, Position);
     p->x = x;
     p->y = y;
-    
+    librg_entity_chunk_set(world_tracker(), ent_id, librg_chunk_from_realpos(world_tracker(), x, y, 0));
     entity_wake(ent_id);
 }
 

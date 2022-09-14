@@ -8,6 +8,7 @@
 #include "world/perlin.h"
 
 #include "modules/components.h"
+#include "entity.h"
 #include "vehicle.h"
 #include "items.h"
 #include "world/blocks_info.h"
@@ -133,6 +134,9 @@ static WORLD_BLOCK_OBSERVER(shaper_noise05b) {
     return world_perlin_cond_offset(block_idx, 0.05, 32, 0) ? shaper(data, id, block_idx) : BLOCK_INVALID;
 }
 
+static WORLD_BLOCK_OBSERVER(shaper_noise01b) {
+    return world_perlin_cond_offset(block_idx, 0.01, 32, 0) ? shaper(data, id, block_idx) : BLOCK_INVALID;
+}
 #else
 static WORLD_BLOCK_OBSERVER(shaper_noise80) {
     return rand()%10 < 8 ? shaper(id, block_idx) : BLOCK_INVALID;
@@ -177,7 +181,7 @@ int32_t worldgen_test(world_data *wld) {
     // ground
     world_fill_rect(world->data, grnd_id, 1, 1, world->dim-2, world->dim-2, NULL);
     world_fill_rect(world->data, dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise05);
-    world_fill_rect(world->outer_data, tree_id, 1, 1, world->dim-2, world->dim-2, shaper_noise05b);
+    world_fill_rect(world->outer_data, tree_id, 1, 1, world->dim-2, world->dim-2, shaper_noise01b);
     
     // water
 #if 1
@@ -215,6 +219,7 @@ int32_t worldgen_test(world_data *wld) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+        entity_set_position(e, dest->x, dest->y);
     }
 #endif
     
@@ -226,6 +231,7 @@ int32_t worldgen_test(world_data *wld) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+        entity_set_position(e, dest->x, dest->y);
     }
     
     for (int i=0; i<RAND_RANGE(328, 164); i++) {
@@ -234,6 +240,7 @@ int32_t worldgen_test(world_data *wld) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+        entity_set_position(e, dest->x, dest->y);
     }
     
     for (int i=0; i<RAND_RANGE(328, 164); i++) {
@@ -242,6 +249,7 @@ int32_t worldgen_test(world_data *wld) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+        entity_set_position(e, dest->x, dest->y);
     }
     
     for (int i=0; i<RAND_RANGE(128, 564); i++) {
@@ -250,6 +258,7 @@ int32_t worldgen_test(world_data *wld) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+        entity_set_position(e, dest->x, dest->y);
     }
     
     for (int i=0; i<RAND_RANGE(128, 964); i++) {
@@ -258,6 +267,7 @@ int32_t worldgen_test(world_data *wld) {
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
         dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+        entity_set_position(e, dest->x, dest->y);
     }
     
 #endif

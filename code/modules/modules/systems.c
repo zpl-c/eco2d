@@ -57,8 +57,7 @@ void IntegratePositions(ecs_iter_t *it) {
                 }
     #endif
 
-                p[i].x += v[i].x * safe_dt(it);
-                p[i].y += v[i].y * safe_dt(it);
+                entity_set_position(it->entities[i], p[i].x+v[i].x*safe_dt(it), p[i].y+v[i].y*safe_dt(it));
             }
 
             {
@@ -66,20 +65,6 @@ void IntegratePositions(ecs_iter_t *it) {
                 debug_v2 b = {p[i].x+v[i].x, p[i].y+v[i].y};
                 debug_push_line(a, b, 0xFFFFFFFF);
             }
-        }
-    }
-}
-
-void UpdateTrackerPos(ecs_iter_t *it) {
-    Position *p = ecs_field(it, Position, 1);
-
-    for (int i = 0; i < it->count; i++){
-        librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
-
-        {
-            debug_v2 a = {p[i].x-2.5f, p[i].y-2.5f};
-            debug_v2 b = {p[i].x+2.5f, p[i].y+2.5f};
-            debug_push_rect(a, b, 0x00FFFFFF);
         }
     }
 }
@@ -227,8 +212,6 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position);
 
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
-
-    ECS_SYSTEM(ecs, UpdateTrackerPos, EcsPostUpdate, components.Position, components.Velocity);
 
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
 
