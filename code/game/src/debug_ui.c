@@ -37,7 +37,7 @@ typedef struct {
 #define DBG_GAP_HEIGHT DBG_FONT_SPACING * 0.5f
 
 static uint8_t is_shadow_rendered;
-static uint8_t is_debug_open = 0;
+static uint8_t is_debug_open = 1;
 static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
@@ -92,6 +92,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST, 
         .name = "general", 
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "delta time", .proc = DrawDeltaTime },
                 { .kind = DITEM_TEXT, .name = "pos", .proc = DrawCameraPos },
@@ -104,6 +105,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST,
         .name = "world simulation",
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_COND, .on_success = CondIsWorldRunning },
                 { .kind = DITEM_BUTTON, .name = "pause", .on_click = ActWorldToggleSim },
@@ -127,6 +129,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST,
         .name = "debug actions",
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
                 { .kind = DITEM_BUTTON, .name = "place ice rink", .on_click = ActPlaceIceRink },
@@ -157,6 +160,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST,
         .name = "conn metrics",
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_COND, .on_success = CondClientDisconnected },
                 { .kind = DITEM_TEXT, .name = "status", .proc = DrawLiteral, .text = "disconnected" },
