@@ -15,7 +15,7 @@ if(MSVC)
 endif()
 
 if (EMSCRIPTEN)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 --profiling -s ASSERTIONS=1 -s WASM=1 -s INITIAL_MEMORY=268435456 -s FORCE_FILESYSTEM=1 --preload-file ${CMAKE_SOURCE_DIR}/art@art/ --shell-file ${CMAKE_SOURCE_DIR}/web/eco2d.html")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 --profiling -s ASSERTIONS=1 -s WASM=1 -s INITIAL_MEMORY=268435456 -s FORCE_FILESYSTEM=1 --preload-file ${CMAKE_SOURCE_DIR}/art@art/ --shell-file ${CMAKE_SOURCE_DIR}/web/eco2d.html --post-js ${CMAKE_SOURCE_DIR}/web/eco2d-post.js")
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif ()
 

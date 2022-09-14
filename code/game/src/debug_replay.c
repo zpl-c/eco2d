@@ -116,7 +116,7 @@ void debug_replay_start(void) {
     if (records) zpl_array_free(records);
     zpl_array_init_reserve(records, zpl_heap(), UINT16_MAX);
     
-    last_record_time = zpl_time_rel();
+    last_record_time = get_cached_time();
     SetTargetFPS(60);
 }
 
@@ -155,7 +155,7 @@ void debug_replay_run(void) {
     if (mime) return;
     is_playing = true;
     record_pos = 0;
-    playback_time = zpl_time_rel();
+    playback_time = get_cached_time();
     zpl_array_init(temp_actors, zpl_heap());
     
     plr = camera_get().ent_id;
@@ -181,10 +181,10 @@ void ActSpawnBelt(void);
 
 void debug_replay_update(void) {
     if (!is_playing) return;
-    if (playback_time >= zpl_time_rel()) return;
+    if (playback_time >= get_cached_time()) return;
     
     replay_record *r = &records[record_pos];
-    playback_time = zpl_time_rel() + r->delay;
+    playback_time = get_cached_time() + r->delay;
     
     switch (r->kind) {
         case RPKIND_KEY: {
@@ -249,7 +249,7 @@ void debug_replay_update(void) {
 
 void debug_replay_record_keystate(pkt_send_keystate state) {
     if (!is_recording) return;
-    double record_time = zpl_time_rel();
+    double record_time = get_cached_time();
     
     replay_record rec = {
         .kind = RPKIND_KEY,
@@ -258,13 +258,13 @@ void debug_replay_record_keystate(pkt_send_keystate state) {
     };
     
     zpl_array_append(records, rec);
-    last_record_time = zpl_time_rel();
+    last_record_time = get_cached_time();
 }
 
 void debug_replay_special_action(replay_kind kind) {
     ZPL_ASSERT(kind != RPKIND_KEY);
     if (!is_recording || is_playing) return;
-    double record_time = zpl_time_rel();
+    double record_time = get_cached_time();
     
     replay_record rec = {
         .kind = kind,
@@ -272,5 +272,5 @@ void debug_replay_special_action(replay_kind kind) {
     };
     
     zpl_array_append(records, rec);
-    last_record_time = zpl_time_rel();
+    last_record_time = get_cached_time();
 }

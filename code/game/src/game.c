@@ -122,7 +122,7 @@ void flecs_dash_init() {
 }
 
 float game_time() {
-    return (float)zpl_time_rel();
+    return (float)get_cached_time();
 }
 
 void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
@@ -232,15 +232,15 @@ void game_update() {
         if (game_mode == GAMEKIND_HEADLESS) {
             network_server_tick();
             
-            static uint64_t ms_report = 2500;
-            if (ms_report < zpl_time_rel_ms()) {
-                ms_report = zpl_time_rel_ms() + 5000;
-                zpl_printf("delta: %f ms.\n", (zpl_time_rel() - last_update)*1000.0f);
+            static float ms_report = 2.5f;
+            if (ms_report < get_cached_time()) {
+                ms_report = get_cached_time() + 5.f;
+                zpl_printf("delta: %f ms.\n", (get_cached_time() - last_update)*1000.0f);
             }
         }
     }
     
-    last_update = zpl_time_rel();
+    last_update = get_cached_time();
 }
 
 void game_render() {

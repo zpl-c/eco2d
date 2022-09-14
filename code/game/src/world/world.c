@@ -307,8 +307,8 @@ int32_t world_destroy(void) {
 #define WORLD_LIBRG_BUFSIZ 2000000
 
 static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
-    if (world.tracker_update[ticker] > (float)zpl_time_rel()) return;
-    world.tracker_update[ticker] = (float)zpl_time_rel() + freq;
+    if (world.tracker_update[ticker] > (float)(get_cached_time())) return;
+    world.tracker_update[ticker] = (float)(get_cached_time()) + freq;
 
     profile(PROF_WORLD_WRITE) {
         ecs_iter_t it = ecs_query_iter(world_ecs(), world.ecs_update);
@@ -323,7 +323,7 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
 
                 if (!p[i].active)
                     continue;
-
+                    
                 int32_t result = librg_world_write(world_tracker(), it.entities[i], radius, buffer, &datalen, NULL);
 
                 if (result > 0) {

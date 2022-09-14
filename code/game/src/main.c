@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
 
 #if !defined(PLATFORM_WEB)
     while (game_is_running()) {
+        reset_cached_time();
         profile (PROF_MAIN_LOOP) {
             game_input();
             game_update();
@@ -102,6 +103,7 @@ int main(int argc, char** argv) {
 
 #if defined(PLATFORM_WEB)
 void UpdateDrawFrame(void) {
+    reset_cached_time();
     profile (PROF_MAIN_LOOP) {
         game_input();
         game_update();
@@ -111,3 +113,12 @@ void UpdateDrawFrame(void) {
     profiler_collate();
 }
 #endif
+
+static float temp_time = 0.0f;
+
+float get_cached_time(void) {
+    return temp_time;
+}
+void reset_cached_time(void) {
+    temp_time = zpl_time_rel();
+}
