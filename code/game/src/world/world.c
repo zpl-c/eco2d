@@ -356,7 +356,7 @@ int32_t world_update() {
     float normal_ms = WORLD_TRACKER_UPDATE_MP_NORMAL_MS;
     float slow_ms = WORLD_TRACKER_UPDATE_MP_SLOW_MS;
 
-#if 0
+#if 1
     if (game_get_kind() == GAMEKIND_SINGLE) {
         fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
         normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
