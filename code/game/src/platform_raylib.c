@@ -26,7 +26,7 @@ EM_JS(int, canvas_get_height, (), {
 
 static uint16_t screenWidth = 1024;
 static uint16_t screenHeight = 768;
-static float target_zoom = 1.5f;
+static float target_zoom = 0.6f;
 static bool request_shutdown;
 
 #define GFX_KIND 2
@@ -138,7 +138,7 @@ void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
 
     if (mouse_z != 0.0f) {
-        target_zoom = zpl_clamp(target_zoom+mouse_z, 0.1f, 10.0f);
+        target_zoom = zpl_clamp(target_zoom+mouse_z, 0.1f, 11.0f);
     }
 
     // NOTE(zaklaus): keystate handling
