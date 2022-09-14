@@ -14,6 +14,8 @@
 
 #include "packets/pkt_send_librg_update.h"
 
+#define ECO2D_STREAM_ACTIONFILTER 1
+
 ZPL_TABLE(static, world_snapshot, world_snapshot_, entity_view);
 
 static world_data world = {0};
@@ -350,15 +352,17 @@ int32_t world_update() {
         ecs_progress(world.ecs, 0.0f);
     }
 
-    float fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
-    float normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
-    float slow_ms = WORLD_TRACKER_UPDATE_SLOW_MS;
+    float fast_ms = WORLD_TRACKER_UPDATE_MP_FAST_MS;
+    float normal_ms = WORLD_TRACKER_UPDATE_MP_NORMAL_MS;
+    float slow_ms = WORLD_TRACKER_UPDATE_MP_SLOW_MS;
 
-    if (game_get_kind() != GAMEKIND_SINGLE) {
-        fast_ms = WORLD_TRACKER_UPDATE_MP_FAST_MS;
-        normal_ms = WORLD_TRACKER_UPDATE_MP_NORMAL_MS;
-        slow_ms = WORLD_TRACKER_UPDATE_MP_SLOW_MS;
+#if 0
+    if (game_get_kind() == GAMEKIND_SINGLE) {
+        fast_ms = WORLD_TRACKER_UPDATE_FAST_MS;
+        normal_ms = WORLD_TRACKER_UPDATE_NORMAL_MS;
+        slow_ms = WORLD_TRACKER_UPDATE_SLOW_MS;
     }
+#endif
 
     world_tracker_update(0, fast_ms, 1);
     world_tracker_update(1, normal_ms, 2);

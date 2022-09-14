@@ -156,7 +156,7 @@ void VehicleHandling(ecs_iter_t *it) {
             // NOTE(zaklaus): Update passenger position
             {
                 Velocity *v2 = ecs_get_mut(it->world, pe, Velocity);
-                entity_set_position(pe, p[i].x+v[i].x, p[i].y+v[i].y);
+                entity_set_position(pe, p[i].x, p[i].y);
                 *v2 = v[i];
             }
         }

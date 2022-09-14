@@ -27,6 +27,9 @@ void IntegratePositions(ecs_iter_t *it) {
         Velocity *v = ecs_field(it, Velocity, 2);
 
         for (int i = 0; i < it->count; i++) {
+            if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
+                continue;
+            }
             if (zpl_abs(v[i].x) >= 0.001f || zpl_abs(v[i].y) >= 0.001f) {
                 // NOTE(zaklaus): world bounds
                 {
@@ -129,6 +132,9 @@ void ApplyWorldDragOnVelocity(ecs_iter_t *it) {
 
     for (int i = 0; i < it->count; i++) {
         if (zpl_abs(v[i].x) < 0.001f && zpl_abs(v[i].y) < 0.001f) continue;
+        if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
+            continue;
+        }
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.bid), 0.0f, 1.0f);
         float friction = blocks_get_friction(lookup.bid);

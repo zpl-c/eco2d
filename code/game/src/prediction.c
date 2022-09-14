@@ -62,7 +62,7 @@ void predict_receive_update(entity_view *d, entity_view *data) {
     data->tran_time = d->tran_time;
 }
 
-#define ENTITY_DO_LERP_SP 0
+#define ENTITY_DO_LERP_SP 1
 
 void lerp_entity_positions(uint64_t key, entity_view *data) {
     (void)key;
