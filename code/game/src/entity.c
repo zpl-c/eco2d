@@ -23,6 +23,7 @@ uint64_t entity_spawn(uint16_t class_id) {
 #if 1
         pos->x=(float)(rand() % world_dim());
         pos->y=(float)(rand() % world_dim());
+        entity_set_position(e, pos->x, pos->y);
 #else
         pos->x=350.0f;
         pos->y=88.0f;
@@ -62,7 +63,7 @@ void entity_set_position(uint64_t ent_id, float x, float y) {
     Position *p = ecs_get_mut(world_ecs(), ent_id, Position);
     p->x = x;
     p->y = y;
-    
+    librg_entity_chunk_set(world_tracker(), ent_id, librg_chunk_from_realpos(world_tracker(), x, y, 0));
     entity_wake(ent_id);
 }
 
@@ -78,7 +79,7 @@ void entity_update_action_timers() {
     static double last_update_time = 0.0f;
     if (!ecs_streaminfo) {
         ecs_streaminfo = ecs_query_new(world_ecs(), "components.StreamInfo");
-        last_update_time = zpl_time_rel();
+        last_update_time = get_cached_time();
     }
     
     ecs_iter_t it = ecs_query_iter(world_ecs(), ecs_streaminfo);
@@ -86,18 +87,18 @@ void entity_update_action_timers() {
     while (ecs_query_next(&it)) {
         StreamInfo *si = ecs_field(&it, StreamInfo, 1);
         
-        for (size_t i = 0; i < it.count; i++) {
-            if (si[i].last_update < zpl_time_rel()) {
-                si[i].last_update = zpl_time_rel() + si[i].tick_delay;
-                si[i].tick_delay += (zpl_time_rel() - last_update_time) * 0.5f;
+        for (int32_t i = 0; i < it.count; i++) {
+            if (si[i].last_update < get_cached_time()) {
+                si[i].last_update = get_cached_time() + si[i].tick_delay;
+                si[i].tick_delay += (get_cached_time() - last_update_time) * 0.5f;
             }
         }
     }
     
-    last_update_time = zpl_time_rel();
+    last_update_time = get_cached_time();
 }
 
 bool entity_can_stream(uint64_t ent_id) {
     StreamInfo *si = ecs_get_mut(world_ecs(), ent_id, StreamInfo);
-    return (si->last_update < zpl_time_rel());
+    return (si->last_update < get_cached_time());
 }

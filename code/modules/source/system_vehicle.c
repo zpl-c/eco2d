@@ -143,10 +143,17 @@ void VehicleHandling(ecs_iter_t *it) {
         v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y);
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
 
-        world_block_lookup lookahead = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y+PHY_LOOKAHEAD(v[i].y));
+        float check_x = p[i].x+PHY_LOOKAHEAD(v[i].x);
+        float check_y = p[i].y+PHY_LOOKAHEAD(v[i].y);
+        world_block_lookup lookahead = world_block_from_realpos(check_x, check_y);
         uint32_t flags = blocks_get_flags(lookahead.bid);
         if (flags & BLOCK_FLAG_COLLISION) {
-            car->force = 0.0f;
+            if (flags & BLOCK_FLAG_DESTROY_ON_COLLISION) {
+                world_chunk_destroy_block(check_x, check_y, true);
+                car->force *= 0.8f;
+            } else {
+                car->force = 0.0f;
+            }
         }
 
         for (int j = 0; j < 4; j++) {
@@ -155,11 +162,9 @@ void VehicleHandling(ecs_iter_t *it) {
 
             // NOTE(zaklaus): Update passenger position
             {
-                Position *p2 = ecs_get_mut(it->world, pe, Position);
                 Velocity *v2 = ecs_get_mut(it->world, pe, Velocity);
-                *p2 = p[i];
+                entity_set_position(pe, p[i].x, p[i].y);
                 *v2 = v[i];
-                entity_wake(pe);
             }
         }
 

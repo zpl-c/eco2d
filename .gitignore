@@ -1,5 +1,10 @@
 build
 build_rel
+build_web
+emsdk
+deploy_web
+run_web
+butler
 screenshots
 build.bat
 run.bat
@@ -12,7 +17,6 @@ GPATH
 GRTAGS
 GTAGS
 /run_release.bat
-/package.bat
 pkg
 pkg.zip
 eco2d.zip

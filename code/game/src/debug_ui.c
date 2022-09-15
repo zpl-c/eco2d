@@ -29,7 +29,7 @@ typedef struct {
 #define DBG_FONT_SIZE 22
 #define DBG_FONT_SPACING DBG_FONT_SIZE * 1.2f
 #define DBG_START_XPOS 15
-#define DBG_START_YPOS 200
+#define DBG_START_YPOS 30
 #define DBG_LIST_XPOS_OFFSET 10
 #define DBG_SHADOW_OFFSET_XPOS 1
 #define DBG_SHADOW_OFFSET_YPOS 1
@@ -92,6 +92,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST, 
         .name = "general", 
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "delta time", .proc = DrawDeltaTime },
                 { .kind = DITEM_TEXT, .name = "pos", .proc = DrawCameraPos },
@@ -104,6 +105,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST,
         .name = "world simulation",
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_COND, .on_success = CondIsWorldRunning },
                 { .kind = DITEM_BUTTON, .name = "pause", .on_click = ActWorldToggleSim },
@@ -127,6 +129,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST,
         .name = "debug actions",
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
                 { .kind = DITEM_BUTTON, .name = "place ice rink", .on_click = ActPlaceIceRink },
@@ -157,6 +160,7 @@ static debug_item items[] = {
         .kind = DITEM_LIST,
         .name = "conn metrics",
         .list = {
+            .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_COND, .on_success = CondClientDisconnected },
                 { .kind = DITEM_TEXT, .name = "status", .proc = DrawLiteral, .text = "disconnected" },
@@ -172,6 +176,7 @@ static debug_item items[] = {
         },
         .limit_to = L_MP,
     },
+#if !defined(PLATFORM_WEB)
     {
         .kind = DITEM_LIST,
         .name = "replay system",
@@ -209,6 +214,7 @@ static debug_item items[] = {
         },
         .limit_to = L_SP,
     },
+#endif
     {
         .kind = DITEM_LIST,
         .name = "profilers",
@@ -226,11 +232,13 @@ static debug_item items[] = {
             .is_collapsed = 1
         }
     },
+#if !defined(PLATFORM_WEB)
     {
         .kind = DITEM_BUTTON,
         .name = "exit game",
         .on_click = ActExitGame,
     },
+#endif
     {.kind = DITEM_END},
 };
 

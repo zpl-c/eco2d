@@ -4,6 +4,8 @@
 
 #define PROF_COLLATE_WINDOW 0.5
 
+static float profiler_warmup = 3.0f;
+
 // NOTE(zaklaus): KEEP ORDER IN SYNC WITH profiler_kind ENUM !!!
 static profiler profilers[] = {
     { .id = PROF_TOTAL_TIME, .name = "measured time" },
@@ -33,6 +35,13 @@ void profiler_stop(profiler_kind id) {
 }
 
 void profiler_collate() {
+    if (profiler_warmup > 0) {
+        profiler_warmup -= GetFrameTime();
+        for (uint32_t i = PROF_MAIN_LOOP; i < MAX_PROF; i += 1) {
+            profiler_reset(i);
+        }
+        return;
+    }
     static double frame_counter = 0.0;
     static uint64_t frames = 0;
     

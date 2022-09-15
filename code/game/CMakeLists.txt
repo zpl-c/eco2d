@@ -43,5 +43,6 @@ add_executable(eco2d
 target_compile_definitions(eco2d PRIVATE CLIENT)
 include_directories(src ../modules ../../art/gen)
 target_link_libraries(eco2d raylib cwpack eco2d-modules flecs-bundle vendors-bundle)
+target_compile_options(eco2d PRIVATE -Werror -Wall -Wextra -Wno-unused-function -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-parameter)
 
 link_system_libs(eco2d)

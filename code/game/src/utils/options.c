@@ -5,6 +5,7 @@
 #include "utils/options.h"
 
 void generate_minimap(int32_t seed, uint16_t block_size, uint16_t chunk_size, uint16_t world_size) {
+    (void)block_size;
     world_init(seed, chunk_size, world_size);
     
     block_id const *world;

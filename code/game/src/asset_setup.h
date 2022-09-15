@@ -16,7 +16,7 @@
 // can use it in other systems
 
 // NOTE(zaklaus): Register a block
-#include "blocks/blocks_list.c"
+#include "world/blocks_list.c"
 
 // NOTE(zaklaus): Register an item
 #include "items_list.c"

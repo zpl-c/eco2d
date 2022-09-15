@@ -1,11 +1,12 @@
 <div align="center">
-    <a href="https://github.com/zpl-c/zpl"><img src="https://user-images.githubusercontent.com/2182108/111983468-d5593e80-8b12-11eb-9c59-8c78ecc0504e.png" alt="eco2d" /></a>
+    <a href="https://zaklaus.itch.io/eco2d"><img src="https://user-images.githubusercontent.com/2182108/111983468-d5593e80-8b12-11eb-9c59-8c78ecc0504e.png" alt="eco2d" /></a>
 </div>
 
 <br />
 
 <div align="center">
     <a href="https://discord.gg/2fZVEym"><img src="https://img.shields.io/discord/354670964400848898?color=7289DA&style=for-the-badge" alt="discord" /></a>
+    <a href="https://zaklaus.itch.io/eco2d"><img src="https://static.itch.io/images/badge-color.svg" alt="play" height="28px"/></a>
 </div>
 
 <br />
@@ -51,6 +52,30 @@ In the abstract sense, we call the Server the game master hosting all gameplay r
 
 # Build the project
 We use CMake to generate project files and manage builds.
+
+## Web
+We have a set of scripts ready for web development, these steps will get you up and running with a web build:
+```sh
+# Setup emsdk locally and configure a web project
+web/setup.sh
+
+# Build the web project
+web/build.sh
+
+# Host the files on a web server (Python3)
+web/host.sh
+```
+
+## Desktop
+### Pre-requisites
+#### Linux
+Follow [raylib-linux](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux) guide to install dependencies on your system.
+
+#### macOS
+Follow [raylib-macos](https://github.com/raysan5/raylib/wiki/Working-on-macOS) guide to install dependencies on your system.
+#### Windows
+You need to have Visual Studio 2019+ installed on your system. Make sure to run the commands below in a VS Developer Command Prompt.
+### Build
 You can do the following on the command line to create and build this project:
 ```sh
 git clone https://github.com/zpl-c/eco2d.git
@@ -61,10 +86,6 @@ cmake --build build
 
 Run the following command to see all the options:
 ```sh
-Windows:
-build\Debug\eco2d.exe -?
-
-Linux:
 build\eco2d.exe -?
 ```
 

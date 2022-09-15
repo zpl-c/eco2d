@@ -20,6 +20,27 @@ size_t pkt_send_librg_update_encode(void *data, int32_t data_length, uint8_t lay
     return pkt_pack_msg_size(&pc);
 }
 
+#define NUM_SAMPLES 128
+
+static float smooth_time(float time) {
+    static float time_samples[NUM_SAMPLES] = {};
+    static int32_t curr_index = 0;
+
+    time_samples[curr_index] = time;
+    if (++curr_index == NUM_SAMPLES)
+        curr_index = 0;
+
+    float average = 0;
+    for (int32_t i = NUM_SAMPLES; i--; )
+        average += time_samples[i];
+    average /= NUM_SAMPLES;
+
+    time = zpl_min(time, average * 2);
+    return time;
+}
+
+#undef NUM_SAMPLES
+
 int32_t pkt_send_librg_update_handler(pkt_header *header) {
     cw_unpack_context uc = {0};
     pkt_unpack_msg(&uc, header, 2);
@@ -41,8 +62,8 @@ int32_t pkt_send_librg_update_handler(pkt_header *header) {
     int32_t state = librg_world_read(view->tracker, header->view_id, uc.item.as.bin.start, uc.item.as.bin.length, NULL);
     if (state < 0) zpl_printf("[ERROR] world read error: %d\n", state);
     
-    float now = (float)zpl_time_rel();
-    view->delta_time[layer_id] = now - view->last_update[layer_id];
+    float now = (float)get_cached_time();
+    view->delta_time[layer_id] = smooth_time(now - view->last_update[layer_id]);
     view->last_update[layer_id] = now;
     
     return state;

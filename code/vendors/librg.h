@@ -157,7 +157,7 @@
 
 #define LIBRG_VERSION_MAJOR 7
 #define LIBRG_VERSION_MINOR 0
-#define LIBRG_VERSION_PATCH 1
+#define LIBRG_VERSION_PATCH 2
 #define LIBRG_VERSION_PRE ""
 
 // file: librg_hedley.h
@@ -21033,14 +21033,14 @@ int8_t librg_chunk_to_chunkpos(librg_world *world, librg_chunk id, int16_t *chun
         return LIBRG_CHUNK_INVALID;
     }
 
-    int16_t z = (int16_t)(id / (wld->worldsize.x * wld->worldsize.y));
-    int16_t r1 = (int16_t)(id % (wld->worldsize.x * wld->worldsize.y));
-    int16_t y = r1 / wld->worldsize.x;
-    int16_t x = r1 % wld->worldsize.x;
+    int64_t z = (int64_t)(id / (wld->worldsize.x * wld->worldsize.y));
+    int64_t r1 = (int64_t)(id % (wld->worldsize.x * wld->worldsize.y));
+    int64_t y = r1 / wld->worldsize.x;
+    int64_t x = r1 % wld->worldsize.x;
 
-    if (chunk_x) *chunk_x = x - librg_util_chunkoffset_line(0, wld->chunkoffset.x, wld->worldsize.x);
-    if (chunk_y) *chunk_y = y - librg_util_chunkoffset_line(0, wld->chunkoffset.y, wld->worldsize.y);
-    if (chunk_z) *chunk_z = z - librg_util_chunkoffset_line(0, wld->chunkoffset.z, wld->worldsize.z);
+    if (chunk_x) *chunk_x = (int16_t)(x - librg_util_chunkoffset_line(0, wld->chunkoffset.x, wld->worldsize.x));
+    if (chunk_y) *chunk_y = (int16_t)(y - librg_util_chunkoffset_line(0, wld->chunkoffset.y, wld->worldsize.y));
+    if (chunk_z) *chunk_z = (int16_t)(z - librg_util_chunkoffset_line(0, wld->chunkoffset.z, wld->worldsize.z));
 
     return LIBRG_OK;
 }
@@ -21520,11 +21520,13 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
     size_t buffer_limit = *entity_amount;
     size_t total_count = zpl_array_count(wld->entity_map.entries);
 
-    librg_table_i64 results = {0};
-    librg_table_tbl dimensions = {0};
+    static librg_table_i64 results = {0};
+    static librg_table_tbl dimensions = {0};
 
-    librg_table_i64_init(&results, wld->allocator);
-    librg_table_tbl_init(&dimensions, wld->allocator);
+    if (!results.entries) {
+        librg_table_i64_init(&results, wld->allocator);
+        librg_table_tbl_init(&dimensions, wld->allocator);
+    }
 
     /* generate a map of visible chunks (only counting owned entities) */
     for (size_t i=0; i < total_count; ++i) {
@@ -21621,8 +21623,19 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
     for (int i = 0; i < zpl_array_count(dimensions.entries); ++i)
         librg_table_i64_destroy(&dimensions.entries[i].value);
 
-    librg_table_tbl_destroy(&dimensions);
-    librg_table_i64_destroy(&results);
+    // NOTE(zaklaus): clear out our streaming snapshot
+    // TODO(zaklaus): move this to zpl
+    {
+        zpl_array_clear(results.hashes);
+        zpl_array_clear(results.entries);
+    }
+
+    // NOTE(zaklaus): clear out our streaming snapshot
+    // TODO(zaklaus): move this to zpl
+    {
+        zpl_array_clear(dimensions.hashes);
+        zpl_array_clear(dimensions.entries);
+    }
 
     *entity_amount = LIBRG_MIN(buffer_limit, count);
     return LIBRG_MAX(0, (int32_t)(count - buffer_limit));
@@ -21983,4 +21996,3 @@ LIBRG_END_C_DECLS
 #endif // LIBRG_IMPLEMENTATION
 
 #endif // LIBRG_H
-

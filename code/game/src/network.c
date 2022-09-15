@@ -120,7 +120,7 @@ network_client_fetch_stats(void) {
     static float incoming_bandwidth = 0.0f;
     static float outgoing_bandwidth = 0.0f;
 
-    if (next_measure < zpl_time_rel()) {
+    if (next_measure < get_cached_time()) {
 #define MAX_RATE_SAMPLES 8
         static uint64_t last_total_sent = 0;
         static uint64_t last_total_recv = 0;
@@ -145,7 +145,7 @@ network_client_fetch_stats(void) {
         incoming_bandwidth = stats.incoming_bandwidth /= MAX_RATE_SAMPLES;
         outgoing_bandwidth = stats.outgoing_bandwidth /= MAX_RATE_SAMPLES;
 
-        next_measure = zpl_time_rel() + 1.0;
+        next_measure = get_cached_time() + 1.0;
     } else {
         stats.incoming_bandwidth = incoming_bandwidth;
         stats.outgoing_bandwidth = outgoing_bandwidth;

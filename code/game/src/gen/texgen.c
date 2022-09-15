@@ -33,11 +33,11 @@ Texture2D GenColorEco(Color color) {
 Texture2D texgen_build_anim(asset_id id, int64_t counter) {
     (void)counter;
     switch (id) {
-        case ASSET_WATER: {
-            Image img = LoadImageEco("water");
-            ImageColorBrightness(&img, zpl_abs((counter % 64 - 32)*2));
-            return Image2TexEco(img);
-        }break;
+        // case ASSET_WATER: {
+        //     Image img = LoadImageEco("water");
+        //     ImageColorBrightness(&img, zpl_abs((counter % 64 - 32)*2));
+        //     return Image2TexEco(img);
+        // }break;
         
         default: return GenColorEco(PINK); break;
     }
@@ -61,7 +61,8 @@ Texture2D texgen_build_sprite(asset_id id) {
         case ASSET_LAVA: return LoadTexEco("lava");
         case ASSET_WOOD: return LoadTexEco("wood");
         case ASSET_TREE: return LoadTexEco("tree");
-        
+        case ASSET_WATER: return LoadTexEco("water");
+
         case ASSET_BELT:
         case ASSET_BELT_RIGHT: return LoadTexEco("belt_right");
         case ASSET_BELT_LEFT: return LoadTexEco("belt_left");

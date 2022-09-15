@@ -105,6 +105,7 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
 }
 
 int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uint32_t blob_size) {
+    (void)blob_size;
     uint8_t *blob = (uint8_t*)raw_blob;
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {
         if (field->skip_count != 0) {
@@ -158,6 +159,7 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
 }
 
 void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size) {
+    (void)blob_size;
     uint8_t *blob = (uint8_t*)raw_blob;
     zpl_printf("{\n");
     for (pkt_desc *field = desc; field->type != CWP_NOT_AN_ITEM; ++field) {

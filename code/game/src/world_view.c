@@ -26,7 +26,7 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
     entity_view *d = entity_view_get(&view->entities, entity_id);
 #if 1
     if (d && d->layer_id < view->active_layer_id) {
-        if (zpl_time_rel_ms() - d->last_update > WORLD_TRACKER_UPDATE_NORMAL_MS) {
+        if ((get_cached_time()*1000.0f) - d->last_update > WORLD_TRACKER_UPDATE_NORMAL_MS) {
             d->layer_id = zpl_min(WORLD_TRACKER_LAYERS-1, d->layer_id+1);
         }
         // NOTE(zaklaus): reject updates from slower layers
@@ -34,7 +34,7 @@ int32_t tracker_read_update(librg_world *w, librg_event *e) {
     }
 #endif
     
-    data.last_update = zpl_time_rel_ms();
+    data.last_update = get_cached_time()*1000.0f;
     data.layer_id = view->active_layer_id;
     predict_receive_update(d, &data);
     entity_view_update_or_create(&view->entities, entity_id, data);
@@ -83,7 +83,7 @@ void world_view_init(world_view *view, uint32_t seed, uint64_t ent_id, uint16_t 
     
     librg_config_chunksize_set(view->tracker, WORLD_BLOCK_SIZE * chunk_size, WORLD_BLOCK_SIZE * chunk_size, 1);
     librg_config_chunkamount_set(view->tracker, chunk_amount, chunk_amount, 1);
-    librg_config_chunkoffset_set(view->tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, 0);
+    librg_config_chunkoffset_set(view->tracker, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG);
     
     librg_event_set(view->tracker, LIBRG_READ_CREATE, tracker_read_create);
     librg_event_set(view->tracker, LIBRG_READ_REMOVE, tracker_read_remove);

@@ -50,10 +50,10 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_END }, 
 };
 
-size_t entity_view_pack_struct(void *data, size_t len, entity_view view) {
+size_t entity_view_pack_struct(void *data, size_t len, entity_view *view) {
     cw_pack_context pc = {0};
     cw_pack_context_init(&pc, data, (unsigned long)len, 0);
-    pkt_pack_struct(&pc, pkt_entity_view_desc, PKT_STRUCT_PTR(&view));
+    pkt_pack_struct(&pc, pkt_entity_view_desc, PKT_STRUCT_PTR(view));
     return pc.current - pc.start;
 }
 

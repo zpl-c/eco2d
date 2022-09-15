@@ -23,6 +23,8 @@ typedef struct {
 static int64_t assets_frame_counter = 1;
 static double assets_frame_next_draw = 0.0;
 
+#include <time.h>
+
 int32_t assets_setup(void) {
     for (uint32_t i=0; i<ASSETS_COUNT; i++) {
         asset *b = &assets[i];
@@ -43,13 +45,12 @@ int32_t assets_setup(void) {
             default: break;
         }
     }
-    
-    assets_frame_next_draw = zpl_time_rel() + ASSET_FRAME_RENDER_MS;
+    assets_frame_next_draw = get_cached_time() + ASSET_FRAME_RENDER_MS;
     return 0;
 }
 
 int32_t assets_frame(void) {
-    if (assets_frame_next_draw < zpl_time_rel()) {
+    if (assets_frame_next_draw < get_cached_time()) {
         for (uint32_t i=0; i<ASSETS_COUNT; i++) {
             asset *b = &assets[i];
             
@@ -63,7 +64,7 @@ int32_t assets_frame(void) {
             }
         }
         
-        assets_frame_next_draw = zpl_time_rel() + ASSET_FRAME_RENDER_MS;
+        assets_frame_next_draw = get_cached_time() + ASSET_FRAME_RENDER_MS;
         assets_frame_counter += ASSET_FRAME_SKIP;
     }
     
