@@ -1,7 +1,7 @@
 // NOTE(zaklaus): access to spawners
 #include "storage.h"
 
-struct {
+static struct {
     asset_id id;
     uint64_t (*proc)();
 } entity_spawnlist[] = {

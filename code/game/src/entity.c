@@ -8,6 +8,9 @@
 #include "modules/systems.h"
 #include "zpl.h"
 
+// NOTE(zaklaus): bring in entity spawnlist
+#include "entity_spawnlist.c"
+
 uint64_t entity_spawn(uint16_t class_id) {
     ecs_entity_t e = ecs_new(world_ecs(), 0);
     
@@ -33,6 +36,16 @@ uint64_t entity_spawn(uint16_t class_id) {
     return (uint64_t)e;
 }
 
+uint64_t entity_spawn_id(uint16_t id){
+    for (size_t i = 0; i < MAX_ENTITY_SPAWNDEFS; ++i){
+        if (entity_spawnlist[i].id == id){
+            ZPL_ASSERT(entity_spawnlist[i].proc);
+            return entity_spawnlist[i].proc();
+        }
+    }
+    return 0;
+}
+
 void entity_batch_despawn(uint64_t *ids, size_t num_ids) {
     for (size_t i = 0; i < num_ids; i++ ) {
         librg_entity_untrack(world_tracker(), ids[i]);
@@ -43,20 +56,6 @@ void entity_batch_despawn(uint64_t *ids, size_t num_ids) {
 void entity_despawn(uint64_t ent_id) {
     librg_entity_untrack(world_tracker(), ent_id);
     ecs_delete(world_ecs(), ent_id);
-}
-
-// NOTE(zaklaus): bring in entity spawnlist
-#include "entity_spawnlist.c"
-
-uint64_t entity_spawn_id(uint16_t id){
-    for (size_t i = 0; i < MAX_ENTITY_SPAWNDEFS; ++i){
-        if (entity_spawnlist[i].id == id){
-            ZPL_ASSERT(entity_spawnlist[i].proc);
-            return entity_spawnlist[i].proc();
-        }
-    }
-    
-    return 0;
 }
 
 void entity_set_position(uint64_t ent_id, float x, float y) {
