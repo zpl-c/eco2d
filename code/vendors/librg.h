@@ -157,7 +157,7 @@
 
 #define LIBRG_VERSION_MAJOR 7
 #define LIBRG_VERSION_MINOR 0
-#define LIBRG_VERSION_PATCH 2
+#define LIBRG_VERSION_PATCH 3
 #define LIBRG_VERSION_PRE ""
 
 // file: librg_hedley.h
@@ -2390,6 +2390,10 @@ LIBRG_END_C_DECLS
       https://github.com/zpl-c/zpl
 
     Version History:
+      18.0.3  - fix emscripten support
+      18.0.2  - fix global-buffer-overflow in print module
+              - raise ZPL_PRINTF_MAXLEN to 64kb
+      18.0.1  - fix ADT parser wrongly assuming that an IP address is a real number
       18.0.0  - removed coroutines module
               - removed timer module
               - rename zpl_adt_get -> zpl_adt_query
@@ -2756,7 +2760,7 @@ LIBRG_END_C_DECLS
 
     #define ZPL_VERSION_MAJOR 18
     #define ZPL_VERSION_MINOR 0
-    #define ZPL_VERSION_PATCH 0
+    #define ZPL_VERSION_PATCH 3
     #define ZPL_VERSION_PRE ""
 
      // file: zpl_hedley.h
@@ -4822,7 +4826,6 @@ LIBRG_END_C_DECLS
     #        ifdef ZPL_MODULE_JOBS
     #        undef ZPL_MODULE_JOBS /* user */
     #        endif
-
     #        undef ZPL_MODULE_THREADING
     #    endif
     #    if defined(ZPL_DISABLE_JOBS) && defined(ZPL_MODULE_JOBS)
@@ -8088,7 +8091,7 @@ LIBRG_END_C_DECLS
              ZPL_BEGIN_C_DECLS
 
              #ifndef ZPL_PRINTF_MAXLEN
-             #define ZPL_PRINTF_MAXLEN 4096
+             #define ZPL_PRINTF_MAXLEN 65536
              #endif
 
              ZPL_DEF zpl_isize zpl_printf(char const *fmt, ...);
@@ -12554,7 +12557,7 @@ LIBRG_END_C_DECLS
              #    include <dirent.h>
              #endif
 
-             #if defined(ZPL_SYSTEM_UNIX) && !defined(ZPL_SYSTEM_FREEBSD) && !defined(ZPL_SYSTEM_OPENBSD) && !defined(ZPL_SYSTEM_CYGWIN)
+             #if defined(ZPL_SYSTEM_UNIX) && !defined(ZPL_SYSTEM_FREEBSD) && !defined(ZPL_SYSTEM_OPENBSD) && !defined(ZPL_SYSTEM_CYGWIN) && !defined(ZPL_SYSTEM_EMSCRIPTEN)
              #    include <sys/sendfile.h>
              #endif
 
@@ -12656,6 +12659,9 @@ LIBRG_END_C_DECLS
              #    if defined(ZPL_SYSTEM_OSX)
                      return copyfile(existing_filename, new_filename, NULL, COPYFILE_DATA) == 0;
              #    elif defined(ZPL_SYSTEM_OPENBSD)
+                     ZPL_NOT_IMPLEMENTED;
+                     return 0;
+             #    elif defined(ZPL_SYSTEM_EMSCRIPTEN)
                      ZPL_NOT_IMPLEMENTED;
                      return 0;
              #    else
@@ -13394,6 +13400,7 @@ LIBRG_END_C_DECLS
 
                  if (info && (info->width == 0 || info->flags & ZPL_FMT_MINUS)) {
                      if (info->precision > 0) len = info->precision < len ? info->precision : len;
+                     if (res+len > max_len) return res;
                      res += zpl_strlcpy(text, str, len);
                      text += res;
 
@@ -13410,6 +13417,7 @@ LIBRG_END_C_DECLS
                          while (padding-- > 0 && remaining-- > 0) *text++ = pad, res++;
                      }
 
+                     if (res+len > max_len) return res;
                      res += zpl_strlcpy(text, str, len);
                  }
 
@@ -19566,13 +19574,15 @@ LIBRG_END_C_DECLS
              zpl_i8 exp=0,orig_exp=0;
              zpl_u8 neg_zero=0;
              zpl_u8 lead_digit=0;
+             zpl_u8 node_type=0;
+             zpl_u8 node_props=0;
 
              /* skip false positives and special cases */
              if (!!zpl_strchr("eE", *p) || (!!zpl_strchr(".+-", *p) && !zpl_char_is_hex_digit(*(p+1)) && *(p+1) != '.')) {
                  return ++base_str;
              }
 
-             node->type = ZPL_ADT_TYPE_INTEGER;
+             node_type = ZPL_ADT_TYPE_INTEGER;
              neg_zero = false;
 
              zpl_isize ib = 0;
@@ -19585,19 +19595,19 @@ LIBRG_END_C_DECLS
              }
 
              if (*e == '.') {
-                 node->type = ZPL_ADT_TYPE_REAL;
-                 node->props = ZPL_ADT_PROPS_IS_PARSED_REAL;
+                 node_type = ZPL_ADT_TYPE_REAL;
+                 node_props = ZPL_ADT_PROPS_IS_PARSED_REAL;
                  lead_digit = false;
                  buf[ib++] = '0';
                  do {
                      buf[ib++] = *e;
                  } while (zpl_char_is_digit(*++e));
              } else {
-                 if (!zpl_strncmp(e, "0x", 2) || !zpl_strncmp(e, "0X", 2)) { node->props = ZPL_ADT_PROPS_IS_HEX; }
+                 if (!zpl_strncmp(e, "0x", 2) || !zpl_strncmp(e, "0X", 2)) { node_props = ZPL_ADT_PROPS_IS_HEX; }
                  while (zpl_char_is_hex_digit(*e) || zpl_char_to_lower(*e) == 'x') { buf[ib++] = *e++; }
 
                  if (*e == '.') {
-                     node->type = ZPL_ADT_TYPE_REAL;
+                     node_type = ZPL_ADT_TYPE_REAL;
                      lead_digit = true;
                      zpl_u32 step = 0;
 
@@ -19608,6 +19618,11 @@ LIBRG_END_C_DECLS
 
                      if (step < 2) { buf[ib++] = '0'; }
                  }
+             }
+
+             /* check if we have a dot here, this is a false positive (IP address, ...) */
+             if (*e == '.') {
+                 return ++base_str;
              }
 
              zpl_f32 eb = 10;
@@ -19625,7 +19640,7 @@ LIBRG_END_C_DECLS
                  orig_exp = exp = (zpl_u8)zpl_str_to_i64(expbuf, NULL, 10);
              }
 
-             if (node->type == ZPL_ADT_TYPE_INTEGER) {
+             if (node_type == ZPL_ADT_TYPE_INTEGER) {
                  node->integer = zpl_str_to_i64(buf, 0, 0);
          #ifndef ZPL_PARSER_DISABLE_ANALYSIS
                  /* special case: negative zero */
@@ -19649,7 +19664,7 @@ LIBRG_END_C_DECLS
                  base2 = (zpl_i32)zpl_str_to_i64(base_string2, 0, 0);
                  if (exp) {
                      exp = exp * (!(eb == 10.0f) ? -1 : 1);
-                     node->props = ZPL_ADT_PROPS_IS_EXP;
+                     node_props = ZPL_ADT_PROPS_IS_EXP;
                  }
 
                  /* special case: negative zero */
@@ -19659,6 +19674,9 @@ LIBRG_END_C_DECLS
          #endif
                  while (orig_exp-- > 0) { node->real *= eb; }
              }
+
+             node->type = node_type;
+             node->props = node_props;
 
          #ifndef ZPL_PARSER_DISABLE_ANALYSIS
              node->base = base;
@@ -20878,9 +20896,9 @@ int8_t librg_config_chunkamount_get(librg_world *world, uint16_t *x, uint16_t *y
 int8_t librg_config_chunksize_set(librg_world *world, uint16_t x, uint16_t y, uint16_t z) {
     LIBRG_ASSERT(world); if (!world) return LIBRG_WORLD_INVALID;
     librg_world_t *wld = (librg_world_t *)world;
-    wld->chunksize.x = x;
-    wld->chunksize.y = y;
-    wld->chunksize.z = z;
+    wld->chunksize.x = x == 0 ? 1 : x;
+    wld->chunksize.y = y == 0 ? 1 : y;
+    wld->chunksize.z = z == 0 ? 1 : z;
     return LIBRG_OK;
 }
 
@@ -21520,13 +21538,11 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
     size_t buffer_limit = *entity_amount;
     size_t total_count = zpl_array_count(wld->entity_map.entries);
 
-    static librg_table_i64 results = {0};
-    static librg_table_tbl dimensions = {0};
+    librg_table_i64 results = {0};
+    librg_table_tbl dimensions = {0};
 
-    if (!results.entries) {
-        librg_table_i64_init(&results, wld->allocator);
-        librg_table_tbl_init(&dimensions, wld->allocator);
-    }
+    librg_table_i64_init(&results, wld->allocator);
+    librg_table_tbl_init(&dimensions, wld->allocator);
 
     /* generate a map of visible chunks (only counting owned entities) */
     for (size_t i=0; i < total_count; ++i) {
@@ -21623,19 +21639,8 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
     for (int i = 0; i < zpl_array_count(dimensions.entries); ++i)
         librg_table_i64_destroy(&dimensions.entries[i].value);
 
-    // NOTE(zaklaus): clear out our streaming snapshot
-    // TODO(zaklaus): move this to zpl
-    {
-        zpl_array_clear(results.hashes);
-        zpl_array_clear(results.entries);
-    }
-
-    // NOTE(zaklaus): clear out our streaming snapshot
-    // TODO(zaklaus): move this to zpl
-    {
-        zpl_array_clear(dimensions.hashes);
-        zpl_array_clear(dimensions.entries);
-    }
+    librg_table_tbl_destroy(&dimensions);
+    librg_table_i64_destroy(&results);
 
     *entity_amount = LIBRG_MIN(buffer_limit, count);
     return LIBRG_MAX(0, (int32_t)(count - buffer_limit));
