@@ -2213,6 +2213,7 @@ LIBRG_API int8_t        librg_world_destroy(librg_world *world);
 LIBRG_API int8_t        librg_world_valid(librg_world *world);
 LIBRG_API int8_t        librg_world_userdata_set(librg_world *world, void *data);
 LIBRG_API void *        librg_world_userdata_get(librg_world *world);
+LIBRG_API int64_t       librg_world_entities_tracked();
 
 // =======================================================================//
 // !
@@ -2291,12 +2292,14 @@ LIBRG_API int8_t        librg_entity_dimension_set(librg_world *world, int64_t e
 LIBRG_API int32_t       librg_entity_dimension_get(librg_world *world, int64_t entity_id);
 LIBRG_API int8_t        librg_entity_owner_set(librg_world *world, int64_t entity_id, int64_t owner_id);
 LIBRG_API int64_t       librg_entity_owner_get(librg_world *world, int64_t entity_id);
-LIBRG_API int8_t        librg_entity_radius_set(librg_world *world, int64_t entity_id, int8_t observed_chunk_radius);
-LIBRG_API int8_t        librg_entity_radius_get(librg_world *world, int64_t entity_id);
 LIBRG_API int8_t        librg_entity_visibility_global_set(librg_world *world, int64_t entity_id, librg_visibility value);
 LIBRG_API int8_t        librg_entity_visibility_global_get(librg_world *world, int64_t entity_id);
 LIBRG_API int8_t        librg_entity_visibility_owner_set(librg_world *world, int64_t entity_id, int64_t owner_id, librg_visibility value);
 LIBRG_API int8_t        librg_entity_visibility_owner_get(librg_world *world, int64_t entity_id, int64_t owner_id);
+
+/* deprecated since 7.0 */
+LIBRG_API int8_t        librg_entity_radius_set(librg_world *world, int64_t entity_id, int8_t observed_chunk_radius);
+LIBRG_API int8_t        librg_entity_radius_get(librg_world *world, int64_t entity_id);
 
 #if 0 /* for future releases */
 LIBRG_API int8_t        librg_entity_behavior_set(librg_world *world, int64_t entity_id, librg_behavior key, int32_t value);
@@ -2390,6 +2393,8 @@ LIBRG_END_C_DECLS
       https://github.com/zpl-c/zpl
 
     Version History:
+      18.1.0  - added table _clear method
+      18.0.4  - fix memory arena alignment & added tests
       18.0.3  - fix emscripten support
       18.0.2  - fix global-buffer-overflow in print module
               - raise ZPL_PRINTF_MAXLEN to 64kb
@@ -2759,8 +2764,8 @@ LIBRG_END_C_DECLS
     #define ZPL_H
 
     #define ZPL_VERSION_MAJOR 18
-    #define ZPL_VERSION_MINOR 0
-    #define ZPL_VERSION_PATCH 3
+    #define ZPL_VERSION_MINOR 1
+    #define ZPL_VERSION_PATCH 1
     #define ZPL_VERSION_PRE ""
 
      // file: zpl_hedley.h
@@ -6602,223 +6607,242 @@ LIBRG_END_C_DECLS
 
          ZPL_END_C_DECLS
          // file: header/essentials/collections/hashtable.h
-         
+
          /** @file hashtable.c
          @brief Instantiated hash table
          @defgroup hashtable Instantiated hash table
-         
-         
+
+
           This is an attempt to implement a templated hash table
           NOTE: The key is always a zpl_u64 for simplicity and you will _probably_ _never_ need anything bigger.
-         
+
           Hash table type and function declaration, call: ZPL_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE)
           Hash table function definitions, call: ZPL_TABLE_DEFINE(NAME, FUNC, VALUE)
-         
+
               PREFIX  - a prefix for function prototypes e.g. extern, static, etc.
               NAME    - Name of the Hash Table
               FUNC    - the name will prefix function names
               VALUE   - the type of the value to be stored
-         
-          tablename_init(NAME * h, zpl_allocator a);
-          tablename_destroy(NAME * h);
-          tablename_get(NAME * h, zpl_u64 key);
-          tablename_set(NAME * h, zpl_u64 key, VALUE value);
-          tablename_grow(NAME * h);
-         tablename_map(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value))
-         tablename_map_mut(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value))
-          tablename_rehash(NAME * h, zpl_isize new_count);
-          tablename_remove(NAME * h, zpl_u64 key);
-         
+
+             tablename_init(NAME * h, zpl_allocator a);
+             tablename_destroy(NAME * h);
+             tablename_get(NAME * h, zpl_u64 key);
+             tablename_set(NAME * h, zpl_u64 key, VALUE value);
+             tablename_grow(NAME * h);
+             tablename_map(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value))
+             tablename_map_mut(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value))
+             tablename_rehash(NAME * h, zpl_isize new_count);
+             tablename_remove(NAME * h, zpl_u64 key);
+
           @{
          */
-         
-         
+
+
          ZPL_BEGIN_C_DECLS
-         
+
          typedef struct zpl_hash_table_find_result {
              zpl_isize hash_index;
              zpl_isize entry_prev;
              zpl_isize entry_index;
          } zpl_hash_table_find_result;
-         
-         #define ZPL_TABLE(PREFIX, NAME, FUNC, VALUE)                                                                           \
-         ZPL_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE);                                                                      \
-         ZPL_TABLE_DEFINE(NAME, FUNC, VALUE);
-         
-         #define ZPL_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE)                                                                   \
-         typedef struct ZPL_JOIN2(NAME, Entry) {                                                                            \
-         zpl_u64 key;                                                                                                       \
-         zpl_isize next;                                                                                                    \
-         VALUE value;                                                                                                   \
-         } ZPL_JOIN2(NAME, Entry);                                                                                          \
-         \
-         typedef struct NAME {                                                                                              \
-         zpl_array(zpl_isize) hashes;                                                                                       \
-         zpl_array(ZPL_JOIN2(NAME, Entry)) entries;                                                                     \
-         } NAME;                                                                                                            \
-         \
-         PREFIX void ZPL_JOIN2(FUNC, init)(NAME * h, zpl_allocator a);                                                      \
-         PREFIX void ZPL_JOIN2(FUNC, destroy)(NAME * h);                                                                    \
-         PREFIX VALUE *ZPL_JOIN2(FUNC, get)(NAME * h, zpl_u64 key);                                                             \
-         PREFIX zpl_isize ZPL_JOIN2(FUNC, slot)(NAME * h, zpl_u64 key);                                                             \
-         PREFIX void ZPL_JOIN2(FUNC, set)(NAME * h, zpl_u64 key, VALUE value);                                                  \
-         PREFIX void ZPL_JOIN2(FUNC, grow)(NAME * h);                                                                       \
-         PREFIX void ZPL_JOIN2(FUNC, rehash)(NAME * h, zpl_isize new_count);                                                    \
-         PREFIX void ZPL_JOIN2(FUNC, rehash_fast)(NAME * h); \
-         PREFIX void ZPL_JOIN2(FUNC, map)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value));                                                    \
-         PREFIX void ZPL_JOIN2(FUNC, map_mut)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value));                                                    \
-         PREFIX void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key); \
-         PREFIX void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, zpl_isize idx);
-         
-         #define ZPL_TABLE_DEFINE(NAME, FUNC, VALUE)                                                                            \
-         void ZPL_JOIN2(FUNC, init)(NAME * h, zpl_allocator a) {                                                            \
-         zpl_array_init(h->hashes, a);                                                                                  \
-         zpl_array_init(h->entries, a);                                                                                 \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, destroy)(NAME * h) {                                                                          \
-         if (h->entries) zpl_array_free(h->entries);                                                                    \
-         if (h->hashes) zpl_array_free(h->hashes);                                                                      \
-         }                                                                                                                  \
-         \
-         zpl_isize ZPL_JOIN2(FUNC, slot)(NAME * h, zpl_u64 key) {                                                \
-         for (zpl_isize i = 0; i < zpl_array_count(h->entries); i++) {\
-         if (h->entries[i].key == key) {\
-         return i; \
-         } \
-         }\
-         return -1;\
-         }\
-         \
-         zpl_internal zpl_isize ZPL_JOIN2(FUNC, _add_entry)(NAME * h, zpl_u64 key) {                                                \
-         zpl_isize index;                                                                                                   \
-         ZPL_JOIN2(NAME, Entry) e = { 0 };                                                                              \
-         e.key = key;                                                                                                   \
-         e.next = -1;                                                                                                   \
-         index = zpl_array_count(h->entries);                                                                           \
-         zpl_array_append(h->entries, e);                                                                               \
-         return index;                                                                                                  \
-         }                                                                                                                  \
-         \
-         zpl_internal zpl_hash_table_find_result ZPL_JOIN2(FUNC, _find)(NAME * h, zpl_u64 key) {                                \
-         zpl_hash_table_find_result r = { -1, -1, -1 };                                                                 \
-         if (zpl_array_count(h->hashes) > 0) {                                                                          \
-         r.hash_index = key % zpl_array_count(h->hashes);                                                           \
-         r.entry_index = h->hashes[r.hash_index];                                                                   \
-         while (r.entry_index >= 0) {                                                                               \
-         if (h->entries[r.entry_index].key == key) return r;                                                    \
-         r.entry_prev = r.entry_index;                                                                          \
-         r.entry_index = h->entries[r.entry_index].next;                                                        \
-         }                                                                                                          \
-         }                                                                                                              \
-         return r;                                                                                                      \
-         }                                                                                                                  \
-         \
-         zpl_internal zpl_b32 ZPL_JOIN2(FUNC, _full)(NAME * h) {                                                                \
-         return 0.75f * zpl_array_count(h->hashes) < zpl_array_count(h->entries);                                       \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, grow)(NAME * h) {                                                                             \
-         zpl_isize new_count = ZPL_ARRAY_GROW_FORMULA(zpl_array_count(h->entries));                                         \
-         ZPL_JOIN2(FUNC, rehash)(h, new_count);                                                                         \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, rehash)(NAME * h, zpl_isize new_count) {                                                          \
-         zpl_isize i, j;                                                                                                    \
-         NAME nh = { 0 };                                                                                               \
-         ZPL_JOIN2(FUNC, init)(&nh, zpl_array_allocator(h->hashes));                                                    \
-         zpl_array_resize(nh.hashes, new_count);                                                                        \
-         zpl_array_reserve(nh.entries, zpl_array_count(h->entries));                                                    \
-         for (i = 0; i < new_count; i++) nh.hashes[i] = -1;                                                             \
-         for (i = 0; i < zpl_array_count(h->entries); i++) {                                                            \
-         ZPL_JOIN2(NAME, Entry) * e;                                                                                \
-         zpl_hash_table_find_result fr;                                                                             \
-         if (zpl_array_count(nh.hashes) == 0) ZPL_JOIN2(FUNC, grow)(&nh);                                           \
-         e = &h->entries[i];                                                                                        \
-         fr = ZPL_JOIN2(FUNC, _find)(&nh, e->key);                                                                  \
-         j = ZPL_JOIN2(FUNC, _add_entry)(&nh, e->key);                                                              \
-         if (fr.entry_prev < 0)                                                                                     \
-         nh.hashes[fr.hash_index] = j;                                                                          \
-         else                                                                                                       \
-         nh.entries[fr.entry_prev].next = j;                                                                    \
-         nh.entries[j].next = fr.entry_index;                                                                       \
-         nh.entries[j].value = e->value;                                                                            \
-         }                                                                                                              \
-         ZPL_JOIN2(FUNC, destroy)(h);                                                                                   \
-         h->hashes = nh.hashes;                                                                                         \
-         h->entries = nh.entries;                                                                                       \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, rehash_fast)(NAME * h) {                                                          \
-         zpl_isize i;                                                                                                    \
-         for (i = 0; i < zpl_array_count(h->entries); i++) h->entries[i].next = -1;                                                             \
-         for (i = 0; i < zpl_array_count(h->hashes); i++) h->hashes[i] = -1;                                                             \
-         for (i = 0; i < zpl_array_count(h->entries); i++) {                                                            \
-         ZPL_JOIN2(NAME, Entry) * e;                                                                                \
-         zpl_hash_table_find_result fr;                                                                             \
-         e = &h->entries[i];                                                                                        \
-         fr = ZPL_JOIN2(FUNC, _find)(h, e->key);                                                                  \
-         if (fr.entry_prev < 0)                                                                                     \
-         h->hashes[fr.hash_index] = i;                                                                          \
-         else \
-         h->entries[fr.entry_prev].next = i; \
-         }                                                                                                              \
-         }                                                                                                                  \
-         \
-         VALUE *ZPL_JOIN2(FUNC, get)(NAME * h, zpl_u64 key) {                                                                   \
-         zpl_isize index = ZPL_JOIN2(FUNC, _find)(h, key).entry_index;                                                      \
-         if (index >= 0) return &h->entries[index].value;                                                               \
-         return NULL;                                                                                                   \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key) {                                                                  \
-         zpl_hash_table_find_result fr = ZPL_JOIN2(FUNC, _find)(h, key);                                                \
-         if (fr.entry_index >= 0) {                                                                                     \
-         zpl_array_remove_at(h->entries, fr.entry_index);                                                           \
-         ZPL_JOIN2(FUNC, rehash_fast)(h); \
-         } \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, zpl_isize idx) {                                                                  \
-         zpl_array_remove_at(h->entries, idx);                                                           \
-         }                                                                                                                  \
-         \
-         void ZPL_JOIN2(FUNC, map)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value)) {                                                    \
-         ZPL_ASSERT_NOT_NULL(h); \
-         ZPL_ASSERT_NOT_NULL(map_proc); \
-         for (zpl_isize i = 0; i < zpl_array_count(h->entries); ++i) { \
-         map_proc(h->entries[i].key, h->entries[i].value); \
-         } \
-         } \
-         void ZPL_JOIN2(FUNC, map_mut)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value)) {                                                    \
-         ZPL_ASSERT_NOT_NULL(h); \
-         ZPL_ASSERT_NOT_NULL(map_proc); \
-         for (zpl_isize i = 0; i < zpl_array_count(h->entries); ++i) { \
-         map_proc(h->entries[i].key, &h->entries[i].value); \
-         } \
-         } \
-         \
-         void ZPL_JOIN2(FUNC, set)(NAME * h, zpl_u64 key, VALUE value) {                                                        \
-         zpl_isize index;                                                                                                   \
-         zpl_hash_table_find_result fr;                                                                                 \
-         if (zpl_array_count(h->hashes) == 0) ZPL_JOIN2(FUNC, grow)(h);                                                 \
-         fr = ZPL_JOIN2(FUNC, _find)(h, key);                                                                           \
-         if (fr.entry_index >= 0) {                                                                                     \
-         index = fr.entry_index;                                                                                    \
-         } else {                                                                                                       \
-         index = ZPL_JOIN2(FUNC, _add_entry)(h, key);                                                               \
-         if (fr.entry_prev >= 0) {                                                                                  \
-         h->entries[fr.entry_prev].next = index;                                                                \
-         } else {                                                                                                   \
-         h->hashes[fr.hash_index] = index;                                                                      \
-         }                                                                                                          \
-         }                                                                                                              \
-         h->entries[index].value = value;                                                                               \
-         if (ZPL_JOIN2(FUNC, _full)(h)) ZPL_JOIN2(FUNC, grow)(h);                                                       \
-         }\
-         
+
+         /**
+          * Combined macro for a quick delcaration + definition
+          */
+
+         #define ZPL_TABLE(PREFIX, NAME, FUNC, VALUE)                                                                        \
+             ZPL_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE);                                                                   \
+             ZPL_TABLE_DEFINE(NAME, FUNC, VALUE);
+
+         /**
+          * Table delcaration macro that generates the interface
+          */
+
+         #define ZPL_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE)                                                                \
+             typedef struct ZPL_JOIN2(NAME, Entry) {                                                                         \
+                 zpl_u64 key;                                                                                                \
+                 zpl_isize next;                                                                                             \
+                 VALUE value;                                                                                                \
+             } ZPL_JOIN2(NAME, Entry);                                                                                       \
+                                                                                                                             \
+             typedef struct NAME {                                                                                           \
+                 zpl_array(zpl_isize) hashes;                                                                                \
+                 zpl_array(ZPL_JOIN2(NAME, Entry)) entries;                                                                  \
+             } NAME;                                                                                                         \
+                                                                                                                             \
+             PREFIX void      ZPL_JOIN2(FUNC, init)          (NAME *h, zpl_allocator a);                                     \
+             PREFIX void      ZPL_JOIN2(FUNC, destroy)       (NAME *h);                                                      \
+             PREFIX void      ZPL_JOIN2(FUNC, clear)         (NAME *h);                                                      \
+             PREFIX VALUE    *ZPL_JOIN2(FUNC, get)           (NAME *h, zpl_u64 key);                                         \
+             PREFIX zpl_isize ZPL_JOIN2(FUNC, slot)          (NAME *h, zpl_u64 key);                                         \
+             PREFIX void      ZPL_JOIN2(FUNC, set)           (NAME *h, zpl_u64 key, VALUE value);                            \
+             PREFIX void      ZPL_JOIN2(FUNC, grow)          (NAME *h);                                                      \
+             PREFIX void      ZPL_JOIN2(FUNC, rehash)        (NAME *h, zpl_isize new_count);                                 \
+             PREFIX void      ZPL_JOIN2(FUNC, rehash_fast)   (NAME *h);                                                      \
+             PREFIX void      ZPL_JOIN2(FUNC, map)           (NAME *h, void (*map_proc) (zpl_u64 key, VALUE value));         \
+             PREFIX void      ZPL_JOIN2(FUNC, map_mut)       (NAME *h, void (*map_proc) (zpl_u64 key, VALUE * value));       \
+             PREFIX void      ZPL_JOIN2(FUNC, remove)        (NAME *h, zpl_u64 key);                                         \
+             PREFIX void      ZPL_JOIN2(FUNC, remove_entry)  (NAME *h, zpl_isize idx);
+
+         /**
+          * Table definition interfaces that generates the implementation
+          */
+
+         #define ZPL_TABLE_DEFINE(NAME, FUNC, VALUE)                                                                         \
+             void ZPL_JOIN2(FUNC, init)(NAME * h, zpl_allocator a) {                                                         \
+                 zpl_array_init(h->hashes, a);                                                                               \
+                 zpl_array_init(h->entries, a);                                                                              \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, destroy)(NAME * h) {                                                                       \
+                 if (h->entries) zpl_array_free(h->entries);                                                                 \
+                 if (h->hashes) zpl_array_free(h->hashes);                                                                   \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, clear)(NAME * h) {                                                                         \
+                 for (int i = 0; i < zpl_array_count(h->hashes); i++) h->hashes[i] = -1;                                     \
+                 zpl_array_clear(h->entries);                                                                                \
+             }                                                                                                               \
+                                                                                                                             \
+             zpl_isize ZPL_JOIN2(FUNC, slot)(NAME * h, zpl_u64 key) {                                                        \
+                 for (zpl_isize i = 0; i < zpl_array_count(h->entries); i++) {                                               \
+                     if (h->entries[i].key == key) {                                                                         \
+                         return i;                                                                                           \
+                     }                                                                                                       \
+                 }                                                                                                           \
+                 return -1;                                                                                                  \
+             }                                                                                                               \
+                                                                                                                             \
+             zpl_internal zpl_isize ZPL_JOIN2(FUNC, _add_entry)(NAME * h, zpl_u64 key) {                                     \
+                 zpl_isize index;                                                                                            \
+                 ZPL_JOIN2(NAME, Entry) e = { 0 };                                                                           \
+                 e.key = key;                                                                                                \
+                 e.next = -1;                                                                                                \
+                 index = zpl_array_count(h->entries);                                                                        \
+                 zpl_array_append(h->entries, e);                                                                            \
+                 return index;                                                                                               \
+             }                                                                                                               \
+                                                                                                                             \
+             zpl_internal zpl_hash_table_find_result ZPL_JOIN2(FUNC, _find)(NAME * h, zpl_u64 key) {                         \
+                 zpl_hash_table_find_result r = { -1, -1, -1 };                                                              \
+                 if (zpl_array_count(h->hashes) > 0) {                                                                       \
+                     r.hash_index = key % zpl_array_count(h->hashes);                                                        \
+                     r.entry_index = h->hashes[r.hash_index];                                                                \
+                     while (r.entry_index >= 0) {                                                                            \
+                         if (h->entries[r.entry_index].key == key) return r;                                                 \
+                         r.entry_prev = r.entry_index;                                                                       \
+                         r.entry_index = h->entries[r.entry_index].next;                                                     \
+                     }                                                                                                       \
+                 }                                                                                                           \
+                 return r;                                                                                                   \
+             }                                                                                                               \
+                                                                                                                             \
+             zpl_internal zpl_b32 ZPL_JOIN2(FUNC, _full)(NAME * h) {                                                         \
+                 return 0.75f * zpl_array_count(h->hashes) < zpl_array_count(h->entries);                                    \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, grow)(NAME * h) {                                                                          \
+                 zpl_isize new_count = ZPL_ARRAY_GROW_FORMULA(zpl_array_count(h->entries));                                  \
+                 ZPL_JOIN2(FUNC, rehash)(h, new_count);                                                                      \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, rehash)(NAME * h, zpl_isize new_count) {                                                   \
+                 zpl_isize i, j;                                                                                             \
+                 NAME nh = { 0 };                                                                                            \
+                 ZPL_JOIN2(FUNC, init)(&nh, zpl_array_allocator(h->hashes));                                                 \
+                 zpl_array_resize(nh.hashes, new_count);                                                                     \
+                 zpl_array_reserve(nh.entries, zpl_array_count(h->entries));                                                 \
+                 for (i = 0; i < new_count; i++) nh.hashes[i] = -1;                                                          \
+                 for (i = 0; i < zpl_array_count(h->entries); i++) {                                                         \
+                     ZPL_JOIN2(NAME, Entry) * e;                                                                             \
+                     zpl_hash_table_find_result fr;                                                                          \
+                     if (zpl_array_count(nh.hashes) == 0) ZPL_JOIN2(FUNC, grow)(&nh);                                        \
+                     e = &h->entries[i];                                                                                     \
+                     fr = ZPL_JOIN2(FUNC, _find)(&nh, e->key);                                                               \
+                     j = ZPL_JOIN2(FUNC, _add_entry)(&nh, e->key);                                                           \
+                     if (fr.entry_prev < 0)                                                                                  \
+                         nh.hashes[fr.hash_index] = j;                                                                       \
+                     else                                                                                                    \
+                         nh.entries[fr.entry_prev].next = j;                                                                 \
+                     nh.entries[j].next = fr.entry_index;                                                                    \
+                     nh.entries[j].value = e->value;                                                                         \
+                 }                                                                                                           \
+                 ZPL_JOIN2(FUNC, destroy)(h);                                                                                \
+                 h->hashes = nh.hashes;                                                                                      \
+                 h->entries = nh.entries;                                                                                    \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, rehash_fast)(NAME * h) {                                                                   \
+                 zpl_isize i;                                                                                                \
+                 for (i = 0; i < zpl_array_count(h->entries); i++) h->entries[i].next = -1;                                  \
+                 for (i = 0; i < zpl_array_count(h->hashes); i++) h->hashes[i] = -1;                                         \
+                 for (i = 0; i < zpl_array_count(h->entries); i++) {                                                         \
+                     ZPL_JOIN2(NAME, Entry) * e;                                                                             \
+                     zpl_hash_table_find_result fr;                                                                          \
+                     e = &h->entries[i];                                                                                     \
+                     fr = ZPL_JOIN2(FUNC, _find)(h, e->key);                                                                 \
+                     if (fr.entry_prev < 0)                                                                                  \
+                         h->hashes[fr.hash_index] = i;                                                                       \
+                     else                                                                                                    \
+                         h->entries[fr.entry_prev].next = i;                                                                 \
+                 }                                                                                                           \
+             }                                                                                                               \
+                                                                                                                             \
+             VALUE *ZPL_JOIN2(FUNC, get)(NAME * h, zpl_u64 key) {                                                            \
+                 zpl_isize index = ZPL_JOIN2(FUNC, _find)(h, key).entry_index;                                               \
+                 if (index >= 0) return &h->entries[index].value;                                                            \
+                 return NULL;                                                                                                \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, remove)(NAME * h, zpl_u64 key) {                                                           \
+                 zpl_hash_table_find_result fr = ZPL_JOIN2(FUNC, _find)(h, key);                                             \
+                 if (fr.entry_index >= 0) {                                                                                  \
+                     zpl_array_remove_at(h->entries, fr.entry_index);                                                        \
+                     ZPL_JOIN2(FUNC, rehash_fast)(h);                                                                        \
+                 }                                                                                                           \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, remove_entry)(NAME * h, zpl_isize idx) {                                                   \
+                 zpl_array_remove_at(h->entries, idx);                                                                       \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, map)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE value)) {                               \
+                 ZPL_ASSERT_NOT_NULL(h);                                                                                     \
+                 ZPL_ASSERT_NOT_NULL(map_proc);                                                                              \
+                 for (zpl_isize i = 0; i < zpl_array_count(h->entries); ++i) {                                               \
+                     map_proc(h->entries[i].key, h->entries[i].value);                                                       \
+                 }                                                                                                           \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, map_mut)(NAME * h, void (*map_proc)(zpl_u64 key, VALUE * value)) {                         \
+                 ZPL_ASSERT_NOT_NULL(h);                                                                                     \
+                 ZPL_ASSERT_NOT_NULL(map_proc);                                                                              \
+                 for (zpl_isize i = 0; i < zpl_array_count(h->entries); ++i) {                                               \
+                     map_proc(h->entries[i].key, &h->entries[i].value);                                                      \
+                 }                                                                                                           \
+             }                                                                                                               \
+                                                                                                                             \
+             void ZPL_JOIN2(FUNC, set)(NAME * h, zpl_u64 key, VALUE value) {                                                 \
+                 zpl_isize index;                                                                                            \
+                 zpl_hash_table_find_result fr;                                                                              \
+                 if (zpl_array_count(h->hashes) == 0) ZPL_JOIN2(FUNC, grow)(h);                                              \
+                 fr = ZPL_JOIN2(FUNC, _find)(h, key);                                                                        \
+                 if (fr.entry_index >= 0) {                                                                                  \
+                     index = fr.entry_index;                                                                                 \
+                 } else {                                                                                                    \
+                     index = ZPL_JOIN2(FUNC, _add_entry)(h, key);                                                            \
+                     if (fr.entry_prev >= 0) {                                                                               \
+                         h->entries[fr.entry_prev].next = index;                                                             \
+                     } else {                                                                                                \
+                         h->hashes[fr.hash_index] = index;                                                                   \
+                     }                                                                                                       \
+                 }                                                                                                           \
+                 h->entries[index].value = value;                                                                            \
+                 if (ZPL_JOIN2(FUNC, _full)(h)) ZPL_JOIN2(FUNC, grow)(h);                                                    \
+             }
+
          //! @}
-         
+
          ZPL_END_C_DECLS
     #    if defined(ZPL_MODULE_CORE)
              // file: header/core/memory_virtual.h
@@ -10825,11 +10849,11 @@ LIBRG_END_C_DECLS
              switch (type) {
                  case ZPL_ALLOCATION_ALLOC: {
                      void *end = zpl_pointer_add(arena->physical_start, arena->total_allocated);
-                     zpl_isize total_size = size + alignment;
+                     zpl_isize total_size = zpl_align_forward_i64(size, alignment);
 
                      // NOTE: Out of memory
                      if (arena->total_allocated + total_size > cast(zpl_isize) arena->total_size) {
-                         zpl__printf_err("%s", "Arena out of memory\n");
+                         // zpl__printf_err("%s", "Arena out of memory\n");
                          return NULL;
                      }
 
@@ -20730,6 +20754,11 @@ typedef struct librg_event_t {
     void      * userdata;       /* userpointer that is passed from librg_world_write/librg_world_read fns */
 } librg_event_t;
 
+typedef struct librg_owner_entity_pair_t {
+    int64_t     owner_id;       /* id of the owner who this event is called for */
+    int64_t     entity_id;      /* id of an entity which this event is called about */
+} librg_owner_entity_pair_t;
+
 typedef struct librg_world_t {
     uint8_t valid;
     zpl_allocator allocator;
@@ -20742,6 +20771,12 @@ typedef struct librg_world_t {
     librg_event_fn handlers[LIBRG_PACKAGING_TOTAL];
     librg_table_ent entity_map;
     librg_table_tbl owner_map;
+
+    librg_table_tbl dimensions;
+
+    /* owner-entity pair, needed for more effective query */
+    /* achieved by caching only owned entities and reducing the first iteration cycle */
+    zpl_array(librg_owner_entity_pair_t) owner_entity_pairs;
 
     void *userdata;
 } librg_world_t;
@@ -20815,6 +20850,9 @@ librg_world *librg_world_create() {
     librg_table_ent_init(&wld->entity_map, wld->allocator);
     librg_table_tbl_init(&wld->owner_map, wld->allocator);
     zpl_random_init(&wld->random);
+    zpl_array_init(wld->owner_entity_pairs, wld->allocator);
+
+    librg_table_tbl_init(&wld->dimensions, wld->allocator);
 
     return (librg_world *)wld;
 }
@@ -20843,6 +20881,9 @@ int8_t librg_world_destroy(librg_world *world) {
         librg_table_tbl_destroy(&wld->owner_map);
     }
 
+    zpl_array_free(wld->owner_entity_pairs);
+    librg_table_tbl_destroy(&wld->dimensions);
+
     /* mark it invalid */
     wld->valid = LIBRG_FALSE;
 
@@ -20867,6 +20908,12 @@ void *librg_world_userdata_get(librg_world *world) {
     LIBRG_ASSERT(world); if (!world) return NULL;
     librg_world_t *wld = (librg_world_t *)world;
     return wld->userdata;
+}
+
+int64_t librg_world_entities_tracked(librg_world *world) {
+    LIBRG_ASSERT(world); if (!world) return LIBRG_WORLD_INVALID;
+    librg_world_t *wld = (librg_world_t *)world;
+    return zpl_array_count(wld->entity_map.entries);
 }
 
 // =======================================================================//
@@ -21138,6 +21185,14 @@ int8_t librg_entity_untrack(librg_world *world, int64_t entity_id) {
             librg_table_i64_destroy(snapshot);
             librg_table_tbl_remove(&wld->owner_map, entity->owner_id);
         }
+
+        /* cleanup owner-entity pair */
+        for (int i = 0; i < zpl_array_count(wld->owner_entity_pairs); ++i) {
+            if (wld->owner_entity_pairs[i].entity_id == entity_id) {
+                zpl_array_remove_at(wld->owner_entity_pairs, i);
+                break;
+            }
+        }
     }
 
     /* cleanup owner visibility */
@@ -21213,6 +21268,35 @@ int8_t librg_entity_owner_set(librg_world *world, int64_t entity_id, int64_t own
 
     if (entity->flag_foreign == LIBRG_TRUE) {
         return LIBRG_ENTITY_FOREIGN;
+    }
+
+    /* update owner-entity pairing */
+    if (owner_id != LIBRG_OWNER_INVALID) {
+        bool ownership_pair_found = false;
+        for (int i = 0; i < zpl_array_count(wld->owner_entity_pairs) && !ownership_pair_found; ++i) {
+            if (wld->owner_entity_pairs[i].entity_id == entity_id) {
+                ownership_pair_found = true;
+
+                /* update owner if we found the entity */
+                if (wld->owner_entity_pairs[i].owner_id != owner_id) {
+                    wld->owner_entity_pairs[i].owner_id = owner_id;
+                }
+            }
+        }
+        if (!ownership_pair_found) {
+            librg_owner_entity_pair_t pair = { owner_id, entity_id };
+            zpl_array_append(wld->owner_entity_pairs, pair);
+        }
+    } else {
+        if (entity->owner_id != LIBRG_OWNER_INVALID) {
+            /* cleanup owner-entity pair */
+            for (int i = 0; i < zpl_array_count(wld->owner_entity_pairs); ++i) {
+                if (wld->owner_entity_pairs[i].entity_id == entity_id) {
+                    zpl_array_remove_at(wld->owner_entity_pairs, i);
+                    break;
+                }
+            }
+        }
     }
 
     entity->owner_id = owner_id;
@@ -21537,22 +21621,22 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
 
     size_t buffer_limit = *entity_amount;
     size_t total_count = zpl_array_count(wld->entity_map.entries);
+    size_t result_amount = 0;
 
-    librg_table_i64 results = {0};
-    librg_table_tbl dimensions = {0};
-
-    librg_table_i64_init(&results, wld->allocator);
-    librg_table_tbl_init(&dimensions, wld->allocator);
+    /* mini helper for pushing entity */
+    /* if it will overflow do not push, just increase counter for future statistics */
+    #define librg_push_entity(entity_id) \
+        { if (result_amount + 1 <= buffer_limit) entity_ids[result_amount++] = entity_id; else result_amount++; }
 
     /* generate a map of visible chunks (only counting owned entities) */
-    for (size_t i=0; i < total_count; ++i) {
-        uint64_t entity_id = wld->entity_map.entries[i].key;
-        librg_entity_t *entity = &wld->entity_map.entries[i].value;
+    for (int i = 0; i < zpl_array_count(wld->owner_entity_pairs); ++i) {
+        if (wld->owner_entity_pairs[i].owner_id != owner_id) continue;
+
+        uint64_t entity_id = wld->owner_entity_pairs[i].entity_id;
+        librg_entity_t *entity = librg_table_ent_get(&wld->entity_map, entity_id);
 
         /* allways add self-owned entities */
-        if (entity->owner_id == owner_id) {
-            librg_table_i64_set(&results, entity_id, 1);
-        }
+        librg_push_entity(entity_id);
 
         /* immidiately skip, if entity was not placed correctly */
         if (entity->chunks[0] == LIBRG_CHUNK_INVALID) continue;
@@ -21560,12 +21644,12 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
         if (entity->owner_id != owner_id) continue;
 
         /* fetch, or create chunk set in this dimension if does not exist */
-        librg_table_i64 *dim_chunks = librg_table_tbl_get(&dimensions, entity->dimension);
+        librg_table_i64 *dim_chunks = librg_table_tbl_get(&wld->dimensions, entity->dimension);
 
         if (!dim_chunks) {
             librg_table_i64 _chunks = {0};
-            librg_table_tbl_set(&dimensions, entity->dimension, _chunks);
-            dim_chunks = librg_table_tbl_get(&dimensions, entity->dimension);
+            librg_table_tbl_set(&wld->dimensions, entity->dimension, _chunks);
+            dim_chunks = librg_table_tbl_get(&wld->dimensions, entity->dimension);
             librg_table_i64_init(dim_chunks, wld->allocator);
         }
 
@@ -21579,16 +21663,13 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
         }
     }
 
-    /* a slightly increased buffer_limit, that includes own entities */
-    /* that allows us to prevent edge-cases where the code below will include our entities in the result as well */
-    size_t owned_entities = zpl_array_count(results.entries);
-    size_t buffer_limit_extended = buffer_limit + owned_entities;
-
     /* iterate on all entities, and check if they are inside of the interested chunks */
-    for (size_t i=0; i < LIBRG_MIN(buffer_limit_extended, total_count); ++i) {
+    for (size_t i=0; i < total_count; ++i) {
         uint64_t entity_id = wld->entity_map.entries[i].key;
         librg_entity_t *entity = &wld->entity_map.entries[i].value;
-        librg_table_i64 *chunks = librg_table_tbl_get(&dimensions, entity->dimension);
+        librg_table_i64 *chunks = librg_table_tbl_get(&wld->dimensions, entity->dimension);
+
+        if (entity->owner_id == owner_id) continue;
 
         /* owner visibility (personal)*/
         int8_t vis_owner = librg_entity_visibility_owner_get(world, entity_id, owner_id);
@@ -21596,7 +21677,7 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
             continue; /* prevent from being included */
         }
         else if (vis_owner == LIBRG_VISIBLITY_ALWAYS) {
-            librg_table_i64_set(&results, entity_id, 1); /* always included */
+            librg_push_entity(entity_id);
             continue;
         }
 
@@ -21606,7 +21687,7 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
             continue; /* prevent from being included */
         }
         else if (vis_global == LIBRG_VISIBLITY_ALWAYS) {
-            librg_table_i64_set(&results, entity_id, 1); /* always included */
+            librg_push_entity(entity_id);
             continue;
         }
 
@@ -21623,27 +21704,23 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
 
                 /* add entity and continue to the next one */
                 if (entity->chunks[j] == chunk) {
-                    librg_table_i64_set(&results, entity_id, 1);
+                    librg_push_entity(entity_id);
                     break;
                 }
             }
         }
     }
 
-    /* copy/transform results to a plain array */
-    size_t count = zpl_array_count(results.entries);
-    for (size_t i = 0; i < LIBRG_MIN(buffer_limit, count); ++i)
-        entity_ids[i] = results.entries[i].key;
-
     /* free up temp data */
-    for (int i = 0; i < zpl_array_count(dimensions.entries); ++i)
-        librg_table_i64_destroy(&dimensions.entries[i].value);
+    for (int i = 0; i < zpl_array_count(wld->dimensions.entries); ++i)
+        librg_table_i64_destroy(&wld->dimensions.entries[i].value);
 
-    librg_table_tbl_destroy(&dimensions);
-    librg_table_i64_destroy(&results);
+    librg_table_tbl_clear(&wld->dimensions);
 
-    *entity_amount = LIBRG_MIN(buffer_limit, count);
-    return LIBRG_MAX(0, (int32_t)(count - buffer_limit));
+    #undef librg_push_entity
+
+    *entity_amount = LIBRG_MIN(buffer_limit, result_amount);
+    return LIBRG_MAX(0, (int32_t)(result_amount - buffer_limit));
 }
 
 LIBRG_END_C_DECLS
@@ -22001,3 +22078,4 @@ LIBRG_END_C_DECLS
 #endif // LIBRG_IMPLEMENTATION
 
 #endif // LIBRG_H
+
