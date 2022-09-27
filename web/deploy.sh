@@ -28,12 +28,14 @@ if [ ! -f "build_web/index.html" ]; then
     exit 1
 fi
 
+APP=${1:-eco2d}
+
 mkdir -p deploy_web
-cp build_web/eco2d.* deploy_web/
+cp build_web/$APP.* deploy_web/
 cp build_web/index.html deploy_web/
 
 # Deploy to itch.io
-./butler/butler push deploy_web/ zaklaus/eco2d:html-latest
+./butler/butler push deploy_web/ zaklaus/$APP:html-latest
 
 # Teardown
 rm -rf deploy_web

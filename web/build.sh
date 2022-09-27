@@ -7,8 +7,10 @@ if [ -f "index.html" ]; then
     rm -rf index.html
 fi
 
+APP=${1:-eco2d}
+
 cmake --build . --parallel
-if [ -f "eco2d.html" ]; then
-    mv eco2d.html index.html
+if [ -f "$APP.html" ]; then
+    mv $APP.html index.html
 fi
 popd
