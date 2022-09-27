@@ -3,7 +3,7 @@
 #define ITEM_PICK_RADIUS 25.0f
 #define ITEM_MERGER_RADIUS 75.0f
 #define ITEM_ATTRACT_RADIUS 75.0f
-#define ITEM_ATTRACT_FORCE 6.f
+#define ITEM_ATTRACT_FORCE .98f
 
 #define ITEM_CONTAINER_REACH_RADIUS 105.0f
 
@@ -13,7 +13,6 @@ void PickItem(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         if (inv[i].pickup_time > game_time()) continue;
-        inv[i].pickup_time = game_time() + 0.5f;
         size_t ents_count;
         int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
         

@@ -7,6 +7,20 @@ static float zoom_overlay_tran = 0.0f;
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
+void DrawNametag(const char* name, uint64_t key, entity_view *data, float x, float y) {
+    float size = 16.f;
+    float font_size = lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
+    float font_spacing = 1.1f;
+    float title_bg_offset = 4;
+    float fixed_title_offset = 8.f;
+    float health = (data->hp / data->max_hp);
+    const char *title = TextFormat("%s %llu", name, key);
+    float title_w = MeasureTextEco(title, font_size, font_spacing);
+    DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
+    DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
+    DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing);
+}
+
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     switch (data->kind) {
         case EKIND_CHUNK: {
@@ -59,26 +73,19 @@ extern bool inv_is_open;
 
 void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     float size = 16.f;
-    float font_size = lerp(4.0f, 32.0f, 0.5f/(float)render_camera.zoom);
-    float font_spacing = 1.1f;
-    float title_bg_offset = 4;
-    float fixed_title_offset = 8.f;
 
     switch (data->kind) {
         case EKIND_DEMO_NPC: {
             float x = data->x;
             float y = data->y;
+            DrawNametag("Demo", key, data, x, y);
             DrawCircleEco(x, y, size, ColorAlpha(BLUE, data->tran_time));
         }break;
         case EKIND_PLAYER: {
             float x = data->x;
             float y = data->y;
             float health = (data->hp / data->max_hp);
-            const char *title = TextFormat("Player %d", key);
-            float title_w = MeasureTextEco(title, font_size, font_spacing);
-            DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
-            DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
-            DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing);
+            DrawNametag("Player", key, data, x, y);
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
 
             if (data->has_items && !data->inside_vehicle) {
@@ -97,11 +104,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_MACRO_BOT: {
             float x = data->x;
             float y = data->y;
-            const char *title = TextFormat("Bot %d", key);
-            float title_w = MeasureTextEco(title, font_size, font_spacing);
-            DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(GRAY, data->tran_time));
-            DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(BLACK, data->tran_time), font_spacing);
-            DrawCircleEco(x, y, size, ColorAlpha(PURPLE, data->tran_time));
+            DrawNametag("Bot", key, data, x, y);
         }break;
         case EKIND_ITEM: {
             float x = data->x - 32.f;

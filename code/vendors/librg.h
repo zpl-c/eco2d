@@ -156,8 +156,8 @@
 #define LIBRG_H
 
 #define LIBRG_VERSION_MAJOR 7
-#define LIBRG_VERSION_MINOR 0
-#define LIBRG_VERSION_PATCH 3
+#define LIBRG_VERSION_MINOR 1
+#define LIBRG_VERSION_PATCH 1
 #define LIBRG_VERSION_PRE ""
 
 // file: librg_hedley.h
@@ -2213,7 +2213,7 @@ LIBRG_API int8_t        librg_world_destroy(librg_world *world);
 LIBRG_API int8_t        librg_world_valid(librg_world *world);
 LIBRG_API int8_t        librg_world_userdata_set(librg_world *world, void *data);
 LIBRG_API void *        librg_world_userdata_get(librg_world *world);
-LIBRG_API int64_t       librg_world_entities_tracked();
+LIBRG_API int64_t       librg_world_entities_tracked(librg_world *world);
 
 // =======================================================================//
 // !
@@ -22078,4 +22078,3 @@ LIBRG_END_C_DECLS
 #endif // LIBRG_IMPLEMENTATION
 
 #endif // LIBRG_H
-
