@@ -4,7 +4,6 @@ add_library(eco2d-foundation STATIC
     src/core/game.c
     src/core/camera.c
 
-    src/platform/platform_raylib.c
     src/platform/signal_handling.c
     src/platform/profiler.c
 

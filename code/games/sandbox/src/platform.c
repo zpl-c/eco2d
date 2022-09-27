@@ -270,7 +270,7 @@ void platform_render() {
         game_world_view_active_entity_map(do_entity_fadeinout);
     }
 
-    assets_frame();
+    assets_resources_frame();
 
     BeginDrawing();
     {

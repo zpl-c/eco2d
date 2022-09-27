@@ -1,5 +1,6 @@
 add_executable(eco2d
     src/main.c
+    src/platform.c
 )
 
 target_compile_definitions(eco2d PRIVATE CLIENT)

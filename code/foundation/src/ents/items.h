@@ -41,6 +41,10 @@ typedef struct {
 
 typedef uint16_t item_id;
 
+void item_setup();
+void item_cleanup();
+void item_register(item_desc desc);
+
 // NOTE(zaklaus): item drops
 uint64_t item_spawn(asset_id kind, uint32_t qty);
 void item_despawn(uint64_t id);

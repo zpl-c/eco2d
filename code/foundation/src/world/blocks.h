@@ -2,6 +2,11 @@
 #include "platform/system.h"
 #include "gen/assets.h"
 
+#define BLOCK(a, f, s, ...)\
+(block){\
+.kind = a, .flags = f, .symbol = s, __VA_ARGS__\
+}
+
 typedef enum {
     BLOCK_FLAG_COLLISION = (1 << 1),
     BLOCK_FLAG_HAZARD = (1 << 2),
@@ -11,8 +16,28 @@ typedef enum {
 
 typedef uint16_t block_id;
 
-int32_t blocks_setup(void);
-void blocks_destroy(void);
+typedef struct {
+    asset_id kind;
+    uint32_t flags;
+    char symbol;
+    float drag;
+    float friction;
+    float bounce;
+
+    float velx;
+    float vely;
+
+    // NOTE(zaklaus): viewer data
+    block_id slot;
+} block;
+
+void blocks_setup(void);
+void blocks_register(block desc);
+void blocks_cleanup(void);
+
+// resources
+int32_t blocks_resources_setup(void);
+void blocks_resources_destroy(void);
 
 block_id blocks_find(asset_id kind);
 
