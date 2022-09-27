@@ -7,6 +7,7 @@
 #include "world/world_view.h"
 #include "perlin.h"
 
+#define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 #define WORLD_TEXTURE_BLOCK_SCALE 0.5f
 
 ZPL_TABLE(static, blocks__chunk_tbl, blocks__chunk_tbl_, RenderTexture2D);
@@ -18,35 +19,38 @@ static void chunks_unload_textures(uint64_t key, RenderTexture2D *value) {
     UnloadRenderTexture(*value);
 }
 
+typedef struct {
+    asset_id kind;
+    uint32_t flags;
+    char symbol;
+    float drag;
+    float friction;
+    float bounce;
+    
+    float velx;
+    float vely;
+    
+    // NOTE(zaklaus): viewer data
+    block_id slot;
+} block;
+
 #include "blocks_list.c"
 
-void blocks_register(block desc) {
-    if (!blocks) {
-        zpl_array_init(blocks, zpl_heap());
-    }
-
-    zpl_array_append(blocks, desc);
-}
-
-void blocks_cleanup(void) {
-    zpl_array_free(blocks); blocks = NULL;
-}
-
-int32_t blocks_resources_setup(void) {
-    for (block_id i=0; i<zpl_array_count(blocks); i++) {
+int32_t blocks_setup(void) {
+    for (block_id i=0; i<BLOCKS_COUNT; i++) {
         blocks[i].slot = assets_find(blocks[i].kind);
     }
     blocks__chunk_tbl_init(&baked_chunks, zpl_heap());
     return 0;
 }
 
-void blocks_resources_destroy(void) {
+void blocks_destroy(void) {
     blocks__chunk_tbl_map_mut(&baked_chunks, chunks_unload_textures);
     blocks__chunk_tbl_destroy(&baked_chunks);
 }
 
 block_id blocks_find(asset_id kind) {
-    for (block_id i=0; i<zpl_array_count(blocks); i++) {
+    for (block_id i=0; i<BLOCKS_COUNT; i++) {
         if (blocks[i].kind == kind)
             return i;
     }

@@ -11,17 +11,6 @@
 // NOTE(zaklaus): bring in entity spawnlist
 #include "entity_spawnlist.c"
 
-void entity_spawndef_cleanup() {
-    zpl_array_free(entity_spawnlist); entity_spawnlist = NULL;
-}
-void entity_spawndef_register(spawndef def) {
-    if (!entity_spawnlist) {
-        zpl_array_init(entity_spawnlist, zpl_heap());
-    }
-
-    zpl_array_append(entity_spawnlist, def);
-}
-
 uint64_t entity_spawn(uint16_t class_id) {
     ecs_entity_t e = ecs_new(world_ecs(), 0);
     
@@ -49,7 +38,7 @@ uint64_t entity_spawn(uint16_t class_id) {
 }
 
 uint64_t entity_spawn_id(uint16_t id){
-    for (zpl_isize i = 0; i < zpl_array_count(entity_spawnlist); ++i){
+    for (size_t i = 0; i < MAX_ENTITY_SPAWNDEFS; ++i){
         if (entity_spawnlist[i].id == id){
             ZPL_ASSERT(entity_spawnlist[i].proc);
             return entity_spawnlist[i].proc();

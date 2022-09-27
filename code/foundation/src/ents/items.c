@@ -9,21 +9,10 @@
 #include "zpl.h"
 
 #include "items_list.c"
-
-void item_cleanup() {
-    zpl_array_free(items); items = NULL;
-}
-
-void item_register(item_desc desc) {
-    if (!items) {
-        zpl_array_init(items, zpl_heap());
-    }
-
-    zpl_array_append(items, desc);
-}
+#define ITEMS_COUNT (sizeof(items)/sizeof(item_desc))
 
 static inline item_id item_resolve_proxy(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < zpl_array_count(items));
+    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     item_usage usage = items[id].usage;
     if (usage == UKIND_PROXY) {
         return item_find(items[id].proxy.id);
@@ -49,7 +38,7 @@ uint64_t item_spawn(asset_id kind, uint32_t qty) {
 }
 
 item_id item_find(asset_id kind) {
-    for (item_id i=0; i<zpl_array_count(items); i++) {
+    for (item_id i=0; i<ITEMS_COUNT; i++) {
         if (items[i].kind == kind)
             return item_resolve_proxy(i);
     }
@@ -115,16 +104,16 @@ void item_despawn(uint64_t id) {
 }
 
 uint32_t item_max_quantity(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < zpl_array_count(items));
+    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     return items[id].max_quantity;
 }
 
 item_usage item_get_usage(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < zpl_array_count(items));
+    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     return items[id].usage;
 }
 
 bool item_get_place_directional(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < zpl_array_count(items));
+    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     return items[id].place.directional;
 }

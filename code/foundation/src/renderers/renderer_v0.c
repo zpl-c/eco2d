@@ -179,13 +179,13 @@ void renderer_init_v0(void) {
     DrawText(loading_text, GetScreenWidth()-text_w-15, GetScreenHeight()-135, 120, RAYWHITE);
     EndDrawing();
 
-    assets_resources_setup();
-    blocks_resources_setup();
+    blocks_setup();
+    assets_setup();
 }
 
 void renderer_shutdown_v0(void) {
-    blocks_resources_destroy();
-    assets_resources_destroy();
+    blocks_destroy();
+    assets_destroy();
 }
 
 void renderer_debug_draw_v0(void) {
