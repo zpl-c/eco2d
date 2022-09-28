@@ -79,10 +79,12 @@ void platform_input_update_input_frame(game_keystate_data data) {
 
 void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
+    float mouse_modified = target_zoom < 4 ? mouse_z / (zpl_exp(4 - (target_zoom))) : mouse_z;
 
     if (mouse_z != 0.0f) {
-        target_zoom = zpl_clamp(target_zoom+mouse_z, 0.1f, 11.0f);
+        target_zoom = zpl_clamp(target_zoom + mouse_modified, 0.1f, 11.0f);
     }
+
 
     // NOTE(zaklaus): keystate handling
     {

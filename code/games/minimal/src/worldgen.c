@@ -21,6 +21,10 @@ typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 
 #define BLOCK_INVALID 0xF
 
+int eco_incircle(int x, int y, int radius) {
+    return (zpl_pow(x, 2) + zpl_pow(y, 2)) < zpl_pow(radius, 2);
+}
+
 block_id worldgen_biome_find(uint32_t biome, uint32_t kind) {
     asset_id asset = ASSET_INVALID;
     switch (biome) {
@@ -36,7 +40,7 @@ block_id worldgen_biome_find(uint32_t biome, uint32_t kind) {
             }
         }
     }
-    
+
     return blocks_find(asset);
 }
 
@@ -48,7 +52,7 @@ static void world_fill_rect(block_id *data, block_id id, uint32_t x, uint32_t y,
             if (cx < 0 || cx >= world->dim) continue;
             if (cy < 0 || cy >= world->dim) continue;
             uint32_t i = (cy*world->dim) + cx;
-            
+
             if (proc) {
                 block_id new_id = (*proc)(data, id, i);
                 if (new_id != BLOCK_INVALID) {
@@ -56,28 +60,31 @@ static void world_fill_rect(block_id *data, block_id id, uint32_t x, uint32_t y,
                 }
                 else continue;
             }
-            
+
             data[i] = id;
         }
     }
 }
 
-static void world_fill_circle(block_id *data, block_id id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
-    for (uint32_t cy=y; cy<y+h; cy++) {
-        for (uint32_t cx=x; cx<x+w; cx++) {
-            if (cx < 0 || cx >= world->dim) continue;
-            if (cy < 0 || cy >= world->dim) continue;
-            uint32_t i = (cy*world->dim) + cx;
-            
-            if (proc) {
-                block_id new_id = (*proc)(data, id, i);
-                if (new_id != BLOCK_INVALID) {
-                    id = new_id;
+static void world_fill_circle(block_id *data, block_id id, uint32_t cx, uint32_t cy, uint32_t radius, world_block_observer_proc *proc) {
+    for (int x = -(int32_t)(radius); x < (int32_t)radius; ++x) {
+        for (int y = -(int32_t)(radius); y < (int32_t)radius; ++y) {
+            if (eco_incircle(x, y, radius)) {
+                int fx = x + cx;
+                int fy = y + cy;
+
+                uint32_t i = (fy*world->dim) + fx;
+
+                if (proc) {
+                    block_id new_id = (*proc)(data, id, i);
+                    if (new_id != BLOCK_INVALID) {
+                        id = new_id;
+                    }
+                    else continue;
                 }
-                else continue;
+
+                data[i] = id;
             }
-            
-            data[i] = id;
         }
     }
 }
@@ -91,21 +98,21 @@ static void world_fill_rect_anchor(block_id *data, block_id id, uint32_t x, uint
 static WORLD_BLOCK_OBSERVER(shaper) {
     uint32_t kind = id;
     uint32_t old_kind = data[block_idx];
-    
+
     if (kind == BLOCK_KIND_WALL && kind == old_kind) {
         return worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_HILL);
     }
     if (kind == BLOCK_KIND_HILL && kind == old_kind) {
         return worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_HILL_SNOW);
     }
-    
+
     return id;
 }
 
 static block_id world_perlin_cond_offset(uint32_t block_idx, double chance, uint32_t ofx, uint32_t ofy) {
     uint32_t x = block_idx % world->dim + ofx;
     uint32_t y = block_idx / world->dim + ofy;
-    
+
     return perlin_fbm(world->seed, x, y, WORLD_PERLIN_FREQ, WORLD_PERLIN_OCTAVES) < chance;
 }
 
@@ -153,7 +160,7 @@ static WORLD_BLOCK_OBSERVER(shaper_noise33) {
 
 #if 0
 static void world_fill_mountain(uint32_t x, uint32_t y) {
-    
+
 }
 #endif
 
@@ -163,7 +170,7 @@ static void world_fill_mountain(uint32_t x, uint32_t y) {
 int32_t worldgen_build(world_data *wld) {
     // TODO(zaklaus): pass world as an arg instead
     world = wld;
-    
+
     // TODO: perform world gen
     // atm, we will fill the world with ground and surround it by walls
     block_id wall_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WALL);
@@ -172,105 +179,23 @@ int32_t worldgen_build(world_data *wld) {
     block_id watr_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_WATER);
     block_id lava_id = worldgen_biome_find(BLOCK_BIOME_DEV, BLOCK_KIND_LAVA);
     block_id tree_id = blocks_find(ASSET_TREE);
-    
+
     srand(world->seed);
-    
+
     // walls
     world_fill_rect(world->data, wall_id, 0, 0, world->dim, world->dim, NULL);
-    
+
     // ground
-    world_fill_rect(world->data, grnd_id, 1, 1, world->dim-2, world->dim-2, NULL);
-    world_fill_rect(world->data, dirt_id, 1, 1, world->dim-2, world->dim-2, shaper_noise05);
-    world_fill_rect(world->outer_data, tree_id, 1, 1, world->dim-2, world->dim-2, shaper_noise01b);
-    
-    // water
-#if 1
-    for (int i=0; i<RAND_RANGE(58, 92); i++) {
-        world_fill_rect_anchor(world->data, watr_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise80);
-    }
-#endif
-    
-    // ice rink
-#if 0
-    world_fill_rect_anchor(world->data, watr_id, 450, 125, 10, 10, 0.0f, 0.0f, NULL);
-#endif
-    
-    // lava
-#if 1
-    for (int i=0; i<RAND_RANGE(48, 62); i++) {
-        world_fill_rect_anchor(world->data, lava_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise80);
-    }
-#endif
-    
-    
-    // hills
-#if 1
-    const uint32_t HILLS_SIZE = 21;
-    for (int i=0; i<RAND_RANGE(8, 124); i++) {
-        world_fill_rect_anchor(world->data, wall_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), RAND_RANGE(0,HILLS_SIZE), RAND_RANGE(0,HILLS_SIZE), 0.5f, 0.5f, shaper_noise50);
-    }
-#endif
-    
-    // vehicles
-#if 1
-    for (int i=0; i<RAND_RANGE(258, 1124); i++) {
-        uint64_t e = vehicle_spawn();
-        
-        Position *dest = ecs_get_mut(world_ecs(), e, Position);
-        dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        entity_set_position(e, dest->x, dest->y);
-    }
-#endif
-    
-    // items
-#if 1
-    for (int i=0; i<RAND_RANGE(328, 164); i++) {
-        uint64_t e = item_spawn(ASSET_DEMO_ICEMAKER, 32);
-        
-        Position *dest = ecs_get_mut(world_ecs(), e, Position);
-        dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        entity_set_position(e, dest->x, dest->y);
-    }
-    
-    for (int i=0; i<RAND_RANGE(328, 164); i++) {
-        uint64_t e = item_spawn(ASSET_FENCE, 64);
-        
-        Position *dest = ecs_get_mut(world_ecs(), e, Position);
-        dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        entity_set_position(e, dest->x, dest->y);
-    }
-    
-    for (int i=0; i<RAND_RANGE(328, 164); i++) {
-        uint64_t e = item_spawn(ASSET_WOOD, 64);
-        
-        Position *dest = ecs_get_mut(world_ecs(), e, Position);
-        dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        entity_set_position(e, dest->x, dest->y);
-    }
-    
-    for (int i=0; i<RAND_RANGE(128, 564); i++) {
-        uint64_t e = item_spawn(ASSET_BELT, 999);
-        
-        Position *dest = ecs_get_mut(world_ecs(), e, Position);
-        dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        entity_set_position(e, dest->x, dest->y);
-    }
-    
-    for (int i=0; i<RAND_RANGE(128, 964); i++) {
-        uint64_t e = item_spawn(ASSET_CHEST, 4);
-        
-        Position *dest = ecs_get_mut(world_ecs(), e, Position);
-        dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
-        entity_set_position(e, dest->x, dest->y);
-    }
-    
-#endif
-    
+    world_fill_rect(world->data, watr_id, 1, 1, world->dim-2, world->dim-2, NULL);
+
+    int radius = 25;
+
+    // wide boy circle
+    world_fill_circle(world->data, dirt_id, world->dim / 2, world->dim / 2, radius, NULL);
+
+    // narrow boy cirlce
+    world_fill_circle(world->data, grnd_id, world->dim / 2, world->dim / 2, radius * 0.7f, NULL);
+
+
     return WORLD_ERROR_NONE;
 }
