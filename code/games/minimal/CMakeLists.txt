@@ -1,6 +1,9 @@
 add_executable(minimal
     src/main.c
     src/platform.c
+    src/worldgen.c
+    src/texgen.c
+    src/rules.c
 )
 
 target_compile_definitions(minimal PRIVATE CLIENT)

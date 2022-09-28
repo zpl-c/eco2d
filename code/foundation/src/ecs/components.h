@@ -100,16 +100,34 @@ typedef struct {
     uint16_t kind;
     uint32_t quantity;
     float merger_time;
-} ItemDrop;
+} Item;
 
 typedef struct {
-    ItemDrop items[ITEMS_CONTAINER_SIZE];
+    uint64_t ent;
+} ItemSlot;
+
+typedef struct {
+    ItemSlot items[ITEMS_CONTAINER_SIZE];
     float pickup_time;
 } Inventory;
 
 typedef struct {
-    ItemDrop items[ITEMS_CONTAINER_SIZE];
+    ItemSlot items[ITEMS_CONTAINER_SIZE];
 } ItemContainer;
+
+typedef struct {
+    ItemSlot processed_item;
+    float cook_time;
+    float burn_time;
+} Furnace;
+
+// typedef struct {
+//     float burn_time;
+// } Fuel;
+
+// typedef struct {
+//     asset_id converted_kind;
+// } FuelTank;
 
 typedef struct {
     uint16_t asset;
@@ -133,9 +151,10 @@ extern ECS_COMPONENT_DECLARE(Health);
 extern ECS_COMPONENT_DECLARE(Classify);
 extern ECS_COMPONENT_DECLARE(Vehicle);
 extern ECS_COMPONENT_DECLARE(IsInVehicle);
-extern ECS_COMPONENT_DECLARE(ItemDrop);
+extern ECS_COMPONENT_DECLARE(Item);
 extern ECS_COMPONENT_DECLARE(Inventory);
 extern ECS_COMPONENT_DECLARE(ItemContainer);
+extern ECS_COMPONENT_DECLARE(Furnace);
 extern ECS_COMPONENT_DECLARE(Device);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
 extern ECS_COMPONENT_DECLARE(StreamInfo);

@@ -160,7 +160,7 @@ static void world_fill_mountain(uint32_t x, uint32_t y) {
 #define RAND_RANGE(x,y) (x + (int)rand()%(y-(x)))
 #define RAND_RANGEF(x,y) ((float)RAND_RANGE(x,y))
 
-int32_t worldgen_test(world_data *wld) {
+int32_t worldgen_build(world_data *wld) {
     // TODO(zaklaus): pass world as an arg instead
     world = wld;
     

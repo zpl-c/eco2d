@@ -61,6 +61,17 @@ ActSpawnBelt(void) {
 }
 
 void
+ActSpawnFurnace(void) {
+    ecs_entity_t e = item_spawn(ASSET_FURNACE, 32);
+    ecs_entity_t plr = camera_get().ent_id;
+    
+    Position const* origin = ecs_get(world_ecs(), plr, Position);
+    Position * dest = ecs_get_mut(world_ecs(), e, Position);
+    *dest = *origin;
+    entity_set_position(e, dest->x, dest->y);
+}
+
+void
 ActSpawnCirclingDriver(void) {
     ecs_entity_t plr = camera_get().ent_id;
     ecs_entity_t ve = vehicle_spawn();

@@ -8,15 +8,16 @@ typedef enum {
     ASSET_EMPTY,
     ASSET_BLANK,
     ASSET_BUILDMODE_HIGHLIGHT,
-    
+
     // NOTE(zaklaus): entities
     ASSET_PLAYER,
     ASSET_THING,
     ASSET_CHEST,
-    
+    ASSET_FURNACE,
+
     // NOTE(zaklaus): items
     ASSET_DEMO_ICEMAKER,
-    
+
     // NOTE(zaklaus): blocks
     ASSET_FENCE,
     ASSET_DEV,
@@ -30,13 +31,16 @@ typedef enum {
     ASSET_HOLE,
     ASSET_WOOD,
     ASSET_TREE,
-    
+    ASSET_COAL,
+    ASSET_IRON_ORE,
+    ASSET_IRON_INGOT,
+
     ASSET_BELT,
     ASSET_BELT_LEFT,
     ASSET_BELT_RIGHT,
     ASSET_BELT_UP,
     ASSET_BELT_DOWN,
-    
+
     MAX_ASSETS = 1024,
 } asset_id;
 
@@ -44,7 +48,7 @@ typedef enum {
     AKIND_TEXTURE,
     AKIND_ANIM,
     AKIND_SOUND,
-    
+
     FORCE_AKIND_UINT8 = UINT8_MAX
 } asset_kind;
 

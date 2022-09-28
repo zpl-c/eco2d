@@ -1,10 +1,10 @@
-static Camera3D render_camera_3d;
+static Camera3D render_camera;
 static float cam_zoom = 1.5f;
 
 float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
-void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
+void DEBUG_draw_ground(uint64_t key, entity_view * data) {
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
@@ -46,7 +46,7 @@ void DEBUG_draw_ground_3d(uint64_t key, entity_view * data) {
     }
 }
 
-void DEBUG_draw_entities_3d(uint64_t key, entity_view * data) {
+void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     (void)key;
     uint16_t size = 16;
     uint16_t ground_offset = 30;
@@ -87,33 +87,33 @@ void DEBUG_draw_entities_3d(uint64_t key, entity_view * data) {
     }
 }
 
-void renderer_draw_3d(void) {
+void renderer_draw(void) {
     cam_zoom = zpl_min(zpl_lerp(cam_zoom, target_zoom, GetFrameTime()*2.18f), 9.98f);
     camera_update();
     
-    camera game_camera_3d = camera_get();
+    camera game_camera = camera_get();
 #if 1
-    render_camera_3d.position = (Vector3){(float)game_camera_3d.x, 260.0f*(10.0f-cam_zoom), (float)game_camera_3d.y+50.0f*(10.0f-cam_zoom/2.0f)};
-    render_camera_3d.target = (Vector3){(float)game_camera_3d.x, 0.0f, (float)game_camera_3d.y};
+    render_camera.position = (Vector3){(float)game_camera.x, 260.0f*(10.0f-cam_zoom), (float)game_camera.y+50.0f*(10.0f-cam_zoom/2.0f)};
+    render_camera.target = (Vector3){(float)game_camera.x, 0.0f, (float)game_camera.y};
 #else
-    UpdateCamera(&render_camera_3d);
+    UpdateCamera(&render_camera);
 #endif
     
     ClearBackground(GetColor(0x222034));
-    BeginMode3D(render_camera_3d);
-    game_world_view_active_entity_map(DEBUG_draw_ground_3d);
-    game_world_view_active_entity_map(DEBUG_draw_entities_3d);
+    BeginMode3D(render_camera);
+    game_world_view_active_entity_map(DEBUG_draw_ground);
+    game_world_view_active_entity_map(DEBUG_draw_entities);
     EndMode3D();
 }
 
-void renderer_init_3d(void) {
-    render_camera_3d.up = (Vector3){0.0f,0.0f,-1.0f};
-    render_camera_3d.fovy = 45.f;
-    render_camera_3d.projection = CAMERA_PERSPECTIVE;
+void renderer_init(void) {
+    render_camera.up = (Vector3){0.0f,0.0f,-1.0f};
+    render_camera.fovy = 45.f;
+    render_camera.projection = CAMERA_PERSPECTIVE;
 #if 0
-    SetCameraMode(render_camera_3d, CAMERA_ORBITAL);
-    render_camera_3d.position = (Vector3){10,10,10};
-    render_camera_3d.target = (Vector3){0};
+    SetCameraMode(render_camera, CAMERA_ORBITAL);
+    render_camera.position = (Vector3){10,10,10};
+    render_camera.target = (Vector3){0};
 #endif
     
     // NOTE(zaklaus): Paint the screen before we load the game
@@ -131,23 +131,23 @@ void renderer_init_3d(void) {
     assets_setup();
 }
 
-void renderer_shutdown_3d(void) {
+void renderer_shutdown(void) {
     blocks_destroy();
     assets_destroy();
 }
 
 
-void renderer_debug_draw_3d(void) {
+void renderer_debug_draw(void) {
     
 }
 
-float renderer_zoom_get_3d(void) {
+float renderer_zoom_get(void) {
     return cam_zoom;
 }
 
-void renderer_draw_single_3d(float x, float y, asset_id id, Color color) {
+void renderer_draw_single(float x, float y, asset_id id, Color color) {
     (void)color;
-    BeginMode3D(render_camera_3d);
+    BeginMode3D(render_camera);
     EcoDrawCube((Vector3){x, 15.0f, y}, 16, 16, 16, 0.0f, PINK);
     EndMode3D();
 }

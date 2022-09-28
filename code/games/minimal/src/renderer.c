@@ -136,7 +136,7 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
     }
 }
 
-void renderer_draw_v0(void) {
+void renderer_draw(void) {
     render_camera.offset = (Vector2){(float)(screenWidth >> 1), (float)(screenHeight >> 1)};
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, GetFrameTime()*2.9978f);
     camera_update();
@@ -158,11 +158,11 @@ void renderer_draw_v0(void) {
     EndMode2D();
 }
 
-float renderer_zoom_get_v0(void) {
+float renderer_zoom_get(void) {
     return render_camera.zoom;
 }
 
-void renderer_init_v0(void) {
+void renderer_init(void) {
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){(float)(screenWidth >> 1), (float)(screenHeight >> 1)};
     render_camera.rotation = 0.0f;
@@ -183,52 +183,16 @@ void renderer_init_v0(void) {
     assets_setup();
 }
 
-void renderer_shutdown_v0(void) {
+void renderer_shutdown(void) {
     blocks_destroy();
     assets_destroy();
 }
 
-void renderer_debug_draw_v0(void) {
-    BeginMode2D(render_camera);
-    debug_draw_queue *que = debug_draw_samples();
+void renderer_debug_draw(void) {
 
-    for (size_t i = 0; i < que->num_entries; i += 1) {
-        debug_draw_entry *e = &que->entries[i];
-        Color color = GetColor(e->color);
-
-        switch (e->kind) {
-            case DDRAW_LINE: {
-                float x = e->a.x;
-                float y = e->a.y;
-                float x2 = e->b.x;
-                float y2 = e->b.y;
-                DrawLineV((Vector2){x, y}, (Vector2){x2, y2}, color);
-            }break;
-
-            case DDRAW_CIRCLE:{
-                float x = e->a.x;
-                float y = e->a.y;
-                DrawCircleLinesEco(x, y, e->radius, color);
-            }break;
-
-            case DDRAW_RECT:{
-                float x = e->bmin.x;
-                float y = e->bmin.y;
-                float w = e->bmax.x - e->bmin.x;
-                float h = e->bmax.y - e->bmin.y;
-                DrawRectangleLinesEco(x, y, w, h, color);
-            }break;
-
-            default: {
-
-            }break;
-        }
-    }
-
-    EndMode2D();
 }
 
-void renderer_draw_single_v0(float x, float y, asset_id id, Color color) {
+void renderer_draw_single(float x, float y, asset_id id, Color color) {
     BeginMode2D(render_camera);
 
     x -= 32.0f;

@@ -16,6 +16,7 @@ static asset assets[] = {
     ASSET_TEX(ASSET_BUILDMODE_HIGHLIGHT),
     ASSET_TEX(ASSET_DEMO_ICEMAKER),
     ASSET_TEX(ASSET_CHEST),
+    ASSET_TEX(ASSET_FURNACE),
     
     // NOTE(zaklaus): blocks
     ASSET_TEX(ASSET_FENCE),

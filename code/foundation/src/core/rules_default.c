@@ -1,0 +1,26 @@
+#include "core/rules.h"
+
+game_rulesdef game_rules = (game_rulesdef){
+    .phy_walk_drag = 4.23f,
+    .demo_npc_move_speed = 500,
+    .demo_npc_steer_speed = 300,
+    .furnace_cook_time = 5.0f,
+    .item_pick_radius = 25.0f,
+    .item_merger_radius = 75.0f,
+    .item_attract_radius = 75.0f,
+    .item_attract_force = .98f,
+    .item_container_reach_radius = 105.0f,
+    .item_drop_pickup_time = 2.5f,
+    .item_drop_merger_time = 6.5f,
+    .plr_move_speed = 800.0f,
+    .plr_move_speed_mult = 1.5f,
+    .vehicle_force = 240.8f,
+    .vehicle_accel = 0.032f,
+    .vehicle_decel = 0.28f,
+    .vehicle_steer = 35.89f,
+    .vehicle_steer_compensation = 4.0f,
+    .vehicle_steer_revert = 6.0941816f,
+    .vehicle_power = 97.89f,
+    .vehicle_brake_force = 0.84f,
+    .veh_enter_radius = 45.0f,
+};

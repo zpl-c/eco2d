@@ -6,6 +6,7 @@
 #include "platform/profiler.h"
 #include "debug/debug_draw.h"
 #include "core/game.h"
+#include "core/rules.h"
 
 #define PHY_BLOCK_COLLISION 1
 #define PHY_WALK_DRAG 4.23f
@@ -15,6 +16,7 @@
 #include "modules/system_demo.c"
 #include "modules/system_vehicle.c"
 #include "modules/system_items.c"
+#include "modules/system_furnace.c"
 
 static inline float physics_correction(float x, float vx, float bounce) {
     float r = (((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f));
@@ -216,6 +218,7 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, InspectContainers, EcsPostUpdate, components.Input, !components.IsInVehicle);
     ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position);
+    ECS_SYSTEM(ecs, FurnaceCook, EcsPostUpdate, components.ItemContainer, components.Furnace, components.Position);
 
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
 

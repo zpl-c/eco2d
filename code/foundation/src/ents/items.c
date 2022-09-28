@@ -24,11 +24,16 @@ static inline asset_id item_fix_kind(asset_id id) {
     return items[item_find(id)].kind;
 }
 
+void item_show(uint64_t ent, bool show) {
+    Classify *c = ecs_get_mut(world_ecs(), ent, Classify);
+    c->id = show ? EKIND_ITEM : EKIND_SERVER;
+}
+
 uint64_t item_spawn(asset_id kind, uint32_t qty) {
     ecs_entity_t e = entity_spawn(EKIND_ITEM);
 
-    ItemDrop *d = ecs_get_mut(world_ecs(), e, ItemDrop);
-    *d = (ItemDrop){
+    Item *d = ecs_get_mut(world_ecs(), e, Item);
+    *d = (Item){
         .kind = item_fix_kind(kind),
         .quantity = qty,
         .merger_time = 0,
@@ -45,11 +50,16 @@ item_id item_find(asset_id kind) {
     return ASSET_INVALID;
 }
 
-void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
+Item *item_get_data(uint64_t ent) {
+    return ecs_get_mut(world_ecs(), ent, Item);
+}
+
+void item_use(ecs_world_t *ecs, ItemSlot *it, Position p, uint64_t udata) {
     (void)ecs;
-    uint16_t it_id = item_find(it->kind);
+    Item *d = item_get_data(it->ent);
+    uint16_t it_id = d->kind;
     item_desc *desc = &items[it_id];
-    if (it->quantity <= 0) return;
+    if (it->ent == 0) return;
     switch (item_get_usage(it_id)) {
         case UKIND_HOLD: /* NOOP */ break;
         case UKIND_PLACE:{
@@ -61,7 +71,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
 
                 // NOTE(zaklaus): If we replace the same item, refund 1 qty and let it replace it
                 if (item_asset_id == it_id) {
-                    it->quantity++;
+                    d->quantity++;
                 } else {
                     return;
                 }
@@ -71,7 +81,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
                 return;
             }
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
-            it->quantity--;
+            d->quantity--;
         }break;
 
         case UKIND_PLACE_ITEM:{
@@ -88,7 +98,7 @@ void item_use(ecs_world_t *ecs, ItemDrop *it, Position p, uint64_t udata) {
             ZPL_ASSERT(world_entity_valid(e));
             entity_set_position(e, p.x, p.y);
 
-            it->quantity--;
+            d->quantity--;
         }break;
 
 

@@ -1,6 +1,5 @@
 #include "gen/texgen.h"
 #include "world/world.h"
-#include "texgen_data.c"
 #include "zpl.h"
 
 static inline

@@ -6,7 +6,7 @@
 #include "world/entity_view.h"
 #include "debug/debug_replay.h"
 #include "ents/items.h"
-#include "world/worldgen/worldgen.h"
+#include "world/worldgen.h"
 #include "platform/platform.h"
 #include "platform/profiler.h"
 #include "core/game.h"
@@ -249,7 +249,7 @@ void world_init_mapping(void) {
 
 static inline
 void world_generate_instance(void) {
-    int32_t world_build_status = worldgen_test(&world);
+    int32_t world_build_status = worldgen_build(&world);
     ZPL_ASSERT(world_build_status >= 0);
 
     for (int i = 0; i < zpl_square(world.dim); ++i) {

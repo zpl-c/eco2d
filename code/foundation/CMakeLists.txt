@@ -3,6 +3,7 @@ file(GLOB PKT_SRCS src/packets/*.h src/packets/*.c)
 add_library(eco2d-foundation STATIC
     src/core/game.c
     src/core/camera.c
+    src/core/rules_default.c
 
     src/platform/signal_handling.c
     src/platform/profiler.c
@@ -13,6 +14,7 @@ add_library(eco2d-foundation STATIC
     src/ents/vehicle.c
     src/ents/storage.c
     src/ents/device.c
+    src/ents/furnace.c
 
     src/pkt/packet.c
 
@@ -30,10 +32,8 @@ add_library(eco2d-foundation STATIC
     src/world/world_view.c
     src/world/entity_view.c
     src/world/prediction.c
-    src/world/worldgen/worldgen_test.c
 
     src/gen/assets.c
-    src/gen/texgen.c
 
     src/ecs/systems.c
 	  src/ecs/components.c
