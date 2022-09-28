@@ -17,9 +17,11 @@
 #define ECO2D_STREAM_ACTIONFILTER 1
 
 ZPL_TABLE(static, world_snapshot, world_snapshot_, entity_view);
+ZPL_TABLE(static, world_component_cache, world_component_cache_, zpl_uintptr); // TODO(inlife): not use for long
 
 static world_data world = {0};
 static world_snapshot streamer_snapshot;
+static world_component_cache component_cache;
 
 entity_view *world_build_entity_view(int64_t e) {
     entity_view *cached_ev = world_snapshot_get(&streamer_snapshot, e);
@@ -74,7 +76,7 @@ entity_view *world_build_entity_view(int64_t e) {
         view.has_items = true;
 
         for (int i = 0; i < ITEMS_INVENTORY_SIZE; i += 1) {
-            const Item *it = ecs_get(world_ecs(), inv->items[i], Item);
+            const Item *it = ecs_get_if(world_ecs(), inv->items[i], Item);
             view.items[i] = it ? *it : (Item){0};
         }
 
@@ -90,7 +92,7 @@ entity_view *world_build_entity_view(int64_t e) {
                     view.has_storage_items = true;
 
                     for (int i = 0; i < ITEMS_CONTAINER_SIZE; i += 1) {
-                        const Item *it = ecs_get(world_ecs(), ic->items[i], Item);
+                        const Item *it = ecs_get_if(world_ecs(), ic->items[i], Item);
                         view.storage_items[i] = it ? *it : (Item){0};
                     }
 
@@ -247,6 +249,7 @@ void world_init_mapping(void) {
     world.block_mapping = zpl_malloc(sizeof(block_id*)*zpl_square(world.chunk_amount));
     world.outer_block_mapping = zpl_malloc(sizeof(block_id*)*zpl_square(world.chunk_amount));
     world_snapshot_init(&streamer_snapshot, zpl_heap());
+    world_component_cache_init(&component_cache, zpl_heap());
 }
 
 static inline
@@ -303,6 +306,7 @@ int32_t world_destroy(void) {
     zpl_mfree(world.block_mapping);
     zpl_mfree(world.outer_block_mapping);
     world_snapshot_destroy(&streamer_snapshot);
+    world_component_cache_destroy(&component_cache);
     zpl_memset(&world, 0, sizeof(world));
     zpl_printf("[INFO] World was destroyed.\n");
     return WORLD_ERROR_NONE;
@@ -340,17 +344,13 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
             }
         }
 
-        // NOTE(zaklaus): clear out our streaming snapshot
-        // TODO(zaklaus): move this to zpl
-        {
-            zpl_array_clear(streamer_snapshot.hashes);
-            zpl_array_clear(streamer_snapshot.entries);
-        }
+        world_snapshot_clear(&streamer_snapshot);
     }
 }
 
 int32_t world_update() {
     profile (PROF_UPDATE_SYSTEMS) {
+        world_component_cache_clear(&component_cache);
         ecs_progress(world.ecs, 0.0f);
     }
 
@@ -599,4 +599,22 @@ int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) 
 bool world_entity_valid(ecs_entity_t e) {
     if (!e) return false;
     return ecs_is_alive(world_ecs(), e);
+}
+
+void * world_component_cached(ecs_world_t *world, ecs_entity_t entity, ecs_id_t id) {
+    // return ecs_get_mut_id(world, entity, id);
+
+    static char buffer[256] = {0};
+    zpl_snprintf(buffer, 256, "%llu_%llu", entity, id);
+
+    uint64_t uid = zpl_crc64(buffer, zpl_strlen(buffer));
+    zpl_uintptr *value = world_component_cache_get(&component_cache, uid);
+
+    if (!value) {
+        void *the_value = ecs_get_mut_id(world, entity, id);
+        world_component_cache_set(&component_cache, uid, (zpl_uintptr)the_value);
+        value = world_component_cache_get(&component_cache, uid);
+    }
+
+    return (void *)*value;
 }

@@ -13,9 +13,9 @@ void PickItem(ecs_iter_t *it) {
         for (size_t j = 0; j < ents_count; j++) {
             Item *drop = 0;
             uint64_t ent_id = ents[j];
-            if ((drop = ecs_get_mut_if(it->world, ent_id, Item))) {
-                Position *p2 = ecs_get_mut(it->world, ent_id, Position);
-                Velocity *v2 = ecs_get_mut(it->world, ent_id, Velocity);
+            if ((drop = ecs_get_mut_if_ex(it->world, ent_id, Item))) {
+                Position *p2 = ecs_get_mut_ex(it->world, ent_id, Position);
+                Velocity *v2 = ecs_get_mut_ex(it->world, ent_id, Velocity);
 
                 float dx = p2->x - p[i].x;
                 float dy = p2->y - p[i].y;
@@ -69,7 +69,7 @@ void DropItem(ecs_iter_t *it) {
         if (in[i].storage_action){
             if (world_entity_valid(in[i].storage_ent)){
                 ItemContainer *ic = 0;
-                if ((ic = ecs_get_mut_if(it->world, in[i].storage_ent, ItemContainer))){
+                if ((ic = ecs_get_mut_if_ex(it->world, in[i].storage_ent, ItemContainer))){
                     items = ic->items;
                 }else{
                     continue;
@@ -98,10 +98,10 @@ void DropItem(ecs_iter_t *it) {
 
         item_show(item_slot_ent, true);
 
-        Position *ipos = ecs_get_mut(it->world, item_slot_ent, Position);
+        Position *ipos = ecs_get_mut_ex(it->world, item_slot_ent, Position);
         entity_set_position(item_slot_ent, p[i].x, p[i].y);
 
-        Velocity *v = ecs_get_mut(it->world, item_slot_ent, Velocity);
+        Velocity *v = ecs_get_mut_ex(it->world, item_slot_ent, Velocity);
         v->x = in[i].mx * 800.0f;
         v->y = in[i].my * 800.0f;
 
@@ -133,7 +133,7 @@ void DropItem(ecs_iter_t *it) {
 
 //         for (size_t j = 0; j < ents_count; j++) {
 //             ItemDrop *drop = 0;
-//             if ((drop = ecs_get_mut_if(it->world, ents[j], ItemDrop))) {
+//             if ((drop = ecs_get_mut_if_ex(it->world, ents[j], ItemDrop))) {
 //                 if (drop->kind != item->kind || (ecs_entity_t)ents[j] == it->entities[i] || drop->quantity == 0 || item->quantity == 0)
 //                     continue;
 
@@ -164,7 +164,7 @@ void SwapItems(ecs_iter_t *it) {
         if (in[i].storage_action){
             if (world_entity_valid(in[i].storage_ent)){
                 ItemContainer *ic = 0;
-                if ((ic = ecs_get_mut_if(it->world, in[i].storage_ent, ItemContainer))){
+                if ((ic = ecs_get_mut_if_ex(it->world, in[i].storage_ent, ItemContainer))){
                     items = ic->items;
                 }else{
                     continue;
@@ -190,7 +190,7 @@ void SwapItems(ecs_iter_t *it) {
             }else{
                 if (world_entity_valid(in[i].storage_ent)){
                     ItemContainer *ic = 0;
-                    if ((ic = ecs_get_mut_if(it->world, in[i].storage_ent, ItemContainer))){
+                    if ((ic = ecs_get_mut_if_ex(it->world, in[i].storage_ent, ItemContainer))){
                         from_ent = &ic->items[in[i].swap_from];
                         from = item_get_data(*from_ent);
                     }else{
@@ -343,8 +343,8 @@ void HarvestIntoContainers(ecs_iter_t *it) {
 
         for (size_t j = 0; j < ents_count; j++) {
             Item *drop = 0;
-            if ((drop = ecs_get_mut_if(it->world, ents[j], Item))) {
-                Position *p2 = ecs_get_mut(it->world, ents[j], Position);
+            if ((drop = ecs_get_mut_if_ex(it->world, ents[j], Item))) {
+                Position *p2 = ecs_get_mut_ex(it->world, ents[j], Position);
                 uint64_t ent_id = ents[j];
 
                 float dx = p2->x - p[i].x;

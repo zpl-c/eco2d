@@ -114,3 +114,4 @@ int64_t *world_chunk_fetch_entities_realpos(float x, float y, size_t *ents_len);
 int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius);
 
 bool world_entity_valid(ecs_entity_t e);
+void *world_component_cached(ecs_world_t *world, ecs_entity_t entity, ecs_id_t id);

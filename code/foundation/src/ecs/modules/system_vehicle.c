@@ -10,7 +10,7 @@ void LeaveVehicle(ecs_iter_t *it) {
         if (!in[i].use) continue;
 
         Vehicle *veh = 0;
-        if ((veh = ecs_get_mut_if(it->world, vehp->veh, Vehicle))) {
+        if ((veh = ecs_get_mut_if_ex(it->world, vehp->veh, Vehicle))) {
             for (int k = 0; k < 4; k++) {
                 if (veh->seats[k] == it->entities[i]) {
                     veh->seats[k] = 0;
@@ -50,7 +50,9 @@ void EnterVehicle(ecs_iter_t *it) {
 
             if (has_entered_veh) break;
 
-            if ((veh = ecs_get_mut_if(it->world, ents[j], Vehicle))) {
+            veh = ecs_get_mut_if_ex(it->world, ents[j], Vehicle);
+
+            if ((veh = ecs_get_mut_if_ex(it->world, ents[j], Vehicle))) {
                 Position const* p2 = ecs_get(it->world, ents[j], Position);
 
                 float dx = p2->x - p[i].x;
@@ -151,7 +153,7 @@ void VehicleHandling(ecs_iter_t *it) {
 
             // NOTE(zaklaus): Update passenger position
             {
-                Velocity *v2 = ecs_get_mut(it->world, pe, Velocity);
+                Velocity *v2 = ecs_get_mut_ex(it->world, pe, Velocity);
                 entity_set_position(pe, p[i].x, p[i].y);
                 *v2 = v[i];
             }

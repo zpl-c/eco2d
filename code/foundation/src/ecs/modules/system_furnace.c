@@ -10,7 +10,7 @@ void FurnaceCook(ecs_iter_t *it) {
             Item *item = item_get_data(item_slot_ent);
 
             const Fuel *fuel = 0;
-            if ((fuel = ecs_get(it->world, item_slot_ent, Fuel))) {
+            if ((fuel = ecs_get_if(it->world, item_slot_ent, Fuel))) {
                 if (fuel->kind == d->asset) {
                     furnace[i].burn_time += fuel->kind;
                     item_despawn(item_slot_ent);
@@ -27,7 +27,7 @@ void FurnaceCook(ecs_iter_t *it) {
                     furnace[i].processed_item = 0;
                 } else {
                     const Ingredient *ing = 0;
-                    if ((ing = ecs_get(it->world, item_slot_ent, Ingredient))) {
+                    if ((ing = ecs_get_if(it->world, item_slot_ent, Ingredient))) {
                         if (ing->producer == d->asset) {
                             furnace[i].processed_item = ing->product;
                             furnace[i].cook_time = game_time() + game_rules.furnace_cook_time;
