@@ -26,6 +26,7 @@ static inline asset_id item_fix_kind(asset_id id) {
 
 void item_show(uint64_t ent, bool show) {
     Classify *c = ecs_get_mut(world_ecs(), ent, Classify);
+    librg_entity_visibility_global_set(world_tracker(), ent, show ? LIBRG_VISIBLITY_DEFAULT : LIBRG_VISIBLITY_NEVER);
     c->id = show ? EKIND_ITEM : EKIND_SERVER;
 }
 
@@ -37,7 +38,24 @@ uint64_t item_spawn(asset_id kind, uint32_t qty) {
         .kind = item_fix_kind(kind),
         .quantity = qty,
         .merger_time = 0,
+        .durability = 1.0f,
     };
+
+    item_desc *it = &items[item_find(kind)];
+
+    switch (it->attachment) {
+    case UDATA_FUEL: {
+        Fuel *f = ecs_get_mut(world_ecs(), e, Fuel);
+        f->burn_time = it->fuel.burn_time;
+    } break;
+    case UDATA_INGREDIENT: {
+        Ingredient *i = ecs_get_mut(world_ecs(), e, Ingredient);
+        i->producer = it->ingredient.producer;
+        i->product = it->ingredient.product;
+        i->additional_ingredient = it->ingredient.additional_ingredient;
+    } break;
+    default: break;
+    }
 
     return (uint64_t)e;
 }
@@ -51,15 +69,22 @@ item_id item_find(asset_id kind) {
 }
 
 Item *item_get_data(uint64_t ent) {
-    return ecs_get_mut(world_ecs(), ent, Item);
+    if (!world_entity_valid(ent)) return NULL;
+    // if (ecs_get(world_ecs(), ent, ItemAlreadyEdited)) return NULL;
+    // ecs_add(world_ecs(), ent, ItemAlreadyEdited);
+    return ecs_get_mut_if(world_ecs(), ent, Item);
 }
 
-void item_use(ecs_world_t *ecs, ItemSlot *it, Position p, uint64_t udata) {
+const Item *item_get_data_const(uint64_t ent) {
+    if (!world_entity_valid(ent)) return NULL;
+    return ecs_get(world_ecs(), ent, Item);
+}
+
+void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t udata) {
     (void)ecs;
-    Item *d = item_get_data(it->ent);
-    uint16_t it_id = d->kind;
+    if (e == 0) return;
+    uint16_t it_id = item_find(it->kind);
     item_desc *desc = &items[it_id];
-    if (it->ent == 0) return;
     switch (item_get_usage(it_id)) {
         case UKIND_HOLD: /* NOOP */ break;
         case UKIND_PLACE:{
@@ -71,7 +96,7 @@ void item_use(ecs_world_t *ecs, ItemSlot *it, Position p, uint64_t udata) {
 
                 // NOTE(zaklaus): If we replace the same item, refund 1 qty and let it replace it
                 if (item_asset_id == it_id) {
-                    d->quantity++;
+                    it->quantity++;
                 } else {
                     return;
                 }
@@ -81,7 +106,7 @@ void item_use(ecs_world_t *ecs, ItemSlot *it, Position p, uint64_t udata) {
                 return;
             }
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
-            d->quantity--;
+            it->quantity--;
         }break;
 
         case UKIND_PLACE_ITEM:{
@@ -98,7 +123,7 @@ void item_use(ecs_world_t *ecs, ItemSlot *it, Position p, uint64_t udata) {
             ZPL_ASSERT(world_entity_valid(e));
             entity_set_position(e, p.x, p.y);
 
-            d->quantity--;
+            it->quantity--;
         }break;
 
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "flecs/flecs.h"
+#include "gen/assets.h"
 
 #ifndef ecs_get_mut_if
 #define ecs_get_mut_if(world, entity, component)\
@@ -100,12 +101,17 @@ typedef struct {
     uint16_t kind;
     uint32_t quantity;
     float merger_time;
+    float durability; // 1.0 - 0.0 (0.0 = broken), we can only ever merge items of the same durability
 } Item;
+
+typedef struct {
+    char _unused;
+} ItemAlreadyEdited;
 
 typedef struct {
     // TODO: we now hold a ref to an item, instead of representing an item slot,
     // so that we can let the item entity keep its own components and also handle merging ops on its own.
-    ecs_entity_t items[ITEMS_CONTAINER_SIZE];
+    ecs_entity_t items[ITEMS_INVENTORY_SIZE];
     float pickup_time;
 } Inventory;
 
@@ -114,18 +120,21 @@ typedef struct {
 } ItemContainer;
 
 typedef struct {
-    ecs_entity_t processed_item;
+    asset_id processed_item;
     float cook_time;
     float burn_time;
 } Furnace;
 
-// typedef struct {
-//     float burn_time;
-// } Fuel;
+typedef struct {
+    asset_id kind;
+    float burn_time;
+} Fuel;
 
-// typedef struct {
-//     asset_id converted_kind;
-// } FuelTank;
+typedef struct {
+    asset_id producer;
+    asset_id additional_ingredient; // optional - can specify additional item we need in the container to craft this item
+    asset_id product;
+} Ingredient;
 
 typedef struct {
     uint16_t asset;
@@ -150,9 +159,12 @@ extern ECS_COMPONENT_DECLARE(Classify);
 extern ECS_COMPONENT_DECLARE(Vehicle);
 extern ECS_COMPONENT_DECLARE(IsInVehicle);
 extern ECS_COMPONENT_DECLARE(Item);
+extern ECS_COMPONENT_DECLARE(ItemAlreadyEdited);
 extern ECS_COMPONENT_DECLARE(Inventory);
 extern ECS_COMPONENT_DECLARE(ItemContainer);
 extern ECS_COMPONENT_DECLARE(Furnace);
+extern ECS_COMPONENT_DECLARE(Fuel);
+extern ECS_COMPONENT_DECLARE(Ingredient);
 extern ECS_COMPONENT_DECLARE(Device);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
 extern ECS_COMPONENT_DECLARE(StreamInfo);

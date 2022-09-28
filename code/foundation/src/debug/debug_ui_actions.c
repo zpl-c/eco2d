@@ -49,7 +49,7 @@ ActSpawnChest(void) {
 
 void
 ActSpawnBelt(void) {
-    ecs_entity_t e = item_spawn(ASSET_BELT, 999);
+    ecs_entity_t e = item_spawn(ASSET_BELT, 32);
     ecs_entity_t plr = camera_get().ent_id;
     
     Position const* origin = ecs_get(world_ecs(), plr, Position);

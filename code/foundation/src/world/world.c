@@ -56,8 +56,8 @@ entity_view *world_build_entity_view(int64_t e) {
         view.heading = veh->heading;
     }
 
-    if (ecs_get(world_ecs(), e, ItemDrop)) {
-        ItemDrop const* dr = ecs_get(world_ecs(), e, ItemDrop);
+    if (ecs_get(world_ecs(), e, Item)) {
+        Item const* dr = ecs_get(world_ecs(), e, Item);
         view.asset = dr->kind;
         view.quantity = dr->quantity;
     }
@@ -74,7 +74,8 @@ entity_view *world_build_entity_view(int64_t e) {
         view.has_items = true;
 
         for (int i = 0; i < ITEMS_INVENTORY_SIZE; i += 1) {
-            view.items[i] = inv->items[i];
+            const Item *it = ecs_get(world_ecs(), inv->items[i], Item);
+            view.items[i] = it ? *it : (Item){0};
         }
 
         const Input *in = ecs_get(world_ecs(), e, Input);
@@ -89,7 +90,8 @@ entity_view *world_build_entity_view(int64_t e) {
                     view.has_storage_items = true;
 
                     for (int i = 0; i < ITEMS_CONTAINER_SIZE; i += 1) {
-                        view.storage_items[i] = ic->items[i];
+                        const Item *it = ecs_get(world_ecs(), ic->items[i], Item);
+                        view.storage_items[i] = it ? *it : (Item){0};
                     }
 
                     view.storage_selected_item = in->storage_selected_item;
@@ -590,7 +592,6 @@ int64_t *world_chunk_query_entities(int64_t e, size_t *ents_len, int8_t radius) 
     ZPL_ASSERT_NOT_NULL(ents_len);
     static int64_t ents[UINT16_MAX];
     *ents_len = UINT16_MAX;
-    librg_entity_radius_set(world.tracker, e, radius);
     librg_world_query(world.tracker, e, radius, ents, ents_len);
     return ents;
 }

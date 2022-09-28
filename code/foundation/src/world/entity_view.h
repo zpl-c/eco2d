@@ -64,12 +64,12 @@ typedef struct entity_view {
     
     // NOTE(zaklaus): inventory
     uint8_t has_items;
-    ItemDrop items[ITEMS_INVENTORY_SIZE];
+    Item items[ITEMS_INVENTORY_SIZE];
     uint8_t selected_item;
     
     // NOTE(zaklaus): storage interface
     uint8_t has_storage_items;
-    ItemDrop storage_items[ITEMS_CONTAINER_SIZE];
+    Item storage_items[ITEMS_CONTAINER_SIZE];
     uint8_t storage_selected_item;
     
     // NOTE(zaklaus): entity picking

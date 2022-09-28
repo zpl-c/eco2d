@@ -43,7 +43,7 @@ void buildmode_draw(void) {
         build_is_deletion_mode = !build_is_deletion_mode;
     }
     
-    ItemDrop *item = &e->items[e->selected_item];
+    Item *item = &e->items[e->selected_item];
     
     if (e->has_items && !e->inside_vehicle && item->quantity > 0 && (!is_outside_range || build_is_deletion_mode)) {
         item_usage usage = 0;

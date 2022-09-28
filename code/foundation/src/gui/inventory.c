@@ -4,7 +4,7 @@ typedef struct {
     
     bool item_is_held;
     uint8_t held_item_idx;
-    ItemDrop held_item;
+    Item held_item;
     
     bool is_inside;
     bool storage_action;
@@ -44,7 +44,7 @@ void inventory_draw_panel(entity_view *e, bool is_player, float sx, float sy){
         {
             debug_area_status area = check_mouse_area(x, y, 64, 64);
             Color color = RAYWHITE;
-            ItemDrop *item = (is_player) ? &e->items[i] : &e->storage_items[i];
+            Item *item = (is_player) ? &e->items[i] : &e->storage_items[i];
             
             if (area == DAREA_HOVER) {
                 color = YELLOW;
