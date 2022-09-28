@@ -103,20 +103,18 @@ typedef struct {
 } Item;
 
 typedef struct {
-    uint64_t ent;
-} ItemSlot;
-
-typedef struct {
-    ItemSlot items[ITEMS_CONTAINER_SIZE];
+    // TODO: we now hold a ref to an item, instead of representing an item slot,
+    // so that we can let the item entity keep its own components and also handle merging ops on its own.
+    ecs_entity_t items[ITEMS_CONTAINER_SIZE];
     float pickup_time;
 } Inventory;
 
 typedef struct {
-    ItemSlot items[ITEMS_CONTAINER_SIZE];
+    ecs_entity_t items[ITEMS_CONTAINER_SIZE];
 } ItemContainer;
 
 typedef struct {
-    ItemSlot processed_item;
+    ecs_entity_t processed_item;
     float cook_time;
     float burn_time;
 } Furnace;
