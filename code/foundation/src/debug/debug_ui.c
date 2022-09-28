@@ -18,7 +18,7 @@ typedef enum {
     DITEM_LIST,
     DITEM_COND,
     DITEM_END,
-    
+
     DITEM_FORCE_UINT8 = UINT8_MAX
 } debug_kind;
 
@@ -54,28 +54,28 @@ typedef struct debug_item {
     float name_width;
     uint8_t skip;
     limit_kind limit_to;
-    
+
     union {
         union {
             char const *text;
             uint64_t val;
         };
-        
+
         struct {
             struct debug_item *items;
             uint8_t is_collapsed;
         } list;
-        
+
         struct {
             float val, min, max;
             void (*on_change)(float);
         } slider;
-        
+
         void (*on_click)(void);
-        
+
         uint8_t (*on_success)(void);
     };
-    
+
     debug_draw_result (*proc)(struct debug_item*, float, float);
 } debug_item;
 
@@ -89,13 +89,15 @@ static int UIMeasureText(const char *text, int fontSize);
 
 static debug_item items[] = {
     {
-        .kind = DITEM_LIST, 
-        .name = "general", 
+        .kind = DITEM_LIST,
+        .name = "general",
         .list = {
             .is_collapsed = true,
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "delta time", .proc = DrawDeltaTime },
-                { .kind = DITEM_TEXT, .name = "pos", .proc = DrawCameraPos },
+                { .kind = DITEM_TEXT, .name = "camera pos", .proc = DrawCameraPos },
+                { .kind = DITEM_TEXT, .name = "mouse block", .proc = DrawBlockPos },
+                { .kind = DITEM_TEXT, .name = "mouse chunk", .proc = DrawChunkPos },
                 { .kind = DITEM_TEXT, .name = "zoom", .proc = DrawZoom },
                 { .kind = DITEM_END },
             }
@@ -109,17 +111,17 @@ static debug_item items[] = {
             .items = (debug_item[]) {
                 { .kind = DITEM_COND, .on_success = CondIsWorldRunning },
                 { .kind = DITEM_BUTTON, .name = "pause", .on_click = ActWorldToggleSim },
-                
+
                 { .kind = DITEM_COND, .on_success = CondIsWorldPaused, .skip = 6 },
                 { .kind = DITEM_BUTTON, .name = "resume", .on_click = ActWorldToggleSim },
-                
+
                 { .kind = DITEM_GAP },
-                
+
                 { .kind = DITEM_TEXT, .name = "step size", .proc = DrawWorldStepSize },
                 { .kind = DITEM_BUTTON, .name = "single-step", .on_click = ActWorldStep },
                 { .kind = DITEM_BUTTON, .name = "increment step size", .on_click = ActWorldIncrementSimStepSize },
                 { .kind = DITEM_BUTTON, .name = "decrement step size", .on_click = ActWorldDecrementSimStepSize },
-                
+
                 { .kind = DITEM_END },
             },
         },
@@ -139,7 +141,7 @@ static debug_item items[] = {
                 { .kind = DITEM_BUTTON, .name = "spawn chest", .on_click = ActSpawnChest },
                 { .kind = DITEM_BUTTON, .name = "spawn belt", .on_click = ActSpawnBelt },
                 { .kind = DITEM_BUTTON, .name = "spawn furnace", .on_click = ActSpawnFurnace },
-                { 
+                {
                     .kind = DITEM_LIST,
                     .name = "demo npcs",
                     .list = {
@@ -165,13 +167,13 @@ static debug_item items[] = {
             .items = (debug_item[]) {
                 { .kind = DITEM_COND, .on_success = CondClientDisconnected },
                 { .kind = DITEM_TEXT, .name = "status", .proc = DrawLiteral, .text = "disconnected" },
-                
+
                 { .kind = DITEM_COND, .on_success = CondClientConnected },
                 { .kind = DITEM_TEXT, .name = "status", .proc = DrawLiteral, .text = "connected" },
-                
+
                 { .kind = DITEM_COND, .on_success = CondClientConnected },
                 { .kind = DITEM_TEXT, .proc = DrawNetworkStats },
-                
+
                 { .kind = DITEM_END },
             },
         },
@@ -185,30 +187,30 @@ static debug_item items[] = {
             .items = (debug_item[]) {
                 { .kind = DITEM_TEXT, .name = "macro", .proc = DrawReplayFileName },
                 { .kind = DITEM_TEXT, .name = "samples", .proc = DrawReplaySamples },
-                
+
                 { .kind = DITEM_COND, .on_success = CondReplayDataPresentAndNotPlaying },
                 { .kind = DITEM_BUTTON, .name = "replay", .on_click = ActReplayRun },
-                
+
                 { .kind = DITEM_COND, .on_success = CondReplayStatusOff },
                 { .kind = DITEM_BUTTON, .name = "record", .on_click = ActReplayBegin },
-                
+
                 { .kind = DITEM_COND, .on_success = CondReplayStatusOn },
                 { .kind = DITEM_BUTTON, .name = "stop", .on_click = ActReplayEnd },
-                
+
                 { .kind = DITEM_COND, .on_success = CondReplayIsPlaying },
                 { .kind = DITEM_BUTTON, .name = "stop", .on_click = ActReplayEnd },
-                
+
                 { .kind = DITEM_COND, .on_success = CondReplayIsNotPlayingOrRecordsNotClear },
                 { .kind = DITEM_BUTTON, .name = "clear", .on_click = ActReplayClear },
-                
+
                 { .kind = DITEM_GAP },
-                
+
                 { .kind = DITEM_COND, .on_success = CondReplayIsNotPlaying, .skip = 4 },
                 { .kind = DITEM_BUTTON, .name = "new", .on_click = ActReplayNew },
                 { .kind = DITEM_BUTTON, .name = "load", .on_click = ActReplayLoad },
                 { .kind = DITEM_BUTTON, .name = "save", .on_click = ActReplaySave },
                 { .kind = DITEM_BUTTON, .name = "save as...", .on_click = ActReplaySaveAs },
-                
+
                 { .kind = DITEM_END },
             },
             .is_collapsed = true,
@@ -254,7 +256,7 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
             }break;
             case DITEM_COND: {
                 ZPL_ASSERT(it->on_success);
-                
+
                 if (!it->on_success()) {
                     it += it->skip ? it->skip : 1;
                 }
@@ -268,15 +270,15 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color)) {
                     it->list.is_collapsed = !it->list.is_collapsed;
                 }
-                
+
                 UIDrawText(it->name, xpos, ypos, DBG_FONT_SIZE, color);
                 ypos += DBG_FONT_SPACING;
                 if (it->list.is_collapsed) break;
-                
+
                 debug_draw_result res = debug_draw_list(it->list.items, xpos+DBG_LIST_XPOS_OFFSET, ypos, is_shadow);
                 ypos = res.y;
             }break;
-            
+
             case DITEM_TEXT: {
                 if (it->name) {
                     char const *text = TextFormat("%s: ", it->name);
@@ -286,18 +288,18 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                     UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
                     ZPL_ASSERT(it->proc);
                 }
-                
+
                 debug_draw_result res = it->proc(it, xpos + it->name_width, ypos);
                 ypos = res.y;
             }break;
-            
+
             case DITEM_RAW: {
                 ZPL_ASSERT(it->proc);
-                
+
                 debug_draw_result res = it->proc(it, xpos, ypos);
                 ypos = res.y;
             }break;
-            
+
             case DITEM_BUTTON: {
                 char const *text = TextFormat("> %s", it->name);
                 if (it->name_width == 0) {
@@ -307,15 +309,15 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color) && it->on_click) {
                     it->on_click();
                 }
-                
+
                 if (!it->on_click) {
                     color = GRAY;
                 }
-                
+
                 debug_draw_result res = DrawColoredText(xpos, ypos, text, color);
                 ypos = res.y;
             }break;
-            
+
             case DITEM_SLIDER: {
                 ZPL_ASSERT(it->slider.min != it->slider.max);
                 char const *text = TextFormat("%s: ", it->name);
@@ -324,33 +326,33 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 }
                 UIDrawText(text, xpos, ypos, DBG_FONT_SIZE, RAYWHITE);
                 xpos += it->name_width;
-                
+
                 DrawRectangleLines((int)xpos, (int)ypos, 100, DBG_FONT_SIZE, RAYWHITE);
-                
+
                 float stick_x = xpos + ((it->slider.val / it->slider.max) * 100.0f) - 5.0f;
                 DrawRectangle((int)stick_x, (int)ypos, 10, DBG_FONT_SIZE, RED);
-                
+
                 xpos += 100.0f + 5.0f;
                 DrawFloat(xpos, ypos, it->slider.val);
                 ypos += DBG_FONT_SPACING;
             }break;
-            
+
             default: {
-                
+
             }break;
         }
     }
-    
+
     return (debug_draw_result){xpos, ypos};
 }
 
 void debug_draw(void) {
     // NOTE(zaklaus): Flush old debug samples
     debug_draw_flush();
-    
+
     float xpos = debug_xpos;
     float ypos = debug_ypos;
-    
+
     // NOTE(zaklaus): move debug ui
     {
         debug_area_status area = check_mouse_area(xpos, ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM);
@@ -360,19 +362,19 @@ void debug_draw(void) {
             color = RED;
             is_handle_ctrl_held = 1;
         }
-        
+
         if (is_handle_ctrl_held) {
             debug_xpos = xpos = (float)(GetMouseX() - DBG_CTRL_HANDLE_DIM/2);
             debug_ypos = ypos = (float)(GetMouseY() - DBG_CTRL_HANDLE_DIM/2);
-            
+
             if (area == DAREA_PRESS) {
                 is_handle_ctrl_held = 0;
             }
         }
-        
+
         DrawRectangle((int)xpos, (int)ypos, DBG_CTRL_HANDLE_DIM, DBG_CTRL_HANDLE_DIM, color);
     }
-    
+
     // NOTE(zaklaus): toggle debug ui
     {
         Color color = BLUE;
@@ -386,7 +388,7 @@ void debug_draw(void) {
         }
         DrawPoly((Vector2){xpos+DBG_CTRL_HANDLE_DIM/2, ypos+15+DBG_CTRL_HANDLE_DIM/2}, 3, 6.0f,is_debug_open ? 0.0f : 180.0f, color);
     }
-    
+
     if (is_debug_open) {
         xpos += 15;
         debug_draw_list(items, xpos+DBG_SHADOW_OFFSET_XPOS, ypos+DBG_SHADOW_OFFSET_YPOS, 1); // NOTE(zaklaus): draw shadow
@@ -397,7 +399,7 @@ void debug_draw(void) {
 debug_area_status check_mouse_area(float xpos, float ypos, float w, float h) {
     if (is_shadow_rendered) return DAREA_OUTSIDE;
     bool is_inside = CheckCollisionPointRec(GetMousePosition(), (Rectangle){xpos, ypos, w, h});
-    
+
     if (is_inside) {
         return IsMouseButtonReleased(MOUSE_LEFT_BUTTON) ? DAREA_PRESS : IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? DAREA_HELD : DAREA_HOVER;
     }
@@ -416,34 +418,34 @@ bool is_btn_pressed(float xpos, float ypos, float w, float h, Color *color) {
     } else if (area == DAREA_HELD) {
         *color = RED;
     }
-    
+
     return false;
 }
 
-static inline 
+static inline
 void UIDrawText(const char *text, float posX, float posY, int fontSize, Color color) {
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         Vector2 position = { (float)posX , (float)posY  };
-        
+
         int defaultFontSize = 10;   // Default Font chars height in pixel
         int new_spacing = fontSize/defaultFontSize;
-        
+
         DrawTextEx(GetFontDefault(), text, position, (float)fontSize , (float)new_spacing , is_shadow_rendered ? BLACK : color);
     }
 }
 
-static inline 
+static inline
 int UIMeasureText(const char *text, int fontSize) {
     Vector2 vec = { 0.0f, 0.0f };
-    
+
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0) {
         int defaultFontSize = 10;   // Default Font chars height in pixel
         int new_spacing = fontSize/defaultFontSize;
-        
+
         vec = MeasureTextEx(GetFontDefault(), text, (float)fontSize, (float)new_spacing);
     }
-    
+
     return (int)vec.x;
 }

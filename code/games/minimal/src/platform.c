@@ -169,3 +169,21 @@ float platform_zoom_get(void) {
 void platform_request_close(void) {
     request_shutdown = true;
 }
+
+void platform_get_block_realpos(float *x, float *y){
+    camera cam = camera_get();
+    Vector2 mpos = GetMousePosition();
+    entity_view *e = game_world_view_active_get_entity(cam.ent_id);
+    if (!e) return;
+    float zoom = renderer_zoom_get();
+    mpos.x -= screenWidth/2.0f;
+    mpos.y -= screenHeight/2.0f;
+    cam.x += mpos.x*(1.0f/zoom);
+    cam.y += mpos.y*(1.0f/zoom);
+    cam.x = ((int32_t)cam.x / (int32_t)(WORLD_BLOCK_SIZE)) * WORLD_BLOCK_SIZE;
+    cam.y = ((int32_t)cam.y / (int32_t)(WORLD_BLOCK_SIZE)) * WORLD_BLOCK_SIZE;
+    cam.x += WORLD_BLOCK_SIZE/2.0f;
+    cam.y += WORLD_BLOCK_SIZE/2.0f;
+    if (x) *x = (float)cam.x;
+    if (y) *y = (float)cam.y;
+}
