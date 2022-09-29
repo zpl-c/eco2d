@@ -10,7 +10,7 @@ ActExitGame(void) {
 
 void
 ActSpawnCar(void) {
-    ecs_entity_t e = vehicle_spawn();
+    ecs_entity_t e = vehicle_spawn(EVEH_CAR);
     ecs_entity_t plr = camera_get().ent_id;
     
     Position const* origin = ecs_get(world_ecs(), plr, Position);
@@ -74,7 +74,7 @@ ActSpawnFurnace(void) {
 void
 ActSpawnCirclingDriver(void) {
     ecs_entity_t plr = camera_get().ent_id;
-    ecs_entity_t ve = vehicle_spawn();
+    ecs_entity_t ve = vehicle_spawn(EVEH_CAR);
     ecs_entity_t e = entity_spawn(EKIND_DEMO_NPC);
     
     Position const *origin = ecs_get(world_ecs(), plr, Position);

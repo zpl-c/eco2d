@@ -56,6 +56,7 @@ entity_view *world_build_entity_view(int64_t e) {
     if (ecs_get(world_ecs(), e, Vehicle)) {
         Vehicle const* veh = ecs_get(world_ecs(), e, Vehicle);
         view.heading = veh->heading;
+        view.veh_kind = veh->veh_kind;
     }
 
     if (ecs_get(world_ecs(), e, Item)) {

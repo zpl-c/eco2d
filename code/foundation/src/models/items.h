@@ -19,7 +19,7 @@ typedef enum {
 
 typedef enum {
     UDATA_NONE,
-    UDATA_FUEL,
+    UDATA_ENERGY_SOURCE,
     UDATA_INGREDIENT,
 } item_attachment;
 
@@ -47,8 +47,9 @@ typedef struct {
 
     union {
         struct {
-            float burn_time;
-        } fuel;
+            asset_id producer;
+            float energy_level;
+        } energy_source;
 
         struct {
             asset_id producer;

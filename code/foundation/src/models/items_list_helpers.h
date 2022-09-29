@@ -8,14 +8,15 @@
 .max_quantity = qty,\
 }
 
-#define ITEM_FUEL(asset, qty, fuel_value)\
+#define ITEM_ENERGY(asset, producer_asset, qty, energy_value)\
 {\
 .kind = asset,\
 .usage = UKIND_HOLD,\
-.attachment = UDATA_FUEL,\
+.attachment = UDATA_ENERGY_SOURCE,\
 .max_quantity = qty,\
-.fuel = {\
-.burn_time = fuel_value\
+.energy_source = {\
+.producer = producer_asset,\
+.energy_level = energy_value\
 }\
 }
 

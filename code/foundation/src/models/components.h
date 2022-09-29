@@ -52,7 +52,7 @@ typedef struct {
     uint8_t is_blocked;
     ecs_entity_t pick_ent;
     ecs_entity_t sel_ent;
-    
+
     // NOTE(zaklaus): inventory
     ecs_entity_t storage_ent;
     uint8_t storage_action;
@@ -63,7 +63,7 @@ typedef struct {
     uint8_t swap_storage;
     uint8_t swap_from;
     uint8_t swap_to;
-    
+
     // NOTE(zaklaus): build mode
     uint8_t num_placements;
     float placements_x[20];
@@ -80,7 +80,7 @@ typedef struct {
 typedef struct {
     float hp;
     float max_hp;
-    
+
     //NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
     float pain_time;
     float heal_time;
@@ -92,14 +92,15 @@ typedef struct {
 
 typedef struct {
     uint64_t seats[4];
-    
+
     float force;
     float heading;
     float steer;
     float wheel_base;
-    
+
     float speed;
     float reverse_speed;
+    uint8_t veh_kind;
 } Vehicle;
 
 typedef struct {
@@ -115,7 +116,7 @@ typedef struct {
 
 typedef struct {
     char _unused;
-} ItemAlreadyEdited;
+} BlockHarvest;
 
 typedef struct {
     // TODO: we now hold a ref to an item, instead of representing an item slot,
@@ -130,14 +131,14 @@ typedef struct {
 
 typedef struct {
     asset_id processed_item;
-    float cook_time;
-    float burn_time;
-} Furnace;
+    float process_time;
+    float energy_level;
+} Producer;
 
 typedef struct {
     asset_id kind;
-    float burn_time;
-} Fuel;
+    float energy_level;
+} EnergySource;
 
 typedef struct {
     asset_id producer;
@@ -168,11 +169,11 @@ extern ECS_COMPONENT_DECLARE(Classify);
 extern ECS_COMPONENT_DECLARE(Vehicle);
 extern ECS_COMPONENT_DECLARE(IsInVehicle);
 extern ECS_COMPONENT_DECLARE(Item);
-extern ECS_COMPONENT_DECLARE(ItemAlreadyEdited);
+extern ECS_COMPONENT_DECLARE(BlockHarvest);
 extern ECS_COMPONENT_DECLARE(Inventory);
 extern ECS_COMPONENT_DECLARE(ItemContainer);
-extern ECS_COMPONENT_DECLARE(Furnace);
-extern ECS_COMPONENT_DECLARE(Fuel);
+extern ECS_COMPONENT_DECLARE(Producer);
+extern ECS_COMPONENT_DECLARE(EnergySource);
 extern ECS_COMPONENT_DECLARE(Ingredient);
 extern ECS_COMPONENT_DECLARE(Device);
 extern ECS_COMPONENT_DECLARE(DemoNPC);

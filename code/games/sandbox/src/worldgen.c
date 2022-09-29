@@ -88,7 +88,7 @@ int32_t worldgen_build(world_data *wld) {
     // vehicles
 #if 1
     for (int i=0; i<RAND_RANGE(258, 1124); i++) {
-        uint64_t e = vehicle_spawn();
+        uint64_t e = vehicle_spawn(RAND_RANGE(0,2));
 
         Position *dest = ecs_get_mut(world_ecs(), e, Position);
         dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);

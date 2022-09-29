@@ -208,7 +208,7 @@ void debug_replay_update(void) {
             }
         }break;
         case RPKIND_SPAWN_CAR: {
-            ecs_entity_t e = vehicle_spawn();
+            ecs_entity_t e = vehicle_spawn(EVEH_CAR);
             
             Position const *origin = ecs_get(world_ecs(), mime, Position);
             Position *dest = ecs_get_mut(world_ecs(), e, Position);

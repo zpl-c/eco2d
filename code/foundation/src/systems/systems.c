@@ -16,7 +16,7 @@
 #include "modules/system_demo.c"
 #include "modules/system_vehicle.c"
 #include "modules/system_items.c"
-#include "modules/system_furnace.c"
+#include "modules/system_producer.c"
 
 static inline float physics_correction(float x, float vx, float bounce) {
     float r = (((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f));
@@ -217,8 +217,8 @@ void SystemsImport(ecs_world_t *ecs) {
     //ECS_SYSTEM(ecs, MergeItems, EcsPostUpdate, components.Position, components.ItemDrop);
     ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, InspectContainers, EcsPostUpdate, components.Input, !components.IsInVehicle);
-    ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position);
-    ECS_SYSTEM(ecs, FurnaceCook, EcsPostUpdate, components.ItemContainer, components.Furnace, components.Position, components.Device);
+    ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position, [none] !components.BlockHarvest);
+    ECS_SYSTEM(ecs, ProduceItems, EcsPostUpdate, components.ItemContainer, components.Producer, components.Position, components.Device);
 
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
 

@@ -44,9 +44,12 @@ uint64_t item_spawn(asset_id kind, uint32_t qty) {
     item_desc *it = &items[item_find(kind)];
 
     switch (it->attachment) {
-    case UDATA_FUEL: {
-        Fuel *f = ecs_get_mut(world_ecs(), e, Fuel);
-        f->burn_time = it->fuel.burn_time;
+    case UDATA_ENERGY_SOURCE: {
+        EnergySource *f = ecs_get_mut(world_ecs(), e, EnergySource);
+        *f = (EnergySource){
+            .kind = it->energy_source.producer,
+            .energy_level = it->energy_source.energy_level,
+        };
     } break;
     case UDATA_INGREDIENT: {
         Ingredient *i = ecs_get_mut(world_ecs(), e, Ingredient);

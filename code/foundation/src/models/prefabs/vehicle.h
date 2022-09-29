@@ -1,7 +1,13 @@
 #pragma once
 #include "platform/system.h"
 
-uint64_t vehicle_spawn(void);
+enum {
+    EVEH_CAR,
+    EVEH_TRUCK,
+    EVEH_FURNACEMOBILE,
+};
+
+uint64_t vehicle_spawn(uint8_t veh_kind);
 void vehicle_despawn(uint64_t id);
 
 

@@ -123,9 +123,10 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
         case EKIND_VEHICLE: {
             float x = data->x;
             float y = data->y;
-            float const w = 80;
+            float const w = (float)(data->veh_kind == 0 ? 80 : data->veh_kind == 1 ? 120 : 135);
             float const h = 50;
-            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(RED, data->tran_time));
+            Color color = data->veh_kind == 0 ? RED : data->veh_kind == 1 ? GREEN : BLUE;
+            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(color, data->tran_time));
         }break;
         case EKIND_DEVICE:{
             float x = data->x - 32.f;
