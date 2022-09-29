@@ -241,6 +241,7 @@ uint64_t network_server_get_entity(void *peer_id, uint16_t view_id) {
 
         for (int i = 0; i < it.count; i++) {
             if (p[i].peer == (uintptr_t)peer_id && p[i].view_id == view_id) {
+                ecs_iter_fini(&it);
                 return it.entities[i];
             }
         }
