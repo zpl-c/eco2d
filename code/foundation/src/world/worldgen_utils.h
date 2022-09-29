@@ -19,7 +19,7 @@ typedef WORLD_BLOCK_OBSERVER(world_block_observer_proc);
 // ensure it is set in worldgen_build
 
 int worldgen_in_circle(int x, int y, int radius) {
-    return (zpl_pow(x, 2) + zpl_pow(y, 2)) < zpl_pow(radius, 2);
+    return (zpl_pow((float)x, 2.0f) + zpl_pow((float)y, 2.0f)) < zpl_pow((float)radius, 2.0f);
 }
 
 static void world_fill_rect(block_id *data, block_id id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {

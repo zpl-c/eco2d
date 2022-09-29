@@ -61,7 +61,7 @@ int32_t worldgen_build(world_data *wld) {
     world_fill_circle(world->data, dirt_id, world->dim / 2, world->dim / 2, radius, NULL);
 
     // narrow boy cirlce
-    world_fill_circle(world->data, grnd_id, world->dim / 2, world->dim / 2, radius * 0.7f, NULL);
+    world_fill_circle(world->data, grnd_id, world->dim / 2, world->dim / 2, (uint32_t)(radius * 0.7f), NULL);
 
 
     return WORLD_ERROR_NONE;
