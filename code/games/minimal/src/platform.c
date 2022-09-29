@@ -31,23 +31,6 @@ void platform_shutdown() {
     CloseWindow();
 }
 
-static game_keystate_data last_input_data = {0};
-
-inline static
-void platform_input_update_input_frame(game_keystate_data data) {
-    // NOTE(zaklaus): Test if there are any changes
-    if (data.x != last_input_data.x) goto send_data;
-    if (data.y != last_input_data.y) goto send_data;
-    if (data.use != last_input_data.use) goto send_data;
-    if (data.sprint != last_input_data.sprint) goto send_data;
-    if (data.ctrl != last_input_data.ctrl) goto send_data;
-    return;
-
-    send_data:
-    last_input_data = data;
-    game_action_send_keystate(&data);
-}
-
 void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
     float mouse_modified = target_zoom < 4 ? mouse_z / (zpl_exp(4 - (target_zoom))) : mouse_z;

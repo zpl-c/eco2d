@@ -47,43 +47,6 @@ void platform_shutdown() {
     CloseWindow();
 }
 
-static game_keystate_data last_input_data = {0};
-static pkt_send_blockpos last_blockpos_data = {0};
-
-inline static
-void platform_input_update_input_frame(game_keystate_data data) {
-    float mx = 0, my = 0;
-    platform_get_block_realpos(&mx, &my);
-
-    if (mx != last_blockpos_data.mx || my != last_blockpos_data.my){
-        last_blockpos_data.mx = mx;
-        last_blockpos_data.my = my;
-        game_action_send_blockpos(mx, my);
-    }
-
-    // NOTE(zaklaus): Test if there are any changes
-    if (data.x != last_input_data.x) goto send_data;
-    if (data.y != last_input_data.y) goto send_data;
-    if (data.use != last_input_data.use) goto send_data;
-    if (data.sprint != last_input_data.sprint) goto send_data;
-    if (data.ctrl != last_input_data.ctrl) goto send_data;
-    if (data.pick != last_input_data.pick) goto send_data;
-    if (data.storage_action != last_input_data.storage_action) goto send_data;
-    if (data.selected_item != last_input_data.selected_item) goto send_data;
-    if (data.drop != last_input_data.drop) goto send_data;
-    if (data.swap != last_input_data.swap) goto send_data;
-    if (data.swap_from != last_input_data.swap_from) goto send_data;
-    if (data.swap_to != last_input_data.swap_to) goto send_data;
-    if (data.placement_num != last_input_data.placement_num) goto send_data;
-    if (data.deletion_mode != last_input_data.deletion_mode) goto send_data;
-    if (zpl_memcompare(data.placements, last_input_data.placements, zpl_size_of(data.placements))) goto send_data;
-    return;
-
-    send_data:
-    last_input_data = data;
-    game_action_send_keystate(&data);
-}
-
 void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
     float mouse_modified = target_zoom < 4 ? mouse_z / (zpl_exp(4 - (target_zoom))) : mouse_z;
