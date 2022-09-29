@@ -382,3 +382,19 @@ void HarvestIntoContainers(ecs_iter_t *it) {
         }
     }
 }
+
+void ThrowItemsOut(ecs_iter_t *it) {
+    ItemContainer *storage = ecs_field(it, ItemContainer, 1);
+    Position *p = ecs_field(it, Position, 2);
+
+    for (int i = 0; i < it->count; i++) {
+        for (int j = 0; j < ITEMS_CONTAINER_SIZE; j++) {
+            ecs_entity_t item_slot_ent = storage[i].items[j];
+            Item *item = item_get_data(item_slot_ent);
+            if (!item) continue;
+
+            item_show(item_slot_ent, true);
+            entity_set_position(item_slot_ent, p[i].x, p[i].y);
+        }
+    }
+}

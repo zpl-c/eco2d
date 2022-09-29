@@ -27,6 +27,8 @@
 void platform_init() {
     platform_create_window("eco2d");
     renderer_init();
+
+    target_zoom = 2.70f;
 }
 
 inline static

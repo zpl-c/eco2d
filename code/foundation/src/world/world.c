@@ -559,14 +559,14 @@ int64_t world_chunk_from_entity(ecs_entity_t id) {
 
 void world_chunk_replace_worldgen_block(int64_t id, uint16_t block_idx, block_id bid) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
-    ZPL_ASSERT(!(blocks_get_flags(bid) & BLOCK_FLAG_DEVICE));
+    ZPL_ASSERT(!(blocks_get_flags(bid) & BLOCK_FLAG_ENTITY));
     world.block_mapping[id][block_idx] = bid;
     world_chunk_mark_dirty(world.chunk_mapping[id]);
 }
 
 void world_chunk_replace_block(int64_t id, uint16_t block_idx, block_id bid) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
-    if (blocks_get_flags(bid) & BLOCK_FLAG_DEVICE) {
+    if (blocks_get_flags(bid) & BLOCK_FLAG_ENTITY) {
         ecs_entity_t e = entity_spawn_id(blocks_get_asset(bid));
         world_block_lookup l = world_block_from_index(id, block_idx);
         entity_set_position(e, l.ox, l.oy);
@@ -579,7 +579,7 @@ void world_chunk_replace_block(int64_t id, uint16_t block_idx, block_id bid) {
 bool world_chunk_place_block(int64_t id, uint16_t block_idx, block_id bid) {
     ZPL_ASSERT(block_idx >= 0 && block_idx < zpl_square(world.chunk_size));
     if (world.outer_block_mapping[id][block_idx] != 0 && bid != 0) return false;
-    if (blocks_get_flags(bid) & BLOCK_FLAG_DEVICE) {
+    if (blocks_get_flags(bid) & BLOCK_FLAG_ENTITY) {
         ecs_entity_t e = entity_spawn_id(blocks_get_asset(bid));
         world_block_lookup l = world_block_from_index(id, block_idx);
         entity_set_position(e, l.ox, l.oy);

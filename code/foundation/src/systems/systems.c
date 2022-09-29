@@ -160,7 +160,7 @@ void PlayerClosestInteractable(ecs_iter_t *it){
 
     for (int i = 0; i < it->count; ++i) {
         size_t ents_count;
-        int64_t *ents = world_chunk_fetch_entities_realpos(in[i].bx, in[i].by, &ents_count);
+        int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
 
         ecs_entity_t closest_pick = 0;
         float min_pick = ZPL_F32_MAX;
@@ -225,6 +225,7 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
 
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
+    ECS_SYSTEM(ecs, ThrowItemsOut, EcsUnSet, components.ItemContainer, components.Position);
 
     ECS_SYSTEM(ecs, DisableWorldEdit, EcsPostUpdate);
 

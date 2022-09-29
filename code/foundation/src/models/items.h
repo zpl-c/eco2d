@@ -29,6 +29,7 @@ typedef struct {
     item_usage usage;
     item_attachment attachment;
     uint32_t max_quantity;
+    uint8_t has_storage;
 
     // NOTE(zaklaus): usage data
     union {

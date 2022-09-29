@@ -43,6 +43,12 @@ uint64_t item_spawn(asset_id kind, uint32_t qty) {
 
     item_desc *it = &items[item_find(kind)];
 
+    if (it->has_storage) {
+        ecs_add(world_ecs(), e, BlockHarvest);
+        ItemContainer *storage = ecs_get_mut(world_ecs(), e, ItemContainer);
+        *storage = (ItemContainer){0};
+    }
+
     switch (it->attachment) {
     case UDATA_ENERGY_SOURCE: {
         EnergySource *f = ecs_get_mut(world_ecs(), e, EnergySource);

@@ -177,7 +177,7 @@ void renderer_init(void) {
     render_camera.target = (Vector2){0.0f,0.0f};
     render_camera.offset = (Vector2){(float)(screenWidth >> 1), (float)(screenHeight >> 1)};
     render_camera.rotation = 0.0f;
-    render_camera.zoom = 1.5f;
+    render_camera.zoom = 2.9f;
 
     // NOTE(zaklaus): Paint the screen before we load the game
     // TODO(zaklaus): Render a cool loading screen background maybe? :wink: :wink:

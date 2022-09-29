@@ -7,7 +7,7 @@ typedef enum {
     BLOCK_FLAG_HAZARD = (1 << 2),
     BLOCK_FLAG_ESSENTIAL = (1 << 3),
     BLOCK_FLAG_DESTROY_ON_COLLISION = (1 << 4),
-    BLOCK_FLAG_DEVICE = (1 << 5),
+    BLOCK_FLAG_ENTITY = (1 << 5),
 } block_flags;
 
 typedef uint16_t block_id;

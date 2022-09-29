@@ -23,4 +23,5 @@ game_rulesdef game_rules = {
     .vehicle_power = 97.89f,
     .vehicle_brake_force = 0.84f,
     .veh_enter_radius = 45.0f,
+    .blueprint_build_time = 1.5f,
 };

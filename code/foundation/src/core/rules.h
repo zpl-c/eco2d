@@ -24,6 +24,7 @@ typedef struct {
     float vehicle_power;
     float vehicle_brake_force;
     float veh_enter_radius;
+    float blueprint_build_time;
 } game_rulesdef;
 
 extern game_rulesdef game_rules;
