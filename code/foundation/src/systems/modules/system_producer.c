@@ -44,6 +44,10 @@ void ProduceItems(ecs_iter_t *it) {
 
         d[i].progress_active = (producer[i].processed_item > 0);
         d[i].progress_value = 1.0f-((producer[i].process_time - game_time()) / game_rules.furnace_cook_time);
+
+        if (d[i].progress_active) {
+            entity_wake(it->entities[i]);
+        }
     }
 }
 

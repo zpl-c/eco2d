@@ -9,6 +9,7 @@ uint64_t device_spawn(asset_id id) {
     ecs_entity_t e = entity_spawn(EKIND_DEVICE);
 
     Device *dev = ecs_get_mut(world_ecs(), e, Device);
+    zpl_zero_item(dev);
     dev->asset = id;
 
     return (uint64_t)e;
