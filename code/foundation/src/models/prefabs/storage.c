@@ -2,6 +2,7 @@
 #include "models/device.h"
 #include "world/world.h"
 
+#include "models/entity.h"
 #include "models/components.h"
 
 uint64_t storage_spawn(void) {

@@ -3,6 +3,7 @@
 #include "world/entity_view.h"
 #include "world/world.h"
 
+#include "models/entity.h"
 #include "models/components.h"
 
 uint64_t vehicle_spawn(void) {    

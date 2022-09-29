@@ -3,6 +3,7 @@
 
 #include "world/world.h"
 
+#include "models/entity.h"
 #include "models/components.h"
 
 #define PLAYER_MAX_HP 100.0f
