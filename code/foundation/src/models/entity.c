@@ -9,7 +9,7 @@
 #include "zpl.h"
 
 // NOTE(zaklaus): bring in entity spawnlist
-#include "entity_spawnlist.c"
+#include "lists/entity_spawnlist.c"
 
 uint64_t entity_spawn(uint16_t class_id) {
     ecs_entity_t e = ecs_new(world_ecs(), 0);

@@ -4,7 +4,7 @@
 // use your favorite editor to quickly navigate between various files.
 
 // 1) Register a new Asset ID
-#include "gen/assets.h"
+#include "models/assets.h"
 
 // 2) Add the asset to the asset list
 #include "assets_list.c"

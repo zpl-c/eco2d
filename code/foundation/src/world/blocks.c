@@ -34,7 +34,7 @@ typedef struct {
     block_id slot;
 } block;
 
-#include "blocks_list.c"
+#include "lists/blocks_list.c"
 
 int32_t blocks_setup(void) {
     for (block_id i=0; i<BLOCKS_COUNT; i++) {

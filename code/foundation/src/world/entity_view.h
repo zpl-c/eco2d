@@ -1,6 +1,6 @@
 #pragma once
 #include "platform/system.h"
-#include "gen/assets.h"
+#include "models/assets.h"
 #include "models/items.h"
 
 #define ZPL_PICO

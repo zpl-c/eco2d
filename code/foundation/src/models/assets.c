@@ -1,4 +1,4 @@
-#include "gen/assets.h"
+#include "models/assets.h"
 #include "raylib.h"
 #include "gen/texgen.h"
 
@@ -16,7 +16,7 @@ typedef struct {
     // NOTE(zaklaus): metadata
 } asset;
 
-#include "assets_list.c"
+#include "lists/assets_list.c"
 
 #define ASSET_FRAME_RENDER_MS (1.0/5.0)
 #define ASSET_FRAME_SKIP 4

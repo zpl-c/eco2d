@@ -8,7 +8,7 @@
 
 #include "zpl.h"
 
-#include "items_list.c"
+#include "lists/items_list.c"
 #define ITEMS_COUNT (sizeof(items)/sizeof(item_desc))
 
 static inline item_id item_resolve_proxy(item_id id) {

@@ -8,7 +8,7 @@
 #include "core/camera.h"
 #include "math.h"
 #include "world/blocks.h"
-#include "gen/assets.h"
+#include "models/assets.h"
 #include "platform/profiler.h"
 #include "debug/debug_ui.h"
 #include "utils/raylib_helpers.h"

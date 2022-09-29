@@ -1,6 +1,6 @@
 #pragma once
 #include "platform/system.h"
-#include "gen/assets.h"
+#include "models/assets.h"
 
 typedef enum {
     BLOCK_FLAG_COLLISION = (1 << 1),

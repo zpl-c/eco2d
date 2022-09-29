@@ -3,7 +3,7 @@
 #include "platform/system.h"
 #include "raylib.h"
 #include "world/blocks.h"
-#include "gen/assets.h"
+#include "models/assets.h"
 
 #define RAYLIB_NEW_RLGL
 #include "rlgl.h"

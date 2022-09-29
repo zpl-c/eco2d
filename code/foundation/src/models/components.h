@@ -1,6 +1,6 @@
 #pragma once
 #include "flecs.h"
-#include "gen/assets.h"
+#include "models/assets.h"
 
 #define ecs_get_mut_ex(world, entity, T) \
     (ECS_CAST(T*, world_component_cached(world, entity, ecs_id(T))))

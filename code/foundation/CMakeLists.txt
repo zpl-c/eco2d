@@ -8,6 +8,7 @@ add_library(eco2d-foundation STATIC
     src/platform/signal_handling.c
     src/platform/profiler.c
 
+    src/models/assets.c
 	  src/models/components.c
     src/models/items.c
     src/models/entity.c
@@ -35,8 +36,6 @@ add_library(eco2d-foundation STATIC
     src/world/world_view.c
     src/world/entity_view.c
     src/world/prediction.c
-
-    src/gen/assets.c
 
     src/systems/systems.c
 

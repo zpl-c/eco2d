@@ -1,4 +1,4 @@
-#include "gen/assets.h"
+#include "models/assets.h"
 
 #define ASSET_ENTRY(asset, asset_kind)\
 {\
