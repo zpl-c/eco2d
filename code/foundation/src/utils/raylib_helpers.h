@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 #include "platform/system.h"
 #include "raylib.h"
 #include "world/blocks.h"
