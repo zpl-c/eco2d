@@ -7,10 +7,10 @@
 #include "world/blocks.h"
 #include "world/perlin.h"
 
-#include "ecs/components.h"
-#include "ents/entity.h"
-#include "ents/prefabs/vehicle.h"
-#include "ents/items.h"
+#include "models/components.h"
+#include "models/entity.h"
+#include "models/prefabs/vehicle.h"
+#include "models/items.h"
 #include "world/blocks_info.h"
 
 #include "world/worldgen_utils.h"

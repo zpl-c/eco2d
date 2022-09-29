@@ -3,7 +3,7 @@
 #include "world/entity_view.h"
 #include "world/world.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 uint64_t vehicle_spawn(void) {    
     ecs_entity_t e = entity_spawn(EKIND_VEHICLE);

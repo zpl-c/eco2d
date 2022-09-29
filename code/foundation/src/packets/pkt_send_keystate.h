@@ -1,7 +1,7 @@
 #pragma once
 #include "platform/system.h"
 #include "pkt/packet_utils.h"
-#include "ents/item_placement.h"
+#include "models/item_placement.h"
 
 typedef struct {
     float x;

@@ -6,11 +6,11 @@
 #include "net/network.h"
 #include "world/entity_view.h"
 #include "core/camera.h"
-#include "ents/prefabs/player.h"
-#include "ents/entity.h"
+#include "models/prefabs/player.h"
+#include "models/entity.h"
 
-#include "ecs/components.h"
-#include "ecs/systems.h"
+#include "models/components.h"
+#include "systems/systems.h"
 
 pkt_desc pkt_00_init_desc[] = {
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_00_init, view_id) },

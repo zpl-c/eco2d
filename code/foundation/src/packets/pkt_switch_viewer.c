@@ -5,10 +5,10 @@
 #include "net/network.h"
 #include "world/entity_view.h"
 #include "core/camera.h"
-#include "ents/prefabs/player.h"
+#include "models/prefabs/player.h"
 
-#include "ecs/components.h"
-#include "ecs/systems.h"
+#include "models/components.h"
+#include "systems/systems.h"
 
 pkt_desc pkt_switch_viewer_desc[] = {
     { PKT_FIELD(CWP_ITEM_POSITIVE_INTEGER, pkt_switch_viewer, view_id) },

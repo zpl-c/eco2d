@@ -2,7 +2,7 @@
 #include "platform/system.h"
 #include "librg.h"
 #include "pkt/packet.h"
-#include "flecs/flecs.h"
+#include "flecs.h"
 #include "world/blocks.h"
 
 #define WORLD_ERROR_NONE                +0x0000

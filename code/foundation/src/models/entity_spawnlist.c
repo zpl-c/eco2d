@@ -1,6 +1,6 @@
 // NOTE(zaklaus): access to spawners
-#include "ents/prefabs/storage.h"
-#include "ents/prefabs/furnace.h"
+#include "models/prefabs/storage.h"
+#include "models/prefabs/furnace.h"
 
 static struct {
     asset_id id;

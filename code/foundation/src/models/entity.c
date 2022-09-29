@@ -1,11 +1,11 @@
-#include "ents/entity.h"
+#include "models/entity.h"
 #include "world/entity_view.h"
-#include "flecs/flecs.h"
+#include "flecs.h"
 #include "librg.h"
 #include "world/world.h"
 
-#include "ecs/components.h"
-#include "ecs/systems.h"
+#include "models/components.h"
+#include "systems/systems.h"
 #include "zpl.h"
 
 // NOTE(zaklaus): bring in entity spawnlist

@@ -16,9 +16,9 @@
 #include "packets/pkt_00_init.h"
 #include "world/world.h"
 #include "core/game.h"
-#include "ents/prefabs/player.h"
+#include "models/prefabs/player.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 #define NETWORK_UPDATE_DELAY 0.100
 

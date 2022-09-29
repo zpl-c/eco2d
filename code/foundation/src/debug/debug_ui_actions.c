@@ -1,6 +1,6 @@
 #include "debug/debug_ui.h"
 #include "world/blocks.h"
-#include "ents/items.h"
+#include "models/items.h"
 #include "net/network.h"
 
 void

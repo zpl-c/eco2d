@@ -1,10 +1,10 @@
-#include "ents/items.h"
-#include "ents/entity.h"
+#include "models/items.h"
+#include "models/entity.h"
 #include "world/entity_view.h"
 #include "world/world.h"
 #include "world/blocks.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 #include "zpl.h"
 

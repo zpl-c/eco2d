@@ -1,5 +1,5 @@
 #include "core/camera.h"
-#include "ents/item_placement.h"
+#include "models/item_placement.h"
 
 static bool build_submit_placements = false;
 static bool build_is_in_draw_mode = false;

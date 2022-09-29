@@ -1,8 +1,8 @@
 #include "storage.h"
-#include "ents/device.h"
+#include "models/device.h"
 #include "world/world.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 uint64_t storage_spawn(void) {
     ecs_entity_t e = device_spawn(ASSET_CHEST);

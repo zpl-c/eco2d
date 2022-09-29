@@ -1,4 +1,4 @@
-#include "ents/items.h"
+#include "models/items.h"
 #include "world/entity_view.h"
 #include "items_list_helpers.h"
 

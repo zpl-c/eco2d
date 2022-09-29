@@ -8,14 +8,15 @@ add_library(eco2d-foundation STATIC
     src/platform/signal_handling.c
     src/platform/profiler.c
 
-    src/ents/items.c
-    src/ents/entity.c
-    src/ents/device.c
+	  src/models/components.c
+    src/models/items.c
+    src/models/entity.c
+    src/models/device.c
 
-    src/ents/prefabs/player.c
-    src/ents/prefabs/vehicle.c
-    src/ents/prefabs/storage.c
-    src/ents/prefabs/furnace.c
+    src/models/prefabs/player.c
+    src/models/prefabs/vehicle.c
+    src/models/prefabs/storage.c
+    src/models/prefabs/furnace.c
 
     src/pkt/packet.c
 
@@ -36,8 +37,7 @@ add_library(eco2d-foundation STATIC
 
     src/gen/assets.c
 
-    src/ecs/systems.c
-	  src/ecs/components.c
+    src/systems/systems.c
 
     ${PKT_SRCS}
 )

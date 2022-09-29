@@ -1,6 +1,6 @@
 #include "zpl.h"
-#include "ecs/systems.h"
-#include "ecs/components.h"
+#include "systems/systems.h"
+#include "models/components.h"
 #include "world/world.h"
 #include "world/blocks.h"
 #include "platform/profiler.h"

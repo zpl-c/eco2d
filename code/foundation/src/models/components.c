@@ -1,4 +1,4 @@
-#include "ecs/components.h"
+#include "models/components.h"
 
 ECS_COMPONENT_DECLARE(Vector2D);
 ECS_COMPONENT_DECLARE(Position);
@@ -24,7 +24,7 @@ ECS_COMPONENT_DECLARE(StreamInfo);
 
 void ComponentsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Components);
-    
+
     ECS_COMPONENT_DEFINE(ecs, Vector2D);
     ECS_COMPONENT_DEFINE(ecs, Position);
     ECS_COMPONENT_DEFINE(ecs, Velocity);

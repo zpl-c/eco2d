@@ -3,7 +3,7 @@
 #include "gen/assets.h"
 #include "world/blocks.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 typedef enum {
     // NOTE(zaklaus): hardcoded fields for placement ops

@@ -1,7 +1,7 @@
 #include "furnace.h"
-#include "ents/device.h"
+#include "models/device.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 uint64_t furnace_spawn(void) {
     ecs_entity_t e = device_spawn(ASSET_FURNACE);

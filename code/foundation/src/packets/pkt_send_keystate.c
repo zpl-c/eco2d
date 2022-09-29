@@ -1,10 +1,10 @@
 #include "pkt/packet_utils.h"
 #include "net/network.h"
 #include "packets/pkt_send_keystate.h"
-#include "ecs/components.h"
-#include "ecs/systems.h"
+#include "models/components.h"
+#include "systems/systems.h"
 #include "world/world.h"
-#include "ents/entity.h"
+#include "models/entity.h"
 
 #include "debug/debug_replay.h"
 

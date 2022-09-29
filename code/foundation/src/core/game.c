@@ -5,17 +5,17 @@
 #include "pkt/packet.h"
 #include "platform/signal_handling.h"
 #include "net/network.h"
-#include "ents/entity.h"
+#include "models/entity.h"
 #include "world/world_view.h"
 #include "world/entity_view.h"
 #include "core/camera.h"
 #include "platform/profiler.h"
 
 #include "flecs/flecs_os_api_stdcpp.h"
-#include "flecs/flecs.h"
+#include "flecs.h"
 
-#include "ecs/components.h"
-#include "ecs/systems.h"
+#include "models/components.h"
+#include "systems/systems.h"
 
 #include "packets/pkt_00_init.h"
 #include "packets/pkt_01_welcome.h"

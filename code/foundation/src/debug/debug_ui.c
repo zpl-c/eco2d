@@ -1,13 +1,13 @@
 #include "debug/debug_ui.h"
 #include "debug/debug_draw.h"
 #include "raylib.h"
-#include "ents/prefabs/vehicle.h"
+#include "models/prefabs/vehicle.h"
 #include "core/camera.h"
 #include "world/world.h"
 #include "core/game.h"
 #include "sfd.h"
 
-#include "ecs/components.h"
+#include "models/components.h"
 
 typedef enum {
     DITEM_RAW,

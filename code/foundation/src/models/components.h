@@ -1,5 +1,5 @@
 #pragma once
-#include "flecs/flecs.h"
+#include "flecs.h"
 #include "gen/assets.h"
 
 #define ecs_get_mut_ex(world, entity, T) \

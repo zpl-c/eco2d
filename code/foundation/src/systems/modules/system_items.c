@@ -1,4 +1,4 @@
-#include "ents/items.h"
+#include "models/items.h"
 
 void PickItem(ecs_iter_t *it) {
     Position *p = ecs_field(it, Position, 2);

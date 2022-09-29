@@ -1,4 +1,4 @@
-#include "ents/entity.h"
+#include "models/entity.h"
 
 void MovementImpulse(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);

@@ -1,6 +1,6 @@
 #include "debug/debug_replay.h"
 #include "core/camera.h"
-#include "ents/entity.h"
+#include "models/entity.h"
 
 #include "cwpack/cwpack.h"
 
