@@ -20,6 +20,22 @@
 }\
 }
 
+#define ITEM_BLUEPRINT(asset, qty, w_, h_, plan_)\
+{\
+.kind = asset,\
+.usage = UKIND_PLACE_ITEM_DATA,\
+.attachment = UDATA_NONE,\
+.max_quantity = qty,\
+.blueprint = {\
+.w = w_,\
+.h = h_,\
+.plan = plan_\
+},\
+.place_item = {\
+.id = asset\
+}\
+}
+
 #define ITEM_INGREDIENT(asset, qty, _producer, _product, _additional)\
 {\
 .kind = asset,\

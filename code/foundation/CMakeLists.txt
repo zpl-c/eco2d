@@ -17,6 +17,7 @@ add_library(eco2d-foundation STATIC
     src/models/prefabs/vehicle.c
     src/models/prefabs/storage.c
     src/models/prefabs/furnace.c
+    src/models/prefabs/blueprint.c
 
     src/pkt/packet.c
 

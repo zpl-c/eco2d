@@ -155,6 +155,12 @@ typedef struct {
 } Device;
 
 typedef struct {
+    uint8_t w;
+    uint8_t h;
+    char plan[256];
+} Blueprint;
+
+typedef struct {
     double last_update;
     double tick_delay;
 } StreamInfo;
@@ -180,6 +186,7 @@ extern ECS_COMPONENT_DECLARE(Producer);
 extern ECS_COMPONENT_DECLARE(EnergySource);
 extern ECS_COMPONENT_DECLARE(Ingredient);
 extern ECS_COMPONENT_DECLARE(Device);
+extern ECS_COMPONENT_DECLARE(Blueprint);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
 extern ECS_COMPONENT_DECLARE(StreamInfo);
 

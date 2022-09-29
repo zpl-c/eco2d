@@ -15,6 +15,7 @@ typedef enum {
     ASSET_THING,
     ASSET_CHEST,
     ASSET_FURNACE,
+    ASSET_BLUEPRINT,
 
     // NOTE(zaklaus): items
     ASSET_DEMO_ICEMAKER,

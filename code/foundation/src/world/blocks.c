@@ -57,6 +57,14 @@ block_id blocks_find(asset_id kind) {
     return 0xF;
 }
 
+block_id blocks_find_by_symbol(char symbol) {
+    for (block_id i=0; i<BLOCKS_COUNT; i++) {
+        if (blocks[i].symbol == symbol)
+            return i;
+    }
+    return 0xF;
+}
+
 asset_id blocks_get_asset(block_id id) {
     return blocks[id].kind;
 }

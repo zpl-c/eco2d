@@ -10,6 +10,7 @@ typedef enum {
     UKIND_DELETE,
     UKIND_PLACE,
     UKIND_PLACE_ITEM,
+    UKIND_PLACE_ITEM_DATA,
     UKIND_END_PLACE,
 
     // NOTE(zaklaus): the rest of possible actions
@@ -56,6 +57,15 @@ typedef struct {
             asset_id product;
             asset_id additional_ingredient;
         } ingredient;
+    };
+
+    // NOTE: item data
+    union {
+        struct {
+            uint8_t w;
+            uint8_t h;
+            const char plan[256];
+        } blueprint;
     };
 } item_desc;
 

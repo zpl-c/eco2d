@@ -47,6 +47,15 @@ uint64_t entity_spawn_id(uint16_t id){
     return 0;
 }
 
+uint64_t entity_spawn_id_with_data(uint16_t id, void *udata){
+    for (size_t i = 0; i < MAX_ENTITY_SPAWNDEFS; ++i){
+        if (entity_spawnlist[i].id == id){
+            ZPL_ASSERT(entity_spawnlist[i].proc_udata);
+            return entity_spawnlist[i].proc_udata(udata);
+        }
+    }
+    return 0;
+}
 void entity_batch_despawn(uint64_t *ids, size_t num_ids) {
     for (size_t i = 0; i < num_ids; i++ ) {
         librg_entity_untrack(world_tracker(), ids[i]);

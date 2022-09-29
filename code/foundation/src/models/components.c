@@ -19,6 +19,7 @@ ECS_COMPONENT_DECLARE(Producer);
 ECS_COMPONENT_DECLARE(EnergySource);
 ECS_COMPONENT_DECLARE(Ingredient);
 ECS_COMPONENT_DECLARE(Device);
+ECS_COMPONENT_DECLARE(Blueprint);
 ECS_COMPONENT_DECLARE(DemoNPC);
 ECS_COMPONENT_DECLARE(StreamInfo);
 
@@ -44,6 +45,7 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_COMPONENT_DEFINE(ecs, EnergySource);
     ECS_COMPONENT_DEFINE(ecs, Ingredient);
     ECS_COMPONENT_DEFINE(ecs, Device);
+    ECS_COMPONENT_DEFINE(ecs, Blueprint);
     ECS_COMPONENT_DEFINE(ecs, DemoNPC);
     ECS_COMPONENT_DEFINE(ecs, StreamInfo);
 }

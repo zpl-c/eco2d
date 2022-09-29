@@ -129,6 +129,22 @@ void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t u
             it->quantity--;
         }break;
 
+        case UKIND_PLACE_ITEM_DATA:{
+            world_block_lookup l = world_block_from_realpos(p.x, p.y);
+            if (l.is_outer && l.bid > 0) {
+                return;
+            }
+            // NOTE(zaklaus): This is an inner layer block, we can't build over it if it has a collision!
+            else if (l.bid > 0 && blocks_get_flags(l.bid) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
+                return;
+            }
+
+            ecs_entity_t e = entity_spawn_id_with_data(desc->place_item.id, desc);
+            ZPL_ASSERT(world_entity_valid(e));
+            entity_set_position(e, p.x, p.y);
+
+            it->quantity--;
+        }break;
 
         case UKIND_DELETE:
         case UKIND_END_PLACE:
