@@ -1,5 +1,6 @@
 #include "furnace.h"
 #include "models/device.h"
+#include "world/world.h"
 
 #include "models/components.h"
 

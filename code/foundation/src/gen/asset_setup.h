@@ -20,7 +20,3 @@
 
 // NOTE(zaklaus): Register an item
 #include "items_list.c"
-
-// NOTE(zaklaus): Register a spawnable entity
-#include "models/entity_spawnlist.c"
-
