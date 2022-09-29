@@ -132,6 +132,16 @@ void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
             float x = data->x - 32.f;
             float y = data->y - 32.f;
             DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+
+            if (data->progress_active) {
+                float w = 64.f;
+                float h = 8.f;
+                float p = data->progress_value;
+                float x = data->x - w/2.f;
+                float y = data->y - 32.f - h;
+                DrawRectangleEco(x, y, w, h, ColorAlpha(BLACK, data->tran_time));
+                DrawRectangleEco(x, y, w*p, h, ColorAlpha(GREEN, data->tran_time));
+            }
         }break;
         default:break;
     }

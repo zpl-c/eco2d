@@ -19,7 +19,7 @@ void ProduceItems(ecs_iter_t *it) {
                 continue;
             }
 
-            // if (producer[i].burn_time <= 0.0f) continue; TODO
+            // if (producer[i].energy_level <= 0.0f) continue;
             if (producer[i].process_time < game_time()) {
                 if (producer[i].processed_item > 0) {
                     uint64_t e = item_spawn(producer[i].processed_item, 1);
@@ -41,6 +41,9 @@ void ProduceItems(ecs_iter_t *it) {
                 }
             }
         }
+
+        d[i].progress_active = (producer[i].processed_item > 0);
+        d[i].progress_value = 1.0f-((producer[i].process_time - game_time()) / game_rules.furnace_cook_time);
     }
 }
 

@@ -5,50 +5,52 @@
 ZPL_TABLE_DEFINE(entity_view_tbl, entity_view_tbl_, entity_view);
 
 pkt_desc pkt_entity_view_desc[] = {
-    
+
     { PKT_UINT(entity_view, kind) },
     { PKT_UINT(entity_view, flag) },
     { PKT_HALF(entity_view, x) },
     { PKT_HALF(entity_view, y) },
-    
+
     { PKT_KEEP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip velocity for chunks
     { PKT_HALF(entity_view, vx) },
     { PKT_HALF(entity_view, vy) },
-    
+
     { PKT_SKIP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip blocks for anything else
     { PKT_ARRAY(entity_view, blocks) },
     { PKT_ARRAY(entity_view, outer_blocks) },
-    
+
     { PKT_KEEP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip hp for chunks
     { PKT_HALF(entity_view, hp) },
     { PKT_HALF(entity_view, max_hp) },
-    
+
     { PKT_KEEP_IF(entity_view, kind, EKIND_VEHICLE, 1) }, // NOTE(zaklaus): keep for vehicles
     { PKT_HALF(entity_view, heading) },
     { PKT_UINT(entity_view, inside_vehicle) },
     { PKT_UINT(entity_view, veh_kind) },
-    
+
     { PKT_KEEP_IF(entity_view, kind, EKIND_ITEM, 2) },
     { PKT_UINT(entity_view, asset) },
     { PKT_UINT(entity_view, quantity) },
-    
-    { PKT_KEEP_IF(entity_view, kind, EKIND_DEVICE, 1) },
+
+    { PKT_KEEP_IF(entity_view, kind, EKIND_DEVICE, 3) },
     { PKT_UINT(entity_view, asset) },
-    
+    { PKT_UINT(entity_view, progress_active) },
+    { PKT_HALF(entity_view, progress_value) },
+
     { PKT_KEEP_IF(entity_view, has_items, true, 3) },
     { PKT_UINT(entity_view, has_items) },
     { PKT_UINT(entity_view, selected_item) },
     { PKT_ARRAY(entity_view, items) },
-    
+
     { PKT_UINT(entity_view, pick_ent) },
     { PKT_UINT(entity_view, sel_ent) },
-    
+
     { PKT_KEEP_IF(entity_view, has_storage_items, true, 3) },
     { PKT_UINT(entity_view, has_storage_items) },
     { PKT_UINT(entity_view, storage_selected_item) },
     { PKT_ARRAY(entity_view, storage_items) },
-    
-    { PKT_END }, 
+
+    { PKT_END },
 };
 
 size_t entity_view_pack_struct(void *data, size_t len, entity_view *view) {
@@ -61,10 +63,10 @@ size_t entity_view_pack_struct(void *data, size_t len, entity_view *view) {
 entity_view entity_view_unpack_struct(void *data, size_t len) {
     cw_unpack_context uc = {0};
     cw_unpack_context_init(&uc, data, (unsigned long)len, 0);
-    
+
     entity_view view = {0};
     pkt_unpack_struct(&uc, pkt_entity_view_desc, PKT_STRUCT_PTR(&view));
-    
+
     return view;
 }
 

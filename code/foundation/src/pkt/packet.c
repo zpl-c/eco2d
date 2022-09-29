@@ -35,31 +35,31 @@ int32_t pkt_header_encode(pkt_messages id, uint16_t view_id, void *data, size_t 
 int32_t pkt_header_decode(pkt_header *table, void *data, size_t datalen) {
     cw_unpack_context uc = {0};
     pkt_unpack_msg_raw(&uc, data, (uint32_t)datalen, PKT_HEADER_ELEMENTS);
-    
+
     cw_unpack_next(&uc);
     if (uc.item.type != CWP_ITEM_POSITIVE_INTEGER || uc.item.as.u64 > UINT16_MAX) {
         return -1; // invalid packet id
     }
-    
+
     uint16_t pkt_id = (uint16_t)uc.item.as.u64;
-    
+
     cw_unpack_next(&uc);
     if (uc.item.type != CWP_ITEM_POSITIVE_INTEGER || uc.item.as.u64 > UINT16_MAX) {
         return -1; // invalid view id
     }
-    
+
     uint16_t view_id = (uint16_t)uc.item.as.u64;
-    
+
     cw_unpack_next(&uc);
     const void *packed_blob = uc.item.as.bin.start;
     uint32_t packed_size = uc.item.as.bin.length;
-    
+
     table->id = pkt_id;
     table->view_id = view_id;
     table->data = (void *)packed_blob;
     table->datalen = packed_size;
     table->ok = 1;
-    
+
     return pkt_validate_eof_msg(&uc) != -1;
 }
 
@@ -95,12 +95,12 @@ int32_t pkt_unpack_struct(cw_unpack_context *uc, pkt_desc *desc, void *raw_blob,
                 zpl_memcopy(blob + field->offset, bin_buf, actual_size);
             }break;
             default: {
-                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
+                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type);
                 return -1; // unsupported field
             }break;
         }
     }
-    
+
     return 0;
 }
 
@@ -117,10 +117,10 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
             } else {
                 cw_pack_unsigned(pc, 0);
             }
-            
+
             continue;
         }
-        
+
         switch (field->type) {
             case CWP_ITEM_BIN: {
                 if (field->size >= PKT_BUFSIZ) return -1; // bin blob too big
@@ -149,12 +149,12 @@ int32_t pkt_pack_struct(cw_pack_context *pc, pkt_desc *desc, void *raw_blob, uin
                 cw_pack_float(pc, num);
             }break;
             default: {
-                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
+                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type);
                 return -1; // unsupported field
             }break;
         }
     }
-    
+
     return 0;
 }
 
@@ -168,7 +168,7 @@ void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size) {
             if (val == field->skip_eq) {
                 field += field->skip_count;
             }
-            
+
             continue;
         }
         zpl_printf("  \"%s\": ", field->name);
@@ -189,7 +189,7 @@ void pkt_dump_struct(pkt_desc *desc, void* raw_blob, uint32_t blob_size) {
                 zpl_printf("%f\n", *(double*)(blob + field->offset));
             }break;
             default: {
-                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type); 
+                zpl_printf("[WARN] unsupported pkt field type %lld !\n", field->type);
                 return; // unsupported field
             }break;
         }

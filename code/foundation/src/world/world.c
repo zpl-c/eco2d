@@ -68,6 +68,8 @@ entity_view *world_build_entity_view(int64_t e) {
     if (ecs_get(world_ecs(), e, Device)) {
         Device const* dev = ecs_get(world_ecs(), e, Device);
         view.asset = dev->asset;
+        view.progress_active = dev->progress_active;
+        view.progress_value = dev->progress_value;
     }
 
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;

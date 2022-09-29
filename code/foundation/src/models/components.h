@@ -148,6 +148,10 @@ typedef struct {
 
 typedef struct {
     uint16_t asset;
+
+    // progress bar
+    uint8_t progress_active;
+    float progress_value;
 } Device;
 
 typedef struct {
