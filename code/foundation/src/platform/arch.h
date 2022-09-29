@@ -67,7 +67,7 @@ void platform_create_window(const char *title) {
     #endif
 
         InitWindow(screenWidth, screenHeight, title);
-        SetWindowState(/*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT|FLAG_VSYNC_HINT);
+        SetWindowState(/*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT/* |FLAG_VSYNC_HINT */);
 
     #if !defined(PLATFORM_WEB)
         screenWidth = (uint16_t)GetScreenWidth();

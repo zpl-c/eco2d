@@ -93,6 +93,8 @@ void platform_render() {
         profile (PROF_RENDER) {
             renderer_draw();
         }
+
+        debug_draw();
     }
     EndDrawing();
 

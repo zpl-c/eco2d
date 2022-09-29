@@ -112,6 +112,7 @@ void blocks_build_chunk_tex(uint64_t id, block_id *chunk_blocks, void *raw_view)
         }
     }
     EndTextureMode();
+    SetTextureWrap(canvas.texture, TEXTURE_WRAP_CLAMP);
     blocks__chunk_tbl_set(&baked_chunks, id, canvas);
 }
 

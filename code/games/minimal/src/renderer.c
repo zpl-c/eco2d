@@ -44,7 +44,6 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_PLAYER: {
             float x = data->x;
             float y = data->y;
-            float health = (data->hp / data->max_hp);
             DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
         }break;
         default:break;
