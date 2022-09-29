@@ -19,8 +19,6 @@
 
 #include "renderer.c"
 
-bool inv_is_open = false;
-
 void platform_init() {
     platform_create_window("minimal-demo");
     renderer_init();
