@@ -14,6 +14,7 @@ Texture2D texgen_build_sprite(asset_id id) {
     switch (id) {
         case ASSET_BLANK: return GenColorEco(WHITE); break;
         case ASSET_BUILDMODE_HIGHLIGHT: return GenColorEco(WHITE); break;
+        case ASSET_BLOCK_FRAME: return GenFrameRect(); break;
 
         default: return GenColorEco(ColorFromHSV(id * 240.0f, 0.6f, 0.45f)); break;
     }
