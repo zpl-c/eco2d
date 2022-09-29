@@ -7,4 +7,7 @@ file(GLOB SRCS *.h
 )
 
 add_library(flecs-bundle STATIC ${SRCS})
-target_compile_options(flecs-bundle PRIVATE "-Wno-enum-constexpr-conversion")
+
+if (NOT WIN32)
+  target_compile_options(flecs-bundle PRIVATE "-Wno-enum-constexpr-conversion")
+endif()

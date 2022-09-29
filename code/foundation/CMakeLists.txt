@@ -44,6 +44,5 @@ add_library(eco2d-foundation STATIC
 target_compile_definitions(eco2d-foundation PRIVATE CLIENT)
 include_directories(src ../modules ../../art/gen)
 target_link_libraries(eco2d-foundation raylib cwpack flecs-bundle vendors-bundle)
-target_compile_options(eco2d-foundation PRIVATE -Werror -Wall -Wextra -Wno-unused-function -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-parameter)
 
 link_system_libs(eco2d-foundation)

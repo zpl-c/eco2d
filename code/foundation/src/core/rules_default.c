@@ -1,6 +1,6 @@
 #include "core/rules.h"
 
-game_rulesdef game_rules = (game_rulesdef){
+game_rulesdef game_rules = {
     .phy_walk_drag = 4.23f,
     .demo_npc_move_speed = 500,
     .demo_npc_steer_speed = 300,

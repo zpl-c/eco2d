@@ -8,6 +8,10 @@ function(link_system_libs target_name)
     elseif (UNIX)
         target_link_libraries(${target_name} pthread m dl atomic)
     endif()
+
+    if (NOT WIN32)
+        target_compile_options(${target_name} PRIVATE -Werror -Wall -Wextra -Wno-unused-function -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-parameter)
+    endif ()
 endfunction()
 
 macro(use_cxx11)

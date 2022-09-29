@@ -23,7 +23,7 @@ size_t pkt_send_librg_update_encode(void *data, int32_t data_length, uint8_t lay
 #define NUM_SAMPLES 128
 
 static float smooth_time(float time) {
-    static float time_samples[NUM_SAMPLES] = {};
+    static float time_samples[NUM_SAMPLES] = {0};
     static int32_t curr_index = 0;
 
     time_samples[curr_index] = time;
