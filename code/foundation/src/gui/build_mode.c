@@ -28,7 +28,7 @@ void buildmode_draw(void) {
     cam.x = (double)mx;
     cam.y = (double)my;
 
-    renderer_draw_single(cam.x, cam.y, ASSET_BLOCK_FRAME, WHITE);
+    renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BLOCK_FRAME, WHITE);
 
     // NOTE(zaklaus): Check distance
     double dx = old_cam.x - cam.x;

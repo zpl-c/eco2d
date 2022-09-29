@@ -14,10 +14,7 @@
 #include "ecs/components.h"
 #include "ecs/systems.h"
 
-#if defined(PLATFORM_WEB)
-    #include <emscripten/emscripten.h>
-    void UpdateDrawFrame(void);
-#endif
+#include "platform/arch.h"
 
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
@@ -78,20 +75,7 @@ int main(int argc, char** argv) {
     sighandler_register();
     game_init(host, port, play_mode, num_viewers, seed, chunk_size, world_size, is_dash_enabled);
 
-#if !defined(PLATFORM_WEB)
-    while (game_is_running()) {
-        reset_cached_time();
-        profile (PROF_MAIN_LOOP) {
-            game_input();
-            game_update();
-            game_render();
-        }
-
-        profiler_collate();
-    }
-#else
-    emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
-#endif
+    game_run();
 
     game_shutdown();
     sighandler_unregister();
@@ -99,26 +83,4 @@ int main(int argc, char** argv) {
     zpl_string_free(host);
     zpl_opts_free(&opts);
     return 0;
-}
-
-#if defined(PLATFORM_WEB)
-void UpdateDrawFrame(void) {
-    reset_cached_time();
-    profile (PROF_MAIN_LOOP) {
-        game_input();
-        game_update();
-        game_render();
-    }
-
-    profiler_collate();
-}
-#endif
-
-static float temp_time = 0.0f;
-
-float get_cached_time(void) {
-    return temp_time;
-}
-void reset_cached_time(void) {
-    temp_time = zpl_time_rel();
 }
