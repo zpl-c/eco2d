@@ -29,7 +29,7 @@
 .blueprint = {\
 .w = w_,\
 .h = h_,\
-.plan = plan_\
+.plan = (const asset_id[])plan_\
 },\
 .place_item = {\
 .id = asset\

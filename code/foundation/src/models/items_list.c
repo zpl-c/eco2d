@@ -9,7 +9,11 @@ static item_desc items[] = {
     ITEM_ENERGY(ASSET_WOOD, ASSET_FURNACE, 64, 15.0f),
     ITEM_HOLD(ASSET_TREE, 64),
 
-    ITEM_BLUEPRINT(ASSET_BLUEPRINT, 1, 4, 4, "]]]]]CF]   ]]]]]"),
+    // ITEM_BLUEPRINT(ASSET_BLUEPRINT, 1, 4, 4, "]]]]]CF]   ]]]]]"),
+    ITEM_BLUEPRINT(ASSET_BLUEPRINT, 1, 4, 4, PROT({ ASSET_WOOD,ASSET_WOOD,ASSET_WOOD,ASSET_WOOD,
+                                                    ASSET_WOOD,ASSET_FURNACE,ASSET_CHEST,ASSET_WOOD,
+                                                    ASSET_FENCE,ASSET_EMPTY,ASSET_EMPTY,ASSET_WOOD,
+                                                    ASSET_WALL,ASSET_EMPTY,ASSET_EMPTY,ASSET_WOOD})),
 
     ITEM_SELF_DIR(ASSET_BELT, 999),
     ITEM_PROXY(ASSET_BELT_LEFT, ASSET_BELT),

@@ -12,10 +12,10 @@ void BuildBlueprints(ecs_iter_t *it) {
 
         for (int y = 0; y < blueprint[i].h; y++) {
             for (int x = 0; x < blueprint[i].w; x++) {
-                char c = blueprint[i].plan[y*w + x];
-                if (c == ' ') continue;
+                asset_id c = blueprint[i].plan[y*w + x];
+                if (c == ASSET_EMPTY) continue;
                 world_block_lookup l = world_block_from_realpos(p[i].x + x * WORLD_BLOCK_SIZE - (w * WORLD_BLOCK_SIZE)/2, p[i].y + y * WORLD_BLOCK_SIZE - (h * WORLD_BLOCK_SIZE)/2);
-                world_chunk_place_block(l.chunk_id, l.id, blocks_find_by_symbol(c));
+                world_chunk_place_block(l.chunk_id, l.id, blocks_find(c));
             }
         }
 

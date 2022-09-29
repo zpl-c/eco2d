@@ -157,7 +157,7 @@ typedef struct {
 typedef struct {
     uint8_t w;
     uint8_t h;
-    char plan[256];
+    asset_id plan[256];
 } Blueprint;
 
 typedef struct {

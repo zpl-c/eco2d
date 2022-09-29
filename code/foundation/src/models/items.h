@@ -64,7 +64,7 @@ typedef struct {
         struct {
             uint8_t w;
             uint8_t h;
-            const char plan[256];
+            const asset_id *plan;
         } blueprint;
     };
 } item_desc;

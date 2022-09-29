@@ -18,3 +18,5 @@ void reset_cached_time(void);
 uint32_t defer_var = (s, 0); \
 !defer_var; \
 (defer_var += 1), e)
+
+#define PROT(...) __VA_ARGS__

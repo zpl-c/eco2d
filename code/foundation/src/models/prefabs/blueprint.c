@@ -8,15 +8,14 @@
 #include "models/items.h"
 #include "models/components.h"
 
-uint64_t blueprint_spawn(uint8_t w, uint8_t h, const char *plan) {
-    ZPL_ASSERT((w*h) == zpl_strlen(plan));
+uint64_t blueprint_spawn(uint8_t w, uint8_t h, const asset_id *plan) {
     ZPL_ASSERT((w*h) < 256);
     ecs_entity_t e = device_spawn(ASSET_BLUEPRINT);
 
     Blueprint *blueprint = ecs_get_mut(world_ecs(), e, Blueprint);
     blueprint->w = w;
     blueprint->h = h;
-    zpl_memcopy(blueprint->plan, plan, w*h);
+    zpl_memcopy(blueprint->plan, plan, w*h*sizeof(asset_id));
 
     return (uint64_t)e;
 }
