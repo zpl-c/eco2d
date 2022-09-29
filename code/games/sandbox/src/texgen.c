@@ -1,48 +1,7 @@
 #include "gen/texgen.h"
 #include "world/world.h"
 #include "zpl.h"
-
-static inline
-Texture2D LoadTexEco(const char *name) {
-    static char filename[128];
-    zpl_snprintf(filename,  128, "art/gen/%s.png", name);
-    return LoadTexture(filename);
-}
-
-static inline
-Image LoadImageEco(const char *name) {
-    static char filename[128];
-    zpl_snprintf(filename,  128, "art/gen/%s.png", name);
-    return LoadImage(filename);
-}
-
-static inline
-Texture2D Image2TexEco(Image image) {
-    Texture2D tex = LoadTextureFromImage(image);
-    UnloadImage(image);
-    return tex;
-}
-
-static inline
-Texture2D GenColorEco(Color color) {
-    Image img = GenImageColor(1, 1, color);
-    return Image2TexEco(img);
-}
-
-static inline
-Texture2D GenFrameRect() {
-    RenderTexture2D temp_texture = LoadRenderTexture(64, 64);
-
-    Color mouse_color_a = {0, 0, 0, 200};
-    Color mouse_color_b = {255, 255, 255, 200};
-
-    BeginTextureMode(temp_texture);
-        DrawRectangleLines(0, 0, 64, 64, mouse_color_a);
-        DrawRectangleLines(1, 1, 62, 62, mouse_color_b);
-    EndTextureMode();
-
-    return temp_texture.texture;
-}
+#include "utils/raylib_helpers.h"
 
 Texture2D texgen_build_anim(asset_id id, int64_t counter) {
     (void)counter;
