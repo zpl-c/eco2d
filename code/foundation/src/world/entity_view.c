@@ -31,6 +31,7 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_KEEP_IF(entity_view, kind, EKIND_ITEM, 2) },
     { PKT_UINT(entity_view, asset) },
     { PKT_UINT(entity_view, quantity) },
+    { PKT_HALF(entity_view, durability) },
 
     { PKT_KEEP_IF(entity_view, kind, EKIND_DEVICE, 3) },
     { PKT_UINT(entity_view, asset) },

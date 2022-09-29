@@ -110,7 +110,15 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             float x = data->x - 32.f;
             float y = data->y - 32.f;
             DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
-            DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);
+
+            if (data->quantity > 1) {
+                DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);
+            }
+
+            if (data->durability < 1.0f) {
+                DrawRectangleEco(x, y+32, 4, 32, BlendColor(RED, GREEN, data->durability));
+                DrawRectangleEco(x, y+32, 4, 32*(1.0f-data->durability), ColorAlpha(BLACK, data->tran_time));
+            }
         }break;
         default:break;
     }

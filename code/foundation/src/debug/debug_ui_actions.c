@@ -12,12 +12,12 @@ void
 ActSpawnCar(void) {
     ecs_entity_t e = vehicle_spawn(EVEH_CAR);
     ecs_entity_t plr = camera_get().ent_id;
-    
+
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     entity_set_position(e, dest->x, dest->y);
-    
+
     debug_replay_special_action(RPKIND_SPAWN_CAR);
 }
 
@@ -25,12 +25,12 @@ void
 ActSpawnIcemaker(void) {
     ecs_entity_t e = item_spawn(ASSET_DEMO_ICEMAKER, 32);
     ecs_entity_t plr = camera_get().ent_id;
-    
+
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     entity_set_position(e, dest->x, dest->y);
-    
+
     debug_replay_special_action(RPKIND_SPAWN_ICEMAKER_ITEM);
 }
 
@@ -38,12 +38,12 @@ void
 ActSpawnChest(void) {
     ecs_entity_t e = item_spawn(ASSET_CHEST, 32);
     ecs_entity_t plr = camera_get().ent_id;
-    
+
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     entity_set_position(e, dest->x, dest->y);
-    
+
     debug_replay_special_action(RPKIND_SPAWN_CHEST);
 }
 
@@ -51,20 +51,34 @@ void
 ActSpawnBelt(void) {
     ecs_entity_t e = item_spawn(ASSET_BELT, 32);
     ecs_entity_t plr = camera_get().ent_id;
-    
+
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     entity_set_position(e, dest->x, dest->y);
-    
+
     debug_replay_special_action(RPKIND_SPAWN_BELT);
+}
+
+void
+ActSpawnDurabilityTest(void) {
+    ecs_entity_t e = item_spawn(ASSET_DEMO_ICEMAKER, 1);
+    ecs_entity_t plr = camera_get().ent_id;
+
+    Position const* origin = ecs_get(world_ecs(), plr, Position);
+    Position * dest = ecs_get_mut(world_ecs(), e, Position);
+    *dest = *origin;
+    entity_set_position(e, dest->x, dest->y);
+
+    Item *it = ecs_get_mut(world_ecs(), e, Item);
+    it->durability = (float)(rand() % 100) / 100.0f;
 }
 
 void
 ActSpawnFurnace(void) {
     ecs_entity_t e = item_spawn(ASSET_FURNACE, 32);
     ecs_entity_t plr = camera_get().ent_id;
-    
+
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
@@ -75,7 +89,7 @@ void
 ActSpawnDemoHouseItem(void) {
     ecs_entity_t e = item_spawn(ASSET_BLUEPRINT, 1);
     ecs_entity_t plr = camera_get().ent_id;
-    
+
     Position const* origin = ecs_get(world_ecs(), plr, Position);
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
@@ -87,7 +101,7 @@ ActSpawnCirclingDriver(void) {
     ecs_entity_t plr = camera_get().ent_id;
     ecs_entity_t ve = vehicle_spawn(EVEH_CAR);
     ecs_entity_t e = entity_spawn(EKIND_DEMO_NPC);
-    
+
     Position const *origin = ecs_get(world_ecs(), plr, Position);
     Position *veh_dest = ecs_get_mut(world_ecs(), ve, Position);
     Position *dest = ecs_get_mut(world_ecs(), e, Position);
@@ -95,16 +109,16 @@ ActSpawnCirclingDriver(void) {
     *dest = *origin;
     entity_set_position(ve, veh_dest->x, veh_dest->y);
     entity_set_position(e, dest->x, dest->y);
-    
+
     Input *input = ecs_get_mut(world_ecs(), e, Input);
     zpl_zero_item(input);
     input->x = input->y = 1.0f;
-    
+
     Vehicle *veh = ecs_get_mut(world_ecs(), ve, Vehicle);
     veh->seats[0] = e;
-    
+
     ecs_set(world_ecs(), e, IsInVehicle, { .veh = ve });
-    
+
     debug_replay_special_action(RPKIND_SPAWN_CIRCLING_DRIVER);
 }
 
@@ -114,14 +128,14 @@ ActPlaceIceRink(void) {
     block_id watr_id = blocks_find(ASSET_WATER);
     Position const *p = ecs_get(world_ecs(), plr, Position);
     float const bs = WORLD_BLOCK_SIZE;
-    
+
     for (int y = 0; y < 100; y++) {
         for (int x = 0; x < 100; x++) {
             world_block_lookup l = world_block_from_realpos((p->x - (x*bs)/2.0f), p->y - (y*bs)/2.0f);
             world_chunk_place_block(l.chunk_id, l.id, watr_id);
         }
     }
-    
+
     debug_replay_special_action(RPKIND_PLACE_ICE_RINK);
 }
 
@@ -130,13 +144,13 @@ ActEraseWorldChanges(void) {
     ecs_entity_t plr = camera_get().ent_id;
     Position const *p = ecs_get(world_ecs(), plr, Position);
     float const bs = WORLD_BLOCK_SIZE;
-    
+
     for (int y = 0; y < 100; y++) {
         for (int x = 0; x < 100; x++) {
             world_chunk_destroy_block((p->x - (x*bs)/2.0f), (p->y - (y*bs)/2.0f), true);
         }
     }
-    
+
     debug_replay_special_action(RPKIND_PLACE_ERASE_CHANGES);
 }
 
@@ -203,22 +217,22 @@ void
 ActReplaySaveAs(void) {
     if (!records) return;
     char const *workdir = GetWorkingDirectory();
-    
+
     sfd_Options sfd = {
         .title = "Save Macro",
         .path = "art",
         .filter_name = "eco2d Macro",
         .filter = "*.dem",
     };
-    
+
     char const *path = sfd_save_dialog(&sfd);
     ChangeDirectory(workdir);
-    
+
     if (path) {
         zpl_strcpy(replay_filename, zpl_bprintf("%s.dem", path));
         debug_replay_store();
     }
-    
+
 }
 
 void
@@ -232,17 +246,17 @@ ActReplaySave(void) {
 void
 ActReplayLoad(void) {
     char const *workdir = GetWorkingDirectory();
-    
+
     sfd_Options sfd = {
         .title = "Load Macro",
         .path = "art",
         .filter_name = "eco2d Macro",
         .filter = "*.dem",
     };
-    
+
     char const *path = sfd_open_dialog(&sfd);
     ChangeDirectory(workdir);
-    
+
     if (path) {
         zpl_zero_size(replay_filename, sizeof(replay_filename));
         zpl_strcpy(replay_filename, path);
@@ -258,18 +272,18 @@ void
 ActSpawnDemoNPCs(void) {
     if (!demo_npcs) zpl_array_init(demo_npcs, zpl_heap());
     if (zpl_array_count(demo_npcs) >= 100000) return;
-    
+
     for (uint32_t i = 0; i < 1000; i++) {
         uint64_t e = entity_spawn(EKIND_DEMO_NPC);
         ecs_add(world_ecs(), e, DemoNPC);
         Position *pos = ecs_get_mut(world_ecs(), e, Position);
         pos->x=(float)(rand() % world_dim());
-        pos->y=(float)(rand() % world_dim());        
-        
+        pos->y=(float)(rand() % world_dim());
+
         Velocity *v = ecs_get_mut(world_ecs(), e, Velocity);
         v->x = (float)((rand()%3-1) * 10);
         v->y = (float)((rand()%3-1) * 10);
-        
+
         zpl_array_append(demo_npcs, e);
     }
 }
@@ -277,9 +291,9 @@ ActSpawnDemoNPCs(void) {
 void
 ActDespawnDemoNPCs(void) {
     if (!demo_npcs) return;
-    
+
     entity_batch_despawn(demo_npcs, zpl_array_count(demo_npcs));
-    
+
     zpl_array_free(demo_npcs);
     demo_npcs = 0;
 }

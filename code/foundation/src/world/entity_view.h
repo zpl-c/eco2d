@@ -62,6 +62,7 @@ typedef struct entity_view {
     // NOTE(zaklaus): items, ...
     asset_id asset;
     uint32_t quantity;
+    float durability;
 
     // NOTE(zaklaus): device progress bar
     uint32_t progress_active;

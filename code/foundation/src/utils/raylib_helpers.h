@@ -11,6 +11,16 @@
 static inline float lerp(float a, float b, float t) { return a * (1.0f - t) + b * t; }
 
 static inline
+Color BlendColor(Color a, Color b, float t) {
+    return (Color) {
+        .r = (uint8_t)(lerp((float)(a.r)/255.0f, (float)(b.r)/255.0f, t) * 255),
+        .g = (uint8_t)(lerp((float)(a.g)/255.0f, (float)(b.g)/255.0f, t) * 255),
+        .b = (uint8_t)(lerp((float)(a.b)/255.0f, (float)(b.b)/255.0f, t) * 255),
+        .a = (uint8_t)(lerp((float)(a.a)/255.0f, (float)(b.a)/255.0f, t) * 255),
+    };
+}
+
+static inline
 Texture2D LoadTexEco(const char *name) {
     static char filename[128];
     zpl_snprintf(filename,  128, "art/gen/%s.png", name);

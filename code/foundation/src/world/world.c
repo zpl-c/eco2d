@@ -63,6 +63,7 @@ entity_view *world_build_entity_view(int64_t e) {
         Item const* dr = ecs_get(world_ecs(), e, Item);
         view.asset = dr->kind;
         view.quantity = dr->quantity;
+        view.durability = dr->durability;
     }
 
     if (ecs_get(world_ecs(), e, Device)) {
