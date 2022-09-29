@@ -5,12 +5,12 @@
 
 #include "ecs/components.h"
 
-uint64_t device_spawn(asset_id id) {    
+uint64_t device_spawn(asset_id id) {
     ecs_entity_t e = entity_spawn(EKIND_DEVICE);
-    
+
     Device *dev = ecs_get_mut(world_ecs(), e, Device);
     dev->asset = id;
-    
+
     return (uint64_t)e;
 }
 

@@ -16,7 +16,7 @@
 #include "packets/pkt_00_init.h"
 #include "world/world.h"
 #include "core/game.h"
-#include "ents/player.h"
+#include "ents/prefabs/player.h"
 
 #include "ecs/components.h"
 

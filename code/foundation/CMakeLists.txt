@@ -10,11 +10,12 @@ add_library(eco2d-foundation STATIC
 
     src/ents/items.c
     src/ents/entity.c
-    src/ents/player.c
-    src/ents/vehicle.c
-    src/ents/storage.c
     src/ents/device.c
-    src/ents/furnace.c
+
+    src/ents/prefabs/player.c
+    src/ents/prefabs/vehicle.c
+    src/ents/prefabs/storage.c
+    src/ents/prefabs/furnace.c
 
     src/pkt/packet.c
 

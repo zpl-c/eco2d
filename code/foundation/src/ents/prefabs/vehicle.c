@@ -1,5 +1,5 @@
-#include "ents/vehicle.h"
-#include "ents/entity.h"
+#include "vehicle.h"
+
 #include "world/entity_view.h"
 #include "world/world.h"
 

@@ -1,8 +1,5 @@
-#include "ents/furnace.h"
+#include "furnace.h"
 #include "ents/device.h"
-#include "ents/entity.h"
-#include "world/entity_view.h"
-#include "world/world.h"
 
 #include "ecs/components.h"
 

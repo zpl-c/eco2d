@@ -1,14 +1,12 @@
-#include "ents/storage.h"
+#include "storage.h"
 #include "ents/device.h"
-#include "ents/entity.h"
-#include "world/entity_view.h"
 #include "world/world.h"
 
 #include "ecs/components.h"
 
-uint64_t storage_spawn(void) {    
+uint64_t storage_spawn(void) {
     ecs_entity_t e = device_spawn(ASSET_CHEST);
-    
+
     ItemContainer *storage = ecs_get_mut(world_ecs(), e, ItemContainer);
     *storage = (ItemContainer){0};
     return (uint64_t)e;

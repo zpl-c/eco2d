@@ -1,7 +1,7 @@
 #include "debug/debug_ui.h"
 #include "debug/debug_draw.h"
 #include "raylib.h"
-#include "ents/vehicle.h"
+#include "ents/prefabs/vehicle.h"
 #include "core/camera.h"
 #include "world/world.h"
 #include "core/game.h"

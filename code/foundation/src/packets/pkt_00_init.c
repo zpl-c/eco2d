@@ -6,7 +6,7 @@
 #include "net/network.h"
 #include "world/entity_view.h"
 #include "core/camera.h"
-#include "ents/player.h"
+#include "ents/prefabs/player.h"
 #include "ents/entity.h"
 
 #include "ecs/components.h"

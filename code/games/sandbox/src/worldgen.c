@@ -9,7 +9,7 @@
 
 #include "ecs/components.h"
 #include "ents/entity.h"
-#include "ents/vehicle.h"
+#include "ents/prefabs/vehicle.h"
 #include "ents/items.h"
 #include "world/blocks_info.h"
 
