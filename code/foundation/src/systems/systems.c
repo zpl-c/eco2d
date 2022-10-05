@@ -194,16 +194,24 @@ void DisableWorldEdit(ecs_iter_t *it) {
     world_set_stage(NULL);
 }
 
+#define ECO2D_TICK_RATE (1.0f/20.f)
+
+#define ECS_SYSTEM_TICKED(world, id, stage, ...)\
+    ECS_SYSTEM(world, id, stage, __VA_ARGS__);\
+    ecs_set_tick_source(world, id, timer);
+
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
+
+    ecs_entity_t timer = ecs_set_interval(ecs, 0, ECO2D_TICK_RATE);
 
     ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.DemoNPC);
 
     ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
-    ECS_SYSTEM(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
-    ECS_SYSTEM(ecs, RegenerateHP, EcsOnUpdate, components.Health);
+    ECS_SYSTEM_TICKED(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
+    ECS_SYSTEM_TICKED(ecs, RegenerateHP, EcsOnUpdate, components.Health);
     ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
 
     ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
@@ -218,9 +226,10 @@ void SystemsImport(ecs_world_t *ecs) {
     //ECS_SYSTEM(ecs, MergeItems, EcsPostUpdate, components.Position, components.ItemDrop);
     ECS_SYSTEM(ecs, UseItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, InspectContainers, EcsPostUpdate, components.Input, !components.IsInVehicle);
-    ECS_SYSTEM(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position, [none] !components.BlockHarvest);
-    ECS_SYSTEM(ecs, ProduceItems, EcsPostUpdate, components.ItemContainer, components.Producer, components.Position, components.Device);
-    ECS_SYSTEM(ecs, BuildBlueprints, EcsPostUpdate, components.Blueprint, components.Device, components.Position);
+
+    ECS_SYSTEM_TICKED(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position, !components.BlockHarvest);
+    ECS_SYSTEM_TICKED(ecs, ProduceItems, EcsPostUpdate, components.ItemContainer, components.Producer, components.Position, components.Device);
+    ECS_SYSTEM_TICKED(ecs, BuildBlueprints, EcsPostUpdate, components.Blueprint, components.Device, components.Position);
 
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
 

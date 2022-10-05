@@ -1,7 +1,7 @@
 #pragma once
 #include "platform/system.h"
 
-#define ENTITY_ACTION_VELOCITY_THRESHOLD 0.05f
+#define ENTITY_ACTION_VELOCITY_THRESHOLD 0.001f
 
 uint64_t entity_spawn(uint16_t class_id /* 0 = no streaming */);
 uint64_t entity_spawn_id(uint16_t id);
