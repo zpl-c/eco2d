@@ -19,9 +19,13 @@
 #include "modules/system_producer.c"
 #include "modules/system_blueprint.c"
 
-static inline float physics_correction(float x, float vx, float bounce) {
-    float r = (((zpl_max(0.0f, (WORLD_BLOCK_SIZE/2.0f) - zpl_abs(x))*zpl_sign(x)))*(WORLD_BLOCK_SIZE/2.0f));
+static inline float physics_correction(float x, float vx, float bounce, float dim) {
+    float r = (((zpl_max(0.0f, dim - zpl_abs(x))*zpl_sign(x)))*dim);
     return r + (-vx*bounce);
+}
+
+static inline bool physics_check_aabb(float a1x, float a2x, float a1y, float a2y, float b1x, float b2x, float b1y, float b2y) {
+    return (a1x < b2x && a2x > b1x && a1y < b2y && a2y > b1y);
 }
 
 void IntegratePositions(ecs_iter_t *it) {
@@ -47,8 +51,15 @@ void IntegratePositions(ecs_iter_t *it) {
                     world_block_lookup lookup = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y);
                     uint32_t flags = blocks_get_flags(lookup.bid);
                     float bounce = blocks_get_bounce(lookup.bid);
-                    if (flags & BLOCK_FLAG_COLLISION) {
-                        v[i].x = physics_correction(lookup.ox, v[i].x, bounce);
+                    if (flags & BLOCK_FLAG_COLLISION && physics_check_aabb(p[i].x-WORLD_BLOCK_SIZE/4, p[i].x+WORLD_BLOCK_SIZE/4, p[i].y-0.5f, p[i].y+0.5f, lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2)) {
+                        #if 1
+                        {
+                            debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4 + PHY_LOOKAHEAD(v[i].x), p[i].y-0.5f};
+                            debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4 + PHY_LOOKAHEAD(v[i].x), p[i].y+0.5f};
+                            debug_push_rect(a, b, 0xFF0000FF);
+                        }
+                        #endif
+                        v[i].x = physics_correction(lookup.ox, v[i].x, bounce, WORLD_BLOCK_SIZE/2);
                     }
                 }
 
@@ -57,8 +68,22 @@ void IntegratePositions(ecs_iter_t *it) {
                     world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y+PHY_LOOKAHEAD(v[i].y));
                     uint32_t flags = blocks_get_flags(lookup.bid);
                     float bounce = blocks_get_bounce(lookup.bid);
-                    if (flags & BLOCK_FLAG_COLLISION) {
-                        v[i].y = physics_correction(lookup.oy, v[i].y, bounce);
+                    #if 0
+                    {
+                        debug_v2 a = {lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2};
+                        debug_v2 b = {lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2};
+                        debug_push_rect(a, b, 0xFFFFFFFF);
+                    }
+                    #endif
+                    if (flags & BLOCK_FLAG_COLLISION && physics_check_aabb(p[i].x-WORLD_BLOCK_SIZE/4, p[i].x+WORLD_BLOCK_SIZE/4, p[i].y-0.5f, p[i].y+0.5f, lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2)) {
+                        #if 1
+                        {
+                            debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4, p[i].y-0.5f + PHY_LOOKAHEAD(v[i].y)};
+                            debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4, p[i].y+0.5f + PHY_LOOKAHEAD(v[i].y)};
+                            debug_push_rect(a, b, 0xFF0000FF);
+                        }
+                        #endif
+                        v[i].y = physics_correction(lookup.oy, v[i].y, bounce, WORLD_BLOCK_SIZE/4);
                     }
                 }
     #endif
@@ -70,6 +95,12 @@ void IntegratePositions(ecs_iter_t *it) {
                 debug_v2 a = {p[i].x, p[i].y};
                 debug_v2 b = {p[i].x+v[i].x, p[i].y+v[i].y};
                 debug_push_line(a, b, 0xFFFFFFFF);
+            }
+
+            {
+                debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4, p[i].y-0.5f};
+                debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4, p[i].y+0.5f};
+                debug_push_rect(a, b, 0xFFFFFFFF);
             }
         }
     }

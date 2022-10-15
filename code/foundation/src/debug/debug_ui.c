@@ -232,6 +232,7 @@ static debug_item items[] = {
                 { .kind = DITEM_RAW, .val = PROF_UPDATE_SYSTEMS, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_ENTITY_LERP, .proc = DrawProfilerDelta },
                 { .kind = DITEM_RAW, .val = PROF_INTEGRATE_POS, .proc = DrawProfilerDelta },
+                { .kind = DITEM_RAW, .val = PROF_RENDER_PUSH_AND_SORT_ENTRIES, .proc = DrawProfilerDelta },
                 { .kind = DITEM_END },
             },
             .is_collapsed = 1

@@ -488,6 +488,10 @@ world_block_lookup world_block_from_realpos(float x, float y) {
     float box = chx - bx * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
     float boy = chy - by * WORLD_BLOCK_SIZE - WORLD_BLOCK_SIZE/2.0f;
 
+    // NOTE(zaklaus): absolute pos in world.
+    float abox = (uint16_t)(x / WORLD_BLOCK_SIZE) * (float)WORLD_BLOCK_SIZE + WORLD_BLOCK_SIZE/2.0f;
+    float aboy = (uint16_t)(y / WORLD_BLOCK_SIZE) * (float)WORLD_BLOCK_SIZE + WORLD_BLOCK_SIZE/2.0f;
+
     world_block_lookup lookup = {
         .id = block_idx,
         .bid = bid,
@@ -495,6 +499,8 @@ world_block_lookup world_block_from_realpos(float x, float y) {
         .chunk_e = e,
         .ox = box,
         .oy = boy,
+        .aox = abox,
+        .aoy = aboy,
         .is_outer = is_outer,
     };
 

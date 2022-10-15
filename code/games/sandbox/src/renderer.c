@@ -41,7 +41,7 @@ void DEBUG_draw_overlay(uint64_t key, entity_view * data) {
 
 extern bool inv_is_open;
 
-void renderer_draw_entry(uint64_t key, entity_view *data) {
+void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entry* entry) {
     float size = 16.f;
 
     switch (data->kind) {
@@ -53,19 +53,14 @@ void renderer_draw_entry(uint64_t key, entity_view *data) {
             float x = data->x * size + offset;
             float y = data->y * size + offset;
 
-            RenderTexture2D tex = GetChunkTexture(key);
-            float scale = (size)/(float)(tex.texture.width);
-            tex.texture.width *= (int32_t)scale;
-            tex.texture.height *= (int32_t)scale;
-            DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
-
-            for (size_t ty = 0; ty < view->chunk_size; ty++) {
-                for (size_t tx = 0; tx < view->chunk_size; tx++) {
-                    block_id blk_id = data->outer_blocks[(ty*view->chunk_size)+tx];
-                    if (blk_id != 0) {
-                        DrawTextureRec(GetBlockImage(blk_id), ASSET_SRC_RECT(), (Vector2){x+tx*WORLD_BLOCK_SIZE, y+ty*WORLD_BLOCK_SIZE}, ColorAlpha(WHITE, data->tran_time));
-                    }
-                }
+            if (entry == NULL) {
+                RenderTexture2D tex = GetChunkTexture(key);
+                float scale = (size)/(float)(tex.texture.width);
+                tex.texture.width *= (int32_t)scale;
+                tex.texture.height *= (int32_t)scale;
+                DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
+            } else {
+                DrawTextureRec(GetBlockImage(entry->blk_id), ASSET_SRC_RECT(), (Vector2){entry->x-(WORLD_BLOCK_SIZE/2), entry->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
             }
         }break;
         case EKIND_VEHICLE: {
@@ -94,15 +89,25 @@ void renderer_draw_entry(uint64_t key, entity_view *data) {
         case EKIND_DEMO_NPC: {
             float x = data->x;
             float y = data->y;
+            if (!data->inside_vehicle) {
+                DrawCircleEco(x, y, size, ColorAlpha(BLUE, data->tran_time));
+            } else {
+                y -= 32.f;
+            }
             DrawNametag("Demo", key, data, x, y);
-            DrawCircleEco(x, y, size, ColorAlpha(BLUE, data->tran_time));
         }break;
         case EKIND_PLAYER: {
             float x = data->x;
             float y = data->y;
             float health = (data->hp / data->max_hp);
+
+            if (!data->inside_vehicle) {
+                DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
+            } else {
+                y -= 32.f;
+            }
+
             DrawNametag("Player", key, data, x, y);
-            DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
 
             if (data->has_items && !data->inside_vehicle) {
                 float ix = data->x;
@@ -120,6 +125,11 @@ void renderer_draw_entry(uint64_t key, entity_view *data) {
         case EKIND_MACRO_BOT: {
             float x = data->x;
             float y = data->y;
+            if (!data->inside_vehicle) {
+                DrawCircleEco(x, y, size, ColorAlpha(GREEN, data->tran_time));
+            } else {
+                y -= 32.f;
+            }
             DrawNametag("Bot", key, data, x, y);
         }break;
         case EKIND_ITEM: {

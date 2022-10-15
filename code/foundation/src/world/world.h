@@ -83,6 +83,7 @@ typedef struct {
     ecs_entity_t chunk_e;
     int64_t chunk_id;
     float ox, oy;
+    float aox, aoy;
     bool is_outer;
 } world_block_lookup;
 
