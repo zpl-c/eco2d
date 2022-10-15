@@ -22,6 +22,8 @@ add_library(eco2d-foundation STATIC
 
     src/pkt/packet.c
 
+    src/gen/texgen_fallback.c
+
     src/debug/debug_ui.c
     src/debug/debug_draw.c
 
