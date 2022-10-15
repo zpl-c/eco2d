@@ -9,17 +9,18 @@ float zpl_lerp(float,float,float);
 float zpl_to_degrees(float);
 
 void DrawNametag(const char* name, uint64_t key, entity_view *data, float x, float y) {
-    float size = 16.f;
-    float font_size = lerp(4.0f, 32.0f, 0.5f/1.0f);//(float)render_camera.zoom);
+    float size = 72.f;
+    float font_size = lerp(12.0f, 72.0f, 0.5f/1.0f);//(float)render_camera.zoom);
     float font_spacing = 1.1f;
     float title_bg_offset = 4;
     float fixed_title_offset = 8.f;
     float health = (data->hp / data->max_hp);
     const char *title = TextFormat("%s %llu", name, key);
     float title_w = MeasureTextEco(title, font_size, font_spacing);
-    DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
-    DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
+    Draw3DRectangle(render_camera, x-title_w/2.f-title_bg_offset/2.f, y, size+font_size+fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
+    Draw3DRectangle(render_camera, x-title_w/2.f-title_bg_offset/2.f, y, size+fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
     DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing);
+    DrawText3D(GetFontDefault(), title, (Vector3){x-title_w/2.f, 64.f, y}, 24.f, 12.0f, 1.3f, true, WHITE);
 }
 
 void DEBUG_draw_ground(uint64_t key, entity_view * data) {
@@ -40,7 +41,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
             tex.texture.height *= (int32_t)scale;
             // DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
             DrawCubeTexture(tex.texture, (Vector3){x+half_size, 0.0f, y+half_size}, size, 0.01f, size, WHITE);
-            DrawCubeWires((Vector3){x, 0.f, y}, WORLD_BLOCK_SIZE*view->chunk_size, 66, WORLD_BLOCK_SIZE*view->chunk_size, BLUE);
+//            DrawCubeWires((Vector3){x, 0.f, y}, WORLD_BLOCK_SIZE*view->chunk_size, 66, WORLD_BLOCK_SIZE*view->chunk_size, BLUE);
 
             for (size_t ty = 0; ty < view->chunk_size; ty++) {
                 for (size_t tx = 0; tx < view->chunk_size; tx++) {
@@ -97,6 +98,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     float bl_size = (float)(view->chunk_size * WORLD_BLOCK_SIZE);
     float half_size = bl_size / 2.0f;
     float half_block_size = (float)(WORLD_BLOCK_SIZE >> 1);
+    Texture2D sprite_tex = GetSpriteTexture2D(assets_find(data->asset));
 
     switch (data->kind) {
         case EKIND_DEMO_NPC: {
@@ -136,11 +138,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             float y = data->y - 32.f;
             // DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
             // DrawCubeTexture(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, 32.0f, y + half_block_size}, 64, 0.01f, 64, WHITE);
-            DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, half_block_size/2, y + half_block_size}, 32, 0.01f, 32, WHITE);
-
-            if (data->asset == ASSET_BIG_TREE) {
-                DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, 150, y + half_block_size}, 300, 0.01f, 300, WHITE);
-            }
+            Draw3DBillboard(render_camera, sprite_tex, (Vector3){x + half_block_size, 32.0f, y + half_block_size}, 64.0f, WHITE);
 
             if (data->quantity > 1) {
                 DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);
@@ -154,8 +152,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
         case EKIND_DEVICE: {
             float x = data->x - 32.f;
             float y = data->y - 32.f;
-            // DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
-            DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, 32, y + half_block_size}, 64, 0.01f, 64, WHITE);
+            Draw3DBillboard(render_camera, sprite_tex, (Vector3){x + half_block_size, 32.0f, y + half_block_size}, 64.0f, WHITE);
 
             if (data->quantity > 1) {
                 DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);
@@ -207,8 +204,8 @@ void renderer_draw(void) {
 
     camera game_camera = camera_get();
 #if 1
-    render_camera.position = (Vector3){(float)game_camera.x, 260.0f*(10.0f-cam_zoom), (float)game_camera.y+50.0f*(10.0f-cam_zoom/2.0f)};
-    render_camera.target = (Vector3){(float)game_camera.x, 0.0f, (float)game_camera.y};
+    render_camera.position = (Vector3){(float)game_camera.x, 260.0f*(10.0f-cam_zoom)+30.0f, (float)game_camera.y-50.0f*(10.0f-cam_zoom/2.0f)};
+    render_camera.target = (Vector3){(float)game_camera.x, 30.0f, (float)game_camera.y};
 #else
     UpdateCamera(&render_camera);
 #endif

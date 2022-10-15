@@ -61,10 +61,10 @@ void platform_input() {
     {
         float x=0.0f, y=0.0f;
         uint8_t use, sprint, drop, ctrl, pick;
-        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
-        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
-        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y += 1.0f;
-        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y -= 1.0f;
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x -= 1.0f;
+        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x += 1.0f;
+        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y -= 1.0f;
+        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y += 1.0f;
 
         use = IsKeyPressed(KEY_SPACE);
         sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
@@ -77,6 +77,8 @@ void platform_input() {
         mouse_pos.y /= screenHeight;
         mouse_pos.x -= 0.5f;
         mouse_pos.y -= 0.5f;
+        mouse_pos.x = screenWidth - mouse_pos.x;
+        mouse_pos.y = screenHeight - mouse_pos.y;
         mouse_pos = Vector2Normalize(mouse_pos);
 
         if (game_get_kind() == GAMEKIND_SINGLE && IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {

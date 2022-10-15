@@ -98,6 +98,8 @@ void platform_get_block_realpos(float *x, float *y){
     entity_view *e = game_world_view_active_get_entity(cam.ent_id);
     if (!e) return;
     float zoom = renderer_zoom_get();
+    mpos.x = screenWidth-mpos.x;
+    mpos.y = screenHeight-mpos.y;
     mpos.x -= screenWidth/2.0f;
     mpos.y -= screenHeight/2.0f;
     cam.x += mpos.x*(1.0f/zoom);
