@@ -8,6 +8,7 @@ typedef enum {
     ASSET_BLANK,
     ASSET_BLOCK_FRAME,
     ASSET_BUILDMODE_HIGHLIGHT,
+    ASSET_BIG_TREE,
 
     // NOTE(zaklaus): entities
     ASSET_PLAYER,

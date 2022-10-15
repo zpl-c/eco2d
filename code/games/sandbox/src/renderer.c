@@ -40,6 +40,7 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
             tex.texture.height *= (int32_t)scale;
             // DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
             DrawCubeTexture(tex.texture, (Vector3){x+half_size, 0.0f, y+half_size}, size, 0.01f, size, WHITE);
+            DrawCubeWires((Vector3){x, 0.f, y}, WORLD_BLOCK_SIZE*view->chunk_size, 66, WORLD_BLOCK_SIZE*view->chunk_size, BLUE);
 
             for (size_t ty = 0; ty < view->chunk_size; ty++) {
                 for (size_t tx = 0; tx < view->chunk_size; tx++) {
@@ -137,6 +138,10 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             // DrawCubeTexture(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, 32.0f, y + half_block_size}, 64, 0.01f, 64, WHITE);
             DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, half_block_size/2, y + half_block_size}, 32, 0.01f, 32, WHITE);
 
+            if (data->asset == ASSET_BIG_TREE) {
+                DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, 150, y + half_block_size}, 300, 0.01f, 300, WHITE);
+            }
+
             if (data->quantity > 1) {
                 DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);
             }
@@ -150,7 +155,7 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
             float x = data->x - 32.f;
             float y = data->y - 32.f;
             // DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
-            DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, half_block_size/2, y + half_block_size}, 64, 0.01f, 64, WHITE);
+            DrawSpriteTextureEco(GetSpriteTexture2D(assets_find(data->asset)), (Vector3){x + half_block_size, 32, y + half_block_size}, 64, 0.01f, 64, WHITE);
 
             if (data->quantity > 1) {
                 DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);
@@ -239,7 +244,7 @@ void renderer_init(void) {
     // render_camera.rotation = 0.0f;
     // render_camera.zoom = 2.9f;
 
-    render_camera.up = (Vector3){0.0f,0.0f,-1.0f};
+    render_camera.up = (Vector3){0.0f,1.0f,0.0f};
     render_camera.fovy = 45.f;
     render_camera.projection = CAMERA_PERSPECTIVE;
 

@@ -21,6 +21,7 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
         case ASSET_BLANK: return GenColorEco(WHITE); break;
         case ASSET_BUILDMODE_HIGHLIGHT: return GenColorEco(WHITE); break;
         case ASSET_BLOCK_FRAME: return GenFrameRect(); break;
+        case ASSET_BIG_TREE: return LoadTexEco("bigtree"); break;
 
         // NOTE(zaklaus): items
         case ASSET_COAL: return LoadTexEco("coal");
