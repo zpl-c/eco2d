@@ -175,7 +175,7 @@ void debug_replay_run(void) {
 void ActPlaceIceRink(void);
 void ActSpawnCirclingDriver(void);
 void ActEraseWorldChanges(void);
-void ActSpawnIcemaker(void);
+void ActSpawnCoal(void);
 void ActSpawnChest(void);
 void ActSpawnBelt(void);
 
@@ -226,7 +226,7 @@ void debug_replay_update(void) {
             ActEraseWorldChanges();
         }break;
         case RPKIND_SPAWN_ICEMAKER_ITEM:{
-            ActSpawnIcemaker();
+            ActSpawnCoal();
         }break;
         case RPKIND_SPAWN_CHEST:{
             ActSpawnChest();

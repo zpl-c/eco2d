@@ -23,7 +23,8 @@ Texture2D texgen_build_sprite(asset_id id) {
         case ASSET_BLOCK_FRAME: return GenFrameRect(); break;
 
         // NOTE(zaklaus): items
-        case ASSET_DEMO_ICEMAKER: return LoadTexEco("demo_icemaker");
+        case ASSET_COAL: return LoadTexEco("coal");
+        case ASSET_BLUEPRINT: return LoadTexEco("blueprint");
 
         // NOTE(zaklaus): blocks
         case ASSET_FENCE: return LoadTexEco("fence");

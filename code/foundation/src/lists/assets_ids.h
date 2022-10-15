@@ -17,7 +17,6 @@ typedef enum {
     ASSET_BLUEPRINT,
 
     // NOTE(zaklaus): items
-    ASSET_DEMO_ICEMAKER,
 
     // NOTE(zaklaus): blocks
     ASSET_FENCE,
