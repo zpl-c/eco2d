@@ -21,7 +21,29 @@ void DrawNametag(const char* name, uint64_t key, entity_view *data, float x, flo
     DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing);
 }
 
-void DEBUG_draw_ground(uint64_t key, entity_view * data) {
+void DEBUG_draw_overlay(uint64_t key, entity_view * data) {
+    switch (data->kind) {
+        case EKIND_CHUNK: {
+            world_view *view = game_world_view_get_active();
+            float size = (float)(view->chunk_size * WORLD_BLOCK_SIZE);
+            float offset = 0.0;
+
+            float x = data->x * size + offset;
+            float y = data->y * size + offset;
+
+            DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV((float)data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
+            DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), x+15.0f, y+15.0f, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0);
+        }break;
+
+        default:break;
+    }
+}
+
+extern bool inv_is_open;
+
+void renderer_draw_entry(uint64_t key, entity_view *data) {
+    float size = 16.f;
+
     switch (data->kind) {
         case EKIND_CHUNK: {
             world_view *view = game_world_view_get_active();
@@ -46,35 +68,29 @@ void DEBUG_draw_ground(uint64_t key, entity_view * data) {
                 }
             }
         }break;
-
-        default:break;
-    }
-}
-
-void DEBUG_draw_overlay(uint64_t key, entity_view * data) {
-    switch (data->kind) {
-        case EKIND_CHUNK: {
-            world_view *view = game_world_view_get_active();
-            float size = (float)(view->chunk_size * WORLD_BLOCK_SIZE);
-            float offset = 0.0;
-
-            float x = data->x * size + offset;
-            float y = data->y * size + offset;
-
-            DrawRectangleEco(x, y, size-offset, size-offset, ColorAlpha(ColorFromHSV((float)data->color, 0.13f, 0.89f), data->tran_time*zoom_overlay_tran*0.75f));
-            DrawTextEco(TextFormat("%d %d", (int)data->x, (int)data->y), x+15.0f, y+15.0f, 200 , ColorAlpha(BLACK, data->tran_time*zoom_overlay_tran), 0.0);
+        case EKIND_VEHICLE: {
+            float x = data->x;
+            float y = data->y;
+            float const w = (float)(data->veh_kind == 0 ? 80 : data->veh_kind == 1 ? 120 : 135);
+            float const h = 50;
+            Color color = data->veh_kind == 0 ? RED : data->veh_kind == 1 ? GREEN : BLUE;
+            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(color, data->tran_time));
         }break;
+        case EKIND_DEVICE:{
+            float x = data->x - 32.f;
+            float y = data->y - 32.f;
+            DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
 
-        default:break;
-    }
-}
-
-extern bool inv_is_open;
-
-void DEBUG_draw_entities(uint64_t key, entity_view * data) {
-    float size = 16.f;
-
-    switch (data->kind) {
+            if (data->progress_active) {
+                float w = 64.f;
+                float h = 8.f;
+                float p = data->progress_value;
+                float x = data->x - w/2.f;
+                float y = data->y - 32.f - h;
+                DrawRectangleEco(x, y, w, h, ColorAlpha(BLACK, data->tran_time));
+                DrawRectangleEco(x, y, w*p, h, ColorAlpha(GREEN, data->tran_time));
+            }
+        }break;
         case EKIND_DEMO_NPC: {
             float x = data->x;
             float y = data->y;
@@ -124,37 +140,6 @@ void DEBUG_draw_entities(uint64_t key, entity_view * data) {
     }
 }
 
-void DEBUG_draw_entities_low(uint64_t key, entity_view * data) {
-    (void)key;
-
-    switch (data->kind) {
-        case EKIND_VEHICLE: {
-            float x = data->x;
-            float y = data->y;
-            float const w = (float)(data->veh_kind == 0 ? 80 : data->veh_kind == 1 ? 120 : 135);
-            float const h = 50;
-            Color color = data->veh_kind == 0 ? RED : data->veh_kind == 1 ? GREEN : BLUE;
-            DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(color, data->tran_time));
-        }break;
-        case EKIND_DEVICE:{
-            float x = data->x - 32.f;
-            float y = data->y - 32.f;
-            DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
-
-            if (data->progress_active) {
-                float w = 64.f;
-                float h = 8.f;
-                float p = data->progress_value;
-                float x = data->x - w/2.f;
-                float y = data->y - 32.f - h;
-                DrawRectangleEco(x, y, w, h, ColorAlpha(BLACK, data->tran_time));
-                DrawRectangleEco(x, y, w*p, h, ColorAlpha(GREEN, data->tran_time));
-            }
-        }break;
-        default:break;
-    }
-}
-
 void renderer_draw(void) {
     render_camera.offset = (Vector2){(float)(screenWidth >> 1), (float)(screenHeight >> 1)};
     render_camera.zoom = zpl_lerp(render_camera.zoom, target_zoom, GetFrameTime()*2.9978f);
@@ -167,9 +152,8 @@ void renderer_draw(void) {
 
     ClearBackground(GetColor(0x222034));
     BeginMode2D(render_camera);
-    game_world_view_active_entity_map(DEBUG_draw_ground);
-    game_world_view_active_entity_map(DEBUG_draw_entities_low);
-    game_world_view_active_entity_map(DEBUG_draw_entities);
+
+    game_world_view_render_world();
 
     if (zoom_overlay_tran > 0.02f) {
         game_world_view_active_entity_map(DEBUG_draw_overlay);

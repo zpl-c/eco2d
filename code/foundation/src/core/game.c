@@ -10,6 +10,7 @@
 #include "world/entity_view.h"
 #include "core/camera.h"
 #include "platform/profiler.h"
+#include "platform/renderer.h"
 
 #include "flecs/flecs_os_api_stdcpp.h"
 #include "flecs.h"
@@ -265,5 +266,46 @@ void game_request_close() {
     game_should_close = true;
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_request_close();
+    }
+}
+
+typedef struct {
+    uint64_t key;
+    entity_view *data;
+    zpl_f32 y;
+} game_world_render_entry;
+
+static game_world_render_entry* render_queue = NULL;
+
+static void game__world_view_render_push_entry(uint64_t key, entity_view * data) {
+    if (data->kind == EKIND_CHUNK) return;
+    if (!data) return;
+
+    game_world_render_entry entry = {
+        .key = key,
+        .data = data,
+        .y = data->y,
+    };
+    zpl_array_append(render_queue, entry);
+}
+
+static void game__world_view_render_ground(uint64_t key, entity_view * data) {
+    if (data->kind != EKIND_CHUNK) return;
+    renderer_draw_entry(key, data);
+}
+
+void game_world_view_render_world(void) {
+    if (!render_queue) {
+        zpl_array_init(render_queue, zpl_heap());
+    }
+
+    zpl_array_clear(render_queue);
+    game_world_view_active_entity_map(game__world_view_render_push_entry);
+    zpl_sort_array(render_queue, zpl_array_count(render_queue), zpl_f32_cmp(zpl_offset_of(game_world_render_entry, y)));
+
+    game_world_view_active_entity_map(game__world_view_render_ground);
+
+    for (zpl_isize i = 0; i < zpl_array_count(render_queue); i++) {
+        renderer_draw_entry(render_queue[i].key, render_queue[i].data);
     }
 }
