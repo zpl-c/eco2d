@@ -252,3 +252,34 @@ void DrawRectangleLinesEco(float posX, float posY, float width, float height, Co
     rlVertex2f(posX + 1, posY + 1);
     rlEnd();
 }
+
+static inline
+void DrawSpriteTextureEco(Texture2D texture, Vector3 position, float width, float height, float length, Color color) {
+    float x = position.x;
+    float y = position.y;
+    float z = position.z;
+
+    Vector3 rotationAxis = {1.0f, 0.f, 0.f};
+
+    // NOTE: Plane is always created on XZ ground
+    rlSetTexture(texture.id);
+
+    rlPushMatrix();
+        rlTranslatef(position.x, position.y, position.z);
+        rlRotatef(25.f, rotationAxis.x, rotationAxis.y, rotationAxis.z);
+        rlScalef(width, height, length);
+
+        rlBegin(RL_QUADS);
+            rlColor4ub(color.r, color.g, color.b, color.a);
+
+            // Top Face
+            rlNormal3f(0.0f, 1.0f, 0.0f);                  // Normal Pointing Up
+            rlTexCoord2f(0.0f, 0.0f); rlVertex3f(-0.5f, 0.0f, -0.5f);  // Top Left Of The Texture and Quad
+            rlTexCoord2f(0.0f, 1.0f); rlVertex3f(-0.5f, 0.0f, 0.5f);  // Bottom Left Of The Texture and Quad
+            rlTexCoord2f(1.0f, 1.0f); rlVertex3f(0.5f, 0.0f, 0.5f);  // Bottom Right Of The Texture and Quad
+            rlTexCoord2f(1.0f, 0.0f); rlVertex3f(0.5f, 0.0f, -0.5f);  // Top Right Of The Texture and Quad
+        rlEnd();
+    rlPopMatrix();
+
+    rlSetTexture(0);
+}
