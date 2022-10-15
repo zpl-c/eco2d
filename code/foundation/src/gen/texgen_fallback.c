@@ -46,7 +46,7 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
 
         // NOTE(zaklaus): devices
         case ASSET_CHEST: return LoadTexEco("chest");
-        case ASSET_FURNACE: return LoadTexEco("furnace");
+        case ASSET_FURNACE: return LoadTexEco("furnace-export");
 
         default: return GenColorEco(PINK); break;
     }
