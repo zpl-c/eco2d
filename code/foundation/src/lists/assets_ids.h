@@ -34,6 +34,7 @@ typedef enum {
     ASSET_COAL,
     ASSET_IRON_ORE,
     ASSET_IRON_INGOT,
+    ASSET_TEST_TALL,
 
     ASSET_BELT,
     ASSET_BELT_LEFT,

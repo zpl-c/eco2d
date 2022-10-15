@@ -60,7 +60,8 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
                 tex.texture.height *= (int32_t)scale;
                 DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
             } else {
-                DrawTextureRec(GetBlockImage(entry->blk_id), ASSET_SRC_RECT(), (Vector2){entry->x-(WORLD_BLOCK_SIZE/2), entry->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
+                Texture2D tex = GetBlockImage(entry->blk_id);
+                DrawTextureRec(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), (Vector2){entry->x-tex.width/2.0f, entry->y-(tex.height-WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
             }
         }break;
         case EKIND_VEHICLE: {
@@ -72,16 +73,17 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(color, data->tran_time));
         }break;
         case EKIND_DEVICE:{
-            float x = data->x - 32.f;
-            float y = data->y - 32.f;
-            DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+            Texture2D tex = GetSpriteTexture2D(assets_find(data->asset));
+            float x = data->x - tex.width/2;
+            float y = data->y - (tex.height-WORLD_BLOCK_SIZE/2);
+            DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(x,y, tex.width, tex.height), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
 
             if (data->progress_active) {
                 float w = 64.f;
                 float h = 8.f;
                 float p = data->progress_value;
                 float x = data->x - w/2.f;
-                float y = data->y - 32.f - h;
+                float y = data->y - (tex.height-WORLD_BLOCK_SIZE/2) - h;
                 DrawRectangleEco(x, y, w, h, ColorAlpha(BLACK, data->tran_time));
                 DrawRectangleEco(x, y, w*p, h, ColorAlpha(GREEN, data->tran_time));
             }
@@ -115,7 +117,10 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
                 if (data->items[data->selected_item].quantity > 0) {
                     asset_id it_kind = data->items[data->selected_item].kind;
                     uint32_t qty = data->items[data->selected_item].quantity;
-                    DrawTexturePro(GetSpriteTexture2D(assets_find(it_kind)), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+                    Texture2D tex = GetSpriteTexture2D(assets_find(it_kind));
+                    float aspect = tex.width/(float)tex.height;
+                    float size = WORLD_BLOCK_SIZE/2.0f * aspect;
+                    DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ((Rectangle){ix, iy, size, WORLD_BLOCK_SIZE/2.0f}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
 
                     if (!inv_is_open)
                         DrawTextEco(zpl_bprintf("%d", qty), x+24, y+24, 8, RAYWHITE, 0.0f);
@@ -135,7 +140,10 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
         case EKIND_ITEM: {
             float x = data->x - 32.f;
             float y = data->y - 32.f;
-            DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+            Texture2D tex = GetSpriteTexture2D(assets_find(data->asset));
+            float aspect = tex.width/(float)tex.height;
+            float size = WORLD_BLOCK_SIZE/2.0f * aspect;
+            DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(x,y,size,WORLD_BLOCK_SIZE/2.0f), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
 
             if (data->quantity > 1) {
                 DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);

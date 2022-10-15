@@ -24,3 +24,5 @@ void *assets_get_tex(uint16_t id);
 // NOTE(zaklaus): client only
 #define ASSET_SRC_RECT() ((Rectangle){0, 0, 64, 64})
 #define ASSET_DST_RECT(x,y) ((Rectangle){x, y, 64, 64})
+#define ASSET_SRC_RECT_TEX(w,h) ((Rectangle){0, 0, (float)w, (float)h})
+#define ASSET_DST_RECT_TEX(x,y,w,h) ((Rectangle){x, y, (float)w, (float)h})

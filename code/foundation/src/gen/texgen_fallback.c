@@ -35,7 +35,8 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
         case ASSET_HILL: return LoadTexEco("rock");
         case ASSET_LAVA: return LoadTexEco("lava");
         case ASSET_WOOD: return LoadTexEco("wood");
-        case ASSET_TREE: return LoadTexEco("tree");
+        case ASSET_TREE: return LoadTexEco("bigtree");
+        case ASSET_TEST_TALL: return LoadTexEco("test-tall");
         // case ASSET_WATER: return LoadTexEco("water");
 
         case ASSET_BELT:
@@ -46,6 +47,7 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
 
         // NOTE(zaklaus): devices
         case ASSET_CHEST: return LoadTexEco("chest");
+        case ASSET_FURNACE: return LoadTexEco("furnace-export");
 
         default: return GenColorEco(PINK); break;
     }

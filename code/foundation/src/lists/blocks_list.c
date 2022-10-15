@@ -19,6 +19,7 @@ static block blocks[] = {
     BLOCK(ASSET_TREE, BLOCK_FLAG_COLLISION|BLOCK_FLAG_DESTROY_ON_COLLISION, '@', .drag = 1.0f , .friction = 1.0f, .bounce = 0.0f),
     BLOCK(ASSET_CHEST, BLOCK_FLAG_ENTITY, 'C'),
     BLOCK(ASSET_FURNACE, BLOCK_FLAG_ENTITY, 'F'),
+    BLOCK(ASSET_TEST_TALL, BLOCK_FLAG_COLLISION, '.'),
 
     BLOCK(ASSET_BELT_LEFT, 0, '@', .drag = 1.0f , .friction = 1.0f, .velx = -150.0f),
     BLOCK(ASSET_BELT_RIGHT, 0, '@', .drag = 1.0f , .friction = 1.0f, .velx = 150.0f),
