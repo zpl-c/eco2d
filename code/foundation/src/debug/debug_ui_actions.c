@@ -17,7 +17,12 @@ ActSpawnCar(void) {
     Position * dest = ecs_get_mut(world_ecs(), e, Position);
     *dest = *origin;
     entity_set_position(e, dest->x, dest->y);
-wwwwa
+
+    debug_replay_special_action(RPKIND_SPAWN_CAR);
+}
+
+void
+ActSpawnItemPrev(void) {
     while (true) {
         --sel_item_id;
         item_id id = item_find_no_proxy(sel_item_id);
