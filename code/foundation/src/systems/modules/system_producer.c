@@ -29,7 +29,6 @@ void ProduceItems(ecs_iter_t *it) {
                     const Ingredient *ing = 0;
                     if ((ing = ecs_get_if(it->world, item_slot_ent, Ingredient))) {
                         if (ing->producer == d->asset) {
-                            item->quantity--;
                             if (item->quantity <= 0) {
                                 item_despawn(item_slot_ent);
                                 storage[i].items[j] = 0;
@@ -37,6 +36,7 @@ void ProduceItems(ecs_iter_t *it) {
                                 producer[i].processed_item = ing->product;
                                 producer[i].process_time = game_time() + game_rules.furnace_cook_time;
                             }
+                            item->quantity--;
                         }
                     }
                 }
