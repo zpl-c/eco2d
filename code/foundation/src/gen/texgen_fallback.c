@@ -7,9 +7,7 @@ Texture2D texgen_build_anim_fallback(asset_id id, int64_t counter) {
     (void)counter;
     switch (id) {
         case ASSET_WATER: {
-            Image img = LoadImageEco("water");
-            ImageColorBrightness(&img, zpl_abs((counter % 64 - 32)*2));
-            return Image2TexEco(img);
+            return LoadTexEco(zpl_bprintf("%s%d", "water", counter%3));
         }break;
 
         default: return GenColorEco(PINK); break;

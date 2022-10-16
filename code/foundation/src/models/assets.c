@@ -18,7 +18,7 @@ typedef struct {
 
 #include "lists/assets_list.c"
 
-#define ASSET_FRAME_RENDER_MS (1.0/5.0)
+#define ASSET_FRAME_RENDER_MS (1.0/1.0)
 #define ASSET_FRAME_SKIP 4
 static int64_t assets_frame_counter = 1;
 static double assets_frame_next_draw = 0.0;

@@ -60,7 +60,7 @@ int32_t worldgen_build(world_data *wld) {
     // water
 #if 1
     for (int i=0; i<RAND_RANGE(58, 92); i++) {
-        world_fill_rect_anchor(world->data, watr_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise80);
+        world_fill_rect_anchor(world->outer_data, watr_id, RAND_RANGE(0, world->dim), RAND_RANGE(0, world->dim), 4+RAND_RANGE(0,3), 4+RAND_RANGE(0,3), 0.5f, 0.5f, shaper_noise80);
     }
 #endif
 
