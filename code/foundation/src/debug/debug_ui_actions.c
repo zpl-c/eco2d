@@ -25,7 +25,8 @@ void
 ActSpawnItemPrev(void) {
     while (true) {
         --sel_item_id;
-        if (sel_item_id > 0 && item_find(sel_item_id) != ASSET_INVALID) {
+        item_id id = item_find_no_proxy(sel_item_id);
+        if (sel_item_id > 0 && id != ASSET_INVALID && (item_get_usage(id) != UKIND_PROXY)) {
             break;
         }
     }
@@ -35,7 +36,8 @@ void
 ActSpawnItemNext(void) {
     while (true) {
         ++sel_item_id;
-        if (sel_item_id > 0 && item_find(sel_item_id) != ASSET_INVALID) {
+        item_id id = item_find_no_proxy(sel_item_id);
+        if (sel_item_id > 0 && id != ASSET_INVALID && (item_get_usage(id) != UKIND_PROXY)) {
             break;
         }
     }

@@ -77,6 +77,14 @@ item_id item_find(asset_id kind) {
     return ASSET_INVALID;
 }
 
+item_id item_find_no_proxy(asset_id kind) {
+    for (item_id i=0; i<ITEMS_COUNT; i++) {
+        if (items[i].kind == kind)
+            return i;
+    }
+    return ASSET_INVALID;
+}
+
 Item *item_get_data(uint64_t ent) {
     if (!world_entity_valid(ent)) return NULL;
     return ecs_get_mut_if_ex(world_ecs(), ent, Item);

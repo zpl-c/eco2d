@@ -80,6 +80,7 @@ void item_despawn(uint64_t id);
 
 // NOTE(zaklaus): items
 item_id item_find(asset_id kind);
+item_id item_find_no_proxy(asset_id kind);
 void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t udata);
 Item *item_get_data(uint64_t ent);
 const Item *item_get_data_const(uint64_t ent);
