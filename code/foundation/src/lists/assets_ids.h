@@ -11,7 +11,10 @@
     X(ASSET_THING)\
     X(ASSET_CHEST)\
     X(ASSET_FURNACE)\
+    X(ASSET_BLUEPRINT_BEGIN)\
     X(ASSET_BLUEPRINT)\
+    X(ASSET_BLUEPRINT_DEMO_HOUSE)\
+    X(ASSET_BLUEPRINT_END)\
     X(ASSET_FENCE)\
     X(ASSET_DEV)\
     X(ASSET_GROUND)\
@@ -38,7 +41,7 @@ typedef enum {
     #define X(id) id,
     _ASSETS
     #undef X
-    MAX_ASSETS = 1024,
+    MAX_ASSETS,
 } asset_id;
 
 extern const char *asset_names[];

@@ -7,12 +7,12 @@
 typedef struct {
     asset_id id;
     asset_kind kind;
-    
+
     union {
         Texture2D tex;
         Sound snd;
     };
-    
+
     // NOTE(zaklaus): metadata
 } asset;
 
@@ -28,20 +28,20 @@ static double assets_frame_next_draw = 0.0;
 int32_t assets_setup(void) {
     for (uint32_t i=0; i<ASSETS_COUNT; i++) {
         asset *b = &assets[i];
-        
+
         switch (b->kind) {
             case AKIND_TEXTURE: {
                 b->tex = texgen_build_sprite(b->id);
             }break;
-            
+
             case AKIND_ANIM: {
                 b->tex = texgen_build_anim(b->id, 0);
             }break;
-            
+
             case AKIND_SOUND: {
                 // TODO(zaklaus): soundgen
             }break;
-            
+
             default: break;
         }
     }
@@ -53,21 +53,21 @@ int32_t assets_frame(void) {
     if (assets_frame_next_draw < get_cached_time()) {
         for (uint32_t i=0; i<ASSETS_COUNT; i++) {
             asset *b = &assets[i];
-            
+
             switch (b->kind) {
                 case AKIND_ANIM: {
                     UnloadTexture(b->tex);
                     b->tex = texgen_build_anim(b->id, assets_frame_counter);
                 }break;
-                
+
                 default: break;
             }
         }
-        
+
         assets_frame_next_draw = get_cached_time() + ASSET_FRAME_RENDER_MS;
         assets_frame_counter += ASSET_FRAME_SKIP;
     }
-    
+
     return 0;
 }
 
@@ -78,11 +78,11 @@ void assets_destroy(void) {
             case AKIND_TEXTURE: {
                 UnloadTexture(assets[i].tex);
             }break;
-            
+
             case AKIND_SOUND: {
                 // TODO(zaklaus): soundgen
             }break;
-            
+
             default: break;
         }
     }
@@ -93,7 +93,7 @@ uint16_t assets_find(asset_id id) {
         if (assets[i].id == id)
             return i;
     }
-    
+
     ZPL_PANIC("Unknown asset id: %d\n", id);
     return ASSET_INVALID;
 }

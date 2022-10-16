@@ -19,6 +19,7 @@ static asset assets[] = {
     ASSET_TEX(ASSET_CHEST),
     ASSET_TEX(ASSET_FURNACE),
     ASSET_TEX(ASSET_BLUEPRINT),
+    ASSET_TEX(ASSET_BLUEPRINT_DEMO_HOUSE),
 
     // NOTE(zaklaus): blocks
     ASSET_TEX(ASSET_FENCE),

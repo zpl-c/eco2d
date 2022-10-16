@@ -39,6 +39,23 @@ __VA_ARGS__\
 __VA_ARGS__\
 }
 
+#define ITEM_BLUEPRINT_PROXY(asset, place_asset, qty, w_, h_, plan_, ...)\
+{\
+.kind = asset,\
+.usage = UKIND_PLACE_ITEM_DATA,\
+.attachment = UDATA_NONE,\
+.max_quantity = qty,\
+.blueprint = {\
+.w = w_,\
+.h = h_,\
+.plan = (const asset_id[])plan_\
+},\
+.place_item = {\
+.id = place_asset\
+},\
+__VA_ARGS__\
+}
+
 #define ITEM_INGREDIENT(asset, qty, _producer, _product, _additional, ...)\
 {\
 .kind = asset,\

@@ -17,6 +17,11 @@ Texture2D texgen_build_anim_fallback(asset_id id, int64_t counter) {
 }
 
 Texture2D texgen_build_sprite_fallback(asset_id id) {
+
+    if (id > ASSET_BLUEPRINT_BEGIN && id < ASSET_BLUEPRINT_END) {
+        return LoadTexEco("blueprint");
+    }
+
     switch (id) {
         case ASSET_BLANK: return GenColorEco(WHITE); break;
         case ASSET_BUILDMODE_HIGHLIGHT: return GenColorEco(WHITE); break;
@@ -24,7 +29,6 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
 
         // NOTE(zaklaus): items
         case ASSET_COAL: return LoadTexEco("coal");
-        case ASSET_BLUEPRINT: return LoadTexEco("blueprint");
 
         // NOTE(zaklaus): blocks
         case ASSET_FENCE: return LoadTexEco("fence");

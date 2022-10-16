@@ -20,6 +20,7 @@ uint16_t assets_find(asset_id id);
 asset_kind assets_get_kind(uint16_t id);
 void *assets_get_snd(uint16_t id);
 void *assets_get_tex(uint16_t id);
+uint16_t assets_resolve_proxy(uint16_t id);
 
 // NOTE(zaklaus): client only
 #define ASSET_SRC_RECT() ((Rectangle){0, 0, 64, 64})

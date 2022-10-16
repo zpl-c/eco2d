@@ -11,7 +11,7 @@ static item_desc items[] = {
     ITEM_SELF(ASSET_TEST_TALL, 64),
 
     // ITEM_BLUEPRINT(ASSET_BLUEPRINT, 1, 4, 4, "]]]]]CF]   ]]]]]"),
-    ITEM_BLUEPRINT(ASSET_BLUEPRINT, 1, 4, 4, PROT({ ASSET_WOOD,ASSET_WOOD,ASSET_WOOD,ASSET_WOOD,
+    ITEM_BLUEPRINT_PROXY(ASSET_BLUEPRINT_DEMO_HOUSE, ASSET_BLUEPRINT, 1, 4, 4, PROT({ ASSET_WOOD,ASSET_WOOD,ASSET_WOOD,ASSET_WOOD,
                                                     ASSET_WOOD,ASSET_FURNACE,ASSET_CHEST,ASSET_WOOD,
                                                     ASSET_FENCE,ASSET_EMPTY,ASSET_EMPTY,ASSET_WOOD,
                                                     ASSET_WALL,ASSET_EMPTY,ASSET_EMPTY,ASSET_WOOD})),

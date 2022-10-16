@@ -6,15 +6,12 @@
 
 typedef enum {
     RPKIND_KEY,
-    
+
     // NOTE(zaklaus): Special actions
     RPKIND_SPAWN_CAR,
     RPKIND_PLACE_ICE_RINK,
     RPKIND_PLACE_ERASE_CHANGES,
     RPKIND_SPAWN_CIRCLING_DRIVER,
-    RPKIND_SPAWN_ICEMAKER_ITEM,
-    RPKIND_SPAWN_CHEST,
-    RPKIND_SPAWN_BELT,
 } replay_kind;
 
 typedef struct {
@@ -45,17 +42,17 @@ static char replaybuf[sizeof(replay_record)*UINT16_MAX + 32];
 void debug_replay_store(void) {
     ZPL_ASSERT(replay_filename[0]);
     if (!records) return;
-    
+
     cw_pack_context pc = {0};
     cw_pack_context_init(&pc, replaybuf, sizeof(replaybuf), 0);
     cw_pack_unsigned(&pc, REPLAY_MAGIC);
     cw_pack_unsigned(&pc, REPLAY_VERSION);
     cw_pack_array_size(&pc, (uint32_t)zpl_array_count(records));
-    
+
     for (int i = 0; i < zpl_array_count(records); i++) {
         cw_pack_bin(&pc, &records[i], sizeof(replay_record));
     }
-    
+
     zpl_file f = {0};
     zpl_file_create(&f, replay_filename);
     zpl_file_write(&f, replaybuf, pc.current - pc.start);
@@ -64,44 +61,44 @@ void debug_replay_store(void) {
 
 void debug_replay_load(void) {
     ZPL_ASSERT(replay_filename[0]);
-    
+
     zpl_file f = {0};
     zpl_file_error err = zpl_file_open(&f, replay_filename);
     ZPL_ASSERT(err == ZPL_FILE_ERROR_NONE);
-    
+
     size_t file_size = zpl_file_size(&f);
     zpl_file_read(&f, replaybuf, file_size);
     zpl_file_close(&f);
-    
+
     cw_unpack_context uc = {0};
     cw_unpack_context_init(&uc, replaybuf, (uint32_t)file_size, 0);
-    
+
     cw_unpack_next(&uc);
     ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 == REPLAY_MAGIC);
-    
+
     cw_unpack_next(&uc);
     ZPL_ASSERT(uc.item.type == CWP_ITEM_POSITIVE_INTEGER);
-    
+
     uint64_t version = uc.item.as.u64;
-    
+
     ZPL_ASSERT(version >= 2);
-    
+
     cw_unpack_next(&uc);
     ZPL_ASSERT(uc.item.type == CWP_ITEM_ARRAY);
     size_t items = uc.item.as.array.size;
-    
+
     zpl_array_init_reserve(records, zpl_heap(), sizeof(replay_record)*items);
-    
+
     for (size_t i = 0; i < items; i++) {
         cw_unpack_next(&uc);
         ZPL_ASSERT(uc.item.type == CWP_ITEM_BIN);
         replay_record rec = {0};
-        
+
         switch (version) {
             case 2:{
                 debug_replay_load_record_v2(&rec, uc.item.as.bin.start);
             }break;
-            
+
             default:{
                 zpl_memcopy(&rec, uc.item.as.bin.start, sizeof(replay_record));
             }break;
@@ -112,10 +109,10 @@ void debug_replay_load(void) {
 
 void debug_replay_start(void) {
     is_recording = true;
-    
+
     if (records) zpl_array_free(records);
     zpl_array_init_reserve(records, zpl_heap(), UINT16_MAX);
-    
+
     last_record_time = get_cached_time();
     SetTargetFPS(60);
 }
@@ -130,17 +127,17 @@ void debug_replay_clear(void) {
 void debug_replay_cleanup_ents(void) {
     SetTargetFPS(0);
     if (!mime) return;
-    
+
     entity_despawn(mime);
     mime = 0;
-    
+
     is_playing = false;
     camera_set_follow(plr);
-    
+
     for (int i = 0; i < zpl_array_count(temp_actors); i++) {
         entity_despawn(temp_actors[i]);
     }
-    
+
     zpl_array_free(temp_actors);
 }
 
@@ -157,17 +154,17 @@ void debug_replay_run(void) {
     record_pos = 0;
     playback_time = get_cached_time();
     zpl_array_init(temp_actors, zpl_heap());
-    
+
     plr = camera_get().ent_id;
     Position const *p1 = ecs_get(world_ecs(), plr, Position);
-    
+
     mime = entity_spawn(EKIND_MACRO_BOT);
     Position *pos = ecs_get_mut(world_ecs(), mime, Position);
     *pos = *p1;
-    
+
     ecs_set(world_ecs(), mime, Input, {0});
     ecs_set(world_ecs(), mime, Inventory, {0});
-    
+
     camera_set_follow(mime);
     SetTargetFPS(60);
 }
@@ -182,10 +179,10 @@ void ActSpawnBelt(void);
 void debug_replay_update(void) {
     if (!is_playing) return;
     if (playback_time >= get_cached_time()) return;
-    
+
     replay_record *r = &records[record_pos];
     playback_time = get_cached_time() + r->delay;
-    
+
     switch (r->kind) {
         case RPKIND_KEY: {
             Input *i = ecs_get_mut(world_ecs(), mime, Input);
@@ -209,11 +206,11 @@ void debug_replay_update(void) {
         }break;
         case RPKIND_SPAWN_CAR: {
             ecs_entity_t e = vehicle_spawn(EVEH_CAR);
-            
+
             Position const *origin = ecs_get(world_ecs(), mime, Position);
             Position *dest = ecs_get_mut(world_ecs(), e, Position);
             *dest = *origin;
-            
+
             zpl_array_append(temp_actors, e);
         }break;
         case RPKIND_PLACE_ICE_RINK: {
@@ -225,22 +222,13 @@ void debug_replay_update(void) {
         case RPKIND_PLACE_ERASE_CHANGES:{
             ActEraseWorldChanges();
         }break;
-        case RPKIND_SPAWN_ICEMAKER_ITEM:{
-            ActSpawnCoal();
-        }break;
-        case RPKIND_SPAWN_CHEST:{
-            ActSpawnChest();
-        }break;
-        case RPKIND_SPAWN_BELT:{
-            ActSpawnBelt();
-        }break;
         default: {
             ZPL_PANIC("unreachable");
         }break;
     }
-    
+
     record_pos += 1;
-    
+
     // NOTE(zaklaus): remove our dummy art exhibist
     if (mime && record_pos == zpl_array_count(records)) {
         debug_replay_cleanup_ents();
@@ -250,13 +238,13 @@ void debug_replay_update(void) {
 void debug_replay_record_keystate(pkt_send_keystate state) {
     if (!is_recording) return;
     double record_time = get_cached_time();
-    
+
     replay_record rec = {
         .kind = RPKIND_KEY,
         .pkt = state,
         .delay = (record_time - last_record_time),
     };
-    
+
     zpl_array_append(records, rec);
     last_record_time = get_cached_time();
 }
@@ -265,12 +253,12 @@ void debug_replay_special_action(replay_kind kind) {
     ZPL_ASSERT(kind != RPKIND_KEY);
     if (!is_recording || is_playing) return;
     double record_time = get_cached_time();
-    
+
     replay_record rec = {
         .kind = kind,
         .delay = (record_time - last_record_time),
     };
-    
+
     zpl_array_append(records, rec);
     last_record_time = get_cached_time();
 }
