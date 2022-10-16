@@ -138,12 +138,13 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             DrawNametag("Bot", key, data, x, y);
         }break;
         case EKIND_ITEM: {
-            float x = data->x - 32.f;
-            float y = data->y - 32.f;
             Texture2D tex = GetSpriteTexture2D(assets_find(data->asset));
+            float x = data->x - (tex.width/2);
+            float y = data->y - (tex.height/4);
             float aspect = tex.width/(float)tex.height;
             float size = WORLD_BLOCK_SIZE/2.0f * aspect;
-            DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(x,y,size,WORLD_BLOCK_SIZE/2.0f), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+            float ofs_x = (WORLD_BLOCK_SIZE-size)/2.0f;
+            DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(x+ofs_x,y,size,WORLD_BLOCK_SIZE/2.0f), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
 
             if (data->quantity > 1) {
                 DrawTextEco(zpl_bprintf("%d", data->quantity), x, y, 10, ALPHA(RAYWHITE), 0.0f);

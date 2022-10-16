@@ -83,7 +83,11 @@ void inventory_draw_panel(entity_view *e, bool is_player, float sx, float sy){
             DrawRectangleLinesEco(x, y, 64, 64, color);
 
             if (item->quantity > 0) {
-                DrawTexturePro(GetSpriteTexture2D(assets_find(item->kind)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, WHITE);
+                Texture2D tex = GetSpriteTexture2D(assets_find(item->kind));
+                float aspect = tex.width/(float)tex.height;
+                float size = WORLD_BLOCK_SIZE * aspect;
+                float ofs_x = (WORLD_BLOCK_SIZE-size)/2.0f;
+                DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(x+ofs_x, y, size, WORLD_BLOCK_SIZE), (Vector2){0.5f,0.5f}, 0.0f, WHITE);
             }
 
             if (item->quantity > 1) {
@@ -119,7 +123,8 @@ void inventory_render_held_item(bool is_player){
         Texture2D tex = GetSpriteTexture2D(assets_find(inv->held_item.kind));
         float aspect = tex.width/(float)tex.height;
         float size = WORLD_BLOCK_SIZE * aspect;
-        DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(mpos.x, mpos.y, size, WORLD_BLOCK_SIZE), (Vector2){0.5f,0.5f}, 0.0f, ColorAlpha(WHITE, 0.8f));
+        float ofs_x = (WORLD_BLOCK_SIZE-size)/2.0f;
+        DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(mpos.x+ofs_x, mpos.y, size, WORLD_BLOCK_SIZE), (Vector2){0.5f,0.5f}, 0.0f, ColorAlpha(WHITE, 0.8f));
         DrawTextEco(zpl_bprintf("%d", inv->held_item.quantity), mpos.x, mpos.y, 16, RAYWHITE, 0.0f);
 
         if (!inv->is_inside && IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !inv2->is_inside) {
