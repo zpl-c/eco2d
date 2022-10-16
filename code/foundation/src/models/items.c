@@ -79,8 +79,6 @@ item_id item_find(asset_id kind) {
 
 Item *item_get_data(uint64_t ent) {
     if (!world_entity_valid(ent)) return NULL;
-    // if (ecs_get(world_ecs(), ent, ItemAlreadyEdited)) return NULL;
-    // ecs_add(world_ecs(), ent, ItemAlreadyEdited);
     return ecs_get_mut_if_ex(world_ecs(), ent, Item);
 }
 

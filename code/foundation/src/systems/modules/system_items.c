@@ -267,12 +267,14 @@ void UseItem(ecs_iter_t *it) {
             continue;
         }
 
-        ecs_entity_t item_ent = inv[i].items[in[i].selected_item];
-        Item *item = item_get_data(item_ent);
+        ecs_entity_t item_ent = 0;
+        Item *item = NULL;
         uint16_t item_id = 0;
         item_usage usage = UKIND_DELETE;
 
         if (!in[i].deletion_mode){
+            item_ent = inv[i].items[in[i].selected_item];
+            item = item_get_data(item_ent);
             item_id = item ? item_find(item->kind) : ASSET_EMPTY;
             usage = item_get_usage(item_id);
             if (!item || item->quantity <= 0) continue;
@@ -313,7 +315,7 @@ void UseItem(ecs_iter_t *it) {
 
         entity_wake(it->entities[i]);
 
-        if (item->quantity == 0) {
+        if (usage != UKIND_DELETE && item->quantity == 0) {
             item_despawn(item_ent);
             inv[i].items[in[i].selected_item] = 0;
         }

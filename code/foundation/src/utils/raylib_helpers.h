@@ -43,7 +43,7 @@ Texture2D Image2TexEco(Image image) {
 
 static inline
 Texture2D GenColorEco(Color color) {
-    Image img = GenImageColor(1, 1, color);
+    Image img = GenImageColor(64, 64, color);
     return Image2TexEco(img);
 }
 

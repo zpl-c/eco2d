@@ -47,7 +47,7 @@ void buildmode_draw(void) {
 
     Item *item = &e->items[e->selected_item];
 
-    if (e->has_items && !e->inside_vehicle && item->quantity > 0 && (!is_outside_range || build_is_deletion_mode)) {
+    if (e->has_items && !e->inside_vehicle && (build_is_deletion_mode || (item->quantity > 0 && !is_outside_range))) {
         item_usage usage = 0;
         uint16_t item_id = 0;
         if (!build_is_deletion_mode){
@@ -71,6 +71,7 @@ void buildmode_draw(void) {
 
             world_block_lookup l = world_block_from_realpos((float)cam.x, (float)cam.y);
             if (build_is_deletion_mode && !l.is_outer){
+                renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(RED, 0.4f));
                 goto build_skip_placements;
             }
 
@@ -104,8 +105,12 @@ void buildmode_draw(void) {
             }
 
 
-            if (!is_outside_range)
-                renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : WHITE, 0.2f));
+            if (!is_outside_range) {
+                if (build_is_deletion_mode)
+                    renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(RED, 0.2f));
+                else
+                    renderer_draw_single((float)cam.x, (float)cam.y, item->kind, ColorAlpha(WHITE, 0.2f));
+            }
 
             build_skip_placements:
             build_num_placements = zpl_min(build_num_placements, qty);
@@ -114,7 +119,7 @@ void buildmode_draw(void) {
 
     for (size_t i = 0; i < build_num_placements; i++) {
         item_placement *it = &build_placements[i];
-        renderer_draw_single(it->x, it->y, !build_is_deletion_mode ? item->kind : ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : WHITE, 0.4f));
+        renderer_draw_single(it->x, it->y, !build_is_deletion_mode ? item->kind : ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : RAYWHITE, 0.6f));
     }
 
     if (build_is_in_draw_mode) {
