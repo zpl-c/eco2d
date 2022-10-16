@@ -18,19 +18,10 @@ uint64_t entity_spawn(uint16_t class_id) {
     entity_wake(e);
 
     if (class_id != EKIND_SERVER) {
-        ecs_set(world_ecs(), e, Velocity, {0});
-        Position *pos = ecs_get_mut(world_ecs(), e, Position);
-#if 1
-        pos->x=(float)(rand() % world_dim());
-        pos->y=(float)(rand() % world_dim());
-        entity_set_position(e, pos->x, pos->y);
-#else
-        pos->x=350.0f;
-        pos->y=88.0f;
-#endif
-
         librg_entity_track(world_tracker(), e);
-        librg_entity_chunk_set(world_tracker(), e, librg_chunk_from_realpos(world_tracker(), pos->x, pos->y, 0));
+        ecs_set(world_ecs(), e, Velocity, {0});
+        entity_set_position(e, (float)(rand() % world_dim()), (float)(rand() % world_dim()));
+
         librg_entity_owner_set(world_tracker(), e, (int64_t)e);
     }
 
@@ -69,7 +60,7 @@ void entity_despawn(uint64_t ent_id) {
 }
 
 void entity_set_position(uint64_t ent_id, float x, float y) {
-    Position *p = ecs_get_mut(world_ecs(), ent_id, Position);
+    Position *p = ecs_get_mut_ex(world_ecs(), ent_id, Position);
     p->x = x;
     p->y = y;
     librg_entity_chunk_set(world_tracker(), ent_id, librg_chunk_from_realpos(world_tracker(), x, y, 0));
@@ -77,7 +68,7 @@ void entity_set_position(uint64_t ent_id, float x, float y) {
 }
 
 void entity_wake(uint64_t ent_id) {
-    StreamInfo *si = ecs_get_mut(world_ecs(), ent_id, StreamInfo);
+    StreamInfo *si = ecs_get_mut_ex(world_ecs(), ent_id, StreamInfo);
     si->tick_delay = 0.0f;
     si->last_update = 0.0f;
 }
@@ -108,6 +99,6 @@ void entity_update_action_timers() {
 }
 
 bool entity_can_stream(uint64_t ent_id) {
-    StreamInfo *si = ecs_get_mut(world_ecs(), ent_id, StreamInfo);
+    StreamInfo *si = ecs_get_mut_ex(world_ecs(), ent_id, StreamInfo);
     return (si->last_update < get_cached_time());
 }

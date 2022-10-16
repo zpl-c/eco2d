@@ -29,14 +29,7 @@ int32_t pkt_00_init_handler(pkt_header *header) {
     uint64_t peer_id = (uint64_t)header->udata;
     uint64_t ent_id = player_spawn(NULL);
 
-    Position *pos = ecs_get_mut(world_ecs(), ent_id, Position);
-
-#if 1
     entity_set_position(ent_id, world_dim()/2.0f + rand()%15*15.0f, world_dim()/2.0f + rand()%15*15.0f);
-#else
-    pos->x = rand()%world_dim();
-    pos->y = rand()%world_dim();
-#endif
 
     zpl_printf("[INFO] initializing player entity id: %d with view id: %d for peer id: %d...\n", ent_id, table.view_id, peer_id);
     ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id, .active = false });
