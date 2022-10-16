@@ -139,8 +139,8 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
         }break;
         case EKIND_ITEM: {
             Texture2D tex = GetSpriteTexture2D(assets_find(data->asset));
-            float x = data->x - (tex.width/2);
-            float y = data->y - (tex.height/4);
+            float x = data->x - (WORLD_BLOCK_SIZE/2.0F);
+            float y = data->y - (WORLD_BLOCK_SIZE/2.0F);
             float aspect = tex.width/(float)tex.height;
             float size = WORLD_BLOCK_SIZE/2.0f * aspect;
             float ofs_x = (WORLD_BLOCK_SIZE-size)/2.0f;
