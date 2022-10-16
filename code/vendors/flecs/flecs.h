@@ -25,11 +25,22 @@
 #define ecs_ftime_t ecs_float_t
 #endif
 
-/* FLECS_LEGACY should be defined when building for C89 */
+/** FLECS_LEGACY
+ * Define when building for C89 
+ */
 // #define FLECS_LEGACY
 
-/* FLECS_NO_DEPRECATED_WARNINGS disables deprecated warnings */
+/** FLECS_NO_DEPRECATED_WARNINGS
+ * disables deprecated warnings 
+ */
 #define FLECS_NO_DEPRECATED_WARNINGS
+
+/** FLECS_ACCURATE_COUNTERS
+ * Define to ensure that global counters used for statistics (such as the 
+ * allocation counters in the OS API) are accurate in multithreaded
+ * applications, at the cost of increased overhead. 
+ */
+// #define FLECS_ACCURATE_COUNTERS
 
 /* Make sure provided configuration is valid */
 #if defined(FLECS_DEBUG) && defined(FLECS_NDEBUG)
@@ -39,9 +50,10 @@
 #error "invalid configuration: cannot both define FLECS_DEBUG and NDEBUG"
 #endif
 
-/* Flecs debugging enables asserts, which are used for input parameter checking
- * and cheap (constant time) sanity checks. There are lots of asserts in every
- * part of the code, so this will slow down code. */
+/** Flecs debugging enables asserts.
+ * Used for input parameter checking and cheap sanity checks. There are lots of 
+ * asserts in every part of the code, so this will slow down applications. 
+ */
 #if !defined(FLECS_DEBUG) && !defined(FLECS_NDEBUG) 
 #if defined(NDEBUG)
 #define FLECS_NDEBUG
@@ -50,8 +62,10 @@
 #endif
 #endif
 
-/* FLECS_SANITIZE enables expensive checks that can detect issues early. This
- * will severely slow down code. */
+/** FLECS_SANITIZE
+ * Enables expensive checks that can detect issues early. Recommended for
+ * running tests or when debugging issues. This will severely slow down code.
+ */
 // #define FLECS_SANITIZE
 #ifdef FLECS_SANITIZE
 #define FLECS_DEBUG /* If sanitized mode is enabled, so is debug mode */
@@ -61,13 +75,30 @@
  * test with the FLECS_DEBUG or FLECS_SANITIZE flags enabled. There's a good
  * chance that this gives you more information about the issue! */
 
-/* FLECS_SOFT_ASSERT disables aborting for recoverable errors */
+/** FLECS_SOFT_ASSERT 
+ * Define to not abort for recoverable errors, like invalid parameters. An error
+ * is still thrown to the console. This is recommended for when running inside a
+ * third party runtime, such as the Unreal editor.
+ * 
+ * Note that internal sanity checks (ECS_INTERNAL_ERROR) will still abort a
+ * process, as this gives more information than a (likely) subsequent crash.
+ * 
+ * When a soft assert occurs, the code will attempt to minimize the number of 
+ * side effects of the failed operation, but this may not always be possible.
+ * Even though an application may still be able to continue running after a soft 
+ * assert, it should be treated as if in an undefined state. 
+ */
 // #define FLECS_SOFT_ASSERT
 
-/* FLECS_KEEP_ASSERT keeps asserts in release mode. */
+/** FLECS_KEEP_ASSERT
+ * By default asserts are disabled in release mode, when either FLECS_NDEBUG or
+ * NDEBUG is defined. Defining FLECS_KEEP_ASSERT ensures that asserts are not
+ * disabled. This define can be combined with FLECS_SOFT_ASSERT. 
+ */
 // #define FLECS_KEEP_ASSERT
 
-/* The following macros let you customize with which addons Flecs is built.
+/** Custom builds. 
+ * The following macros let you customize with which addons Flecs is built.
  * Without any addons Flecs is just a minimal ECS storage, but addons add 
  * features such as systems, scheduling and reflection. If an addon is disabled,
  * it is excluded from the build, so that it consumes no resources. By default
@@ -89,8 +120,6 @@
  *   ecs_log_set_level(0);
  * which outputs the full list of addons Flecs was compiled with.
  */
-
-/* Define if you want to create a custom build by whitelisting addons */
 // #define FLECS_CUSTOM_BUILD
 
 #ifndef FLECS_CUSTOM_BUILD
@@ -1507,6 +1536,11 @@ ecs_map_t* ecs_map_copy(
 #define FLECS_ALLOCATOR_H
 
 
+FLECS_DBG_API extern int64_t ecs_block_allocator_alloc_count;
+FLECS_DBG_API extern int64_t ecs_block_allocator_free_count;
+FLECS_DBG_API extern int64_t ecs_stack_allocator_alloc_count;
+FLECS_DBG_API extern int64_t ecs_stack_allocator_free_count;
+
 typedef struct ecs_allocator_t {
     struct ecs_map_t sizes; /* <size, block_allocator_t> */
 } ecs_allocator_t;
@@ -1666,6 +1700,13 @@ bool ecs_strbuf_appendch(
     ecs_strbuf_t *buffer,
     char ch);
 
+/* Append int to buffer.
+ * Returns false when max is reached, true when there is still space */
+FLECS_API
+bool ecs_strbuf_appendint(
+    ecs_strbuf_t *buffer,
+    int64_t v);
+
 /* Append float to buffer.
  * Returns false when max is reached, true when there is still space */
 FLECS_API
@@ -1736,6 +1777,12 @@ FLECS_API
 void ecs_strbuf_list_next(
     ecs_strbuf_t *buffer);
 
+/* Append character to as new element in list. */
+FLECS_API
+bool ecs_strbuf_list_appendch(
+    ecs_strbuf_t *buffer,
+    char ch);
+
 /* Append formatted string as a new element in list */
 FLECS_API
 bool ecs_strbuf_list_append(
@@ -1749,9 +1796,22 @@ bool ecs_strbuf_list_appendstr(
     ecs_strbuf_t *buffer,
     const char *str);
 
+/* Append string as a new element in list */
+FLECS_API
+bool ecs_strbuf_list_appendstrn(
+    ecs_strbuf_t *buffer,
+    const char *str,
+    int32_t n);
+
 FLECS_API
 int32_t ecs_strbuf_written(
     const ecs_strbuf_t *buffer);
+
+#define ecs_strbuf_appendlit(buf, str)\
+    ecs_strbuf_appendstrn(buf, str, (int32_t)(sizeof(str) - 1))
+
+#define ecs_strbuf_list_appendlit(buf, str)\
+    ecs_strbuf_list_appendstrn(buf, str, (int32_t)(sizeof(str) - 1))
 
 #ifdef __cplusplus
 }
@@ -1794,7 +1854,7 @@ typedef struct ecs_time_t {
     uint32_t nanosec;
 } ecs_time_t;
 
-/* Allocation counters (not thread safe) */
+/* Allocation counters */
 extern int64_t ecs_os_api_malloc_count;
 extern int64_t ecs_os_api_realloc_count;
 extern int64_t ecs_os_api_calloc_count;
@@ -1856,9 +1916,12 @@ void* (*ecs_os_api_thread_join_t)(
 
 /* Atomic increment / decrement */
 typedef
-int (*ecs_os_api_ainc_t)(
+int32_t (*ecs_os_api_ainc_t)(
     int32_t *value);
 
+typedef
+int64_t (*ecs_os_api_lainc_t)(
+    int64_t *value);
 
 /* Mutex */
 typedef
@@ -1970,6 +2033,8 @@ typedef struct ecs_os_api_t {
     /* Atomic incremenet / decrement */
     ecs_os_api_ainc_t ainc_;
     ecs_os_api_ainc_t adec_;
+    ecs_os_api_lainc_t lainc_;
+    ecs_os_api_lainc_t ladec_;
 
     /* Mutex */
     ecs_os_api_mutex_new_t mutex_new_;
@@ -2151,6 +2216,8 @@ void ecs_os_set_api_defaults(void);
 /* Atomic increment / decrement */
 #define ecs_os_ainc(value) ecs_os_api.ainc_(value)
 #define ecs_os_adec(value) ecs_os_api.adec_(value)
+#define ecs_os_lainc(value) ecs_os_api.lainc_(value)
+#define ecs_os_ladec(value) ecs_os_api.ladec_(value)
 
 /* Mutex */
 #define ecs_os_mutex_new() ecs_os_api.mutex_new_()
@@ -2188,6 +2255,18 @@ void ecs_os_fatal(const char *file, int32_t line, const char *msg);
 
 FLECS_API
 const char* ecs_os_strerror(int err);
+
+#ifdef FLECS_ACCURATE_COUNTERS
+#define ecs_os_inc(v)  (ecs_os_ainc(v))
+#define ecs_os_linc(v) (ecs_os_lainc(v))
+#define ecs_os_dec(v)  (ecs_os_adec(v))
+#define ecs_os_ldec(v) (ecs_os_ladec(v))
+#else
+#define ecs_os_inc(v)  (++(*v))
+#define ecs_os_linc(v) (++(*v))
+#define ecs_os_dec(v)  (--(*v))
+#define ecs_os_ldec(v) (--(*v))
+#endif
 
 /* Application termination */
 #define ecs_os_abort() ecs_os_api.abort_()
@@ -2352,10 +2431,9 @@ typedef struct ecs_mixins_t ecs_mixins_t;
  */
 
 /* Maximum number of components to add/remove in a single operation */
+#ifndef ECS_ID_CACHE_SIZE
 #define ECS_ID_CACHE_SIZE (32)
-
-/* Maximum number of terms cached in static arrays */
-#define ECS_TERM_CACHE_SIZE (4)
+#endif
 
 /* Maximum number of terms in desc (larger, as these are temp objects) */
 #define ECS_TERM_DESC_CACHE_SIZE (16)
@@ -2365,9 +2443,6 @@ typedef struct ecs_mixins_t ecs_mixins_t;
 
 /* Maximum number of query variables per query */
 #define ECS_VARIABLE_COUNT_MAX (64)
-
-/* Number of query variables in iterator cache */
-#define ECS_VARIABLE_CACHE_SIZE (4)
 
 /** @} */
 
@@ -2661,7 +2736,7 @@ struct ecs_observer_t {
     ecs_ctx_free_t ctx_free;    /* Callback to free ctx */
     ecs_ctx_free_t binding_ctx_free; /* Callback to free binding_ctx */
 
-    ecs_observable_t *observable;  /* Observable for observer */
+    ecs_observable_t *observable; /* Observable for observer */
 
     int32_t *last_event_id;     /* Last handled event id */
 
@@ -2732,6 +2807,7 @@ struct ecs_type_info_t {
     ecs_size_t alignment;    /* Alignment of type */
     ecs_type_hooks_t hooks;  /* Type hooks */
     ecs_entity_t component;  /* Handle to component (do not set) */
+    const char *name;        /* Type name. */
 };
 
 /** @} */
@@ -3067,7 +3143,9 @@ extern "C" {
  * lower than this constant are looked up in an array, whereas constants higher
  * than this id are looked up in a map. Increasing this value can improve
  * performance at the cost of (significantly) higher memory usage. */
+#ifndef ECS_HI_COMPONENT_ID
 #define ECS_HI_COMPONENT_ID (256) /* Maximum number of components */
+#endif
 
 /** This is the largest possible component id. Components for the most part
  * occupy the same id range as entities, however they are not allowed to overlap
@@ -3839,7 +3917,7 @@ typedef struct ecs_filter_desc_t {
     int32_t _canary;
 
     /* Terms of the filter. If a filter has more terms than 
-     * ECS_TERM_CACHE_SIZE use terms_buffer */
+     * ECS_TERM_DESC_CACHE_SIZE use terms_buffer */
     ecs_term_t terms[ECS_TERM_DESC_CACHE_SIZE];
 
     /* For filters with lots of terms an outside array can be provided. */
@@ -4034,20 +4112,24 @@ typedef struct ecs_world_info_t {
     ecs_ftime_t time_scale;           /* Time scale applied to delta_time */
     ecs_ftime_t target_fps;           /* Target fps */
     ecs_ftime_t frame_time_total;     /* Total time spent processing a frame */
-    float system_time_total;          /* Total time spent in systems */
-    float merge_time_total;           /* Total time spent in merges */
+    ecs_ftime_t system_time_total;    /* Total time spent in systems */
+    ecs_ftime_t emit_time_total;      /* Total time spent notifying observers */
+    ecs_ftime_t merge_time_total;     /* Total time spent in merges */
     ecs_ftime_t world_time_total;     /* Time elapsed in simulation */
     ecs_ftime_t world_time_total_raw; /* Time elapsed in simulation (no scaling) */
+    ecs_ftime_t rematch_time_total;   /* Time spent on query rematching */
     
-    int32_t frame_count_total;        /* Total number of frames */
-    int32_t merge_count_total;        /* Total number of merges */
+    int64_t frame_count_total;        /* Total number of frames */
+    int64_t merge_count_total;        /* Total number of merges */
+    int64_t rematch_count_total;      /* Total number of rematches */
 
-    int32_t id_create_total;          /* Total number of times a new id was created */
-    int32_t id_delete_total;          /* Total number of times an id was deleted */
-    int32_t table_create_total;       /* Total number of times a table was created */
-    int32_t table_delete_total;       /* Total number of times a table was deleted */
-    int32_t pipeline_build_count_total; /* Total number of pipeline builds */
-    int32_t systems_ran_frame;  /* Total number of systems ran in last frame */
+    int64_t id_create_total;          /* Total number of times a new id was created */
+    int64_t id_delete_total;          /* Total number of times an id was deleted */
+    int64_t table_create_total;       /* Total number of times a table was created */
+    int64_t table_delete_total;       /* Total number of times a table was deleted */
+    int64_t pipeline_build_count_total; /* Total number of pipeline builds */
+    int64_t systems_ran_frame;        /* Total number of systems ran in last frame */
+    int64_t observers_ran_frame;      /* Total number of times observer was invoked */
 
     int32_t id_count;                 /* Number of ids in the world (excluding wildcards) */
     int32_t tag_id_count;             /* Number of tag (no data) ids in the world */
@@ -4062,21 +4144,33 @@ typedef struct ecs_world_info_t {
     int32_t table_record_count;       /* Total number of table records (entries in table caches) */
     int32_t table_storage_count;      /* Total number of table storages */
 
-    /* -- Defered operation counts -- */
-    int32_t new_count;
-    int32_t bulk_new_count;
-    int32_t delete_count;
-    int32_t clear_count;
-    int32_t add_count;
-    int32_t remove_count;
-    int32_t set_count;
-    int32_t discard_count;
+    /* -- Command counts -- */
+    struct {
+        int64_t add_count;             /* add commands processed */
+        int64_t remove_count;          /* remove commands processed */
+        int64_t delete_count;          /* delete commands processed */
+        int64_t clear_count;           /* clear commands processed */
+        int64_t set_count;             /* set commands processed */
+        int64_t get_mut_count;         /* get_mut/emplace commands processed */
+        int64_t modified_count;        /* modified commands processed */
+        int64_t other_count;           /* other commands processed */
+        int64_t discard_count;         /* commands discarded, happens when entity is no longer alive when running the command */
+        int64_t batched_entity_count;  /* entities for which commands were batched */
+        int64_t batched_command_count; /* commands batched */
+    } cmd;
 
     const char *name_prefix;          /* Value set by ecs_set_name_prefix. Used
                                        * to remove library prefixes of symbol
                                        * names (such as Ecs, ecs_) when 
                                        * registering them as names. */
 } ecs_world_info_t;
+
+/** Type that contains information about a query group. */
+typedef struct ecs_query_group_info_t {
+    int32_t match_count;  /* How often tables have been matched/unmatched */
+    int32_t table_count;  /* Number of tables in group */
+    void *ctx;            /* Group context, returned by on_group_create */
+} ecs_query_group_info_t;
 
 /** @} */
 
@@ -6708,16 +6802,29 @@ void ecs_query_set_group(
     ecs_iter_t *it,
     uint64_t group_id);
 
-/** Get context associated with group.
- * This operation returns the group ctx value as returned by the on_group_create
- * callback.
+/** Get context of query group.
+ * This operation returns the context of a query group as returned by the 
+ * on_group_create callback.
  * 
  * @param query The query.
  * @param group_id The group for which to obtain the context.
- * @return The context for the group, or NULL if the group was not found.
+ * @return The group context, NULL if the group doesn't exist.
  */
 FLECS_API
 void* ecs_query_get_group_ctx(
+    ecs_query_t *query,
+    uint64_t group_id);
+
+/** Get information about query group.
+ * This operation returns information about a query group, including the group
+ * context returned by the on_group_create callback.
+ * 
+ * @param query The query.
+ * @param group_id The group for which to obtain the group info.
+ * @return The group info, NULL if the group doesn't exist.
+ */
+FLECS_API
+const ecs_query_group_info_t* ecs_query_get_group_info(
     ecs_query_t *query,
     uint64_t group_id);
 
@@ -6954,10 +7061,7 @@ bool ecs_iter_next(
     ecs_iter_t *it);
 
 /** Cleanup iterator resources.
- * This operation cleans up any resources associated with the iterator. 
- * Iterators may contain allocated resources when the number of matched terms
- * exceeds ECS_TERM_CACHE_SIZE and/or when the source for the iterator requires
- * to keep state while iterating.
+ * This operation cleans up any resources associated with the iterator.
  * 
  * This operation should only be used when an iterator is not iterated until
  * completion (next has not yet returned false). When an iterator is iterated
@@ -9402,9 +9506,15 @@ int ecs_log_last_error(void);
 
 
 #ifdef FLECS_MONITOR
+#ifndef FLECS_STATS
 #define FLECS_STATS
+#endif
+#ifndef FLECS_SYSTEM
 #define FLECS_SYSTEM
+#endif
+#ifndef FLECS_TIMER
 #define FLECS_TIMER
+#endif
 #endif
 
 #ifdef FLECS_APP
@@ -9440,9 +9550,10 @@ typedef int(*ecs_app_init_action_t)(
 
 /** Used with ecs_app_run. */
 typedef struct ecs_app_desc_t {
-    ecs_ftime_t target_fps; /* Target FPS. */
-    ecs_ftime_t delta_time; /* Frame time increment (0 for measured values) */
+    ecs_ftime_t target_fps;   /* Target FPS. */
+    ecs_ftime_t delta_time;   /* Frame time increment (0 for measured values) */
     int32_t threads;          /* Number of threads. */
+    int32_t frames;           /* Number of frames to run (0 for infinite) */
     bool enable_rest;         /* Allows HTTP clients to access ECS data */
     bool enable_monitor;      /* Periodically collect statistics */
 
@@ -10355,64 +10466,97 @@ typedef union ecs_metric_t {
 typedef struct ecs_world_stats_t {
     int32_t first_;
 
-    ecs_metric_t entity_count;               /* Number of entities */
-    ecs_metric_t entity_not_alive_count;     /* Number of not alive (recyclable) entity ids */
+    /* Entities */
+    struct {
+        ecs_metric_t count;               /* Number of entities */
+        ecs_metric_t not_alive_count;     /* Number of not alive (recyclable) entity ids */
+    } entities;
 
     /* Components and ids */
-    ecs_metric_t id_count;                   /* Number of ids (excluding wildcards) */
-    ecs_metric_t tag_id_count;               /* Number of tag ids (ids without data) */
-    ecs_metric_t component_id_count;         /* Number of components ids (ids with data) */
-    ecs_metric_t pair_id_count;              /* Number of pair ids */
-    ecs_metric_t wildcard_id_count;          /* Number of wildcard ids */
-    ecs_metric_t component_count;            /* Number of components  (non-zero sized types) */
-    ecs_metric_t id_create_count;            /* Number of times id has been created */
-    ecs_metric_t id_delete_count;            /* Number of times id has been deleted */
+    struct {
+        ecs_metric_t count;               /* Number of ids (excluding wildcards) */
+        ecs_metric_t tag_count;           /* Number of tag ids (ids without data) */
+        ecs_metric_t component_count;     /* Number of components ids (ids with data) */
+        ecs_metric_t pair_count;          /* Number of pair ids */
+        ecs_metric_t wildcard_count;      /* Number of wildcard ids */
+        ecs_metric_t type_count;          /* Number of registered types */
+        ecs_metric_t create_count;        /* Number of times id has been created */
+        ecs_metric_t delete_count;        /* Number of times id has been deleted */
+    } ids;
 
     /* Tables */
-    ecs_metric_t table_count;                /* Number of tables */
-    ecs_metric_t empty_table_count;          /* Number of empty tables */
-    ecs_metric_t tag_table_count;            /* Number of tables with only tags */
-    ecs_metric_t trivial_table_count;        /* Number of tables with only trivial components */
-    ecs_metric_t table_record_count;         /* Number of table cache records */
-    ecs_metric_t table_storage_count;        /* Number of table storages */
-    ecs_metric_t table_create_count;         /* Number of times table has been created */
-    ecs_metric_t table_delete_count;         /* Number of times table has been deleted */
+    struct {
+        ecs_metric_t count;                /* Number of tables */
+        ecs_metric_t empty_count;          /* Number of empty tables */
+        ecs_metric_t tag_only_count;       /* Number of tables with only tags */
+        ecs_metric_t trivial_only_count;   /* Number of tables with only trivial components */
+        ecs_metric_t record_count;         /* Number of table cache records */
+        ecs_metric_t storage_count;        /* Number of table storages */
+        ecs_metric_t create_count;         /* Number of times table has been created */
+        ecs_metric_t delete_count;         /* Number of times table has been deleted */
+    } tables;
 
     /* Queries & events */
-    ecs_metric_t query_count;                /* Number of queries */
-    ecs_metric_t observer_count;             /* Number of observers */
-    ecs_metric_t system_count;               /* Number of systems */
+    struct {
+        ecs_metric_t query_count;          /* Number of queries */
+        ecs_metric_t observer_count;       /* Number of observers */
+        ecs_metric_t system_count;         /* Number of systems */
+    } queries;
 
-    /* Deferred operations */
-    ecs_metric_t new_count;
-    ecs_metric_t bulk_new_count;
-    ecs_metric_t delete_count;
-    ecs_metric_t clear_count;
-    ecs_metric_t add_count;
-    ecs_metric_t remove_count;
-    ecs_metric_t set_count;
-    ecs_metric_t discard_count;
+    /* Commands */
+    struct {
+        ecs_metric_t add_count;
+        ecs_metric_t remove_count;
+        ecs_metric_t delete_count;
+        ecs_metric_t clear_count;
+        ecs_metric_t set_count;
+        ecs_metric_t get_mut_count;
+        ecs_metric_t modified_count;
+        ecs_metric_t other_count;
+        ecs_metric_t discard_count;
+        ecs_metric_t batched_entity_count;
+        ecs_metric_t batched_count;
+    } commands;
 
-    /* Timing */
-    ecs_metric_t world_time_total_raw;       /* Actual time passed since simulation start (first time progress() is called) */
-    ecs_metric_t world_time_total;           /* Simulation time passed since simulation start. Takes into account time scaling */
-    ecs_metric_t frame_time_total;           /* Time spent processing a frame. Smaller than world_time_total when load is not 100% */
-    ecs_metric_t system_time_total;          /* Time spent on processing systems. */
-    ecs_metric_t merge_time_total;           /* Time spent on merging deferred actions. */
-    ecs_metric_t fps;                        /* Frames per second. */
-    ecs_metric_t delta_time;                 /* Delta_time. */
-    
-    /* Frame data */
-    ecs_metric_t frame_count_total;          /* Number of frames processed. */
-    ecs_metric_t merge_count_total;          /* Number of merges executed. */
-    ecs_metric_t pipeline_build_count_total; /* Number of system pipeline rebuilds (occurs when an inactive system becomes active). */
-    ecs_metric_t systems_ran_frame;          /* Number of systems ran in the last frame. */
+    struct {
+        /* Frame data */
+        ecs_metric_t frame_count;          /* Number of frames processed. */
+        ecs_metric_t merge_count;          /* Number of merges executed. */
+        ecs_metric_t rematch_count;        /* Number of query rematches */
+        ecs_metric_t pipeline_build_count; /* Number of system pipeline rebuilds (occurs when an inactive system becomes active). */
+        ecs_metric_t systems_ran;          /* Number of systems ran. */
+        ecs_metric_t observers_ran;        /* Number of times an observer was invoked. */
+        ecs_metric_t event_emit_count;     /* Number of events emitted */
+    } frame;
 
-    /* OS API data */
-    ecs_metric_t alloc_count;                /* Allocs per frame */
-    ecs_metric_t realloc_count;              /* Reallocs per frame */
-    ecs_metric_t free_count;                 /* Frees per frame */
-    ecs_metric_t outstanding_alloc_count;    /* Difference between allocs & frees */
+    struct {
+        /* Timing */
+        ecs_metric_t world_time_raw;       /* Actual time passed since simulation start (first time progress() is called) */
+        ecs_metric_t world_time;           /* Simulation time passed since simulation start. Takes into account time scaling */
+        ecs_metric_t frame_time;           /* Time spent processing a frame. Smaller than world_time_total when load is not 100% */
+        ecs_metric_t system_time;          /* Time spent on running systems. */
+        ecs_metric_t emit_time;            /* Time spent on notifying observers. */
+        ecs_metric_t merge_time;           /* Time spent on merging commands. */
+        ecs_metric_t rematch_time;         /* Time spent on rematching. */
+        ecs_metric_t fps;                  /* Frames per second. */
+        ecs_metric_t delta_time;           /* Delta_time. */
+    } performance;
+
+    struct {
+        /* Memory allocation data */
+        ecs_metric_t alloc_count;          /* Allocs per frame */
+        ecs_metric_t realloc_count;        /* Reallocs per frame */
+        ecs_metric_t free_count;           /* Frees per frame */
+        ecs_metric_t outstanding_alloc_count;    /* Difference between allocs & frees */
+
+        /* Memory allocator data */
+        ecs_metric_t block_alloc_count;    /* Block allocations per frame */
+        ecs_metric_t block_free_count;     /* Block frees per frame */
+        ecs_metric_t block_outstanding_alloc_count; /* Difference between allocs & frees */
+        ecs_metric_t stack_alloc_count;    /* Page allocations per frame */
+        ecs_metric_t stack_free_count;     /* Page frees per frame */
+        ecs_metric_t stack_outstanding_alloc_count; /* Difference between allocs & frees */
+    } memory;
 
     int32_t last_;
 
@@ -11228,7 +11372,9 @@ int ecs_iter_to_json_buf(
 
 #endif
 #if defined(FLECS_EXPR) || defined(FLECS_META_C)
+#ifndef FLECS_META
 #define FLECS_META
+#endif
 #endif
 #ifdef FLECS_UNITS
 #ifdef FLECS_NO_UNITS
@@ -13188,6 +13334,7 @@ typedef struct {
     void *ctx;                        /* Passed to callback (optional) */
     uint16_t port;                    /* HTTP port */
     const char *ipaddr;               /* Interface to listen on (optional) */
+    int32_t send_queue_wait_ms;       /* Send queue wait time when empty */
 } ecs_http_server_desc_t;
 
 /** Create server. 
@@ -13523,6 +13670,11 @@ ecs_entity_t ecs_cpp_component_register_explicit(
     bool *existing_out);
 
 FLECS_API
+void ecs_cpp_enum_init(
+    ecs_world_t *world,
+    ecs_entity_t id);
+
+FLECS_API
 ecs_entity_t ecs_cpp_enum_constant_register(
     ecs_world_t *world,
     ecs_entity_t parent,
@@ -13595,6 +13747,8 @@ struct each_invoker;
 namespace flecs {
 
 using world_t = ecs_world_t;
+using world_info_t = ecs_world_info_t;
+using query_group_info_t = ecs_query_group_info_t;
 using id_t = ecs_id_t;
 using entity_t = ecs_entity_t;
 using type_t = ecs_type_t;
@@ -14244,9 +14398,7 @@ struct enum_type {
 #endif
 
         ecs_log_push();
-        ecs_add_id(world, id, flecs::Exclusive);
-        ecs_add_id(world, id, flecs::OneOf);
-        ecs_add_id(world, id, flecs::Tag);
+        ecs_cpp_enum_init(world, id);
         data.id = id;
         data.min = FLECS_ENUM_MAX(int);
         init< enum_last<E>::value >(world);
@@ -15380,6 +15532,11 @@ struct app_builder {
         return *this;
     }
 
+    app_builder& frames(int32_t value) {
+        m_desc.frames = value;
+        return *this;
+    }
+
     app_builder& enable_rest(bool value = true) {
         m_desc.enable_rest = value;
         return *this;
@@ -15401,7 +15558,9 @@ struct app_builder {
     }
 
     int run() {
-        return ecs_app_run(m_world, &m_desc);
+        int result = ecs_app_run(m_world, &m_desc);
+        ecs_fini(m_world); // app takes ownership of world
+        return result;
     }
 
 private:
@@ -15610,34 +15769,34 @@ namespace flecs
 namespace _ 
 {
 
-inline void ecs_ctor_illegal(void *, int32_t, const ecs_type_info_t*) {
-    ecs_abort(ECS_INVALID_OPERATION, "invalid constructor");
+inline void ecs_ctor_illegal(void *, int32_t, const ecs_type_info_t *ti) {
+    ecs_abort(ECS_INVALID_OPERATION, "invalid constructor for %s", ti->name);
 }
 
-inline void ecs_dtor_illegal(void *, int32_t, const ecs_type_info_t*) {
-    ecs_abort(ECS_INVALID_OPERATION, "invalid destructor");
+inline void ecs_dtor_illegal(void *, int32_t, const ecs_type_info_t *ti) {
+    ecs_abort(ECS_INVALID_OPERATION, "invalid destructor for %s", ti->name);
 }
 
 inline void ecs_copy_illegal(
-    void *, const void *, int32_t, const ecs_type_info_t *)
+    void *, const void *, int32_t, const ecs_type_info_t *ti)
 {
-    ecs_abort(ECS_INVALID_OPERATION, "invalid copy assignment");
+    ecs_abort(ECS_INVALID_OPERATION, "invalid copy assignment for %s", ti->name);
 }
 
-inline void ecs_move_illegal(void *, void *, int32_t, const ecs_type_info_t *) {
-    ecs_abort(ECS_INVALID_OPERATION, "invalid move assignment");
+inline void ecs_move_illegal(void *, void *, int32_t, const ecs_type_info_t *ti) {
+    ecs_abort(ECS_INVALID_OPERATION, "invalid move assignment for %s", ti->name);
 }
 
 inline void ecs_copy_ctor_illegal(
-    void *, const void *, int32_t, const ecs_type_info_t *)
+    void *, const void *, int32_t, const ecs_type_info_t *ti)
 {
-    ecs_abort(ECS_INVALID_OPERATION, "invalid copy construct");
+    ecs_abort(ECS_INVALID_OPERATION, "invalid copy construct for %s", ti->name);
 }
 
 inline void ecs_move_ctor_illegal(
-    void *, void *, int32_t, const ecs_type_info_t *)
+    void *, void *, int32_t, const ecs_type_info_t *ti)
 {
-    ecs_abort(ECS_INVALID_OPERATION, "invalid move construct");
+    ecs_abort(ECS_INVALID_OPERATION, "invalid move construct for %s", ti->name);
 }
 
 
@@ -16144,7 +16303,7 @@ struct world {
 
     /** Get current tick.
      */
-    int32_t tick() const {
+    int64_t tick() const {
         const ecs_world_info_t *stats = ecs_get_world_info(m_world);
         return stats->frame_count_total;
     }
@@ -17060,7 +17219,7 @@ ecs_ftime_t get_time_scale() const;
 /** Get tick
  * @return Monotonically increasing frame count.
  */
-int32_t get_tick() const;
+int64_t get_tick() const;
 
 /** Set target FPS
  * @see ecs_set_target_fps
@@ -20796,7 +20955,6 @@ struct cpp_type_impl {
             ecs_assert(world != nullptr, ECS_COMPONENT_NOT_REGISTERED, name);
         } else {
             ecs_assert(!id || s_id == id, ECS_INCONSISTENT_COMPONENT_ID, NULL);
-            ecs_assert(s_allow_tag == allow_tag, ECS_INVALID_PARAMETER, NULL);
         }
 
         // If no id has been registered yet for the component (indicating the 
@@ -23071,13 +23229,27 @@ struct query_base {
         return ecs_query_orphaned(m_query);
     }
 
+    /** Get info for group. 
+     * 
+     * @param group_id The group id for which to retrieve the info.
+     * @return The group info.
+     */
+    const flecs::query_group_info_t* group_info(uint64_t group_id) {
+        return ecs_query_get_group_info(m_query, group_id);
+    }
+
     /** Get context for group. 
      * 
      * @param group_id The group id for which to retrieve the context.
      * @return The group context.
      */
     void* group_ctx(uint64_t group_id) {
-        return ecs_query_get_group_ctx(m_query, group_id);
+        const flecs::query_group_info_t *gi = group_info(group_id);
+        if (gi) {
+            return gi->ctx;
+        } else {
+            return NULL;
+        }
     }
 
     /** Free the query.
@@ -23910,7 +24082,7 @@ inline ecs_ftime_t world::get_time_scale() const {
     return stats->time_scale;
 }
 
-inline int32_t world::get_tick() const {
+inline int64_t world::get_tick() const {
     const ecs_world_info_t *stats = ecs_get_world_info(m_world);
     return stats->frame_count_total;
 }
