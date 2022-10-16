@@ -17,11 +17,6 @@ Texture2D texgen_build_anim_fallback(asset_id id, int64_t counter) {
 }
 
 Texture2D texgen_build_sprite_fallback(asset_id id) {
-
-    if (id > ASSET_BLUEPRINT_BEGIN && id < ASSET_BLUEPRINT_END) {
-        return LoadTexEco("blueprint");
-    }
-
     switch (id) {
         case ASSET_BLANK: return GenColorEco(WHITE); break;
         case ASSET_BUILDMODE_HIGHLIGHT: return GenColorEco(WHITE); break;
@@ -53,6 +48,12 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
         case ASSET_CHEST: return LoadTexEco("chest");
         case ASSET_FURNACE: return LoadTexEco("furnace-export");
 
-        default: return GenColorEco(PINK); break;
+        default: break;
     }
+
+    if (id > ASSET_BLUEPRINT_BEGIN && id < ASSET_BLUEPRINT_END) {
+        return LoadTexEco("blueprint");
+    }
+
+    return GenColorEco(PINK);
 }
