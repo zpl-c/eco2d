@@ -119,6 +119,11 @@ DrawDemoNPCCount(debug_item *it, float xpos, float ypos) {
     return DrawFormattedText(xpos, ypos, TextFormat("%d", demo_npcs ? zpl_array_count(demo_npcs) : 0));
 }
 
+static inline debug_draw_result
+DrawSelectedSpawnItem(debug_item *it, float xpos, float ypos) {
+    (void)it;
+    return DrawFormattedText(xpos, ypos, TextFormat("%s", asset_names[sel_item_id]));
+}
 
 // NOTE(zaklaus): world simulation
 static inline debug_draw_result

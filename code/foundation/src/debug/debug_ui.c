@@ -41,6 +41,7 @@ static uint8_t is_debug_open = 1;
 static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
+static zpl_u16 sel_item_id = 0;
 
 typedef enum {
     L_NONE = 0,
@@ -133,17 +134,24 @@ static debug_item items[] = {
         .list = {
             .is_collapsed = true,
             .items = (debug_item[]) {
+                {
+                    .kind = DITEM_LIST,
+                    .name = "spawn item",
+                    .list = {
+                        .items = (debug_item[]) {
+                            { .kind = DITEM_TEXT, .name = "selected", .proc = DrawSelectedSpawnItem },
+                            { .kind = DITEM_BUTTON, .name = "Previous", .on_click = ActSpawnItemPrev },
+                            { .kind = DITEM_BUTTON, .name = "Next", .on_click = ActSpawnItemNext },
+                            { .kind = DITEM_BUTTON, .name = "Spawn <", .on_click = ActSpawnSelItem },
+                            { .kind = DITEM_END },
+                        },
+                        .is_collapsed = false
+                    }
+                },
                 { .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
                 { .kind = DITEM_BUTTON, .name = "place ice rink", .on_click = ActPlaceIceRink },
                 { .kind = DITEM_BUTTON, .name = "erase world changes", .on_click = ActEraseWorldChanges },
                 { .kind = DITEM_BUTTON, .name = "spawn circling driver", .on_click = ActSpawnCirclingDriver },
-                { .kind = DITEM_BUTTON, .name = "spawn coal lump", .on_click = ActSpawnCoal },
-                { .kind = DITEM_BUTTON, .name = "spawn chest", .on_click = ActSpawnChest },
-                { .kind = DITEM_BUTTON, .name = "spawn belt", .on_click = ActSpawnBelt },
-                { .kind = DITEM_BUTTON, .name = "spawn furnace", .on_click = ActSpawnFurnace },
-                { .kind = DITEM_BUTTON, .name = "spawn demo blueprint", .on_click = ActSpawnDemoHouseItem },
-                { .kind = DITEM_BUTTON, .name = "spawn random durability icemaker", .on_click = ActSpawnDurabilityTest },
-                { .kind = DITEM_BUTTON, .name = "spawn sprite tall test", .on_click = ActSpawnTallTest },
                 {
                     .kind = DITEM_LIST,
                     .name = "demo npcs",
@@ -353,6 +361,12 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
 void debug_draw(void) {
     // NOTE(zaklaus): Flush old debug samples
     debug_draw_flush();
+
+    static zpl_u8 first_run=0;
+    if (!first_run) {
+        first_run = 1;
+        ActSpawnItemNext();
+    }
 
     float xpos = debug_xpos;
     float ypos = debug_ypos;

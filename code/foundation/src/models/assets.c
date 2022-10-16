@@ -109,3 +109,9 @@ void *assets_get_snd(uint16_t id) {
 void *assets_get_tex(uint16_t id) {
     return (void*)&assets[id].tex;
 }
+
+const char *asset_names[] = {
+    #define X(id) #id,
+    _ASSETS
+    #undef X
+};
