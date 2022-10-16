@@ -140,8 +140,6 @@ void world_view_setup_chunk(world_view *view, entity_view *chk) {
 void world_view_clear_chunk(world_view *view, entity_view *chk) {
     librg_chunk chunk_id = chk->chk_id;
     view->chunk_mapping[chunk_id] = NULL;
-    zpl_mfree(view->block_mapping[chunk_id]); view->block_mapping[chunk_id] = NULL;
-    zpl_mfree(view->outer_block_mapping[chunk_id]); view->outer_block_mapping[chunk_id] = NULL;
 }
 
 world_view_block_lookup world_view_block_from_realpos(world_view *view, float x, float y) {
