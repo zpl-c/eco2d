@@ -114,7 +114,7 @@ void buildmode_draw(void) {
 
     for (size_t i = 0; i < build_num_placements; i++) {
         item_placement *it = &build_placements[i];
-        renderer_draw_single(it->x, it->y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : WHITE, 0.4f));
+        renderer_draw_single(it->x, it->y, !build_is_deletion_mode ? item->kind : ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : WHITE, 0.4f));
     }
 
     if (build_is_in_draw_mode) {

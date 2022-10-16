@@ -288,7 +288,13 @@ static void game__world_view_render_push_entry(uint64_t key, entity_view * data)
                         .blk_id = blk_id,
                         .x = (data->x*size + offset) + (float)tx*WORLD_BLOCK_SIZE + WORLD_BLOCK_SIZE/2,
                         .y = (data->y*size + offset) + (float)ty*WORLD_BLOCK_SIZE + WORLD_BLOCK_SIZE/2,
+                        .cy = (data->y*size + offset) + (float)ty*WORLD_BLOCK_SIZE + WORLD_BLOCK_SIZE/2,
                     };
+
+                    if (!(blocks_get_flags(blk_id) & BLOCK_FLAG_COLLISION)) {
+                        entry.cy = ZPL_F32_MIN;
+                    }
+
                     zpl_array_append(render_queue, entry);
                 }
             }
@@ -301,6 +307,7 @@ static void game__world_view_render_push_entry(uint64_t key, entity_view * data)
         .data = data,
         .x = data->x,
         .y = data->y,
+        .cy = data->y,
         .blk_id = 0,
     };
     zpl_array_append(render_queue, entry);
@@ -320,7 +327,7 @@ void game_world_view_render_world(void) {
 
     profile(PROF_RENDER_PUSH_AND_SORT_ENTRIES) {
         game_world_view_active_entity_map(game__world_view_render_push_entry);
-        zpl_sort_array(render_queue, zpl_array_count(render_queue), zpl_f32_cmp(zpl_offset_of(game_world_render_entry, y)));
+        zpl_sort_array(render_queue, zpl_array_count(render_queue), zpl_f32_cmp(zpl_offset_of(game_world_render_entry, cy)));
     }
 
     game_world_view_active_entity_map(game__world_view_render_ground);

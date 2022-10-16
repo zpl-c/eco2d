@@ -9,6 +9,7 @@ typedef struct {
     entity_view *data;
     float x;
     float y;
+    float cy;
     block_id blk_id;
 } game_world_render_entry;
 

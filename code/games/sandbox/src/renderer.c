@@ -250,13 +250,13 @@ void renderer_debug_draw(void) {
     EndMode2D();
 }
 
-void renderer_draw_single(float x, float y, asset_id id, Color color) {
+void renderer_draw_single(float x1, float y1, asset_id id, Color color) {
     BeginMode2D(render_camera);
 
-    x -= 32.0f;
-    y -= 32.0f;
-
-    DrawTexturePro(GetSpriteTexture2D(assets_find(id)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, color);
+    Texture2D tex = GetSpriteTexture2D(assets_find(id));
+    float x = x1 - tex.width/2;
+    float y = y1 - (tex.height-WORLD_BLOCK_SIZE/2);
+    DrawTexturePro(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), ASSET_DST_RECT_TEX(x,y, tex.width, tex.height), (Vector2){0.5f,0.5f}, 0.0f, color);
 
     EndMode2D();
 }
