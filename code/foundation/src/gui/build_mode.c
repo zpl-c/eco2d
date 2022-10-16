@@ -69,7 +69,7 @@ void buildmode_draw(void) {
                 qty = item->quantity;
             }
 
-            world_block_lookup l = world_block_from_realpos((float)cam.x, (float)cam.y);
+            world_view_block_lookup l = world_view_block_from_realpos(game_world_view_get_active(), (float)cam.x, (float)cam.y);
             if (build_is_deletion_mode && !l.is_outer){
                 renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(RED, 0.4f));
                 goto build_skip_placements;

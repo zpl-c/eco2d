@@ -15,7 +15,8 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_HALF(entity_view, vx) },
     { PKT_HALF(entity_view, vy) },
 
-    { PKT_SKIP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip blocks for anything else
+    { PKT_SKIP_IF(entity_view, blocks_used, 0, 3) }, // NOTE(zaklaus): skip blocks for anything else
+    { PKT_UINT(entity_view, chk_id) },
     { PKT_ARRAY(entity_view, blocks) },
     { PKT_ARRAY(entity_view, outer_blocks) },
 

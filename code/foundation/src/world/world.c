@@ -108,6 +108,7 @@ entity_view *world_build_entity_view(int64_t e) {
 
     Chunk *chunk = 0;
     if ((chunk = ecs_get_mut_if(world_ecs(), e, Chunk))) {
+        view.chk_id = chunk->id;
         view.x = chunk->x;
         view.y = chunk->y;
         view.blocks_used = 1;

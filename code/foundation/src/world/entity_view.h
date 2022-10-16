@@ -47,6 +47,7 @@ typedef struct entity_view {
     float max_hp;
 
     // TODO(zaklaus): Find a way to stream dynamic arrays
+    uint32_t chk_id;
     uint8_t blocks_used;
     block_id blocks[256];
     block_id outer_blocks[256];
