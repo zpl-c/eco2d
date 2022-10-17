@@ -136,6 +136,10 @@ typedef struct {
 } Producer;
 
 typedef struct {
+    char _unused;
+} ItemRouter;
+
+typedef struct {
     asset_id kind;
     float energy_level;
 } EnergySource;
@@ -185,6 +189,7 @@ extern ECS_COMPONENT_DECLARE(ItemContainer);
 extern ECS_COMPONENT_DECLARE(Producer);
 extern ECS_COMPONENT_DECLARE(EnergySource);
 extern ECS_COMPONENT_DECLARE(Ingredient);
+extern ECS_COMPONENT_DECLARE(ItemRouter);
 extern ECS_COMPONENT_DECLARE(Device);
 extern ECS_COMPONENT_DECLARE(Blueprint);
 extern ECS_COMPONENT_DECLARE(DemoNPC);
