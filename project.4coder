@@ -28,9 +28,8 @@ load_paths =
 {
     {{
             { ".", .recursive = false, .relative = true },
-            { "code/game", .recursive = true, .relative = true },
-            { "code/common", .recursive = true, .relative = true },
-            { "code/modules", .recursive = true, .relative = true },
+            { "code/games", .recursive = true, .relative = true },
+            { "code/foundation", .recursive = true, .relative = true },
             { "code/vendors", .recursive = true, .relative = true },
             { "cmake", .recursive = true, .relative = true },
             { "build/_deps/raylib-src/src", .recursive = true, .relative = true }
