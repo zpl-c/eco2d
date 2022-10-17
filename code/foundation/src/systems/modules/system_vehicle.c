@@ -5,10 +5,10 @@ void LeaveVehicle(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
     IsInVehicle *vehp = ecs_field(it, IsInVehicle, 2);
     Velocity *v = ecs_field(it, Velocity, 3);
-
+    
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
-
+        
         Vehicle *veh = 0;
         if ((veh = ecs_get_mut_if_ex(it->world, vehp->veh, Vehicle))) {
             for (int k = 0; k < 4; k++) {
@@ -17,16 +17,16 @@ void LeaveVehicle(ecs_iter_t *it) {
                     break;
                 }
             }
-
+            
             in[i].use = false;
             ecs_remove(it->world, it->entities[i], IsInVehicle);
-
+            
             // NOTE(zaklaus): push passenger out
             {
                 float px = zpl_cos(veh->heading)*400.0f;
                 float py = zpl_sin(veh->heading)*400.0f;
-                v->x += py;
-                v->y -= px;
+                v[i].x += py;
+                v[i].y -= px;
             }
         } else {
             ZPL_PANIC("unreachable code");
@@ -37,31 +37,31 @@ void LeaveVehicle(ecs_iter_t *it) {
 void EnterVehicle(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
     Position *p = ecs_field(it, Position, 2);
-
+    
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use) continue;
-
+        
         size_t ents_count;
         int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
         bool has_entered_veh = false;
-
+        
         for (size_t j = 0; j < ents_count; j++) {
             Vehicle *veh = 0;
-
+            
             if (has_entered_veh) break;
-
+            
             veh = ecs_get_mut_if_ex(it->world, ents[j], Vehicle);
-
+            
             if ((veh = ecs_get_mut_if_ex(it->world, ents[j], Vehicle))) {
                 Position const* p2 = ecs_get(it->world, ents[j], Position);
-
+                
                 float dx = p2->x - p[i].x;
                 float dy = p2->y - p[i].y;
                 float range = zpl_sqrt(dx*dx + dy*dy);
                 if (range <= game_rules.veh_enter_radius) {
                     for (int k = 0; k < 4; k++) {
                         if (veh->seats[k] != 0) continue;
-
+                        
                         // NOTE(zaklaus): We can enter the vehicle, yay!
                         veh->seats[k] = it->entities[i];
                         ecs_set(it->world, it->entities[i], IsInVehicle, {
@@ -82,27 +82,27 @@ void VehicleHandling(ecs_iter_t *it) {
     Vehicle *veh = ecs_field(it, Vehicle, 1);
     Position *p = ecs_field(it, Position, 2);
     Velocity *v = ecs_field(it, Velocity, 3);
-
+    
     for (int i = 0; i < it->count; i++) {
         Vehicle *car = &veh[i];
-
+        
         for (int j = 0; j < 4; j++) {
             // NOTE(zaklaus): Perform seat cleanup
             if (!world_entity_valid(veh[i].seats[j])) {
                 veh[i].seats[j] = 0;
                 continue;
             }
-
+            
             ecs_entity_t pe = veh[i].seats[j];
-
+            
             // NOTE(zaklaus): Handle driver input
             if (j == 0) {
                 Input const* in = ecs_get(it->world, pe, Input);
-
+                
                 car->force += zpl_lerp(0.0f, in->y * game_rules.vehicle_force, (zpl_sign(in->y) == zpl_sign(car->force) ? 1.0f : 3.0f) * game_rules.vehicle_accel*safe_dt(it));
                 if (in->sprint) {
                     car->force = zpl_lerp(car->force, 0.0f, game_rules.vehicle_brake_force*safe_dt(it));
-
+                    
                     if (zpl_abs(car->force) < 5.5f)
                         car->force = 0.0f;
                 }
@@ -112,28 +112,28 @@ void VehicleHandling(ecs_iter_t *it) {
                 car->steer = zpl_clamp(car->steer, -60.0f, 60.0f);
             }
         }
-
+        
         car->force = zpl_clamp(car->force, car->reverse_speed, car->speed);
-
+        
         // NOTE(zaklaus): Vehicle physics
         float fr_x = p[i].x + (car->wheel_base/2.0f) * zpl_cos(car->heading);
         float fr_y = p[i].y + (car->wheel_base/2.0f) * zpl_sin(car->heading);
-
+        
         float bk_x = p[i].x - (car->wheel_base/2.0f) * zpl_cos(car->heading);
         float bk_y = p[i].y - (car->wheel_base/2.0f) * zpl_sin(car->heading);
-
+        
         world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y);
         float drag = zpl_clamp(blocks_get_drag(lookup.bid), 0.0f, 1.0f);
-
+        
         bk_x += car->force * drag * zpl_cos(car->heading) * safe_dt(it)*game_rules.vehicle_power;
         bk_y += car->force * drag * zpl_sin(car->heading) * safe_dt(it)*game_rules.vehicle_power;
         fr_x += car->force * drag * zpl_cos(car->heading + zpl_to_radians(car->steer)) * safe_dt(it)*game_rules.vehicle_power;
         fr_y += car->force * drag * zpl_sin(car->heading + zpl_to_radians(car->steer)) * safe_dt(it)*game_rules.vehicle_power;
-
+        
         v[i].x += ((fr_x + bk_x) / 2.0f - p[i].x);
         v[i].y += ((fr_y + bk_y) / 2.0f - p[i].y);
         car->heading = zpl_arctan2(fr_y - bk_y, fr_x - bk_x);
-
+        
         float check_x = p[i].x+PHY_LOOKAHEAD(v[i].x);
         float check_y = p[i].y+PHY_LOOKAHEAD(v[i].y);
         world_block_lookup lookahead = world_block_from_realpos(check_x, check_y);
@@ -146,11 +146,11 @@ void VehicleHandling(ecs_iter_t *it) {
                 car->force = 0.0f;
             }
         }
-
+        
         for (int j = 0; j < 4; j++) {
             if (!world_entity_valid(veh[i].seats[j])) continue;
             ecs_entity_t pe = veh[i].seats[j];
-
+            
             // NOTE(zaklaus): Update passenger position
             {
                 Velocity *v2 = ecs_get_mut_ex(it->world, pe, Velocity);
@@ -158,22 +158,22 @@ void VehicleHandling(ecs_iter_t *it) {
                 *v2 = v[i];
             }
         }
-
+        
         if (zpl_abs(car->force) > ENTITY_ACTION_VELOCITY_THRESHOLD) {
             entity_wake(it->entities[i]);
         }
-
+        
         {
             debug_v2 b2 = {p[i].x + zpl_cos(car->heading)*(car->wheel_base), p[i].y + zpl_sin(car->heading)*(car->wheel_base)};
             debug_push_line((debug_v2){p[i].x, p[i].y}, b2, 0x0000FFFF);
-
+            
             // NOTE(zaklaus): force
             {
                 float dx = zpl_cos(car->heading);
                 float dy = zpl_sin(car->heading);
                 debug_push_circle((debug_v2){p[i].x+dx*car->force, p[i].y+dy*car->force}, 5.0f, 0x00FF00FF);
             }
-
+            
             // NOTE(zaklaus): steer
             {
                 float dx = zpl_sin(car->heading);
@@ -187,7 +187,7 @@ void VehicleHandling(ecs_iter_t *it) {
 
 void ClearVehicle(ecs_iter_t *it) {
     Vehicle *veh = ecs_field(it, Vehicle, 1);
-
+    
     for (int i = 0; i < it->count; i++) {
         for (int k = 0; k < 4; k++) {
             if (world_entity_valid(veh[i].seats[k])) {
