@@ -5,12 +5,12 @@
 #include <emscripten.h>
 #ifdef ARCH_IMPL
 EM_JS(int, canvas_get_width, (), {
-  return canvas.width;
-});
+          return canvas.width;
+      });
 
 EM_JS(int, canvas_get_height, (), {
-  return canvas.height;
-});
+          return canvas.height;
+      });
 
 void UpdateDrawFrame(void) {
     reset_cached_time();
@@ -19,7 +19,7 @@ void UpdateDrawFrame(void) {
         game_update();
         game_render();
     }
-
+    
     profiler_collate();
 }
 #else
@@ -43,42 +43,42 @@ void reset_cached_time(void) {
 }
 
 void game_run(void) {
-    #if !defined(PLATFORM_WEB)
-        while (game_is_running()) {
-            reset_cached_time();
-            profile (PROF_MAIN_LOOP) {
-                game_input();
-                game_update();
-                game_render();
-            }
-
-            profiler_collate();
+#if !defined(PLATFORM_WEB)
+    while (game_is_running()) {
+        reset_cached_time();
+        profile (PROF_MAIN_LOOP) {
+            game_input();
+            game_update();
+            game_render();
         }
-    #else
-        emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
-    #endif
+        
+        profiler_collate();
+    }
+#else
+    emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
+#endif
 }
 void platform_create_window(const char *title) {
     SetTraceLogLevel(LOG_ERROR);
-
-    #if defined(PLATFORM_WEB)
-        screenWidth = (uint16_t)canvas_get_width();
-        screenHeight = (uint16_t)canvas_get_height();
-    #endif
-
-        InitWindow(screenWidth, screenHeight, title);
-        uint32_t flags = /*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT;
-        #if !defined(PLATFORM_WEB)
-            flags |= FLAG_VSYNC_HINT;
-        #endif
-        SetWindowState(flags);
-
-    #if !defined(PLATFORM_WEB)
-        screenWidth = (uint16_t)GetScreenWidth();
-        screenHeight = (uint16_t)GetScreenHeight();
-    #endif
-        // ToggleFullscreen();
-        // SetTargetFPS(60.0);
+    
+#if defined(PLATFORM_WEB)
+    screenWidth = (uint16_t)canvas_get_width();
+    screenHeight = (uint16_t)canvas_get_height();
+#endif
+    
+    InitWindow(screenWidth, screenHeight, title);
+    uint32_t flags = /*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT;
+#if !defined(PLATFORM_WEB)
+    //flags |= FLAG_VSYNC_HINT;
+#endif
+    SetWindowState(flags);
+    
+#if !defined(PLATFORM_WEB)
+    screenWidth = (uint16_t)GetScreenWidth();
+    screenHeight = (uint16_t)GetScreenHeight();
+#endif
+    // ToggleFullscreen();
+    // SetTargetFPS(60.0);
 }
 
 void platform_resize_window() {
@@ -121,13 +121,13 @@ inline static
 void platform_input_update_input_frame(game_keystate_data data) {
     float mx = 0, my = 0;
     platform_get_block_realpos(&mx, &my);
-
+    
     if (mx != last_blockpos_data.mx || my != last_blockpos_data.my){
         last_blockpos_data.mx = mx;
         last_blockpos_data.my = my;
         game_action_send_blockpos(mx, my);
     }
-
+    
     // NOTE(zaklaus): Test if there are any changes
     if (data.x != last_input_data.x) goto send_data;
     if (data.y != last_input_data.y) goto send_data;
@@ -145,7 +145,7 @@ void platform_input_update_input_frame(game_keystate_data data) {
     if (data.deletion_mode != last_input_data.deletion_mode) goto send_data;
     if (zpl_memcompare(data.placements, last_input_data.placements, zpl_size_of(data.placements))) goto send_data;
     return;
-
+    
     send_data:
     last_input_data = data;
     game_action_send_keystate(&data);

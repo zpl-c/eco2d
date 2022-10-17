@@ -36,7 +36,7 @@ void debug_push_line(debug_v2 a, debug_v2 b, int32_t color) {
     debug_push_entry((debug_draw_entry){
                          .kind = DDRAW_LINE,
                          .color = color,
-
+                         
                          .a = a,
                          .b = b,
                      });
@@ -46,7 +46,7 @@ void debug_push_circle(debug_v2 pos, float radius, int32_t color) {
     debug_push_entry((debug_draw_entry){
                          .kind = DDRAW_CIRCLE,
                          .color = color,
-
+                         
                          .pos = pos,
                          .radius = radius,
                      });
@@ -56,7 +56,7 @@ void debug_push_rect(debug_v2 bmin, debug_v2 bmax, int32_t color) {
     debug_push_entry((debug_draw_entry){
                          .kind = DDRAW_RECT,
                          .color = color,
-
+                         
                          .bmin = bmin,
                          .bmax = bmax,
                      });

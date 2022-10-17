@@ -3,17 +3,17 @@
 #include "models/assets.h"
 
 #define ecs_get_mut_ex(world, entity, T) \
-    (ECS_CAST(T*, world_component_cached(world, entity, ecs_id(T))))
+(ECS_CAST(T*, world_component_cached(world, entity, ecs_id(T))))
 
 #define ecs_get_if(world, entity, T) \
-    (world_entity_valid(entity) ? ecs_get(world, entity, T) : NULL)
+(world_entity_valid(entity) ? ecs_get(world, entity, T) : NULL)
 
 #define ecs_get_mut_if_ex(world, entity, component) \
-    (ecs_get_if(world, entity, component) ? ecs_get_mut_ex(world, entity, component) : NULL)
+(ecs_get_if(world, entity, component) ? ecs_get_mut_ex(world, entity, component) : NULL)
 
 #ifndef ecs_get_mut_if
 #define ecs_get_mut_if(world, entity, component)\
-    (ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component) : NULL)
+(ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component) : NULL)
 #endif
 
 #define ITEMS_INVENTORY_SIZE 9
@@ -52,7 +52,7 @@ typedef struct {
     uint8_t is_blocked;
     ecs_entity_t pick_ent;
     ecs_entity_t sel_ent;
-
+    
     // NOTE(zaklaus): inventory
     ecs_entity_t storage_ent;
     uint8_t storage_action;
@@ -63,7 +63,7 @@ typedef struct {
     uint8_t swap_storage;
     uint8_t swap_from;
     uint8_t swap_to;
-
+    
     // NOTE(zaklaus): build mode
     uint8_t num_placements;
     float placements_x[20];
@@ -80,7 +80,7 @@ typedef struct {
 typedef struct {
     float hp;
     float max_hp;
-
+    
     //NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
     float pain_time;
     float heal_time;
@@ -92,12 +92,12 @@ typedef struct {
 
 typedef struct {
     uint64_t seats[4];
-
+    
     float force;
     float heading;
     float steer;
     float wheel_base;
-
+    
     float speed;
     float reverse_speed;
     uint8_t veh_kind;
@@ -148,7 +148,7 @@ typedef struct {
 
 typedef struct {
     uint16_t asset;
-
+    
     // progress bar
     uint8_t progress_active;
     float progress_value;
