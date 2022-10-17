@@ -1,5 +1,3 @@
-if "%1"=="" MAKE.bat demo_collide.c
-
 rem clone emscripten sdk
 if not exist "..\emsdk" (
 	git clone https://github.com/emscripten-core/emsdk ..\emsdk
