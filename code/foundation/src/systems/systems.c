@@ -38,7 +38,7 @@ void IntegratePositions(ecs_iter_t *it) {
             if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
                 continue;
             }
-            if (zpl_abs(v[i].x) >= 0.001f || zpl_abs(v[i].y) >= 0.001f)
+            //if (zpl_abs(v[i].x) >= 0.0001f || zpl_abs(v[i].y) >= 0.0001f)
             {
                 // NOTE(zaklaus): world bounds
                 {

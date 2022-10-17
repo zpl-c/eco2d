@@ -3,20 +3,20 @@
 void PickItem(ecs_iter_t *it) {
     Position *p = ecs_field(it, Position, 2);
     Inventory *inv = ecs_field(it, Inventory, 3);
-
+    
     for (int i = 0; i < it->count; i++) {
         if (inv[i].pickup_time > game_time()) continue;
         size_t ents_count;
         int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
         bool picked = false;
-
+        
         for (size_t j = 0; j < ents_count; j++) {
             Item *drop = 0;
             uint64_t ent_id = ents[j];
             if ((drop = ecs_get_mut_if_ex(it->world, ent_id, Item))) {
                 Position *p2 = ecs_get_mut_ex(it->world, ent_id, Position);
                 Velocity *v2 = ecs_get_mut_ex(it->world, ent_id, Velocity);
-
+                
                 float dx = p2->x - p[i].x;
                 float dy = p2->y - p[i].y;
                 float range = zpl_sqrt(dx*dx + dy*dy);
@@ -33,7 +33,7 @@ void PickItem(ecs_iter_t *it) {
                                 item->quantity += picked_count;
                                 drop->quantity -= picked_count;
                                 item->kind = drop->kind;
-
+                                
                                 if (drop->quantity == 0)
                                     item_despawn(ent_id);
                             } else if (!world_entity_valid(item_slot_ent)) {
@@ -50,7 +50,7 @@ void PickItem(ecs_iter_t *it) {
                     v2->y = (p[i].y - p2->y) * game_rules.item_attract_force;
                 }
             }
-
+            
             if (picked) break;
         }
     }
@@ -60,12 +60,12 @@ void DropItem(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
     Position *p = ecs_field(it, Position, 2);
     Inventory *inv = ecs_field(it, Inventory, 3);
-
+    
     for (int i = 0; i < it->count; i++) {
         if (!in[i].drop) continue;
-
+        
         ecs_entity_t *items = inv[i].items;
-
+        
         if (in[i].storage_action){
             if (world_entity_valid(in[i].storage_ent)){
                 ItemContainer *ic = 0;
@@ -78,37 +78,37 @@ void DropItem(ecs_iter_t *it) {
                 continue;
             }
         }
-
+        
         uint8_t slot_id = in[i].storage_action ? in[i].storage_selected_item : in[i].selected_item;
         ecs_entity_t item_slot_ent = items[slot_id];
         Item *item = item_get_data(item_slot_ent);
-
+        
         if (!item || item->quantity <= 0)
             continue;
-
+        
         uint32_t dropped_count = item->quantity;
         if (in[i].sprint) {
             dropped_count /= 2;
         } else if (in[i].ctrl) {
             dropped_count = item->quantity-1;
         }
-
+        
         if (dropped_count == 0)
             continue;
-
+        
         item_show(item_slot_ent, true);
-
+        
         Position *ipos = ecs_get_mut_ex(it->world, item_slot_ent, Position);
         entity_set_position(item_slot_ent, p[i].x, p[i].y);
-
+        
         Velocity *v = ecs_get_mut_ex(it->world, item_slot_ent, Velocity);
         v->x = in[i].mx * 800.0f;
         v->y = in[i].my * 800.0f;
-
+        
         inv[i].pickup_time = game_time() + game_rules.item_drop_pickup_time;
         in[i].drop = false;
         items[slot_id] = 0;
-
+        
         if (item->quantity - dropped_count > 0) {
             item->quantity -= dropped_count;
             ecs_entity_t te = item_spawn(item->kind, dropped_count);
@@ -155,12 +155,12 @@ void DropItem(ecs_iter_t *it) {
 void SwapItems(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
     Inventory *inv = ecs_field(it, Inventory, 2);
-
+    
     for (int i = 0; i < it->count; i++) {
         if (!in[i].swap) continue;
-
+        
         ecs_entity_t *items = inv[i].items;
-
+        
         if (in[i].storage_action){
             if (world_entity_valid(in[i].storage_ent)){
                 ItemContainer *ic = 0;
@@ -173,15 +173,15 @@ void SwapItems(ecs_iter_t *it) {
                 continue;
             }
         }
-
+        
         ecs_entity_t *from_ent = 0;
         ecs_entity_t *to_ent = 0;
         Item *to = 0;
         Item *from = 0;
-
+        
         if (in[i].swap_storage){
             in[i].swap_storage = false;
-
+            
             if (in[i].storage_action){
                 from_ent = &inv[i].items[in[i].swap_from];
                 to_ent = &items[in[i].swap_to];
@@ -208,12 +208,12 @@ void SwapItems(ecs_iter_t *it) {
             from = item_get_data(*from_ent);
             to = item_get_data(*to_ent);
         }
-
+        
         if (!from) continue;
-
+        
         uint16_t to_id = to ? item_find(to->kind) : ASSET_EMPTY;
         asset_id to_kind = to ? to->kind : ASSET_EMPTY;
-
+        
         if (to_ent == from_ent) {
             // NOTE(zaklaus): do nothing
         } else if (to_kind == from->kind && to->quantity > 0) {
@@ -226,7 +226,7 @@ void SwapItems(ecs_iter_t *it) {
             swapped_count = zpl_clamp(swapped_count, 0, item_max_quantity(to_id) - to->quantity);
             to->quantity += swapped_count;
             from->quantity -= swapped_count;
-
+            
             if (from->quantity == 0) {
                 item_despawn(*from_ent);
                 *from_ent = 0;
@@ -243,14 +243,14 @@ void SwapItems(ecs_iter_t *it) {
             ecs_entity_t te = item_spawn(from->kind, split_count);
             item_show(te, false);
             *to_ent = te;
-
+            
             from->quantity -= split_count;
         } else {
             ecs_entity_t tmp = *to_ent;
             *to_ent = *from_ent;
             *from_ent = tmp;
         }
-
+        
         in[i].swap = false;
     }
 }
@@ -259,19 +259,19 @@ void UseItem(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
     Position *p = ecs_field(it, Position, 2);
     Inventory *inv = ecs_field(it, Inventory, 3);
-
+    
     for (int i = 0; i < it->count; i++) {
         if (!in[i].use && !in[i].num_placements) continue;
-
+        
         if (in[i].storage_action){
             continue;
         }
-
+        
         ecs_entity_t item_ent = 0;
         Item *item = NULL;
         uint16_t item_id = 0;
         item_usage usage = UKIND_DELETE;
-
+        
         if (!in[i].deletion_mode){
             item_ent = inv[i].items[in[i].selected_item];
             item = item_get_data(item_ent);
@@ -279,7 +279,7 @@ void UseItem(ecs_iter_t *it) {
             usage = item_get_usage(item_id);
             if (!item || item->quantity <= 0) continue;
         }
-
+        
         if (!in[i].use && usage == UKIND_DELETE){
             for (size_t j = 0; j < in[i].num_placements; j++) {
                 world_chunk_destroy_block(in[i].placements_x[j], in[i].placements_y[j], true);
@@ -304,17 +304,17 @@ void UseItem(ecs_iter_t *it) {
                 // NOTE(zaklaus): ensure we pick the first variant
                 ofs = 1;
             }
-
+            
             for (size_t j = 0; j < in[i].num_placements; j++) {
                 Position pos = {.x = in[i].placements_x[j], .y = in[i].placements_y[j]};
                 item_use(it->world, item_ent, item, pos, ofs);
             }
-
+            
             in[i].num_placements = 0;
         }
-
+        
         entity_wake(it->entities[i]);
-
+        
         if (usage != UKIND_DELETE && item->quantity == 0) {
             item_despawn(item_ent);
             inv[i].items[in[i].selected_item] = 0;
@@ -324,10 +324,10 @@ void UseItem(ecs_iter_t *it) {
 
 void InspectContainers(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
-
+    
     for (int i = 0; i < it->count; ++i) {
         if (!in[i].pick) continue;
-
+        
         if ((in[i].sel_ent && ecs_get(it->world, in[i].sel_ent, ItemContainer)) || !in[i].sel_ent)
             in[i].storage_ent = in[i].sel_ent;
     }
@@ -336,19 +336,19 @@ void InspectContainers(ecs_iter_t *it) {
 void HarvestIntoContainers(ecs_iter_t *it) {
     ItemContainer *in = ecs_field(it, ItemContainer, 1);
     Position *p = ecs_field(it, Position, 2);
-
+    
     for (int i = 0; i < it->count; ++i) {
         // NOTE(zaklaus): find any item
         size_t ents_count;
         int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 0);
         bool picked = false;
-
+        
         for (size_t j = 0; j < ents_count; j++) {
             Item *drop = 0;
             if ((drop = ecs_get_mut_if_ex(it->world, ents[j], Item))) {
                 Position *p2 = ecs_get_mut_ex(it->world, ents[j], Position);
                 uint64_t ent_id = ents[j];
-
+                
                 float dx = p2->x - p[i].x;
                 float dy = p2->y - p[i].y;
                 float range = zpl_sqrt(dx*dx + dy*dy);
@@ -364,7 +364,7 @@ void HarvestIntoContainers(ecs_iter_t *it) {
                                 picked_count = zpl_clamp(picked_count, 0, item_max_quantity(drop_id) - item->quantity);
                                 item->quantity += picked_count;
                                 drop->quantity -= picked_count;
-
+                                
                                 if (drop->quantity == 0) {
                                     item_despawn(ent_id);
                                 }
@@ -388,13 +388,13 @@ void HarvestIntoContainers(ecs_iter_t *it) {
 void ThrowItemsOut(ecs_iter_t *it) {
     ItemContainer *storage = ecs_field(it, ItemContainer, 1);
     Position *p = ecs_field(it, Position, 2);
-
+    
     for (int i = 0; i < it->count; i++) {
         for (int j = 0; j < ITEMS_CONTAINER_SIZE; j++) {
             ecs_entity_t item_slot_ent = storage[i].items[j];
             Item *item = item_get_data(item_slot_ent);
             if (!item) continue;
-
+            
             item_show(item_slot_ent, true);
             entity_set_position(item_slot_ent, p[i].x, p[i].y);
         }
