@@ -4,6 +4,7 @@
 #include "models/prefabs/blueprint.h"
 #include "models/prefabs/craftbench.h"
 #include "models/prefabs/splitter.h"
+#include "models/prefabs/assembler.h"
 
 static struct {
     asset_id id;
@@ -14,6 +15,7 @@ static struct {
     { .id = ASSET_FURNACE, .proc = furnace_spawn },
     { .id = ASSET_CRAFTBENCH, .proc = craftbench_spawn },
     { .id = ASSET_SPLITTER, .proc = splitter_spawn },
+    { .id = ASSET_ASSEMBLER, .proc = assembler_spawn },
     { .id = ASSET_BLUEPRINT, .proc_udata = blueprint_spawn_udata },
 };
 

@@ -61,7 +61,6 @@ void CraftItem(ecs_iter_t *it) {
     
     for (int i = 0; i < it->count; i++) {
         if (in[i].craft_item == 0) continue;
-        zpl_printf("id: %d\n", in[i].craft_item); 
         if (world_entity_valid(in[i].storage_ent)){
             Producer *ic = 0;
             if ((ic = ecs_get_mut_if_ex(it->world, in[i].storage_ent, Producer))){

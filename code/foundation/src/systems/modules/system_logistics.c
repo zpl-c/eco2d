@@ -121,6 +121,11 @@ void PushItemsOnNodes(ecs_iter_t *it) {
                 item->quantity -= zpl_min(r->push_qty, item->quantity);
                 --num_nodes;
                 ++counter;
+                
+                if (item->quantity == 0) {
+                    item_despawn(item_slot_ent);
+                    storage[i].items[j] = 0;
+                }
             }
         }
     }
