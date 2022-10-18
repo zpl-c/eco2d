@@ -63,6 +63,7 @@ typedef struct {
     uint8_t swap_storage;
     uint8_t swap_from;
     uint8_t swap_to;
+    asset_id craft_item;
     
     // NOTE(zaklaus): build mode
     uint8_t num_placements;

@@ -51,6 +51,15 @@ bool craft_is_reagent_used_in_producer(asset_id reagent, asset_id producer) {
     return craft__find_num_recipes_by_reagent(producer, reagent) > 0;
 }
 
+uint16_t craft_get_num_recipes(void) {
+    return MAX_RECIPES;
+}
+
+asset_id craft_get_recipe_asset(uint16_t id) {
+    ZPL_ASSERT(id < MAX_RECIPES);
+    return recipes[id].product;
+}
+
 asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id target, uint32_t *quantity) {
     ZPL_ASSERT_NOT_NULL(items);
     
@@ -143,12 +152,12 @@ asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id t
     return 0;
 }
 
-// TODO(zaklaus): 
+// TODO(zaklaus): might be removed
 asset_id craft_has_byproducts(asset_id product) {
     return 0xFF;
 }
 
-// TODO(zaklaus): 
+// TODO(zaklaus): might be removed
 uint32_t craft_resolve_graph(asset_id product, uint16_t *hops, uint8_t direct_cost) {
     return 0;
 }

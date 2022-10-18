@@ -27,7 +27,7 @@
 void platform_init() {
     platform_create_window("eco2d");
     renderer_init();
-
+    
     target_zoom = 2.70f;
 }
 
@@ -52,11 +52,11 @@ void platform_shutdown() {
 void platform_input() {
     float mouse_z = (GetMouseWheelMove()*0.5f);
     float mouse_modified = target_zoom < 4 ? mouse_z / (zpl_exp(4 - (target_zoom))) : mouse_z;
-
+    
     if (mouse_z != 0.0f) {
         target_zoom = zpl_clamp(target_zoom + mouse_modified, 0.1f, 11.0f);
     }
-
+    
     // NOTE(zaklaus): keystate handling
     {
         float x=0.0f, y=0.0f;
@@ -65,12 +65,12 @@ void platform_input() {
         if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
         if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y += 1.0f;
         if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y -= 1.0f;
-
+        
         use = IsKeyPressed(KEY_SPACE);
         sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
         ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
         drop = IsKeyPressed(KEY_G) || player_inv.drop_item || storage_inv.drop_item;
-
+        
         // NOTE(zaklaus): NEW! mouse movement
         Vector2 mouse_pos = GetMousePosition();
         mouse_pos.x /= screenWidth;
@@ -78,18 +78,18 @@ void platform_input() {
         mouse_pos.x -= 0.5f;
         mouse_pos.y -= 0.5f;
         mouse_pos = Vector2Normalize(mouse_pos);
-
+        
         if (game_get_kind() == GAMEKIND_SINGLE && IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
             x = mouse_pos.x;
             y = -mouse_pos.y;
         }
-
+        
         inv_keystate *inv = (inv_is_storage_action) ? &storage_inv : &player_inv;
         inv_keystate *inv2 = (!inv_is_storage_action) ? &storage_inv : &player_inv;
-
+        
         // NOTE(zaklaus): don't perform picking if we manipulate our inventories
         pick = (inv_is_inside||inv->item_is_held||inv2->item_is_held) ? false : IsMouseButtonDown(MOUSE_LEFT_BUTTON);
-
+        
         game_keystate_data in_data = {
             .x = x,
             .y = y,
@@ -99,7 +99,7 @@ void platform_input() {
             .sprint = sprint,
             .ctrl = ctrl,
             .pick = pick,
-
+            
             .drop = drop,
             .storage_action = inv_is_storage_action,
             .selected_item = player_inv.selected_item,
@@ -108,18 +108,19 @@ void platform_input() {
             .swap_storage = inv_swap_storage,
             .swap_from = inv->swap_from,
             .swap_to = inv->swap_to,
-
+            .craft_item = inv->craft_item,
+            
             .deletion_mode = build_is_deletion_mode,
         };
-
+        
         if (build_submit_placements) {
             in_data.placement_num = build_num_placements;
             zpl_memcopy(in_data.placements, build_placements, build_num_placements*zpl_size_of(item_placement));
         }
-
+        
         platform_input_update_input_frame(in_data);
     }
-
+    
     // NOTE(zaklaus): cycle through viewers
     {
         if (IsKeyPressed(KEY_Q)) {
@@ -129,7 +130,7 @@ void platform_input() {
             game_world_view_cycle_active(1);
         }
     }
-
+    
     // NOTE(zaklaus): toggle debug drawing
 #ifndef ECO2D_PROD
     {
@@ -146,13 +147,13 @@ void draw_selected_item() {
     if (oe) {
         // NOTE(zaklaus): sel item
         entity_view *e = game_world_view_active_get_entity(oe->sel_ent);
-
+        
         if (e && e->kind == EKIND_DEVICE) {
             renderer_draw_single(e->x, e->y, ASSET_BLANK, ColorAlpha(RED, 0.4f));
         }else{
             // NOTE(zaklaus): hover item
             entity_view *e = game_world_view_active_get_entity(oe->pick_ent);
-
+            
             if (e && e->kind == EKIND_DEVICE) {
                 renderer_draw_single(e->x, e->y, ASSET_BLANK, ColorAlpha(RED, 0.1f));
             }
@@ -162,14 +163,14 @@ void draw_selected_item() {
 
 void platform_render() {
     platform_resize_window();
-
+    
     profile(PROF_ENTITY_LERP) {
         game_world_view_active_entity_map(lerp_entity_positions);
         game_world_view_active_entity_map(do_entity_fadeinout);
     }
-
+    
     assets_frame();
-
+    
     BeginDrawing();
     {
         profile (PROF_RENDER) {
@@ -186,7 +187,7 @@ void platform_render() {
         debug_draw();
     }
     EndDrawing();
-
+    
     if (request_shutdown) {
         CloseWindow();
     }

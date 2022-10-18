@@ -22,6 +22,7 @@ typedef struct {
     uint8_t swap_storage;
     uint8_t swap_from;
     uint8_t swap_to;
+    uint16_t craft_item;
     
     // TODO(zaklaus): build mode
     uint8_t placement_num;

@@ -16,8 +16,6 @@ uint64_t craftbench_spawn(void) {
     producer->energy_level = 69.0f;
     producer->pending_task = PRODUCER_CRAFT_WAITING;
     producer->push_filter = PRODUCER_PUSH_NONE;
-    
-    ecs_set(world_ecs(), e, ItemRouter, {1});
     return (uint64_t)e;
 }
 
