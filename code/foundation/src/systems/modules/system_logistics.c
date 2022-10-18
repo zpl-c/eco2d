@@ -82,7 +82,7 @@ void PushItemsOnNodes(ecs_iter_t *it) {
             Item *item = item_get_data(item_slot_ent);
             if (!item) continue;
             
-            if (craft_is_reagent_used_in_producer(item->kind, d->asset)) {
+            if (craft_is_reagent_used_in_producer(item->kind, d[i].asset)) {
                 // NOTE(zaklaus): this is an input reagent, keep it
                 continue;
             }

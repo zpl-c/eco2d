@@ -22,6 +22,7 @@ uint32_t craft__find_num_recipes_by_reagent(asset_id producer, asset_id id) {
             for (int j = 0; recipes[i].reagents[j].id; ++j) {
                 if (recipes[i].reagents[j].id == id) {
                     ++num_recipes;
+                    break;
                 }
             }
         }

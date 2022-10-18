@@ -32,7 +32,7 @@ void ProduceItems(ecs_iter_t *it) {
                     entity_set_position(e, p[i].x, p[i].y);
                     producer[i].processed_item = 0;
                 } else {
-                    producer[i].processed_item = craft_perform_recipe(storage[i].items, d->asset, &producer[i].processed_item_qty);
+                    producer[i].processed_item = craft_perform_recipe(storage[i].items, d[i].asset, &producer[i].processed_item_qty);
                     producer[i].process_time = game_time() + game_rules.furnace_cook_time;
                 }
             }
