@@ -17,7 +17,7 @@ typedef struct {
 
 uint32_t craft__find_num_recipes_by_reagent(asset_id producer, asset_id id) {
     uint32_t num_recipes=0;
-    for (int i = 0; i < MAX_RECIPES; ++i) {
+    for (int i = 0; i < (int)MAX_RECIPES; ++i) {
         if (recipes[i].producer == producer) {
             for (int j = 0; recipes[i].reagents[j].id; ++j) {
                 if (recipes[i].reagents[j].id == id) {
@@ -30,7 +30,7 @@ uint32_t craft__find_num_recipes_by_reagent(asset_id producer, asset_id id) {
 }
 
 recipe *craft__find_recipe_by_reagent(asset_id producer, asset_id id, uint32_t slot_id) {
-    for (int i = 0; i < MAX_RECIPES; ++i) {
+    for (int i = 0; i < (int)MAX_RECIPES; ++i) {
         if (recipes[i].producer == producer) {
             for (int j = 0; recipes[i].reagents[j].id; ++j) {
                 if (recipes[i].reagents[j].id == id) {
