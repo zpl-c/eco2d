@@ -65,6 +65,12 @@ void PushItemsOnNodes(ecs_iter_t *it) {
         // We need a way to refer to specific blocks in the world so we can do easy block ID checks
         // and re-build the cache when a change is detected.
         
+        Producer *producer = ecs_get_mut_if_ex(it->world, it->entities[i], Producer);
+        
+        if (producer) {
+            if (producer->push_filter == PRODUCER_PUSH_NONE)
+                continue;
+        }
         
         float push_dx[4], push_dy[4];
         uint8_t nodes = CheckForNearbyBelts(&p[i], push_dx, push_dy);
@@ -82,9 +88,19 @@ void PushItemsOnNodes(ecs_iter_t *it) {
             Item *item = item_get_data(item_slot_ent);
             if (!item) continue;
             
-            if (craft_is_reagent_used_in_producer(item->kind, d[i].asset)) {
-                // NOTE(zaklaus): this is an input reagent, keep it
-                continue;
+            if (producer) {
+                if (producer->push_filter == PRODUCER_PUSH_ANY) {
+                    if (craft_is_reagent_used_in_producer(item->kind, d[i].asset)) {
+                        // NOTE(zaklaus): this is an input reagent, keep it
+                        continue;
+                    }
+                }
+                else if (producer->push_filter == PRODUCER_PUSH_PRODUCT) {
+                    if (producer->target_item != item->kind) {
+                        // NOTE(zaklaus): this is not a producer's output, keep it
+                        continue;
+                    }
+                }
             }
             
             while (item->quantity > 0 && num_nodes > 0) {

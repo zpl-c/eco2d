@@ -129,11 +129,27 @@ typedef struct {
     ecs_entity_t items[ITEMS_CONTAINER_SIZE];
 } ItemContainer;
 
+enum {
+    PRODUCER_PUSH_PRODUCT,
+    PRODUCER_PUSH_ANY,
+    PRODUCER_PUSH_NONE,
+};
+
+enum {
+    PRODUCER_CRAFT_WAITING,
+    PRODUCER_CRAFT_BUSY,
+    PRODUCER_CRAFT_ENQUEUED,
+    PRODUCER_CRAFT_AUTO,
+};
+
 typedef struct {
+    asset_id target_item;
     asset_id processed_item;
     uint32_t processed_item_qty;
     float process_time;
     float energy_level;
+    uint8_t pending_task;
+    uint8_t push_filter;
 } Producer;
 
 typedef struct {

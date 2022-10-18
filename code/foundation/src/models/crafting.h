@@ -7,7 +7,7 @@
 // NOTE(zaklaus): resolves recipe dependencies and consumes reagents
 // to enqueue a production of a new item.
 // TODO(zaklaus): "items" is assumed to come from ItemContainer component.
-asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, uint32_t *quantity);
+asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id target, uint32_t *quantity);
 
 // NOTE(zaklaus): informs us on whether this product has any byproducts desired.
 asset_id craft_has_byproducts(asset_id product);

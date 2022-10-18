@@ -14,6 +14,8 @@ uint64_t furnace_spawn(void) {
     Producer *producer = ecs_get_mut(world_ecs(), e, Producer);
     *producer = (Producer){0};
     producer->energy_level = 69.0f;
+    producer->pending_task = PRODUCER_CRAFT_AUTO;
+    producer->push_filter = PRODUCER_PUSH_ANY;
     
     ecs_set(world_ecs(), e, ItemRouter, {1});
     return (uint64_t)e;

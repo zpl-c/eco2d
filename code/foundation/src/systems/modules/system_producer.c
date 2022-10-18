@@ -31,9 +31,21 @@ void ProduceItems(ecs_iter_t *it) {
                     uint64_t e = item_spawn(producer[i].processed_item, producer[i].processed_item_qty);
                     entity_set_position(e, p[i].x, p[i].y);
                     producer[i].processed_item = 0;
+                    
+                    if (producer[i].pending_task == PRODUCER_CRAFT_BUSY)
+                        producer[i].pending_task = PRODUCER_CRAFT_WAITING;
                 } else {
-                    producer[i].processed_item = craft_perform_recipe(storage[i].items, d[i].asset, &producer[i].processed_item_qty);
-                    producer[i].process_time = game_time() + game_rules.furnace_cook_time;
+                    if (producer[i].pending_task != PRODUCER_CRAFT_WAITING) {
+                        producer[i].processed_item = craft_perform_recipe(storage[i].items, d[i].asset, producer[i].target_item, &producer[i].processed_item_qty);
+                        producer[i].process_time = game_time() + game_rules.furnace_cook_time;
+                        
+                        if (producer[i].pending_task == PRODUCER_CRAFT_ENQUEUED) {
+                            if (producer[i].processed_item > 0)
+                                producer[i].pending_task = PRODUCER_CRAFT_BUSY;
+                            else
+                                producer[i].pending_task = PRODUCER_CRAFT_WAITING;
+                        }
+                    }
                 }
             }
         }

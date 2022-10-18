@@ -51,7 +51,7 @@ bool craft_is_reagent_used_in_producer(asset_id reagent, asset_id producer) {
     return craft__find_num_recipes_by_reagent(producer, reagent) > 0;
 }
 
-asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, uint32_t *quantity) {
+asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id target, uint32_t *quantity) {
     ZPL_ASSERT_NOT_NULL(items);
     
     for (int i = 0; i < ITEMS_CONTAINER_SIZE; i++) {
@@ -67,6 +67,12 @@ asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, uint32_t *
             if (!rec) {
                 // NOTE(zaklaus): this item is not used as a reagent, skip it.
                 // TODO(zaklaus): is this a bug? should we assert?
+                continue;
+            }
+            
+            if (target != 0 && rec->product != target) {
+                // NOTE(zaklaus): we were asked to produce a specific product, 
+                // however this recipe is not compatible, bail.
                 continue;
             }
             
