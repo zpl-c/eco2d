@@ -12,7 +12,7 @@ typedef enum {
     UKIND_PLACE_ITEM,
     UKIND_PLACE_ITEM_DATA,
     UKIND_END_PLACE,
-
+    
     // NOTE(zaklaus): the rest of possible actions
     UKIND_HOLD,
     UKIND_PROXY,
@@ -21,7 +21,6 @@ typedef enum {
 typedef enum {
     UDATA_NONE,
     UDATA_ENERGY_SOURCE,
-    UDATA_INGREDIENT,
 } item_attachment;
 
 typedef struct {
@@ -30,36 +29,30 @@ typedef struct {
     item_attachment attachment;
     uint32_t max_quantity;
     uint8_t has_storage;
-
+    
     // NOTE(zaklaus): usage data
     union {
         struct {
             asset_id kind;
             bool directional; // NOTE(zaklaus): expects next 4 asset entries to be direction assets
         } place;
-
+        
         struct {
             asset_id id;
         } proxy;
-
+        
         struct {
             asset_id id;
         } place_item;
     };
-
+    
     union {
         struct {
             asset_id producer;
             float energy_level;
         } energy_source;
-
-        struct {
-            asset_id producer;
-            asset_id product;
-            asset_id additional_ingredient;
-        } ingredient;
     };
-
+    
     // NOTE: item data
     union {
         struct {

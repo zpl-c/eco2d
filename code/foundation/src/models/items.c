@@ -32,7 +32,7 @@ void item_show(uint64_t ent, bool show) {
 
 uint64_t item_spawn(asset_id kind, uint32_t qty) {
     ecs_entity_t e = entity_spawn(EKIND_ITEM);
-
+    
     Item *d = ecs_get_mut(world_ecs(), e, Item);
     *d = (Item){
         .kind = item_fix_kind(kind),
@@ -40,32 +40,26 @@ uint64_t item_spawn(asset_id kind, uint32_t qty) {
         .merger_time = 0,
         .durability = 1.0f,
     };
-
+    
     item_desc *it = &items[item_find(kind)];
-
+    
     if (it->has_storage) {
         ecs_add(world_ecs(), e, BlockHarvest);
         ItemContainer *storage = ecs_get_mut(world_ecs(), e, ItemContainer);
         *storage = (ItemContainer){0};
     }
-
+    
     switch (it->attachment) {
-    case UDATA_ENERGY_SOURCE: {
-        EnergySource *f = ecs_get_mut(world_ecs(), e, EnergySource);
-        *f = (EnergySource){
-            .kind = it->energy_source.producer,
-            .energy_level = it->energy_source.energy_level,
-        };
-    } break;
-    case UDATA_INGREDIENT: {
-        Ingredient *i = ecs_get_mut(world_ecs(), e, Ingredient);
-        i->producer = it->ingredient.producer;
-        i->product = it->ingredient.product;
-        i->additional_ingredient = it->ingredient.additional_ingredient;
-    } break;
-    default: break;
+        case UDATA_ENERGY_SOURCE: {
+            EnergySource *f = ecs_get_mut(world_ecs(), e, EnergySource);
+            *f = (EnergySource){
+                .kind = it->energy_source.producer,
+                .energy_level = it->energy_source.energy_level,
+            };
+        } break;
+        default: break;
     }
-
+    
     return (uint64_t)e;
 }
 
@@ -108,7 +102,7 @@ void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t u
                 asset_id item_asset = blocks_get_asset(l.bid);
                 item_id item_asset_id = item_find(item_asset);
                 if (item_asset_id == ASSET_INVALID) return;
-
+                
                 // NOTE(zaklaus): If we replace the same item, refund 1 qty and let it replace it
                 if (item_asset_id == it_id) {
                     it->quantity++;
@@ -123,7 +117,7 @@ void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t u
             world_chunk_replace_block(l.chunk_id, l.id, blocks_find(desc->place.kind + (asset_id)udata));
             it->quantity--;
         }break;
-
+        
         case UKIND_PLACE_ITEM:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
             if (l.is_outer && l.bid > 0) {
@@ -133,14 +127,14 @@ void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t u
             else if (l.bid > 0 && blocks_get_flags(l.bid) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
                 return;
             }
-
+            
             ecs_entity_t e = entity_spawn_id(desc->place_item.id);
             ZPL_ASSERT(world_entity_valid(e));
             entity_set_position(e, p.x, p.y);
-
+            
             it->quantity--;
         }break;
-
+        
         case UKIND_PLACE_ITEM_DATA:{
             world_block_lookup l = world_block_from_realpos(p.x, p.y);
             if (l.is_outer && l.bid > 0) {
@@ -150,14 +144,14 @@ void item_use(ecs_world_t *ecs, ecs_entity_t e, Item *it, Position p, uint64_t u
             else if (l.bid > 0 && blocks_get_flags(l.bid) & (BLOCK_FLAG_COLLISION|BLOCK_FLAG_ESSENTIAL)) {
                 return;
             }
-
+            
             ecs_entity_t e = entity_spawn_id_with_data(desc->place_item.id, desc);
             ZPL_ASSERT(world_entity_valid(e));
             entity_set_position(e, p.x, p.y);
-
+            
             it->quantity--;
         }break;
-
+        
         case UKIND_DELETE:
         case UKIND_END_PLACE:
         case UKIND_PROXY:

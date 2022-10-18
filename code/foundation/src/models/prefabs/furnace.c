@@ -15,7 +15,7 @@ uint64_t furnace_spawn(void) {
     *producer = (Producer){0};
     producer->energy_level = 69.0f;
     
-    ecs_add(world_ecs(), e, ItemRouter);
+    ecs_set(world_ecs(), e, ItemRouter, {1});
     return (uint64_t)e;
 }
 

@@ -131,24 +131,19 @@ typedef struct {
 
 typedef struct {
     asset_id processed_item;
+    uint32_t processed_item_qty;
     float process_time;
     float energy_level;
 } Producer;
 
 typedef struct {
-    char _unused;
+    uint32_t push_qty;
 } ItemRouter;
 
 typedef struct {
     asset_id kind;
     float energy_level;
 } EnergySource;
-
-typedef struct {
-    asset_id producer;
-    asset_id additional_ingredient; // optional - can specify additional item we need in the container to craft this item
-    asset_id product;
-} Ingredient;
 
 typedef struct {
     uint16_t asset;
@@ -188,7 +183,6 @@ extern ECS_COMPONENT_DECLARE(Inventory);
 extern ECS_COMPONENT_DECLARE(ItemContainer);
 extern ECS_COMPONENT_DECLARE(Producer);
 extern ECS_COMPONENT_DECLARE(EnergySource);
-extern ECS_COMPONENT_DECLARE(Ingredient);
 extern ECS_COMPONENT_DECLARE(ItemRouter);
 extern ECS_COMPONENT_DECLARE(Device);
 extern ECS_COMPONENT_DECLARE(Blueprint);

@@ -17,7 +17,6 @@ ECS_COMPONENT_DECLARE(Inventory);
 ECS_COMPONENT_DECLARE(ItemContainer);
 ECS_COMPONENT_DECLARE(Producer);
 ECS_COMPONENT_DECLARE(EnergySource);
-ECS_COMPONENT_DECLARE(Ingredient);
 ECS_COMPONENT_DECLARE(ItemRouter);
 ECS_COMPONENT_DECLARE(Device);
 ECS_COMPONENT_DECLARE(Blueprint);
@@ -44,7 +43,6 @@ void ComponentsImport(ecs_world_t *ecs) {
     ECS_COMPONENT_DEFINE(ecs, ItemContainer);
     ECS_COMPONENT_DEFINE(ecs, Producer);
     ECS_COMPONENT_DEFINE(ecs, EnergySource);
-    ECS_COMPONENT_DEFINE(ecs, Ingredient);
     ECS_COMPONENT_DEFINE(ecs, ItemRouter);
     ECS_COMPONENT_DEFINE(ecs, Device);
     ECS_COMPONENT_DEFINE(ecs, Blueprint);

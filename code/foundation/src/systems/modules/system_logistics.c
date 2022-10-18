@@ -1,3 +1,5 @@
+#include "models/crafting.h"
+
 static inline
 asset_id FetchAssetAtPos(float x, float y) {
     world_block_lookup lookup = world_block_from_realpos(x, y);
@@ -63,6 +65,7 @@ void PushItemsOnNodes(ecs_iter_t *it) {
         // We need a way to refer to specific blocks in the world so we can do easy block ID checks
         // and re-build the cache when a change is detected.
         
+        
         float push_dx[4], push_dy[4];
         uint8_t nodes = CheckForNearbyBelts(&p[i], push_dx, push_dy);
         uint8_t num_nodes = (uint8_t)zpl_count_set_bits(nodes);
@@ -77,13 +80,11 @@ void PushItemsOnNodes(ecs_iter_t *it) {
             ecs_entity_t item_slot_ent = storage[i].items[j];
             if (item_slot_ent == 0) continue;
             Item *item = item_get_data(item_slot_ent);
+            if (!item) continue;
             
-            const Ingredient *ing = 0;
-            // NOTE(zaklaus): Make sure we don't push out items from input node
-            if ((ing = ecs_get_if(it->world, item_slot_ent, Ingredient))) {
-                if (ing->producer == d->asset) {
-                    continue;
-                }
+            if (craft_is_reagent_used_in_producer(item->kind, d->asset)) {
+                // NOTE(zaklaus): this is an input reagent, keep it
+                continue;
             }
             
             while (item->quantity > 0 && num_nodes > 0) {
@@ -94,14 +95,14 @@ void PushItemsOnNodes(ecs_iter_t *it) {
                     continue;
                 }
                 
-                uint64_t e = item_spawn(item->kind, 1);
+                uint64_t e = item_spawn(item->kind, zpl_min(r->push_qty, item->quantity));
                 entity_set_position(e, p[i].x + push_dx[counter], p[i].y + push_dy[counter]);
                 
                 Velocity *e_vel = ecs_get_mut_ex(it->world, e, Velocity);
                 e_vel->x = push_dx[counter];
                 e_vel->y = push_dy[counter];
                 
-                --item->quantity;
+                item->quantity -= zpl_min(r->push_qty, item->quantity);
                 --num_nodes;
                 ++counter;
             }

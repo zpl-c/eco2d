@@ -9,10 +9,11 @@ add_library(eco2d-foundation STATIC
     src/platform/profiler.c
 
     src/models/assets.c
-	  src/models/components.c
+    src/models/components.c
     src/models/items.c
     src/models/entity.c
     src/models/device.c
+    src/models/crafting.c
 
     src/models/prefabs/player.c
     src/models/prefabs/vehicle.c
