@@ -17,6 +17,7 @@ patterns =
     "*.txt",
     "*.cmake",
     "*.md",
+    "*.lst",
 };
 
 blacklist_patterns =

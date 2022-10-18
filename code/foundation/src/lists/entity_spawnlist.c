@@ -2,6 +2,7 @@
 #include "models/prefabs/storage.h"
 #include "models/prefabs/furnace.h"
 #include "models/prefabs/blueprint.h"
+#include "models/prefabs/craftbench.h"
 
 static struct {
     asset_id id;
@@ -10,6 +11,7 @@ static struct {
 } entity_spawnlist[] = {
     { .id = ASSET_CHEST, .proc = storage_spawn },
     { .id = ASSET_FURNACE, .proc = furnace_spawn },
+    { .id = ASSET_CRAFTBENCH, .proc = craftbench_spawn },
     { .id = ASSET_BLUEPRINT, .proc_udata = blueprint_spawn_udata },
 };
 
