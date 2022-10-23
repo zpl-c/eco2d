@@ -50,7 +50,7 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
         
         // NOTE(zaklaus): devices
         case ASSET_CHEST: return LoadTexEco("chest");
-        case ASSET_FURNACE: return LoadTexEco("furnace-export");
+        case ASSET_FURNACE: return LoadTexEco("furnace");
         case ASSET_CRAFTBENCH: return LoadTexEco("craftbench");
         case ASSET_SPLITTER: return LoadTexEco("item_splitter");
         case ASSET_ASSEMBLER: return LoadTexEco("assembler");
