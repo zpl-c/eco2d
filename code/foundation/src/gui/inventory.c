@@ -251,7 +251,7 @@ void inventory_draw() {
     entity_view *e = game_world_view_active_get_entity(cam.ent_id);
     if (!e || !e->has_items) return;
     
-    if (IsKeyPressed(KEY_TAB)) {
+    if (input_is_pressed(IN_TOGGLE_INV)) {
         inv_is_open = !inv_is_open;
     }
     
@@ -264,9 +264,4 @@ void inventory_draw() {
     
     inventory_render_held_item(true);
     inventory_render_held_item(false);
-    
-    // TODO(zaklaus): draw craft list
-    if (IsKeyPressed(KEY_O)) {
-        player_inv.craft_item = ASSET_SCREWS;
-    }
 }

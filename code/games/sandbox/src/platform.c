@@ -7,6 +7,7 @@
 #include "world/prediction.h"
 #include "core/camera.h"
 #include "math.h"
+#include "platform/input.h"
 #include "world/blocks.h"
 #include "models/assets.h"
 #include "platform/profiler.h"
@@ -61,15 +62,15 @@ void platform_input() {
     {
         float x=0.0f, y=0.0f;
         uint8_t use, sprint, drop, ctrl, pick;
-        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) x += 1.0f;
-        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) x -= 1.0f;
-        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) y += 1.0f;
-        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) y -= 1.0f;
+        if (input_is_down(IN_RIGHT)) x += 1.0f;
+        if (input_is_down(IN_LEFT)) x -= 1.0f;
+        if (input_is_down(IN_UP)) y += 1.0f;
+        if (input_is_down(IN_DOWN)) y -= 1.0f;
         
-        use = IsKeyPressed(KEY_SPACE);
-        sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
-        ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-        drop = IsKeyPressed(KEY_G) || player_inv.drop_item || storage_inv.drop_item;
+        use = input_is_pressed(IN_USE);
+        sprint = input_is_down(IN_SPRINT);
+        ctrl = input_is_down(IN_CTRL);
+        drop = input_is_pressed(IN_DROP) || player_inv.drop_item || storage_inv.drop_item;
         
         // NOTE(zaklaus): NEW! mouse movement
         Vector2 mouse_pos = GetMousePosition();

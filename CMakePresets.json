@@ -1,0 +1,11 @@
+{
+    "version": 2,
+    "buildPresets": [
+        {
+            "name": "vs2022-debug",
+            "displayName": "Visual Studio Community 2022 Release - x86_amd64 - Debug",
+            "configurePreset": "vs2022",
+            "configuration": "Debug"
+        }
+    ]
+}

@@ -27,26 +27,26 @@ void buildmode_draw(void) {
     platform_get_block_realpos(&mx, &my);
     cam.x = (double)mx;
     cam.y = (double)my;
-
+    
     renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BLOCK_FRAME, WHITE);
-
+    
     // NOTE(zaklaus): Check distance
     double dx = old_cam.x - cam.x;
     double dy = old_cam.y - cam.y;
     double dsq = (dx*dx + dy*dy);
     bool is_outside_range = (dsq > zpl_square(WORLD_BLOCK_SIZE*14));
-
+    
     if (build_submit_placements) {
         build_submit_placements = false;
         buildmode_clear_buffers();
     }
-
-    if (IsKeyPressed(KEY_B)){
+    
+    if (input_is_pressed(IN_TOGGLE_DEMOLITION)){
         build_is_deletion_mode = !build_is_deletion_mode;
     }
-
+    
     Item *item = &e->items[e->selected_item];
-
+    
     if (e->has_items && !e->inside_vehicle && (build_is_deletion_mode || (item->quantity > 0 && !is_outside_range))) {
         item_usage usage = 0;
         uint16_t item_id = 0;
@@ -60,21 +60,21 @@ void buildmode_draw(void) {
                 build_num_placements = 0;
                 buildmode_clear_buffers();
             }
-
+            
             uint32_t qty = BUILD_MAX_PLACEMENTS;
             bool directional = false;
-
+            
             if (!build_is_deletion_mode){
                 directional = item_get_place_directional(item_id);
                 qty = item->quantity;
             }
-
+            
             world_view_block_lookup l = world_view_block_from_realpos(game_world_view_get_active(), (float)cam.x, (float)cam.y);
             if (build_is_deletion_mode && !l.is_outer){
                 renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(RED, 0.4f));
                 goto build_skip_placements;
             }
-
+            
             if (build_is_in_draw_mode) {
                 for (size_t i = 0; i < BUILD_MAX_PLACEMENTS; i++) {
                     item_placement *it = &build_placements[i];
@@ -90,7 +90,7 @@ void buildmode_draw(void) {
                             float sy = zpl_sign0(p2y-p1y);
                             float sxx = zpl_sign0(p3x-p1x);
                             float syy = zpl_sign0(p3y-p1y);
-
+                            
                             if (sx != sxx || sy != syy) break;
                         }
                         it->x = (float)cam.x;
@@ -103,35 +103,35 @@ void buildmode_draw(void) {
                     }
                 }
             }
-
-
+            
+            
             if (!is_outside_range) {
                 if (build_is_deletion_mode)
                     renderer_draw_single((float)cam.x, (float)cam.y, ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(RED, 0.2f));
                 else
                     renderer_draw_single((float)cam.x, (float)cam.y, item->kind, ColorAlpha(WHITE, 0.2f));
             }
-
+            
             build_skip_placements:
             build_num_placements = zpl_min(build_num_placements, qty);
         }
     }
-
+    
     for (size_t i = 0; i < build_num_placements; i++) {
         item_placement *it = &build_placements[i];
         renderer_draw_single(it->x, it->y, !build_is_deletion_mode ? item->kind : ASSET_BUILDMODE_HIGHLIGHT, ColorAlpha(build_is_deletion_mode ? RED : RAYWHITE, 0.6f));
     }
-
+    
     if (build_is_in_draw_mode) {
         if (IsKeyPressed(KEY_SPACE)) {
             build_is_in_draw_mode = false;
             buildmode_clear_buffers();
         }
-
+        
         if (IsMouseButtonReleased(MOUSE_RIGHT_BUTTON)) {
             build_submit_placements = true;
             build_is_in_draw_mode = false;
         }
     }
-
+    
 }

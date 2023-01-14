@@ -25,8 +25,7 @@ void ProduceItems(ecs_iter_t *it) {
             // TODO(zaklaus): handle fuel
             // if (producer[i].energy_level <= 0.0f) continue;
             
-            // TODO(zaklaus): use ticks
-            if (producer[i].process_time < game_time()) {
+			if (producer[i].process_ticks_left == 0) {
                 if (producer[i].processed_item > 0) {
                     uint64_t e = item_spawn(producer[i].processed_item, producer[i].processed_item_qty);
                     entity_set_position(e, p[i].x, p[i].y);
@@ -36,8 +35,8 @@ void ProduceItems(ecs_iter_t *it) {
                         producer[i].pending_task = PRODUCER_CRAFT_WAITING;
                 } else {
                     if (producer[i].pending_task != PRODUCER_CRAFT_WAITING) {
-                        producer[i].processed_item = craft_perform_recipe(storage[i].items, d[i].asset, producer[i].target_item, &producer[i].processed_item_qty);
-                        producer[i].process_time = game_time() + game_rules.furnace_cook_time;
+                        producer[i].processed_item = craft_perform_recipe(storage[i].items, d[i].asset, producer[i].target_item, &producer[i].processed_item_qty, &producer[i].process_ticks);
+						producer[i].process_ticks_left = producer[i].process_ticks;
                         
                         if (producer[i].pending_task == PRODUCER_CRAFT_ENQUEUED) {
                             if (producer[i].processed_item > 0)
@@ -47,15 +46,17 @@ void ProduceItems(ecs_iter_t *it) {
                         }
                     }
                 }
-            }
+			}
         }
         
         d[i].progress_active = (producer[i].processed_item > 0);
-        d[i].progress_value = 1.0f-((producer[i].process_time - game_time()) / game_rules.furnace_cook_time);
+		d[i].progress_value = 1.0f-(producer[i].process_ticks_left / (float)producer[i].process_ticks);
         
         if (d[i].progress_active) {
             entity_wake(it->entities[i]);
         }
+
+		producer[i].process_ticks_left = zpl_max(producer[i].process_ticks_left-1, 0) ;
     }
 }
 

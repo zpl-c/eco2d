@@ -6,6 +6,8 @@
 #define ZPL_PICO
 #include "zpl.h"
 
+#define MAX_CRAFTABLES 32
+
 typedef enum {
     EKIND_SERVER = 0,
     EKIND_PLAYER,
@@ -42,10 +44,10 @@ typedef struct entity_view {
     float vy;
     float tx;
     float ty;
-
+    
     float hp;
     float max_hp;
-
+    
     // TODO(zaklaus): Find a way to stream dynamic arrays
     uint32_t chk_id;
     uint8_t blocks_used;
@@ -54,39 +56,43 @@ typedef struct entity_view {
     uint32_t color;
     uint8_t is_dirty;
     int64_t tex;
-
+    
     // NOTE(zaklaus): vehicle
     float heading, theading;
     bool inside_vehicle;
     uint32_t veh_kind;
-
+    
     // NOTE(zaklaus): items, ...
     asset_id asset;
     uint32_t quantity;
     float durability;
-
+    
     // NOTE(zaklaus): device progress bar
+    bool is_producer;
     uint32_t progress_active;
     float progress_value;
-
+    
     // NOTE(zaklaus): inventory
     uint8_t has_items;
     Item items[ITEMS_INVENTORY_SIZE];
     uint8_t selected_item;
-
+    
     // NOTE(zaklaus): storage interface
     uint8_t has_storage_items;
     Item storage_items[ITEMS_CONTAINER_SIZE];
     uint8_t storage_selected_item;
-
+    
+    // NOTE(zaklaus): craftable recipes
+    uint8_t craftables[MAX_CRAFTABLES];
+    
     // NOTE(zaklaus): entity picking
     uint64_t pick_ent;
     uint64_t sel_ent;
-
+    
     // NOTE(zaklaus): internals
     uint8_t layer_id;
     uint64_t last_update;
-
+    
     // NOTE(zaklaus): fade in-out effect
     entity_transition_effect tran_effect;
     float tran_time;

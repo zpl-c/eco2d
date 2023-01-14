@@ -5,7 +5,6 @@ typedef struct {
     float phy_walk_drag;
     uint64_t demo_npc_move_speed;
     uint64_t demo_npc_steer_speed;
-    float furnace_cook_time;
     float item_pick_radius;
     float item_merger_radius;
     float item_attract_radius;

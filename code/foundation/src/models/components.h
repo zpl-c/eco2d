@@ -147,7 +147,8 @@ typedef struct {
     asset_id target_item;
     asset_id processed_item;
     uint32_t processed_item_qty;
-    float process_time;
+    int32_t process_ticks;
+	int32_t process_ticks_left;
     float energy_level;
     uint8_t pending_task;
     uint8_t push_filter;

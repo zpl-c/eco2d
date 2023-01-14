@@ -9,6 +9,7 @@ typedef struct {
 typedef struct {
     asset_id product;
     uint32_t product_qty;
+	int32_t process_ticks;
     asset_id producer;
     reagent *reagents;
 } recipe;
@@ -60,7 +61,7 @@ asset_id craft_get_recipe_asset(uint16_t id) {
     return recipes[id].product;
 }
 
-asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id target, uint32_t *quantity) {
+asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id target, uint32_t *quantity, int32_t *process_ticks) {
     ZPL_ASSERT_NOT_NULL(items);
     
     for (int i = 0; i < ITEMS_CONTAINER_SIZE; i++) {
@@ -146,6 +147,7 @@ asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id t
             
             // NOTE(zaklaus): all done, return the product and its qty
             *quantity = rec->product_qty;
+			*process_ticks = rec->process_ticks;
             return rec->product;
         }
     }

@@ -71,6 +71,7 @@ entity_view *world_build_entity_view(int64_t e) {
         view.asset = dev->asset;
         view.progress_active = dev->progress_active;
         view.progress_value = dev->progress_value;
+        view.is_producer = ecs_get(world_ecs(), e, Producer) != 0;
     }
     
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
@@ -101,6 +102,11 @@ entity_view *world_build_entity_view(int64_t e) {
                     }
                     
                     view.storage_selected_item = in->storage_selected_item;
+                    
+                    if (ecs_get(world_ecs(), e, Producer)) {
+                        Device const* dev = ecs_get(world_ecs(), e, Device);
+                        
+                    }
                 }
             }
         }
