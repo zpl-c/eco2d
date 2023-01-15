@@ -1,4 +1,4 @@
-#include "debug/debug_ui.h"
+#include "dev/debug_ui.h"
 #include "raylib.h"
 #include "platform/platform.h"
 #include "net/network.h"

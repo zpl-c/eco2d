@@ -1,5 +1,5 @@
-#include "debug/debug_ui.h"
-#include "debug/debug_draw.h"
+#include "dev/debug_ui.h"
+#include "dev/debug_draw.h"
 #include "raylib.h"
 #include "models/prefabs/vehicle.h"
 #include "core/camera.h"
@@ -9,6 +9,12 @@
 
 #include "models/components.h"
 
+#define RAYLIB_NUKLEAR_IMPLEMENTATION
+#define NK_INCLUDE_STANDARD_VARARGS
+ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
+#include "raylib-nuklear.h"
+ZPL_DIAGNOSTIC_POP
+
 typedef enum {
     DITEM_RAW,
     DITEM_GAP,
@@ -16,7 +22,9 @@ typedef enum {
     DITEM_BUTTON,
     DITEM_SLIDER,
     DITEM_LIST,
+	DITEM_TOOL,
     DITEM_COND,
+
     DITEM_END,
 
     DITEM_FORCE_UINT8 = UINT8_MAX
@@ -42,6 +50,7 @@ static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
 static zpl_u16 sel_item_id = 0;
+static struct nk_context *nk_ctx = 0;
 
 typedef enum {
     L_NONE = 0,
@@ -72,6 +81,11 @@ typedef struct debug_item {
             void (*on_change)(float);
         } slider;
 
+		struct {
+			uint8_t is_open;
+			void (*on_draw)(void);
+		} tool;
+
         void (*on_click)(void);
 
         uint8_t (*on_success)(void);
@@ -83,10 +97,11 @@ typedef struct debug_item {
 static void UIDrawText(const char *text, float posX, float posY, int fontSize, Color color);
 static int UIMeasureText(const char *text, int fontSize);
 
-#include "debug/debug_replay.c"
+#include "dev/debug_replay.c"
 
-#include "debug/debug_ui_actions.c"
-#include "debug/debug_ui_widgets.c"
+#include "dev/debug_ui_actions.c"
+#include "dev/debug_ui_widgets.c"
+#include "dev/debug_ui_tools.c"
 
 static debug_item items[] = {
     {
@@ -246,7 +261,18 @@ static debug_item items[] = {
             },
             .is_collapsed = 1
         }
-    },
+	},
+	{
+		.kind = DITEM_LIST,
+		.name = "tools",
+		.list = {
+			.items = (debug_item[]) {
+				{ .kind = DITEM_TOOL, .name = "asset inspector", .tool = { .is_open = 0, .on_draw = ToolAssetInspector } },
+				{ .kind = DITEM_END },
+			},
+			.is_collapsed = 0
+		}
+	},
 #if !defined(PLATFORM_WEB)
     {
         .kind = DITEM_BUTTON,
@@ -349,6 +375,25 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
                 ypos += DBG_FONT_SPACING;
             }break;
 
+			case DITEM_TOOL: {
+				char const *text = TextFormat("> %s", it->name);
+				if (it->name_width == 0) {
+					it->name_width = (float)UIMeasureText(text, DBG_FONT_SIZE);
+				}
+				Color color = RAYWHITE;
+				if (is_btn_pressed(xpos, ypos, it->name_width, DBG_FONT_SIZE, &color)) {
+					it->tool.is_open ^= 1;
+				}
+
+				debug_draw_result res = DrawColoredText(xpos, ypos, text, color);
+				ypos = res.y;
+				
+				if (it->tool.is_open) {
+					if (is_shadow_rendered) break;
+					it->tool.on_draw();
+				}
+			} break;
+
             default: {
 
             }break;
@@ -366,7 +411,12 @@ void debug_draw(void) {
     if (!first_run) {
         first_run = 1;
         ActSpawnItemNext();
+
+		// Initialize Nuklear ctx
+		nk_ctx = InitNuklear(10);
     }
+
+	UpdateNuklear(nk_ctx);
 
     float xpos = debug_xpos;
     float ypos = debug_ypos;
@@ -412,6 +462,8 @@ void debug_draw(void) {
         debug_draw_list(items, xpos+DBG_SHADOW_OFFSET_XPOS, ypos+DBG_SHADOW_OFFSET_YPOS, 1); // NOTE(zaklaus): draw shadow
         debug_draw_list(items, xpos, ypos, 0);
     }
+
+	DrawNuklear(nk_ctx);
 }
 
 debug_area_status check_mouse_area(float xpos, float ypos, float w, float h) {

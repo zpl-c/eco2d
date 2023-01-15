@@ -6,6 +6,7 @@
 uint64_t entity_spawn(uint16_t class_id /* 0 = no streaming */);
 uint64_t entity_spawn_id(uint16_t id);
 uint64_t entity_spawn_id_with_data(uint16_t id, void* udata);
+bool entity_spawn_provided(uint16_t id);
 void entity_batch_despawn(uint64_t *ids, size_t num_ids);
 void entity_despawn(uint64_t ent_id);
 void entity_set_position(uint64_t ent_id, float x, float y);

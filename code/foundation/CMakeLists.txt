@@ -29,8 +29,8 @@ add_library(eco2d-foundation STATIC
 
     src/gen/texgen_fallback.c
 
-    src/debug/debug_ui.c
-    src/debug/debug_draw.c
+    src/dev/debug_ui.c
+    src/dev/debug_draw.c
 
     src/utils/options.c
     src/utils/compress.c
@@ -51,6 +51,6 @@ add_library(eco2d-foundation STATIC
 
 target_compile_definitions(eco2d-foundation PRIVATE CLIENT)
 include_directories(src ../modules ../../art/gen)
-target_link_libraries(eco2d-foundation raylib cwpack flecs-bundle vendors-bundle)
+target_link_libraries(eco2d-foundation raylib raylib_nuklear cwpack flecs-bundle vendors-bundle)
 
 link_system_libs(eco2d-foundation)

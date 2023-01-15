@@ -11,8 +11,8 @@
 #include "world/blocks.h"
 #include "models/assets.h"
 #include "platform/profiler.h"
-#include "debug/debug_ui.h"
-#include "debug/debug_draw.h"
+#include "dev/debug_ui.h"
+#include "dev/debug_draw.h"
 #include "utils/raylib_helpers.h"
 #include "platform/renderer.h"
 

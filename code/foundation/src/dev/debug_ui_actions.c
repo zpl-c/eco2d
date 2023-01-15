@@ -1,4 +1,4 @@
-#include "debug/debug_ui.h"
+#include "dev/debug_ui.h"
 #include "world/blocks.h"
 #include "models/items.h"
 #include "net/network.h"
@@ -49,9 +49,7 @@ ActSpawnSelItem(void) {
     ecs_entity_t plr = camera_get().ent_id;
 
     Position const* origin = ecs_get(world_ecs(), plr, Position);
-    Position * dest = ecs_get_mut(world_ecs(), e, Position);
-    *dest = *origin;
-    entity_set_position(e, dest->x, dest->y);
+    entity_set_position(e, origin->x, origin->y);
 }
 
 void

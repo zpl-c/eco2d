@@ -4,7 +4,7 @@
 #include "world/world.h"
 #include "world/blocks.h"
 #include "platform/profiler.h"
-#include "debug/debug_draw.h"
+#include "dev/debug_draw.h"
 #include "core/game.h"
 #include "core/rules.h"
 

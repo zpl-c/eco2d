@@ -4,7 +4,7 @@
 #include "systems/systems.h"
 #include "world/world.h"
 #include "world/entity_view.h"
-#include "debug/debug_replay.h"
+#include "dev/debug_replay.h"
 #include "models/items.h"
 #include "world/worldgen.h"
 #include "platform/platform.h"

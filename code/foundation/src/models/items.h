@@ -81,3 +81,4 @@ const Item *item_get_data_const(uint64_t ent);
 uint32_t item_max_quantity(item_id id);
 item_usage item_get_usage(item_id id);
 bool item_get_place_directional(item_id id);
+item_desc item_get_desc(item_id id);

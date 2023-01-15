@@ -18,6 +18,7 @@ void assets_destroy(void);
 uint16_t assets_find(asset_id id);
 
 asset_kind assets_get_kind(uint16_t id);
+const char *assets_get_kind_name(uint16_t id);
 void *assets_get_snd(uint16_t id);
 void *assets_get_tex(uint16_t id);
 uint16_t assets_resolve_proxy(uint16_t id);

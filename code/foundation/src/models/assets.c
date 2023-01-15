@@ -94,12 +94,17 @@ uint16_t assets_find(asset_id id) {
             return i;
     }
 
-    ZPL_PANIC("Unknown asset id: %d\n", id);
+    //ZPL_PANIC("Unknown asset id: %d\n", id);
     return ASSET_INVALID;
 }
 
 asset_kind assets_get_kind(uint16_t id) {
     return assets[id].kind;
+}
+
+const char* assets_get_kind_name(uint16_t id) {
+	static const char* names[] = { "Texture", "Animated Texture", "Sound" };
+	return names[assets[id].kind];
 }
 
 void *assets_get_snd(uint16_t id) {

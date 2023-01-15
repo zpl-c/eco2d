@@ -6,7 +6,7 @@
 #include "world/world.h"
 #include "models/entity.h"
 
-#include "debug/debug_replay.h"
+#include "dev/debug_replay.h"
 
 pkt_desc pkt_send_keystate_desc[] = {
     { PKT_REAL(pkt_send_keystate, x) },

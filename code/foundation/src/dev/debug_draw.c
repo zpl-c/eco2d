@@ -1,4 +1,4 @@
-#include "debug/debug_draw.h"
+#include "dev/debug_draw.h"
 #include "core/game.h"
 
 static debug_draw_queue draw_queue = {0};

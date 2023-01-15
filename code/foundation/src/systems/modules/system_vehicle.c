@@ -1,4 +1,4 @@
-#include "debug/debug_draw.h"
+#include "dev/debug_draw.h"
 #include "models/entity.h"
 
 void LeaveVehicle(ecs_iter_t *it) {

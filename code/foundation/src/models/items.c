@@ -177,3 +177,8 @@ bool item_get_place_directional(item_id id) {
     ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
     return items[id].place.directional;
 }
+
+item_desc item_get_desc(item_id id) {
+	ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+	return items[id];
+}

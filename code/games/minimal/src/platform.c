@@ -10,7 +10,7 @@
 #include "world/blocks.h"
 #include "models/assets.h"
 #include "platform/profiler.h"
-#include "debug/debug_ui.h"
+#include "dev/debug_ui.h"
 #include "utils/raylib_helpers.h"
 #include "platform/renderer.h"
 
