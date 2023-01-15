@@ -12,6 +12,9 @@ asset_id craft_perform_recipe(ecs_entity_t *items, asset_id producer, asset_id t
 // NOTE(zaklaus): mostly used by item router so we don't push reagents out
 bool craft_is_reagent_used_in_producer(asset_id reagent, asset_id producer);
 
+// used to filter out craftables
+bool craft_is_item_produced_by_producer(asset_id item, asset_id producer);
+
 // NOTE(zaklaus): utilities
 uint16_t craft_get_num_recipes(void);
 asset_id craft_get_recipe_asset(uint16_t id);

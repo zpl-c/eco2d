@@ -90,7 +90,7 @@ typedef struct entity_view {
     uint8_t storage_selected_item;
     
     // NOTE(zaklaus): craftable recipes
-    uint8_t craftables[MAX_CRAFTABLES];
+    uint16_t craftables[MAX_CRAFTABLES];
     
     // NOTE(zaklaus): entity picking
     uint64_t pick_ent;

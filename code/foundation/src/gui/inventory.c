@@ -101,14 +101,15 @@ inv_draw_result inventory_draw_crafting_btn(float xpos, float ypos, const char *
 }
 
 static inline
-bool inventory_draw_crafting_list(float xpos, float ypos) {
-    // NOTE(zaklaus): collect the list of supported recipes
-    // TODO(zaklaus): too lazy, draw all recipes everywhere for now
-    
+bool inventory_draw_crafting_list(entity_view *e, float xpos, float ypos) {
     float start_xpos = xpos;
     float start_ypos = ypos;
-    for (uint16_t i = 0; i < craft_get_num_recipes(); ++i) {
-        asset_id id = craft_get_recipe_asset(i);
+
+ 	if (!e->sel_ent)
+		return DAREA_OUTSIDE;
+
+    for (uint16_t i = 0; e->craftables[i]; ++i) {
+		asset_id id = e->craftables[i];
         inventory_draw_crafting_btn(start_xpos+1, ypos+1, asset_names[id], id, BLACK);
         inv_draw_result entry = inventory_draw_crafting_btn(start_xpos, ypos, asset_names[id], id, RAYWHITE);
         ypos = entry.y;
@@ -134,7 +135,7 @@ void inventory_draw_panel(entity_view *e, bool is_player, float sx, float sy){
     inv_keystate *inv = (!is_player) ? &storage_inv : &player_inv;
     inv_keystate *inv2 = (is_player) ? &storage_inv : &player_inv;
     
-    bool inside_craft = !is_player && inventory_draw_crafting_list(screenWidth/2.0f - 684, screenHeight/2.0f - 128);
+    bool inside_craft = !is_player && inventory_draw_crafting_list(e, screenWidth/2.0f - 684, screenHeight/2.0f - 128);
     
     inv->is_inside = check_mouse_area(sx, sy, (float)grid_size, (float)grid_size) != DAREA_OUTSIDE;
     inv_is_inside |= inv->is_inside || inside_craft;

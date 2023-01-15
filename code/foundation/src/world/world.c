@@ -11,6 +11,7 @@
 #include "platform/profiler.h"
 #include "core/game.h"
 #include "models/entity.h"
+#include "models/crafting.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -103,9 +104,17 @@ entity_view *world_build_entity_view(int64_t e) {
                     
                     view.storage_selected_item = in->storage_selected_item;
                     
-                    if (ecs_get(world_ecs(), e, Producer)) {
-                        Device const* dev = ecs_get(world_ecs(), e, Device);
+					if (ecs_get(world_ecs(), in->storage_ent, Producer)) {
+						Device const* dev = ecs_get(world_ecs(), in->storage_ent, Device);
+						zpl_zero_array(view.craftables, MAX_CRAFTABLES);
                         
+						for (uint16_t i = 0, si = 0; i < craft_get_num_recipes(); i++) {
+							ZPL_ASSERT(si < MAX_CRAFTABLES);
+							asset_id pid = craft_get_recipe_asset(i);
+							if (craft_is_item_produced_by_producer(pid, dev->asset)) {
+								view.craftables[si++] = pid;
+							}
+						}
                     }
                 }
             }

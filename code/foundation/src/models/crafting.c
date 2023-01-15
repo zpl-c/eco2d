@@ -52,6 +52,16 @@ bool craft_is_reagent_used_in_producer(asset_id reagent, asset_id producer) {
     return craft__find_num_recipes_by_reagent(producer, reagent) > 0;
 }
 
+bool craft_is_item_produced_by_producer(asset_id item, asset_id producer) {
+	uint32_t num_recipes=0;
+	for (int i = 0; i < (int)MAX_RECIPES; ++i) {
+		if (recipes[i].producer == producer && item == recipes[i].product) {
+			return true;
+		}
+	}
+	return false;
+}
+
 uint16_t craft_get_num_recipes(void) {
     return MAX_RECIPES;
 }
