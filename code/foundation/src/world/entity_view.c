@@ -2,6 +2,12 @@
 #include "pkt/packet_utils.h"
 #include "world/blocks.h"
 
+const char *class_names[] = {
+#define X(id) #id,
+	_CLASSES
+#undef X
+};
+
 ZPL_TABLE_DEFINE(entity_view_tbl, entity_view_tbl_, entity_view);
 
 pkt_desc pkt_entity_view_desc[] = {

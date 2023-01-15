@@ -8,16 +8,21 @@
 
 #define MAX_CRAFTABLES 32
 
+#define _CLASSES\
+	X(EKIND_SERVER)\
+	X(EKIND_PLAYER)\
+	X(EKIND_ITEM)\
+	X(EKIND_DEVICE)\
+	X(EKIND_VEHICLE)\
+	X(EKIND_DEMO_NPC)\
+	X(EKIND_MONSTER)\
+	X(EKIND_MACRO_BOT)\
+	X(EKIND_CHUNK)
+
 typedef enum {
-    EKIND_SERVER = 0,
-    EKIND_PLAYER,
-    EKIND_ITEM,
-    EKIND_DEVICE,
-    EKIND_VEHICLE,
-    EKIND_DEMO_NPC,
-    EKIND_MONSTER,
-    EKIND_MACRO_BOT,
-    EKIND_CHUNK,
+#define X(id) id,
+		_CLASSES
+#undef X
     FORCE_EKIND_UINT16 = UINT16_MAX
 } entity_kind;
 
@@ -33,6 +38,8 @@ typedef enum {
     ETRAN_REMOVE,
     FORCE_ETRAN_UINT8 = UINT8_MAX
 } entity_transition_effect;
+
+extern const char *class_names[];
 
 typedef struct entity_view {
     int64_t ent_id;

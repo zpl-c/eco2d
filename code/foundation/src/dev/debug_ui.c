@@ -268,6 +268,7 @@ static debug_item items[] = {
 		.list = {
 			.items = (debug_item[]) {
 				{ .kind = DITEM_TOOL, .name = "asset inspector", .tool = { .is_open = 0, .on_draw = ToolAssetInspector } },
+				{ .kind = DITEM_TOOL, .name = "entity inspector", .tool = { .is_open = 0, .on_draw = ToolEntityInspector } },
 				{ .kind = DITEM_END },
 			},
 			.is_collapsed = 0

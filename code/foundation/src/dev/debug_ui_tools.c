@@ -41,7 +41,7 @@ void ToolAssetInspector(void) {
 								item_desc it = item_get_desc(it_id);
 
 								if (nk_button_label(nk_ctx, "spawn")) {
-									ecs_entity_t e = item_spawn(i, 1);
+									ecs_entity_t e = item_spawn(i, it.max_quantity);
 									ecs_entity_t plr = camera_get().ent_id;
 
 									Position const* origin = ecs_get(world_ecs(), plr, Position);
@@ -62,6 +62,56 @@ void ToolAssetInspector(void) {
 				nk_tree_pop(nk_ctx);
 			}
 		}
+		nk_end(nk_ctx);
+	}
+}
+
+
+void ToolEntityInspector(void) {
+	if (nk_begin(nk_ctx, "Entity Inspector", nk_rect(660, 100, 240, 800),
+	             NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE| NK_WINDOW_TITLE))
+	{
+		static ecs_query_t *q = 0;
+		if (!q) {
+			q = ecs_query(world_ecs(), {
+				.filter.terms = {
+					{ .id = ecs_id(Position) },
+					{ .id = ecs_id(Classify), .inout = EcsIn }
+				}
+			});
+		}
+
+		ecs_iter_t it = ecs_query_iter(world_ecs(), q);
+		while (ecs_query_next(&it)) {
+			Position *p = ecs_field(&it, Position, 1);
+			const Classify *c = ecs_field(&it, Classify, 2);
+
+			for (int i = 0; i < it.count; i++) {
+				if (nk_tree_push_id(nk_ctx, NK_TREE_NODE, zpl_bprintf("%lld [%s]", it.entities[i], class_names[c[i].id]), NK_MINIMIZED, (int)it.entities[i])) {
+					{
+						nk_label(nk_ctx, "position:", NK_TEXT_LEFT);
+						nk_property_float(nk_ctx, "#x:", ZPL_F32_MIN, &p[i].x, ZPL_F32_MAX, 0.1f, 0.2f);
+						nk_property_float(nk_ctx, "#y:", ZPL_F32_MIN, &p[i].y, ZPL_F32_MAX, 0.1f, 0.2f);
+
+						if (nk_button_label(nk_ctx, "teleport to")) {
+							ecs_entity_t plr = camera_get().ent_id;
+
+							Position const* origin = ecs_get(world_ecs(), it.entities[i], Position);
+							entity_set_position(plr, origin->x, origin->y);
+						}
+
+						if (nk_button_label(nk_ctx, "teleport here")) {
+							ecs_entity_t plr = camera_get().ent_id;
+
+							Position const* origin = ecs_get(world_ecs(), plr, Position);
+							entity_set_position(it.entities[i], origin->x, origin->y);
+						}
+					}
+					nk_tree_pop(nk_ctx);
+				}
+			}
+		}
+
 		nk_end(nk_ctx);
 	}
 }
