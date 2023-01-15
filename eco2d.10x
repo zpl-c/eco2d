@@ -38,6 +38,8 @@
 			<Define>ZPL_IMPL</Define>
 			<Define>_WIN32</Define>
 			<Define>_WIN64</Define>
+			<Define>RAYLIB_NUKLEAR_IMPLEMENTATION</Define>
+			<Define>NK_IMPLEMENTATION</Define>
 		</Defines>
 		<ConfigProperties>
 			<ConfigAndPlatform>

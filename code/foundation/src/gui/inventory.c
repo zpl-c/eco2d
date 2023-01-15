@@ -95,8 +95,8 @@ inv_draw_result inventory_draw_crafting_btn(float xpos, float ypos, const char *
 		recipe rp = craft_get_recipe_data(craft_get_recipe_id_from_product(id));
 		int num_reagents = 0;
 		for (int i = 0; rp.reagents[i].id; i++) num_reagents++;
-		if (nk_begin(game_ui , name, nk_rect(mpos.x+15, mpos.y+15, name_width+5, 80+25*(float)num_reagents),
-		             NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_NO_INPUT)) {
+		if (nk_begin(game_ui , name, nk_rect(mpos.x+15, mpos.y+15, name_width+5, 30+30*(float)num_reagents),
+		             NK_WINDOW_BORDER | NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR)) {
 			if (nk_tree_push_id(game_ui, NK_TREE_NODE, "Reagents", NK_MAXIMIZED, id)) {
 				for (asset_id i = 0; rp.reagents[i].id; i++) {
 					nk_label(game_ui, asset_names[rp.reagents[i].id], NK_TEXT_LEFT);
