@@ -105,9 +105,6 @@ bool inventory_draw_crafting_list(entity_view *e, float xpos, float ypos) {
     float start_xpos = xpos;
     float start_ypos = ypos;
 
- 	if (!e->sel_ent)
-		return DAREA_OUTSIDE;
-
     for (uint16_t i = 0; e->craftables[i]; ++i) {
 		asset_id id = e->craftables[i];
         inventory_draw_crafting_btn(start_xpos+1, ypos+1, asset_names[id], id, BLACK);

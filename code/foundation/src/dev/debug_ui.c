@@ -9,8 +9,6 @@
 
 #include "models/components.h"
 
-#define RAYLIB_NUKLEAR_IMPLEMENTATION
-#define NK_INCLUDE_STANDARD_VARARGS
 ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
 #include "raylib-nuklear.h"
 ZPL_DIAGNOSTIC_POP
@@ -50,7 +48,7 @@ static uint8_t is_handle_ctrl_held;
 static float debug_xpos = DBG_START_XPOS;
 static float debug_ypos = DBG_START_YPOS;
 static zpl_u16 sel_item_id = 0;
-static struct nk_context *nk_ctx = 0;
+static struct nk_context *dev_ui = 0;
 
 typedef enum {
     L_NONE = 0,
@@ -414,10 +412,10 @@ void debug_draw(void) {
         ActSpawnItemNext();
 
 		// Initialize Nuklear ctx
-		nk_ctx = InitNuklear(10);
+		dev_ui = InitNuklear(10);
     }
 
-	UpdateNuklear(nk_ctx);
+	UpdateNuklear(dev_ui);
 
     float xpos = debug_xpos;
     float ypos = debug_ypos;
@@ -464,7 +462,7 @@ void debug_draw(void) {
         debug_draw_list(items, xpos, ypos, 0);
     }
 
-	DrawNuklear(nk_ctx);
+	DrawNuklear(dev_ui);
 }
 
 debug_area_status check_mouse_area(float xpos, float ypos, float w, float h) {

@@ -35,6 +35,8 @@ static bool request_shutdown;
 
 static float temp_time = 0.0f;
 
+extern struct nk_context *game_ui;
+
 float get_cached_time(void) {
     return temp_time;
 }

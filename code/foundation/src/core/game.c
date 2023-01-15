@@ -22,11 +22,18 @@
 #include "packets/pkt_01_welcome.h"
 #include "packets/pkt_switch_viewer.h"
 
+#define RAYLIB_NUKLEAR_IMPLEMENTATION
+ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
+#include "raylib-nuklear.h"
+ZPL_DIAGNOSTIC_POP
+
 static uint8_t game_mode;
 static uint8_t game_should_close;
 
 static world_view *world_viewers;
 static world_view *active_viewer;
+
+static struct nk_context *game_ui = 0;
 
 static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
@@ -148,6 +155,8 @@ void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_
         world_viewers_init(num_viewers);
         active_viewer = &world_viewers[0];
         camera_reset();
+
+		game_ui = InitNuklear(12);
     }
     
     if (game_mode != GAMEKIND_SINGLE) {
@@ -201,7 +210,9 @@ void game_shutdown() {
         
         // TODO(zaklaus): crashes on exit
         //platform_shutdown();
-    }
+		UnloadNuklear(game_ui);
+	}
+
 }
 
 uint8_t game_is_running() {
@@ -219,6 +230,7 @@ game_kind game_get_kind(void) {
 void game_input() {
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_input();
+		UpdateNuklear(game_ui);
     }
 }
 
@@ -247,6 +259,7 @@ void game_update() {
 void game_render() {
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_render();
+		DrawNuklear(game_ui); 
     }
 }
 
