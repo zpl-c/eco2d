@@ -89,6 +89,23 @@ inv_draw_result inventory_draw_crafting_btn(float xpos, float ypos, const char *
         inv_is_inside = true;
         player_inv.craft_item = id;
     }
+
+	if (check_mouse_area(xpos, ypos, name_width, 22) != DAREA_OUTSIDE) {
+		Vector2 mpos = GetMousePosition();
+		recipe rp = craft_get_recipe_data(craft_get_recipe_id_from_product(id));
+		int num_reagents = 0;
+		for (int i = 0; rp.reagents[i].id; i++) num_reagents++;
+		if (nk_begin(game_ui , name, nk_rect(mpos.x+15, mpos.y+15, name_width+5, 80+25*(float)num_reagents),
+		             NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_NO_INPUT)) {
+			if (nk_tree_push_id(game_ui, NK_TREE_NODE, "Reagents", NK_MAXIMIZED, id)) {
+				for (asset_id i = 0; rp.reagents[i].id; i++) {
+					nk_label(game_ui, asset_names[rp.reagents[i].id], NK_TEXT_LEFT);
+				}
+				nk_tree_pop(game_ui);
+			}
+			nk_end(game_ui);
+		}
+	}
     
     Color _c_compare_lol = BLACK;
     if (!zpl_memcompare(&color, &_c_compare_lol, sizeof(Color))) {
@@ -97,6 +114,7 @@ inv_draw_result inventory_draw_crafting_btn(float xpos, float ypos, const char *
     
     inv_draw_result res = DrawColoredText(xpos, ypos, text, new_color);
     ypos = res.y;
+
     return res;
 }
 

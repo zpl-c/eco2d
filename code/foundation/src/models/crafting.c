@@ -1,19 +1,6 @@
 #include "crafting.h"
 #include "models/items.h"
 
-typedef struct {
-    asset_id id;
-    uint32_t qty;
-} reagent;
-
-typedef struct {
-    asset_id product;
-    uint32_t product_qty;
-	int32_t process_ticks;
-    asset_id producer;
-    reagent *reagents;
-} recipe;
-
 #include "lists/crafting_list.c"
 
 uint32_t craft__find_num_recipes_by_reagent(asset_id producer, asset_id id) {
@@ -46,6 +33,20 @@ recipe *craft__find_recipe_by_reagent(asset_id producer, asset_id id, uint32_t s
         }
     }
     return NULL;
+} 
+
+uint16_t craft_get_recipe_id_from_product(asset_id id) {
+	for (int i = 0; i < (int)MAX_RECIPES; ++i) {
+		if (id == recipes[i].product) {
+			return i;
+		}
+	}
+	return ASSET_INVALID;
+}
+
+recipe craft_get_recipe_data(uint16_t i) {
+	ZPL_ASSERT(i >= 0 && i < MAX_RECIPES);
+	return recipes[i];
 }
 
 bool craft_is_reagent_used_in_producer(asset_id reagent, asset_id producer) {
@@ -53,10 +54,21 @@ bool craft_is_reagent_used_in_producer(asset_id reagent, asset_id producer) {
 }
 
 bool craft_is_item_produced_by_producer(asset_id item, asset_id producer) {
-	uint32_t num_recipes=0;
 	for (int i = 0; i < (int)MAX_RECIPES; ++i) {
 		if (recipes[i].producer == producer && item == recipes[i].product) {
 			return true;
+		}
+	}
+	return false;
+}
+
+bool craft_is_item_produced_by_reagent(asset_id item, asset_id reagent) {
+	for (int i = 0; i < (int)MAX_RECIPES; ++i) {
+		if (item == recipes[i].product) {
+			for (int j = 0; recipes[i].reagents[j].id; ++j) {
+				if (recipes[i].reagents[j].id == reagent)
+					return true;
+			}
 		}
 	}
 	return false;

@@ -33,7 +33,7 @@ static uint8_t game_should_close;
 static world_view *world_viewers;
 static world_view *active_viewer;
 
-static struct nk_context *game_ui = 0;
+struct nk_context *game_ui = 0;
 
 static WORLD_PKT_READER(pkt_reader) {
     pkt_header header = {0};
@@ -259,8 +259,11 @@ void game_update() {
 void game_render() {
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_render();
-		DrawNuklear(game_ui); 
     }
+}
+
+void game_draw_ui() {
+	DrawNuklear(game_ui);
 }
 
 void game_action_send_keystate(game_keystate_data *data) {

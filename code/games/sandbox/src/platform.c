@@ -16,6 +16,10 @@
 #include "utils/raylib_helpers.h"
 #include "platform/renderer.h"
 
+ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
+#include "raylib-nuklear.h"
+ZPL_DIAGNOSTIC_POP
+
 #define ARCH_IMPL
 #include "platform/arch.h"
 
@@ -186,6 +190,7 @@ void platform_render() {
         }
         display_conn_status();
         debug_draw();
+		game_draw_ui();
     }
     EndDrawing();
     

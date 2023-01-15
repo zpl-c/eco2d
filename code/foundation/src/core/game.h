@@ -23,6 +23,9 @@ void game_input();
 void game_update();
 void game_render();
 
+//~ Called from platform.c
+void game_draw_ui();
+
 //~ NOTE(zaklaus): world view management
 world_view *game_world_view_get_active(void);
 world_view *game_world_view_get(uint16_t idx);
