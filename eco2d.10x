@@ -15,7 +15,7 @@
 		<RunCommand></RunCommand>
 		<DebugCommand></DebugCommand>
 		<ExePathCommand></ExePathCommand>
-		<DebugSln></DebugSln>
+		<DebugSln>build\eco2d.sln</DebugSln>
 		<UseVisualStudioEnvBat>false</UseVisualStudioEnvBat>
 		<Configurations>
 			<Configuration>Debug</Configuration>

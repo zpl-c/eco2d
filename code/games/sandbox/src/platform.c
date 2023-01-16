@@ -26,6 +26,7 @@ ZPL_DIAGNOSTIC_POP
 #include "renderer.c"
 
 // NOTE(zaklaus): add-ins
+#include "gui/tooltip.c"
 #include "gui/build_mode.c"
 #include "gui/inventory.c"
 
@@ -34,6 +35,20 @@ void platform_init() {
     renderer_init();
     
     target_zoom = 2.70f;
+
+	tooltip_register_defaults();
+
+	// room for game-specific tooltips
+
+	tooltip_build_links();
+
+#if 0
+	// TEST
+	{
+		Vector2 mpos = GetMousePosition();
+		tooltip_show("ASSET_FURNACE", mpos.x, mpos.y);
+	}
+#endif
 }
 
 inline static
@@ -51,6 +66,7 @@ void display_conn_status() {
 
 void platform_shutdown() {
     renderer_shutdown();
+	tooltip_destroy_all();
     CloseWindow();
 }
 
@@ -187,9 +203,12 @@ void platform_render() {
             // NOTE(zaklaus): add-ins
             buildmode_draw();
             inventory_draw();
+
+			// goes last
+			tooltip_draw();
         }
         display_conn_status();
-        debug_draw();
+		debug_draw();
 		game_draw_ui();
     }
     EndDrawing();

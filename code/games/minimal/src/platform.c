@@ -21,6 +21,8 @@ ZPL_DIAGNOSTIC_POP
 #define ARCH_IMPL
 #include "platform/arch.h"
 
+#include "gui/tooltip.c"
+
 #include "renderer.c"
 
 void platform_init() {

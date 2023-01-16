@@ -3,6 +3,8 @@
 #include "world/blocks.h"
 #include "models/items.h"
 
+extern void tooltip_show(const char* name, float xpos, float ypos);
+
 void ToolAssetInspector(void) {
 	if (nk_begin(dev_ui, "Asset Inspector", nk_rect(400, 100, 240, 800),
 	                                 NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE| NK_WINDOW_TITLE))
@@ -15,6 +17,11 @@ void ToolAssetInspector(void) {
 					const char *asset_kind_name = assets_get_kind_name(idx);
 					nk_labelf(dev_ui, NK_TEXT_LEFT, "kind: %s", asset_kind_name);
 					nk_labelf(dev_ui, NK_TEXT_LEFT, "spawnable entity: %s", entity_spawn_provided(i) ? "true" : "false");
+
+					if (nk_button_label(dev_ui, "show tooltip")) {
+						Vector2 mpos = GetMousePosition();
+						tooltip_show(asset_names[i] , mpos.x + 5, mpos.y + 5);
+					}
 
 					// draw block
 					block_id blk_id = blocks_find(i);
