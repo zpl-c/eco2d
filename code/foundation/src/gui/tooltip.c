@@ -209,23 +209,44 @@ void tooltip_draw(void) {
 	float width = (float)GetScreenWidth();
 	float height = (float)GetScreenHeight();
 
-	if (nk_begin(game_ui, "#searchbar", nk_rect(width / 2.0f - 200, 15.f, 400, 1200), NK_WINDOW_DYNAMIC | NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
+	if (nk_begin(game_ui, "#searchbar", nk_rect(width / 2.0f - 200, 15.f, 400, 600), NK_WINDOW_DYNAMIC | NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
 		{
 			static int len=0; static char buffer[256] = { 0 };
-			nk_layout_row_dynamic(game_ui, 35, 1);
-			nk_edit_string(game_ui, NK_EDIT_SIMPLE, buffer, &len, 255, nk_filter_ascii);
-			buffer[len] = 0;
+			
+
+			static bool show_all = false;
 
 			if (len > 0) {
-				for (zpl_isize i = 0; i < zpl_array_count(tooltips); ++i) {
-					tooltip *tp = (tooltips + i);
+				nk_layout_row_dynamic(game_ui, 15, 1);
+				if (nk_button_label(game_ui, "clear all")) {
+					len = 0;
+				}
+			}
 
-					if (strstr(tp->name, buffer)) {
-						if (nk_button_label(game_ui, tp->name)) {
-							tooltip_show_cursor(tp->name);
+			nk_layout_row_dynamic(game_ui, 35, 1);
+
+			if (!(nk_edit_string(game_ui, NK_EDIT_SIMPLE, buffer, &len, 255, nk_filter_ascii) & NK_WIDGET_STATE_ACTIVE) && len == 0 ) {
+				show_all = true; 
+			}
+			buffer[len] = 0;
+
+			if (len > 0 || show_all) {
+				if (nk_tree_push(game_ui, NK_TREE_TAB, "results", NK_MAXIMIZED)) {
+					for (zpl_isize i = 0; i < zpl_array_count(tooltips); ++i) {
+						tooltip *tp = (tooltips + i);
+
+						if (strstr(tp->name, buffer) || show_all) {
+							if (nk_button_label(game_ui, tp->name)) {
+								tooltip_show_cursor(tp->name);
+							}
 						}
 					}
+					nk_tree_pop(game_ui);
 				}
+			}
+
+			if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) || len > 0) {
+				show_all = false; 
 			}
 		}
 		nk_end(game_ui);
