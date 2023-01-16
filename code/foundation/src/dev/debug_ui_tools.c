@@ -3,7 +3,7 @@
 #include "world/blocks.h"
 #include "models/items.h"
 
-extern void tooltip_show(const char* name, float xpos, float ypos);
+extern void tooltip_show_cursor(const char* name);
 
 void ToolAssetInspector(void) {
 	if (nk_begin(dev_ui, "Asset Inspector", nk_rect(400, 100, 240, 800),
@@ -19,8 +19,7 @@ void ToolAssetInspector(void) {
 					nk_labelf(dev_ui, NK_TEXT_LEFT, "spawnable entity: %s", entity_spawn_provided(i) ? "true" : "false");
 
 					if (nk_button_label(dev_ui, "show tooltip")) {
-						Vector2 mpos = GetMousePosition();
-						tooltip_show(asset_names[i] , mpos.x + 5, mpos.y + 5);
+						tooltip_show_cursor(asset_names[i]);
 					}
 
 					// draw block

@@ -85,11 +85,15 @@ tooltip *tooltip__find_desc(const char *name) {
 	return 0;
 }
 
+void tooltip_clear(void);
+
 void tooltip_show(const char* name, float xpos, float ypos) {
 	if (!tooltips) return;
 
 	tooltip *desc = tooltip__find_desc(name);
 	if (!name) return;
+
+	tooltip_clear();
 
 	main_tooltip = (tooltip_node) {
 		.xpos = xpos,
@@ -97,6 +101,11 @@ void tooltip_show(const char* name, float xpos, float ypos) {
 		.desc = desc,
 		.next = 0
 	};
+}
+
+void tooltip_show_cursor(const char* name) {
+	Vector2 mpos = GetMousePosition();
+	tooltip_show(name, mpos.x + 15, mpos.y + 15);
 }
 
 void tooltip__clear_node(tooltip_node *node) {
@@ -132,8 +141,8 @@ void tooltip__draw_node(tooltip_node *node) {
 					if (node->next) tooltip__clear_node(node->next);
 					if (!node->next) node->next = zpl_malloc(sizeof(tooltip_node));
 					*node->next = (tooltip_node) {
-						.xpos = mpos.x+5,
-						.ypos = mpos.y+5,
+						.xpos = mpos.x+15,
+						.ypos = mpos.y+15,
 						.desc = tooltip__find_desc(desc->links[i]),
 						.next = 0
 					};
