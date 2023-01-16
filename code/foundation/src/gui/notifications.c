@@ -46,8 +46,8 @@ void notification_draw(void) {
 
 	for (zpl_isize i = cnt; i >= 0; --i) {
 		notification *notif = (notifications + i);
-		if (nk_begin_titled(game_ui, zpl_bprintf("%dnotif%s", i, notif->title), notif->title, nk_rect(width - 220, ypos, 200, 120),
-		                    NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+		if (nk_begin_titled(game_ui, zpl_bprintf("%dnotif%s", i, notif->title), notif->title, nk_rect(width - 220, ypos, 200, 1200),
+		                    NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_DYNAMIC)) {
 			{
 				nk_layout_row_dynamic(game_ui, 0, 1);
 				nk_label_wrap(game_ui, notif->text);
@@ -56,7 +56,7 @@ void notification_draw(void) {
 					zpl_array_remove_at(notifications, i);
 				}
 			}
-			ypos += nk_window_get_height(game_ui) + 5;
+			ypos += nk_window_get_panel(game_ui)->row.height + 80;
 
 			nk_end(game_ui);
 		}

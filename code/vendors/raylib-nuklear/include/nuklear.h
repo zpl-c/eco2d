@@ -19638,6 +19638,11 @@ nk_panel_begin(struct nk_context *ctx, const char *title, enum nk_panel_type pan
         /* draw header background */
         header.h += 1.0f;
 
+		/* fix the small gap seen when we use dynamic windows with title */
+		if (win->flags & NK_WINDOW_DYNAMIC) {
+			header.h += 5.0f;
+		}
+
         switch(background->type) {
             case NK_STYLE_ITEM_IMAGE:
                 text.background = nk_rgba(0,0,0,0);

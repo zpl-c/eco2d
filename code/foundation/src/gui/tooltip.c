@@ -145,7 +145,7 @@ void tooltip__draw_node(tooltip_node *node) {
 	tooltip *desc = node->desc;
 	Vector2 mpos = GetMousePosition();
 
-	if (nk_begin_titled(game_ui, zpl_bprintf("%d%s", (int)node->xpos, desc->name), desc->name, nk_rect(node->xpos, node->ypos, 400, 3200), 
+	if (nk_begin_titled(game_ui, zpl_bprintf("%d%s", (int)node->xpos, desc->name), desc->name, nk_rect(node->xpos, node->ypos, 300, 3200), 
 	             NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_DYNAMIC | NK_WINDOW_TITLE | NK_WINDOW_MOVABLE)) {
 		tooltip_draw_contents(desc);
 
@@ -171,7 +171,8 @@ void tooltip__draw_node(tooltip_node *node) {
 		// suggest closing tooltip 
 		struct  nk_vec2 wpos = nk_window_get_position(game_ui);
 		struct  nk_vec2 wsize = nk_window_get_content_region_size(game_ui);
-		Vector2 tp_pos = (Vector2) { .x = wpos.x + wsize.x/2.0f, .y = wpos.y };
+		struct nk_panel *wpanel = nk_window_get_panel(game_ui);
+		Vector2 tp_pos = (Vector2) { .x = wpos.x + wsize.x/2.0f, .y = wpos.y + wpanel->row.height / 2.0f };
 		if (Vector2Distance(mpos, tp_pos) <= TOOLTIP_MOUSE_DIST) {
 			tooltip__should_stay_open = true;
 		}
