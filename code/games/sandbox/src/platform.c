@@ -27,6 +27,7 @@ ZPL_DIAGNOSTIC_POP
 
 // NOTE(zaklaus): add-ins
 #include "gui/tooltip.c"
+#include "gui/notifications.c"
 #include "gui/build_mode.c"
 #include "gui/inventory.c"
 
@@ -47,6 +48,15 @@ void platform_init() {
 	{
 		Vector2 mpos = GetMousePosition();
 		tooltip_show("ASSET_FURNACE", mpos.x, mpos.y);
+	}
+#endif
+
+#if 1
+	// TEST
+	{
+		notification_push("test1", "Hello World!");
+		notification_push("test2", "Hello World! 2x");
+		notification_push("New connection", "A new player has joined the world!");
 	}
 #endif
 }
@@ -205,6 +215,7 @@ void platform_render() {
             inventory_draw();
 
 			// goes last
+			notification_draw();
 			tooltip_draw();
         }
         display_conn_status();
