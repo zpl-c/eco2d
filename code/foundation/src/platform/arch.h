@@ -71,7 +71,7 @@ void platform_create_window(const char *title) {
     InitWindow(screenWidth, screenHeight, title);
     uint32_t flags = /*FLAG_WINDOW_UNDECORATED|*/FLAG_WINDOW_MAXIMIZED|FLAG_WINDOW_RESIZABLE|FLAG_MSAA_4X_HINT;
 #if !defined(PLATFORM_WEB)
-    //flags |= FLAG_VSYNC_HINT;
+    // flags |= FLAG_VSYNC_HINT;
 #endif
     SetWindowState(flags);
     

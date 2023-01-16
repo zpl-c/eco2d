@@ -95,8 +95,14 @@ inv_draw_result inventory_draw_crafting_btn(float xpos, float ypos, const char *
 		recipe rp = craft_get_recipe_data(craft_get_recipe_id_from_product(id));
 		int num_reagents = 0;
 		for (int i = 0; rp.reagents[i].id; i++) num_reagents++;
-		if (nk_begin(game_ui , name, nk_rect(mpos.x+15, mpos.y+15, name_width+5, 600),
+		if (nk_begin(game_ui , name, nk_rect(mpos.x+15, mpos.y+15, name_width+5, 1200),
 		             NK_WINDOW_BORDER | NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_DYNAMIC)) {
+			if (nk_tree_push_id(game_ui, NK_TREE_NODE, "Overview", NK_MAXIMIZED, id)) {
+				{
+					tooltip_draw_contents(tooltip_find_desc(name));
+				}
+				nk_tree_pop(game_ui);
+			}
 			if (nk_tree_push_id(game_ui, NK_TREE_NODE, "Reagents", NK_MAXIMIZED, id)) {
 				for (asset_id i = 0; rp.reagents[i].id; i++) {
 					nk_label(game_ui, asset_names[rp.reagents[i].id], NK_TEXT_LEFT);

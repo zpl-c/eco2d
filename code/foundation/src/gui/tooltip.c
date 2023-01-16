@@ -59,6 +59,7 @@ void tooltip_register_defaults(void) {
 	tooltip_register( (tooltip) { .name = "ASSET_FURNACE", .content = "Producer used to smelt ASSET_IRON_ORE into ASSET_IRON_INGOT." } );
 	tooltip_register( (tooltip) { .name = "ASSET_IRON_ORE", .content = "Natural resource that can be smelted in ASSET_FURNACE." } );
 	tooltip_register( (tooltip) { .name = "ASSET_IRON_INGOT", .content = "Used as a building material. It is smelted from ASSET_IRON_ORE" } );
+	tooltip_register( (tooltip) { .name = "ASSET_SCREWS", .content = "Used as a building material. It is crafted from ASSET_IRON_PLATES" } );
 }
 
 //~ rendering
@@ -74,7 +75,7 @@ typedef struct _tooltip_node {
 static tooltip_node main_tooltip = { 0 };
 static bool tooltip__should_stay_open = false;
 
-tooltip *tooltip__find_desc(const char *name) {
+tooltip *tooltip_find_desc(const char *name) {
 	for (zpl_isize i = 0; i < zpl_array_count(tooltips); ++i) {
 		tooltip *tp = (tooltips + i);
 
@@ -90,7 +91,7 @@ void tooltip_clear(void);
 void tooltip_show(const char* name, float xpos, float ypos) {
 	if (!tooltips) return;
 
-	tooltip *desc = tooltip__find_desc(name);
+	tooltip *desc = tooltip_find_desc(name);
 	if (!name) return;
 
 	tooltip_clear();
@@ -120,16 +121,22 @@ void tooltip_clear(void) {
 	main_tooltip = (tooltip_node) {0};
 }
 
+inline void tooltip_draw_contents(tooltip *desc) {
+	if (!desc) return;
+
+	nk_layout_row_dynamic(game_ui, 30, 1); 
+	nk_label_wrap(game_ui, desc->content);
+}
+
 void tooltip__draw_node(tooltip_node *node) {
 	if (!node) return;
 
 	tooltip *desc = node->desc;
 	Vector2 mpos = GetMousePosition();
 
-	if (nk_begin_titled(game_ui, zpl_bprintf("%d%s", (int)node->xpos, desc->name), desc->name, nk_rect(node->xpos, node->ypos, 300, 1200), 
+	if (nk_begin_titled(game_ui, zpl_bprintf("%d%s", (int)node->xpos, desc->name), desc->name, nk_rect(node->xpos, node->ypos, 400, 3200), 
 	             NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_DYNAMIC | NK_WINDOW_TITLE | NK_WINDOW_MOVABLE)) {
-		nk_layout_row_dynamic(game_ui, 30, 1);
-		nk_label_wrap(game_ui, desc->content);
+		tooltip_draw_contents(desc);
 
 		if (desc->links) {
 			nk_label(game_ui, "See Also:", NK_TEXT_LEFT);
@@ -143,7 +150,7 @@ void tooltip__draw_node(tooltip_node *node) {
 					*node->next = (tooltip_node) {
 						.xpos = mpos.x+15,
 						.ypos = mpos.y+15,
-						.desc = tooltip__find_desc(desc->links[i]),
+						.desc = tooltip_find_desc(desc->links[i]),
 						.next = 0
 					};
 				}
@@ -152,10 +159,17 @@ void tooltip__draw_node(tooltip_node *node) {
 
 		// suggest closing tooltip 
 		struct  nk_vec2 wpos = nk_window_get_position(game_ui);
-		Vector2 tp_pos = (Vector2) { .x = wpos.x, .y = wpos.y };
+		struct  nk_vec2 wsize = nk_window_get_content_region_size(game_ui);
+		Vector2 tp_pos = (Vector2) { .x = wpos.x + wsize.x/2.0f, .y = wpos.y };
 		if (Vector2Distance(mpos, tp_pos) <= TOOLTIP_MOUSE_DIST) {
 			tooltip__should_stay_open = true;
 		}
+
+#if 0
+		{
+			DrawCircleV(tp_pos, TOOLTIP_MOUSE_DIST, BLUE);
+		}
+#endif
 
 		nk_end(game_ui);
 
