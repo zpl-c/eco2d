@@ -22,8 +22,8 @@ void notification_clear(void) {
 }
 
 void notification_draw(void) {
-	float height = (float)GetScreenHeight();
 	float width = (float)GetScreenWidth();
+	float height = (float)GetScreenHeight();
 	// draw ctrl panel
 	if (nk_begin(game_ui, "Notifications", nk_rect(width - 220, 20, 200, 80), 
 	             NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE | NK_WINDOW_DYNAMIC)) {

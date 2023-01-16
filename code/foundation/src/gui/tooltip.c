@@ -58,8 +58,10 @@ void tooltip_register_defaults(void) {
 	tooltip_register( (tooltip) { .name = "ASSET_WOOD", .content = "Used as a building material or fuel for the ASSET_FURNACE." } );
 	tooltip_register( (tooltip) { .name = "ASSET_FURNACE", .content = "Producer used to smelt ASSET_IRON_ORE into ASSET_IRON_INGOT." } );
 	tooltip_register( (tooltip) { .name = "ASSET_IRON_ORE", .content = "Natural resource that can be smelted in ASSET_FURNACE." } );
-	tooltip_register( (tooltip) { .name = "ASSET_IRON_INGOT", .content = "Used as a building material. It is smelted from ASSET_IRON_ORE" } );
-	tooltip_register( (tooltip) { .name = "ASSET_SCREWS", .content = "Used as a building material. It is crafted from ASSET_IRON_PLATES" } );
+	tooltip_register( (tooltip) { .name = "ASSET_IRON_INGOT", .content = "Used as a building material. It is smelted from ASSET_IRON_ORE." } );
+	tooltip_register( (tooltip) { .name = "ASSET_SCREWS", .content = "Used as a building material. It is crafted from ASSET_IRON_PLATES." } );
+	tooltip_register( (tooltip) { .name = "craft", .content = "Crafting is the process of constructing tools, items, and blocks." } );
+	tooltip_register( (tooltip) { .name = "smelt", .content = "Smelting is a process of applying heat to ore, to extract a base metal. It is a form of extractive metallurgy. It is used to extract many metals from their ores, including silver, iron, copper, and other base metals." } );
 }
 
 //~ rendering
@@ -141,6 +143,7 @@ inline void tooltip_draw_contents(tooltip *desc) {
 
 void tooltip__draw_node(tooltip_node *node) {
 	if (!node) return;
+	if (!node->desc) return;
 
 	tooltip *desc = node->desc;
 	Vector2 mpos = GetMousePosition();
@@ -193,8 +196,7 @@ void tooltip__draw_node(tooltip_node *node) {
 }
 
 void tooltip_draw(void) {
-	if (!main_tooltip.desc) return;
-
+	// draw tooltip
 	tooltip__draw_node(&main_tooltip);
 
 	if (!tooltip__should_stay_open) {
@@ -202,4 +204,30 @@ void tooltip_draw(void) {
 	}
 
 	tooltip__should_stay_open = false;
+
+	// draw search bar
+	float width = (float)GetScreenWidth();
+	float height = (float)GetScreenHeight();
+
+	if (nk_begin(game_ui, "#searchbar", nk_rect(width / 2.0f - 200, 15.f, 400, 1200), NK_WINDOW_DYNAMIC | NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR)) {
+		{
+			static int len=0; static char buffer[256] = { 0 };
+			nk_layout_row_dynamic(game_ui, 35, 1);
+			nk_edit_string(game_ui, NK_EDIT_SIMPLE, buffer, &len, 255, nk_filter_ascii);
+			buffer[len] = 0;
+
+			if (len > 0) {
+				for (zpl_isize i = 0; i < zpl_array_count(tooltips); ++i) {
+					tooltip *tp = (tooltips + i);
+
+					if (strstr(tp->name, buffer)) {
+						if (nk_button_label(game_ui, tp->name)) {
+							tooltip_show_cursor(tp->name);
+						}
+					}
+				}
+			}
+		}
+		nk_end(game_ui);
+	}
 }
