@@ -156,7 +156,8 @@ void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_
         active_viewer = &world_viewers[0];
         camera_reset();
 
-		game_ui = InitNuklear(10);
+		Font font = LoadFontEx("art/anonymous_pro_bold.ttf", 14, 0, 0);
+		game_ui = InitNuklearEx(font, 14);
     }
     
     if (game_mode != GAMEKIND_SINGLE) {

@@ -26,6 +26,7 @@ ZPL_DIAGNOSTIC_POP
 #include "renderer.c"
 
 // NOTE(zaklaus): add-ins
+#include "gui/ui_skin.c"
 #include "gui/tooltip.c"
 #include "gui/notifications.c"
 #include "gui/build_mode.c"
@@ -201,10 +202,11 @@ void platform_render() {
     }
     
     assets_frame();
+	set_style(game_ui, THEME_ECO);
     
     BeginDrawing();
     {
-        profile (PROF_RENDER) {
+		profile (PROF_RENDER) {
             renderer_draw();
             draw_selected_item();
         }

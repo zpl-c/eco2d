@@ -97,6 +97,8 @@ static int UIMeasureText(const char *text, int fontSize);
 
 #include "dev/debug_replay.c"
 
+#include "gui/ui_skin.c"
+
 #include "dev/debug_ui_actions.c"
 #include "dev/debug_ui_widgets.c"
 #include "dev/debug_ui_tools.c"
@@ -405,6 +407,8 @@ debug_draw_result debug_draw_list(debug_item *list, float xpos, float ypos, bool
 void debug_draw(void) {
     // NOTE(zaklaus): Flush old debug samples
     debug_draw_flush();
+
+	set_style(dev_ui, THEME_RED);
 
     static zpl_u8 first_run=0;
     if (!first_run) {

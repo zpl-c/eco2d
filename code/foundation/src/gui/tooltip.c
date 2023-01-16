@@ -148,13 +148,13 @@ void tooltip__draw_node(tooltip_node *node) {
 	tooltip *desc = node->desc;
 	Vector2 mpos = GetMousePosition();
 
-	if (nk_begin_titled(game_ui, zpl_bprintf("%d%s", (int)node->xpos, desc->name), desc->name, nk_rect(node->xpos, node->ypos, 300, 3200), 
+	if (nk_begin_titled(game_ui, zpl_bprintf("%d%s", (int)node->xpos, desc->name), desc->name, nk_rect(node->xpos, node->ypos, 500,  3200), 
 	             NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_DYNAMIC | NK_WINDOW_TITLE | NK_WINDOW_MOVABLE)) {
 		tooltip_draw_contents(desc);
 
 		if (desc->links) {
 			nk_label(game_ui, "See Also:", NK_TEXT_LEFT);
-			nk_layout_row_dynamic(game_ui, 10, 2);
+			nk_layout_row_dynamic(game_ui, 20, 2);
 
 			for (zpl_isize i = 0; i < zpl_array_count(desc->links); ++i) {
 				// todo styling

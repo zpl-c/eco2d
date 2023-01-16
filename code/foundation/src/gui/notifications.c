@@ -46,7 +46,7 @@ void notification_draw(void) {
 
 	for (zpl_isize i = cnt; i >= 0; --i) {
 		notification *notif = (notifications + i);
-		if (nk_begin_titled(game_ui, zpl_bprintf("%dnotif%s", i, notif->title), notif->title, nk_rect(width - 220, ypos, 200, 1200),
+		if (nk_begin_titled(game_ui, zpl_bprintf("%dnotif%s", i, notif->title), notif->title, nk_rect(width - 320, ypos, 300, 1200),
 		                    NK_WINDOW_DYNAMIC|NK_WINDOW_NO_SCROLLBAR)) {
 			{
 				if (nk_tree_push_id(game_ui, NK_TREE_TAB, notif->title, NK_MAXIMIZED, (int)i)) {
