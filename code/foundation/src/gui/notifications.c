@@ -47,13 +47,15 @@ void notification_draw(void) {
 	for (zpl_isize i = cnt; i >= 0; --i) {
 		notification *notif = (notifications + i);
 		if (nk_begin_titled(game_ui, zpl_bprintf("%dnotif%s", i, notif->title), notif->title, nk_rect(width - 220, ypos, 200, 1200),
-		                    NK_WINDOW_BORDER | NK_WINDOW_TITLE | NK_WINDOW_DYNAMIC)) {
+		                    NK_WINDOW_DYNAMIC|NK_WINDOW_NO_SCROLLBAR)) {
 			{
-				nk_layout_row_dynamic(game_ui, 0, 1);
-				nk_label_wrap(game_ui, notif->text);
+				if (nk_tree_push_id(game_ui, NK_TREE_TAB, notif->title, NK_MAXIMIZED, (int)i)) {
+					nk_label_wrap(game_ui, notif->text);
 
-				if (nk_button_label(game_ui, "OK")) {
-					zpl_array_remove_at(notifications, i);
+					if (nk_button_label(game_ui, "OK")) {
+						zpl_array_remove_at(notifications, i);
+					}
+					nk_tree_pop(game_ui);
 				}
 			}
 			ypos += nk_window_get_panel(game_ui)->row.height + 80;
