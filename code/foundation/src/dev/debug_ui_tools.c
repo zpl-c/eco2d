@@ -4,6 +4,7 @@
 #include "models/items.h"
 
 extern void tooltip_show_cursor(const char* name);
+extern const char *tooltip_find_desc_contents(const char *name);
 
 void ToolAssetInspector(void) {
 	if (nk_begin(dev_ui, "Asset Inspector", nk_rect(400, 100, 240, 800),
@@ -22,6 +23,17 @@ void ToolAssetInspector(void) {
 						tooltip_show_cursor(asset_names[i]);
 					}
 
+					// draw help text
+					if (nk_tree_push_id(dev_ui, NK_TREE_NODE, "description", NK_MINIMIZED, i)) {
+						{
+							const char *desc = tooltip_find_desc_contents(asset_names[i]);
+							if (desc) {
+								nk_layout_row_dynamic(dev_ui, 0, 1);
+								nk_label_wrap(dev_ui, desc);
+							}
+						}
+						nk_tree_pop(dev_ui);
+					} 
 					// draw block
 					block_id blk_id = blocks_find(i);
 					if (blk_id != 0xF) {

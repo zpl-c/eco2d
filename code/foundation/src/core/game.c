@@ -156,7 +156,7 @@ void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_
         active_viewer = &world_viewers[0];
         camera_reset();
 
-		game_ui = InitNuklear(12);
+		game_ui = InitNuklear(10);
     }
     
     if (game_mode != GAMEKIND_SINGLE) {

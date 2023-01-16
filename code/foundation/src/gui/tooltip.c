@@ -86,6 +86,17 @@ tooltip *tooltip_find_desc(const char *name) {
 	return 0;
 }
 
+const char *tooltip_find_desc_contents(const char *name) {
+	for (zpl_isize i = 0; i < zpl_array_count(tooltips); ++i) {
+		tooltip *tp = (tooltips + i);
+
+		if (!strcmp(tp->name, name)) 
+			return tp->content;
+	}
+
+	return 0;
+}         
+
 void tooltip_clear(void);
 
 void tooltip_show(const char* name, float xpos, float ypos) {
@@ -124,7 +135,7 @@ void tooltip_clear(void) {
 inline void tooltip_draw_contents(tooltip *desc) {
 	if (!desc) return;
 
-	nk_layout_row_dynamic(game_ui, 30, 1); 
+	nk_layout_row_dynamic(game_ui, 0, 1); 
 	nk_label_wrap(game_ui, desc->content);
 }
 
