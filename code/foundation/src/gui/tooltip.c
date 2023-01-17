@@ -157,7 +157,6 @@ void tooltip__draw_node(tooltip_node *node) {
 			nk_layout_row_dynamic(game_ui, 20, 2);
 
 			for (zpl_isize i = 0; i < zpl_array_count(desc->links); ++i) {
-				// todo styling
 				if (nk_button_label(game_ui, desc->links[i])) {
 					if (node->next) tooltip__clear_node(node->next);
 					if (!node->next) node->next = zpl_malloc(sizeof(tooltip_node));

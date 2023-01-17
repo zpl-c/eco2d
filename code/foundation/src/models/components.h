@@ -156,6 +156,7 @@ typedef struct {
 
 typedef struct {
     uint32_t push_qty;
+	uint8_t counter;
 } ItemRouter;
 
 typedef struct {

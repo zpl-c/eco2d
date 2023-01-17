@@ -75,7 +75,6 @@ void PushItemsOnNodes(ecs_iter_t *it) {
         float push_dx[4], push_dy[4];
         uint8_t nodes = CheckForNearbyBelts(&p[i], push_dx, push_dy);
         uint8_t num_nodes = (uint8_t)zpl_count_set_bits(nodes);
-        uint8_t counter = 0;
         
         if (num_nodes == 0) {
             // NOTE(zaklaus): We don't have any output nodes yet.
@@ -105,22 +104,22 @@ void PushItemsOnNodes(ecs_iter_t *it) {
             
             while (item->quantity > 0 && num_nodes > 0) {
                 // NOTE(zaklaus): Use a rolling counter to select an output node.
-                while (!(nodes & (1 << counter)) && counter < 4) ++counter;
-                if (counter > 3) {
-                    counter = 0;
+                while (!(nodes & (1 << r[i].counter)) && r[i].counter < 4) ++r[i].counter;
+                if (r[i].counter > 3) {
+                    r[i].counter = 0;
                     continue;
                 }
                 
                 uint64_t e = item_spawn(item->kind, zpl_min(r->push_qty, item->quantity));
-                entity_set_position(e, p[i].x + push_dx[counter], p[i].y + push_dy[counter]);
+                entity_set_position(e, p[i].x + push_dx[r[i].counter], p[i].y + push_dy[r[i].counter]);
                 
                 Velocity *e_vel = ecs_get_mut_ex(it->world, e, Velocity);
-                e_vel->x = push_dx[counter];
-                e_vel->y = push_dy[counter];
+                e_vel->x = push_dx[r[i].counter];
+                e_vel->y = push_dy[r[i].counter];
                 
                 item->quantity -= zpl_min(r->push_qty, item->quantity);
                 --num_nodes;
-                ++counter;
+                ++r[i].counter;
                 
                 if (item->quantity == 0) {
                     item_despawn(item_slot_ent);
