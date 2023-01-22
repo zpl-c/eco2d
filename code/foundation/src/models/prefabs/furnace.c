@@ -17,7 +17,7 @@ uint64_t furnace_spawn(void) {
     producer->pending_task = PRODUCER_CRAFT_AUTO;
     producer->push_filter = PRODUCER_PUSH_ANY;
     
-    ecs_set(world_ecs(), e, ItemRouter, {1});
+	ecs_set(world_ecs(), e, ItemRouter, {.push_qty = 1, .counter = 0});
     return (uint64_t)e;
 }
 

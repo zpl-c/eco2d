@@ -9,10 +9,10 @@ if not exist "..\emsdk" (
 if "%EMSDK%"=="" call ..\emsdk\emsdk_env.bat
 
 rem host webserver, compile and launch
-start python -m http.server --bind 127.0.0.1 8000 --directory build_web
+rem start "" python3 -m http.server --bind 127.0.0.1 8000 --directory build_web
 
 pushd ..
-    emcmake cmake -S . -B build_web -DCMAKE_BUILD_TYPE=Release -DPLATFORM=Web
-    cmake --build build_web --parallel
+    call emcmake cmake -S . -B build_web -DCMAKE_BUILD_TYPE=Release -DPLATFORM=Web
+    call cmake --build build_web --parallel
     move build_web\eco2d.html build_web\index.html
 popd

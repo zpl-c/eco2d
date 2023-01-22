@@ -11,7 +11,7 @@ uint64_t splitter_spawn(void) {
     ItemContainer *storage = ecs_get_mut(world_ecs(), e, ItemContainer);
     *storage = (ItemContainer){0};
     
-    ecs_set(world_ecs(), e, ItemRouter, {1});
+	ecs_set(world_ecs(), e, ItemRouter, {.push_qty = 1, .counter = 0});
     return (uint64_t)e;
 }
 

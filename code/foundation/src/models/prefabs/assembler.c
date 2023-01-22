@@ -18,7 +18,7 @@ uint64_t assembler_spawn(void) {
     producer->push_filter = PRODUCER_PUSH_PRODUCT;
     producer->target_item = ASSET_INVALID;
     
-    ecs_set(world_ecs(), e, ItemRouter, {1});
+    ecs_set(world_ecs(), e, ItemRouter, {.push_qty = 1, .counter = 0});
     return (uint64_t)e;
 }
 
