@@ -1,12 +1,5 @@
 // NOTE(zaklaus): access to spawners
-#include "models/prefabs/storage.h"
-#include "models/prefabs/furnace.h"
-#include "models/prefabs/blueprint.h"
-#include "models/prefabs/craftbench.h"
-#include "models/prefabs/splitter.h"
-#include "models/prefabs/assembler.h"
-#include "models/prefabs/creature.h"
-
+#include "models/prefabs/prefabs_list.c"
 static struct {
     asset_id id;
     uint64_t (*proc)();
