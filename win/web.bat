@@ -1,3 +1,6 @@
+rem set up VS (to get ninja generator)
+call setup_cl_generic.bat amd64
+
 rem clone emscripten sdk
 if not exist "..\emsdk" (
 	git clone https://github.com/emscripten-core/emsdk ..\emsdk
