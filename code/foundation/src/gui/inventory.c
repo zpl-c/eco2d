@@ -93,8 +93,6 @@ inv_draw_result inventory_draw_crafting_btn(float xpos, float ypos, const char *
 	if (check_mouse_area(xpos, ypos, name_width, 22) != DAREA_OUTSIDE) {
 		Vector2 mpos = GetMousePosition();
 		recipe rp = craft_get_recipe_data(craft_get_recipe_id_from_product(id));
-		int num_reagents = 0;
-		for (int i = 0; rp.reagents[i].id; i++) num_reagents++;
 		if (nk_begin(game_ui , name, nk_rect(mpos.x+15, mpos.y+15, name_width+5, 1200),
 		             NK_WINDOW_BORDER | NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_DYNAMIC)) {
 			if (nk_tree_push_id(game_ui, NK_TREE_NODE, "Overview", NK_MAXIMIZED, id)) {
