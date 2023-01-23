@@ -1,51 +1,15 @@
 #include "models/components.h"
 
-ECS_COMPONENT_DECLARE(Vector2D);
-ECS_COMPONENT_DECLARE(Position);
-ECS_COMPONENT_DECLARE(Velocity);
-ECS_COMPONENT_DECLARE(Chunk);
-ECS_COMPONENT_DECLARE(Drawable);
-ECS_COMPONENT_DECLARE(Input);
-ECS_COMPONENT_DECLARE(ClientInfo);
-ECS_COMPONENT_DECLARE(Health);
-ECS_COMPONENT_DECLARE(Classify);
-ECS_COMPONENT_DECLARE(Vehicle);
-ECS_COMPONENT_DECLARE(IsInVehicle);
-ECS_COMPONENT_DECLARE(Item);
-ECS_COMPONENT_DECLARE(BlockHarvest);
-ECS_COMPONENT_DECLARE(Inventory);
-ECS_COMPONENT_DECLARE(ItemContainer);
-ECS_COMPONENT_DECLARE(Producer);
-ECS_COMPONENT_DECLARE(EnergySource);
-ECS_COMPONENT_DECLARE(ItemRouter);
-ECS_COMPONENT_DECLARE(Device);
-ECS_COMPONENT_DECLARE(Blueprint);
-ECS_COMPONENT_DECLARE(DemoNPC);
-ECS_COMPONENT_DECLARE(StreamInfo);
+
+
+#define X(comp) ECS_COMPONENT_DECLARE(comp);
+_COMPS
+#undef X
 
 void ComponentsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Components);
-    
-    ECS_COMPONENT_DEFINE(ecs, Vector2D);
-    ECS_COMPONENT_DEFINE(ecs, Position);
-    ECS_COMPONENT_DEFINE(ecs, Velocity);
-    ECS_COMPONENT_DEFINE(ecs, Chunk);
-    ECS_COMPONENT_DEFINE(ecs, Drawable);
-    ECS_COMPONENT_DEFINE(ecs, Input);
-    ECS_COMPONENT_DEFINE(ecs, ClientInfo);
-    ECS_COMPONENT_DEFINE(ecs, Health);
-    ECS_COMPONENT_DEFINE(ecs, Classify);
-    ECS_COMPONENT_DEFINE(ecs, Vehicle);
-    ECS_COMPONENT_DEFINE(ecs, IsInVehicle);
-    ECS_COMPONENT_DEFINE(ecs, Item);
-    ECS_COMPONENT_DEFINE(ecs, BlockHarvest);
-    ECS_COMPONENT_DEFINE(ecs, Inventory);
-    ECS_COMPONENT_DEFINE(ecs, ItemContainer);
-    ECS_COMPONENT_DEFINE(ecs, Producer);
-    ECS_COMPONENT_DEFINE(ecs, EnergySource);
-    ECS_COMPONENT_DEFINE(ecs, ItemRouter);
-    ECS_COMPONENT_DEFINE(ecs, Device);
-    ECS_COMPONENT_DEFINE(ecs, Blueprint);
-    ECS_COMPONENT_DEFINE(ecs, DemoNPC);
-    ECS_COMPONENT_DEFINE(ecs, StreamInfo);
+
+#define X(comp) ECS_COMPONENT_DEFINE(ecs, comp);
+	_COMPS
+#undef X
 }

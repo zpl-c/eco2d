@@ -144,6 +144,15 @@ int32_t worldgen_build(world_data *wld) {
         entity_set_position(e, dest->x, dest->y);
     }
 
+	for (int i=0; i<RAND_RANGE(3852, 5964); i++) {
+		uint64_t e = item_spawn(ASSET_CREATURE_FOOD, 1);
+
+		Position *dest = ecs_get_mut(world_ecs(), e, Position);
+		dest->x = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+		dest->y = RAND_RANGEF(0, world->dim*WORLD_BLOCK_SIZE);
+		entity_set_position(e, dest->x, dest->y);
+	}
+
 #endif
 
     return WORLD_ERROR_NONE;

@@ -538,6 +538,9 @@ typedef uint64_t ecs_flags64_t;
 /* Keep unsigned integers out of the codebase as they do more harm than good */
 typedef int32_t ecs_size_t;
 
+/* Allocator type */
+typedef struct ecs_allocator_t ecs_allocator_t;
+
 #define ECS_SIZEOF(T) ECS_CAST(ecs_size_t, sizeof(T))
 
 /* Use alignof in C++, or a trick in C. */
@@ -1208,6 +1211,160 @@ private:
 #endif
 
 /**
+ * @file vec.h
+ * @brief Vector with allocator support.
+ */
+
+#ifndef FLECS_VEC_H
+#define FLECS_VEC_H
+
+/** A component column. */
+typedef struct ecs_vec_t {
+    void *array;
+    int32_t count;
+    int32_t size;
+#ifdef FLECS_DEBUG
+    ecs_size_t elem_size;
+#endif
+} ecs_vec_t;
+
+FLECS_API
+ecs_vec_t* ecs_vec_init(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size,
+    int32_t elem_count);
+
+#define ecs_vec_init_t(allocator, vec, T, elem_count) \
+    ecs_vec_init(allocator, vec, ECS_SIZEOF(T), elem_count)
+
+FLECS_API
+void ecs_vec_fini(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size);
+
+#define ecs_vec_fini_t(allocator, vec, T) \
+    ecs_vec_fini(allocator, vec, ECS_SIZEOF(T))
+
+FLECS_API
+ecs_vec_t* ecs_vec_reset(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size);
+
+#define ecs_vec_reset_t(allocator, vec, T) \
+    ecs_vec_reset(allocator, vec, ECS_SIZEOF(T))
+
+FLECS_API
+void ecs_vec_clear(
+    ecs_vec_t *vec);
+
+FLECS_API
+void* ecs_vec_append(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size);
+
+#define ecs_vec_append_t(allocator, vec, T) \
+    ECS_CAST(T*, ecs_vec_append(allocator, vec, ECS_SIZEOF(T)))
+
+FLECS_API
+void ecs_vec_remove(
+    ecs_vec_t *vec,
+    ecs_size_t size,
+    int32_t elem);
+
+#define ecs_vec_remove_t(vec, T, elem) \
+    ecs_vec_remove(vec, ECS_SIZEOF(T), elem)
+
+FLECS_API
+void ecs_vec_remove_last(
+    ecs_vec_t *vec);
+
+FLECS_API
+ecs_vec_t ecs_vec_copy(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size);
+
+#define ecs_vec_copy_t(allocator, vec, T) \
+    ecs_vec_copy(allocator, vec, ECS_SIZEOF(T))
+
+FLECS_API
+void ecs_vec_reclaim(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size);
+
+#define ecs_vec_reclaim_t(allocator, vec, T) \
+    ecs_vec_reclaim(allocator, vec, ECS_SIZEOF(T))
+
+FLECS_API
+void ecs_vec_set_size(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size,
+    int32_t elem_count);
+
+#define ecs_vec_set_size_t(allocator, vec, T, elem_count) \
+    ecs_vec_set_size(allocator, vec, ECS_SIZEOF(T), elem_count)
+
+FLECS_API
+void ecs_vec_set_count(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size,
+    int32_t elem_count);
+
+#define ecs_vec_set_count_t(allocator, vec, T, elem_count) \
+    ecs_vec_set_count(allocator, vec, ECS_SIZEOF(T), elem_count)
+
+FLECS_API
+void* ecs_vec_grow(
+    struct ecs_allocator_t *allocator,
+    ecs_vec_t *vec,
+    ecs_size_t size,
+    int32_t elem_count);
+
+#define ecs_vec_grow_t(allocator, vec, T, elem_count) \
+    ecs_vec_grow(allocator, vec, ECS_SIZEOF(T), elem_count)
+
+FLECS_API
+int32_t ecs_vec_count(
+    const ecs_vec_t *vec);
+
+FLECS_API
+int32_t ecs_vec_size(
+    const ecs_vec_t *vec);
+
+FLECS_API
+void* ecs_vec_get(
+    const ecs_vec_t *vec,
+    ecs_size_t size,
+    int32_t index);
+
+#define ecs_vec_get_t(vec, T, index) \
+    ECS_CAST(T*, ecs_vec_get(vec, ECS_SIZEOF(T), index))
+
+FLECS_API
+void* ecs_vec_first(
+    const ecs_vec_t *vec);
+
+#define ecs_vec_first_t(vec, T) \
+    ECS_CAST(T*, ecs_vec_first(vec))
+
+FLECS_API
+void* ecs_vec_last(
+    const ecs_vec_t *vec,
+    ecs_size_t size);
+
+#define ecs_vec_last_t(vec, T) \
+    ECS_CAST(T*, ecs_vec_last(vec, ECS_SIZEOF(T)))
+
+#endif 
+
+/**
  * @file sparse.h
  * @brief Sparse set data structure.
  */
@@ -1220,55 +1377,37 @@ private:
 extern "C" {
 #endif
 
-/** The number of elements in a single chunk */
+/** The number of elements in a single page */
 #define FLECS_SPARSE_CHUNK_SIZE (4096)
 
 typedef struct ecs_sparse_t {
-    ecs_vector_t *dense;        /* Dense array with indices to sparse array. The
+    ecs_vec_t dense;        /* Dense array with indices to sparse array. The
                                  * dense array stores both alive and not alive
                                  * sparse indices. The 'count' member keeps
                                  * track of which indices are alive. */
 
-    ecs_vector_t *chunks;       /* Chunks with sparse arrays & data */
+    ecs_vec_t pages;           /* Chunks with sparse arrays & data */
     ecs_size_t size;            /* Element size */
     int32_t count;              /* Number of alive entries */
     uint64_t max_id_local;      /* Local max index (if no global is set) */
     uint64_t *max_id;           /* Maximum issued sparse index */
     struct ecs_allocator_t *allocator;
-    struct ecs_block_allocator_t *chunk_allocator;
+    struct ecs_block_allocator_t *page_allocator;
 } ecs_sparse_t;
 
 /** Initialize sparse set */
 FLECS_DBG_API
-void _flecs_sparse_init(
+void flecs_sparse_init(
     ecs_sparse_t *sparse,
     struct ecs_allocator_t *allocator,
-    struct ecs_block_allocator_t *chunk_allocator,
+    struct ecs_block_allocator_t *page_allocator,
     ecs_size_t elem_size);
 
-#define flecs_sparse_init(sparse, allocator, chunk_allocator, T)\
-    _flecs_sparse_init(sparse, allocator, chunk_allocator, ECS_SIZEOF(T))
-
-/** Create new sparse set */
-FLECS_DBG_API
-ecs_sparse_t* _flecs_sparse_new(
-    struct ecs_allocator_t *allocator,
-    struct ecs_block_allocator_t *chunk_allocator,
-    ecs_size_t elem_size);
-
-#define flecs_sparse_new(allocator, chunk_allocator, T)\
-    _flecs_sparse_new(allocator, chunk_allocator, ECS_SIZEOF(T))
+#define flecs_sparse_init_t(sparse, allocator, page_allocator, T)\
+    flecs_sparse_init(sparse, allocator, page_allocator, ECS_SIZEOF(T))
 
 FLECS_DBG_API
-void _flecs_sparse_fini(
-    ecs_sparse_t *sparse);
-
-#define flecs_sparse_fini(sparse)\
-    _flecs_sparse_fini(sparse)
-
-/** Free sparse set */
-FLECS_DBG_API
-void flecs_sparse_free(
+void flecs_sparse_fini(
     ecs_sparse_t *sparse);
 
 /** Remove all elements from sparse set */
@@ -1285,12 +1424,12 @@ void flecs_sparse_set_id_source(
 
 /** Add element to sparse set, this generates or recycles an id */
 FLECS_DBG_API
-void* _flecs_sparse_add(
+void* flecs_sparse_add(
     ecs_sparse_t *sparse,
     ecs_size_t elem_size);
 
-#define flecs_sparse_add(sparse, T)\
-    ((T*)_flecs_sparse_add(sparse, ECS_SIZEOF(T)))
+#define flecs_sparse_add_t(sparse, T)\
+    ECS_CAST(T*, flecs_sparse_add(sparse, ECS_SIZEOF(T)))
 
 /** Get last issued id. */
 FLECS_DBG_API
@@ -1314,24 +1453,11 @@ const uint64_t* flecs_sparse_new_ids(
 FLECS_DBG_API
 void flecs_sparse_remove(
     ecs_sparse_t *sparse,
-    uint64_t id);
-
-/** Fast version of remove, no liveliness checking */
-FLECS_DBG_API
-void* _flecs_sparse_remove_fast(
-    ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     uint64_t id);
 
-/** Remove an element, return pointer to the value in the sparse array */
-FLECS_DBG_API
-void* _flecs_sparse_remove_get(
-    ecs_sparse_t *sparse,
-    ecs_size_t elem_size,
-    uint64_t id);    
-
-#define flecs_sparse_remove_get(sparse, T, index)\
-    ((T*)_flecs_sparse_remove_get(sparse, ECS_SIZEOF(T), index))
+#define flecs_sparse_remove_t(sparse, T, id)\
+    flecs_sparse_remove(sparse, ECS_SIZEOF(T), id)
 
 /** Check whether an id has ever been issued. */
 FLECS_DBG_API
@@ -1353,21 +1479,20 @@ bool flecs_sparse_is_alive(
 
 /** Return identifier with current generation set. */
 FLECS_DBG_API
-uint64_t flecs_sparse_get_alive(
+uint64_t flecs_sparse_get_current(
     const ecs_sparse_t *sparse,
     uint64_t id);
 
 /** Get value from sparse set by dense id. This function is useful in 
  * combination with flecs_sparse_count for iterating all values in the set. */
 FLECS_DBG_API
-void* _flecs_sparse_get_dense(
+void* flecs_sparse_get_dense(
     const ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     int32_t index);
 
-#define flecs_sparse_get_dense(sparse, T, index)\
-    ((T*)_flecs_sparse_get_dense(sparse, ECS_SIZEOF(T), index))
-
+#define flecs_sparse_get_dense_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_get_dense(sparse, ECS_SIZEOF(T), index))
 
 /** Get the number of alive elements in the sparse set. */
 FLECS_DBG_API
@@ -1387,54 +1512,61 @@ int32_t flecs_sparse_size(
 /** Get element by (sparse) id. The returned pointer is stable for the duration
  * of the sparse set, as it is stored in the sparse array. */
 FLECS_DBG_API
-void* _flecs_sparse_get(
+void* flecs_sparse_get(
     const ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     uint64_t id);
 
-#define flecs_sparse_get(sparse, T, index)\
-    ((T*)_flecs_sparse_get(sparse, ECS_SIZEOF(T), index))
+#define flecs_sparse_get_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_get(sparse, ECS_SIZEOF(T), index))
+
+/** Same as flecs_sparse_get, but doesn't assert if id is not alive. */
+FLECS_DBG_API
+void* flecs_sparse_try(
+    const ecs_sparse_t *sparse,
+    ecs_size_t elem_size,
+    uint64_t id);
+
+#define flecs_sparse_try_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_try(sparse, ECS_SIZEOF(T), index))
 
 /** Like get_sparse, but don't care whether element is alive or not. */
 FLECS_DBG_API
-void* _flecs_sparse_get_any(
+void* flecs_sparse_get_any(
     const ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     uint64_t id);
 
-#define flecs_sparse_get_any(sparse, T, index)\
-    ((T*)_flecs_sparse_get_any(sparse, ECS_SIZEOF(T), index))
+#define flecs_sparse_get_any_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_get_any(sparse, ECS_SIZEOF(T), index))
 
 /** Get or create element by (sparse) id. */
 FLECS_DBG_API
-void* _flecs_sparse_ensure(
+void* flecs_sparse_ensure(
     ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     uint64_t id);
 
-#define flecs_sparse_ensure(sparse, T, index)\
-    ((T*)_flecs_sparse_ensure(sparse, ECS_SIZEOF(T), index))
+#define flecs_sparse_ensure_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_ensure(sparse, ECS_SIZEOF(T), index))
+
+void* flecs_sparse_try_ensure(
+    ecs_sparse_t *sparse,
+    ecs_size_t size,
+    uint64_t index);
+
+#define flecs_sparse_try_ensure_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_try_ensure(sparse, ECS_SIZEOF(T), index))
 
 /** Fast version of ensure, no liveliness checking */
 FLECS_DBG_API
-void* _flecs_sparse_ensure_fast(
+void* flecs_sparse_ensure_fast(
     ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     uint64_t id);
 
-#define flecs_sparse_ensure_fast(sparse, T, index)\
-    ((T*)_flecs_sparse_ensure_fast(sparse, ECS_SIZEOF(T), index))
-
-/** Set value. */
-FLECS_DBG_API
-void* _flecs_sparse_set(
-    ecs_sparse_t *sparse,
-    ecs_size_t elem_size,
-    uint64_t id,
-    void *value);
-
-#define flecs_sparse_set(sparse, T, index, value)\
-    ((T*)_flecs_sparse_set(sparse, ECS_SIZEOF(T), index, value))
+#define flecs_sparse_ensure_fast_t(sparse, T, index)\
+    ECS_CAST(T*, flecs_sparse_ensure_fast(sparse, ECS_SIZEOF(T), index))
 
 /** Get pointer to ids (alive and not alive). Use with count() or size(). */
 FLECS_DBG_API
@@ -1449,7 +1581,8 @@ void flecs_sparse_set_size(
 
 /** Copy sparse set into a new sparse set. */
 FLECS_DBG_API
-ecs_sparse_t* flecs_sparse_copy(
+void flecs_sparse_copy(
+    ecs_sparse_t *dst,
     const ecs_sparse_t *src);    
 
 /** Restore sparse set into destination sparse set. */
@@ -1458,24 +1591,26 @@ void flecs_sparse_restore(
     ecs_sparse_t *dst,
     const ecs_sparse_t *src);
 
+
 /* Publicly exposed APIs 
  * The flecs_ functions aren't exposed directly as this can cause some
  * optimizers to not consider them for link time optimization. */
 
 FLECS_API
-ecs_sparse_t* _ecs_sparse_new(
-    ecs_size_t elem_size);
-
-#define ecs_sparse_new(T)\
-    _ecs_sparse_new(ECS_SIZEOF(T))
-
-FLECS_API
-void* _ecs_sparse_add(
+void ecs_sparse_init(
     ecs_sparse_t *sparse,
     ecs_size_t elem_size);
 
-#define ecs_sparse_add(sparse, T)\
-    ((T*)_ecs_sparse_add(sparse, ECS_SIZEOF(T)))
+#define ecs_sparse_init_t(sparse, T)\
+    ecs_sparse_init(sparse, ECS_SIZEOF(T))
+
+FLECS_API
+void* ecs_sparse_add(
+    ecs_sparse_t *sparse,
+    ecs_size_t elem_size);
+
+#define ecs_sparse_add_t(sparse, T)\
+    ECS_CAST(T*, ecs_sparse_add(sparse, ECS_SIZEOF(T)))
 
 FLECS_API
 uint64_t ecs_sparse_last_id(
@@ -1492,22 +1627,22 @@ void flecs_sparse_set_generation(
     uint64_t id);
 
 FLECS_API
-void* _ecs_sparse_get_dense(
+void* ecs_sparse_get_dense(
     const ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     int32_t index);
 
-#define ecs_sparse_get_dense(sparse, T, index)\
-    ((T*)_ecs_sparse_get_dense(sparse, ECS_SIZEOF(T), index))
+#define ecs_sparse_get_dense_t(sparse, T, index)\
+    ECS_CAST(T*, ecs_sparse_get_dense(sparse, ECS_SIZEOF(T), index))
 
 FLECS_API
-void* _ecs_sparse_get(
+void* ecs_sparse_get(
     const ecs_sparse_t *sparse,
     ecs_size_t elem_size,
     uint64_t id);
 
-#define ecs_sparse_get(sparse, T, index)\
-    ((T*)_ecs_sparse_get(sparse, ECS_SIZEOF(T), index))
+#define ecs_sparse_get_t(sparse, T, index)\
+    ECS_CAST(T*, ecs_sparse_get(sparse, ECS_SIZEOF(T), index))
 
 #ifdef __cplusplus
 }
@@ -1558,6 +1693,11 @@ FLECS_API
 ecs_block_allocator_t* flecs_ballocator_new(
     ecs_size_t size);
 
+#define flecs_ballocator_new_t(T)\
+    flecs_ballocator_new(ECS_SIZEOF(T))
+#define flecs_ballocator_new_n(T, count)\
+    flecs_ballocator_new(ECS_SIZEOF(T) * count)
+
 FLECS_API
 void flecs_ballocator_fini(
     ecs_block_allocator_t *ba);
@@ -1605,13 +1745,15 @@ void* flecs_bdup(
 extern "C" {
 #endif
 
-typedef uint64_t ecs_map_key_t;
+typedef uint64_t ecs_map_data_t;
+typedef ecs_map_data_t ecs_map_key_t;
+typedef ecs_map_data_t ecs_map_val_t;
 
 /* Map type */
 typedef struct ecs_bucket_entry_t {
-    struct ecs_bucket_entry_t *next;
     ecs_map_key_t key;
-    /* payload right after key. */
+    ecs_map_val_t value;
+    struct ecs_bucket_entry_t *next;
 } ecs_bucket_entry_t;
 
 typedef struct ecs_bucket_t {
@@ -1619,40 +1761,39 @@ typedef struct ecs_bucket_t {
 } ecs_bucket_t;
 
 typedef struct ecs_map_t {
-    ecs_bucket_t *buckets;
-    ecs_bucket_t *buckets_end;
-    int16_t elem_size;
     uint8_t bucket_shift;
     bool shared_allocator;
+    ecs_bucket_t *buckets;
     int32_t bucket_count;
     int32_t count;
-    struct ecs_allocator_t *allocator;
     struct ecs_block_allocator_t *entry_allocator;
+    struct ecs_allocator_t *allocator;
 } ecs_map_t;
 
 typedef struct ecs_map_iter_t {
     const ecs_map_t *map;
     ecs_bucket_t *bucket;
     ecs_bucket_entry_t *entry;
+    ecs_map_data_t *res;
 } ecs_map_iter_t;
 
 typedef struct ecs_map_params_t {
-    ecs_size_t size;
     struct ecs_allocator_t *allocator;
     struct ecs_block_allocator_t entry_allocator;
-    int32_t initial_count;
 } ecs_map_params_t;
 
-#define ECS_MAP_INIT(T) { .elem_size = ECS_SIZEOF(T) }
+/* Function/macro postfixes meaning:
+ *   _ptr:    access ecs_map_val_t as void*
+ *   _ref:    access ecs_map_val_t* as T**
+ *   _deref:  dereferences a _ref
+ *   _alloc:  if _ptr is NULL, alloc
+ *   _free:   if _ptr is not NULL, free
+ */
 
 FLECS_API
-void _ecs_map_params_init(
+void ecs_map_params_init(
     ecs_map_params_t *params,
-    struct ecs_allocator_t *allocator,
-    ecs_size_t elem_size);
-
-#define ecs_map_params_init(params, allocator, T)\
-    _ecs_map_params_init(params, allocator, ECS_SIZEOF(T))
+    struct ecs_allocator_t *allocator);
 
 FLECS_API
 void ecs_map_params_fini(
@@ -1660,124 +1801,80 @@ void ecs_map_params_fini(
 
 /** Initialize new map. */
 FLECS_API
-void _ecs_map_init(
+void ecs_map_init(
     ecs_map_t *map,
-    ecs_size_t elem_size,
-    struct ecs_allocator_t *allocator,
-    int32_t initial_count);
-
-#define ecs_map_init(map, T, allocator, initial_count)\
-    _ecs_map_init(map, ECS_SIZEOF(T), allocator, initial_count)
+    struct ecs_allocator_t *allocator);
 
 /** Initialize new map. */
 FLECS_API
-void _ecs_map_init_w_params(
+void ecs_map_init_w_params(
     ecs_map_t *map,
     ecs_map_params_t *params);
-
-#define ecs_map_init_w_params(map, param)\
-    _ecs_map_init_w_params(map, param)
 
 /** Initialize new map if uninitialized, leave as is otherwise */
 FLECS_API
-void _ecs_map_init_if(
+void ecs_map_init_if(
     ecs_map_t *map,
-    ecs_size_t elem_size,
-    struct ecs_allocator_t *allocator,
-    int32_t elem_count);
-
-#define ecs_map_init_if(map, T, allocator, elem_count)\
-    _ecs_map_init_if(map, ECS_SIZEOF(T), allocator, elem_count)
+    struct ecs_allocator_t *allocator);
 
 FLECS_API
-void _ecs_map_init_w_params_if(
+void ecs_map_init_w_params_if(
     ecs_map_t *result,
     ecs_map_params_t *params);
-
-#define ecs_map_init_w_params_if(map, params)\
-    _ecs_map_init_w_params_if(map, params)
 
 /** Deinitialize map. */
 FLECS_API
 void ecs_map_fini(
     ecs_map_t *map);
 
-/** Create new map. */
-FLECS_API
-ecs_map_t* _ecs_map_new(
-    ecs_size_t elem_size,
-    struct ecs_allocator_t *allocator,
-    int32_t elem_count);
-
-#define ecs_map_new(T, allocator, elem_count)\
-    _ecs_map_new(ECS_SIZEOF(T), allocator, elem_count)
-
-/** Is map initialized */
-bool ecs_map_is_initialized(
-    const ecs_map_t *result);
-
 /** Get element for key, returns NULL if they key doesn't exist. */
 FLECS_API
-void* _ecs_map_get(
-    const ecs_map_t *map,
-    ecs_size_t elem_size,
-    ecs_map_key_t key);
-
-#define ecs_map_get(map, T, key)\
-    (T*)_ecs_map_get(map, ECS_SIZEOF(T), (ecs_map_key_t)key)
-
-/** Get pointer element. This dereferences the map element as a pointer. This
- * operation returns NULL when either the element does not exist or whether the
- * pointer is NULL, and should therefore only be used when the application knows
- * for sure that a pointer should never be NULL. */
-FLECS_API
-void* _ecs_map_get_ptr(
+ecs_map_val_t* ecs_map_get(
     const ecs_map_t *map,
     ecs_map_key_t key);
 
-#define ecs_map_get_ptr(map, T, key)\
-    (T)_ecs_map_get_ptr(map, key)
-
-/** Test if map has key */
+/* Get element as pointer (auto-dereferences _ptr) */
 FLECS_API
-bool ecs_map_has(
+void* _ecs_map_get_deref(
     const ecs_map_t *map,
     ecs_map_key_t key);
 
-/** Get or create element for key. */
+/** Get or insert element for key. */
 FLECS_API
-void* _ecs_map_ensure(
+ecs_map_val_t* ecs_map_ensure(
+    ecs_map_t *map,
+    ecs_map_key_t key);
+
+/** Get or insert pointer element for key, allocate if the pointer is NULL */
+FLECS_API
+void* ecs_map_ensure_alloc(
     ecs_map_t *map,
     ecs_size_t elem_size,
     ecs_map_key_t key);
 
-#define ecs_map_ensure(map, T, key)\
-    ((T*)_ecs_map_ensure(map, ECS_SIZEOF(T), (ecs_map_key_t)key))
-
-/** Set element. */
+/** Insert element for key. */
 FLECS_API
-void* _ecs_map_set(
+void ecs_map_insert(
     ecs_map_t *map,
-    ecs_size_t elem_size,
     ecs_map_key_t key,
-    const void *payload);
+    ecs_map_val_t value);
 
-#define ecs_map_set(map, key, payload)\
-    _ecs_map_set(map, ECS_SIZEOF(*payload), (ecs_map_key_t)key, payload)
-
-#define ecs_map_set_ptr(map, key, payload)\
-    _ecs_map_set(map, ECS_SIZEOF(payload), (ecs_map_key_t)key, &payload)
-
-/** Free map. */
+/** Insert pointer element for key, populate with new allocation. */
 FLECS_API
-void ecs_map_free(
-    ecs_map_t *map);
+void* ecs_map_insert_alloc(
+    ecs_map_t *map,
+    ecs_size_t elem_size,
+    ecs_map_key_t key);
 
-/** Remove key from map.
- * Returns number of remaining elements.
- */
+/** Remove key from map. */
 FLECS_API
-int32_t ecs_map_remove(
+ecs_map_val_t ecs_map_remove(
+    ecs_map_t *map,
+    ecs_map_key_t key);
+
+/* Remove pointer element, free if not NULL */
+FLECS_API
+void ecs_map_remove_free(
     ecs_map_t *map,
     ecs_map_key_t key);
 
@@ -1787,14 +1884,10 @@ void ecs_map_clear(
     ecs_map_t *map);
 
 /** Return number of elements in map. */
-FLECS_API
-int32_t ecs_map_count(
-    const ecs_map_t *map);
+#define ecs_map_count(map) ((map) ? (map)->count : 0)
 
-/** Return number of buckets in map. */
-FLECS_API
-int32_t ecs_map_bucket_count(
-    const ecs_map_t *map);
+/** Is map initialized */
+#define ecs_map_is_init(map) ((map) ? (map)->bucket_shift != 0 : false)
 
 /** Return iterator to map contents. */
 FLECS_API
@@ -1803,53 +1896,28 @@ ecs_map_iter_t ecs_map_iter(
 
 /** Obtain next element in map from iterator. */
 FLECS_API
-void* _ecs_map_next(
-    ecs_map_iter_t* iter,
-    ecs_size_t elem_size,
-    ecs_map_key_t *key);
-
-#define ecs_map_next(iter, T, key) \
-    (T*)_ecs_map_next(iter, ECS_SIZEOF(T), key)
-
-/** Obtain next pointer element from iterator. See ecs_map_get_ptr. */
-FLECS_API
-void* _ecs_map_next_ptr(
-    ecs_map_iter_t* iter,
-    ecs_map_key_t *key);
-
-#define ecs_map_next_ptr(iter, T, key) \
-    (T)_ecs_map_next_ptr(iter, key)
-
-/** Grow number of buckets in the map for specified number of elements. */
-FLECS_API
-void ecs_map_grow(
-    ecs_map_t *map,
-    int32_t elem_count);
-
-/** Set number of buckets in the map for specified number of elements. */
-FLECS_API
-void ecs_map_set_size(
-    ecs_map_t *map,
-    int32_t elem_count);
+bool ecs_map_next(
+    ecs_map_iter_t *iter);
 
 /** Copy map. */
 FLECS_API
-ecs_map_t* ecs_map_copy(
-    ecs_map_t *map);
+void ecs_map_copy(
+    ecs_map_t *dst,
+    const ecs_map_t *src);
 
-#ifndef FLECS_LEGACY
-#define ecs_map_each(map, T, key, var, ...)\
-    {\
-        ecs_map_iter_t it = ecs_map_iter(map);\
-        ecs_map_key_t key;\
-        T* var;\
-        (void)key;\
-        (void)var;\
-        while ((var = ecs_map_next(&it, T, &key))) {\
-            __VA_ARGS__\
-        }\
-    }
-#endif
+#define ecs_map_get_ref(m, T, k) ECS_CAST(T**, ecs_map_get(m, k))
+#define ecs_map_get_deref(m, T, k) ECS_CAST(T*, _ecs_map_get_deref(m, k))
+#define ecs_map_ensure_ref(m, T, k) ECS_CAST(T**, ecs_map_ensure(m, k))
+
+#define ecs_map_insert_ptr(m, k, v) ecs_map_insert(m, k, ECS_CAST(ecs_map_val_t, v))
+#define ecs_map_insert_alloc_t(m, T, k) ECS_CAST(T*, ecs_map_insert_alloc(m, ECS_SIZEOF(T), k))
+#define ecs_map_ensure_alloc_t(m, T, k) ECS_CAST(T*, ecs_map_ensure_alloc(m, ECS_SIZEOF(T), k))
+#define ecs_map_remove_ptr(m, k) ((void*)(ecs_map_remove(m, k)))
+
+#define ecs_map_key(it) ((it)->res[0])
+#define ecs_map_value(it) ((it)->res[1])
+#define ecs_map_ptr(it) ECS_CAST(void*, ecs_map_value(it))
+#define ecs_map_ref(it, T) (ECS_CAST(T**, &((it)->res[1])))
 
 #ifdef __cplusplus
 }
@@ -1871,10 +1939,10 @@ FLECS_DBG_API extern int64_t ecs_block_allocator_free_count;
 FLECS_DBG_API extern int64_t ecs_stack_allocator_alloc_count;
 FLECS_DBG_API extern int64_t ecs_stack_allocator_free_count;
 
-typedef struct ecs_allocator_t {
+struct ecs_allocator_t {
     ecs_block_allocator_t chunks;
     struct ecs_sparse_t sizes; /* <size, block_allocator_t> */
-} ecs_allocator_t;
+};
 
 FLECS_API
 void flecs_allocator_init(
@@ -3214,9 +3282,6 @@ typedef struct ecs_switch_t ecs_switch_t;
 /* Cached query table data */
 typedef struct ecs_query_table_node_t ecs_query_table_node_t;
 
-/* Allocator type */
-struct ecs_allocator_t;
-
 ////////////////////////////////////////////////////////////////////////////////
 //// Non-opaque types
 ////////////////////////////////////////////////////////////////////////////////
@@ -3237,7 +3302,7 @@ struct ecs_observable_t {
     ecs_event_record_t on_set;
     ecs_event_record_t un_set;
     ecs_event_record_t on_wildcard;
-    ecs_sparse_t *events;  /* sparse<event, ecs_event_record_t> */
+    ecs_sparse_t events;  /* sparse<event, ecs_event_record_t> */
 };
 
 /** Record for entity index */
@@ -3509,6 +3574,10 @@ extern "C" {
 #define ECS_HI_COMPONENT_ID (256) /* Maximum number of components */
 #endif
 
+#ifndef ECS_HI_ID_RECORD_ID
+#define ECS_HI_ID_RECORD_ID (1024)
+#endif
+
 /** This is the largest possible component id. Components for the most part
  * occupy the same id range as entities, however they are not allowed to overlap
  * with (8) bits reserved for id flags. */
@@ -3584,160 +3653,6 @@ int32_t flecs_table_observed_count(
 #endif
 
 /**
- * @file vec.h
- * @brief Vector with allocator support.
- */
-
-#ifndef FLECS_VEC_H
-#define FLECS_VEC_H
-
-/** A component column. */
-typedef struct ecs_vec_t {
-    void *array;
-    int32_t count;
-    int32_t size;
-#ifdef FLECS_DEBUG
-    ecs_size_t elem_size;
-#endif
-} ecs_vec_t;
-
-FLECS_API
-ecs_vec_t* ecs_vec_init(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size,
-    int32_t elem_count);
-
-#define ecs_vec_init_t(allocator, vec, T, elem_count) \
-    ecs_vec_init(allocator, vec, ECS_SIZEOF(T), elem_count)
-
-FLECS_API
-void ecs_vec_fini(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size);
-
-#define ecs_vec_fini_t(allocator, vec, T) \
-    ecs_vec_fini(allocator, vec, ECS_SIZEOF(T))
-
-FLECS_API
-ecs_vec_t* ecs_vec_reset(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size);
-
-#define ecs_vec_reset_t(allocator, vec, T) \
-    ecs_vec_reset(allocator, vec, ECS_SIZEOF(T))
-
-FLECS_API
-void ecs_vec_clear(
-    ecs_vec_t *vec);
-
-FLECS_API
-void* ecs_vec_append(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size);
-
-#define ecs_vec_append_t(allocator, vec, T) \
-    ECS_CAST(T*, ecs_vec_append(allocator, vec, ECS_SIZEOF(T)))
-
-FLECS_API
-void ecs_vec_remove(
-    ecs_vec_t *vec,
-    ecs_size_t size,
-    int32_t elem);
-
-#define ecs_vec_remove_t(vec, T, elem) \
-    ecs_vec_remove(vec, ECS_SIZEOF(T), elem)
-
-FLECS_API
-void ecs_vec_remove_last(
-    ecs_vec_t *vec);
-
-FLECS_API
-ecs_vec_t ecs_vec_copy(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size);
-
-#define ecs_vec_copy_t(allocator, vec, T) \
-    ecs_vec_copy(allocator, vec, ECS_SIZEOF(T))
-
-FLECS_API
-void ecs_vec_reclaim(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size);
-
-#define ecs_vec_reclaim_t(allocator, vec, T) \
-    ecs_vec_reclaim(allocator, vec, ECS_SIZEOF(T))
-
-FLECS_API
-void ecs_vec_set_size(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size,
-    int32_t elem_count);
-
-#define ecs_vec_set_size_t(allocator, vec, T, elem_count) \
-    ecs_vec_set_size(allocator, vec, ECS_SIZEOF(T), elem_count)
-
-FLECS_API
-void ecs_vec_set_count(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size,
-    int32_t elem_count);
-
-#define ecs_vec_set_count_t(allocator, vec, T, elem_count) \
-    ecs_vec_set_count(allocator, vec, ECS_SIZEOF(T), elem_count)
-
-FLECS_API
-void* ecs_vec_grow(
-    ecs_allocator_t *allocator,
-    ecs_vec_t *vec,
-    ecs_size_t size,
-    int32_t elem_count);
-
-#define ecs_vec_grow_t(allocator, vec, T, elem_count) \
-    ecs_vec_grow(allocator, vec, ECS_SIZEOF(T), elem_count)
-
-FLECS_API
-int32_t ecs_vec_count(
-    const ecs_vec_t *vec);
-
-FLECS_API
-int32_t ecs_vec_size(
-    const ecs_vec_t *vec);
-
-FLECS_API
-void* ecs_vec_get(
-    const ecs_vec_t *vec,
-    ecs_size_t size,
-    int32_t index);
-
-#define ecs_vec_get_t(vec, T, index) \
-    ECS_CAST(T*, ecs_vec_get(vec, ECS_SIZEOF(T), index))
-
-FLECS_API
-void* ecs_vec_first(
-    const ecs_vec_t *vec);
-
-#define ecs_vec_first_t(vec, T) \
-    ECS_CAST(T*, ecs_vec_first(vec))
-
-FLECS_API
-void* ecs_vec_last(
-    const ecs_vec_t *vec,
-    ecs_size_t size);
-
-#define ecs_vec_last_t(vec, T) \
-    ECS_CAST(T*, ecs_vec_last(vec, ECS_SIZEOF(T)))
-
-#endif 
-
-/**
  * @file hashmap.h
  * @brief Hashmap data structure.
  */
@@ -3761,6 +3676,7 @@ typedef struct {
     ecs_size_t key_size;
     ecs_size_t value_size;
     ecs_block_allocator_t *hashmap_allocator;
+    ecs_block_allocator_t bucket_allocator;
     ecs_map_t impl;
 } ecs_hashmap_t;
 
@@ -3858,8 +3774,8 @@ void flecs_hm_bucket_remove(
 
 FLECS_DBG_API
 void flecs_hashmap_copy(
-    const ecs_hashmap_t *src,
-    ecs_hashmap_t *dst);
+    ecs_hashmap_t *dst,
+    const ecs_hashmap_t *src);
 
 FLECS_DBG_API
 flecs_hashmap_iter_t flecs_hashmap_iter(
@@ -12426,7 +12342,7 @@ typedef struct ecs_enum_constant_t {
 
 typedef struct EcsEnum {
     /** Populated from child entities with Constant component */
-    ecs_map_t *constants; /* map<i32_t, ecs_enum_constant_t> */
+    ecs_map_t constants; /* map<i32_t, ecs_enum_constant_t> */
 } EcsEnum;
 
 typedef struct ecs_bitmask_constant_t {
@@ -12442,7 +12358,7 @@ typedef struct ecs_bitmask_constant_t {
 
 typedef struct EcsBitmask {
     /* Populated from child entities with Constant component */
-    ecs_map_t *constants; /* map<u32_t, ecs_bitmask_constant_t> */
+    ecs_map_t constants; /* map<u32_t, ecs_bitmask_constant_t> */
 } EcsBitmask;
 
 typedef struct EcsArray {
@@ -17523,10 +17439,13 @@ namespace flecs
  */
 template <typename T>
 struct ref {
-    ref(world_t *world, entity_t entity, flecs::id_t id = 0) 
-        : m_world( world )
-        , m_ref() 
+    ref(world_t *world, entity_t entity, flecs::id_t id = 0)
+        : m_ref()
     {
+        // the world we were called with may be a stage; convert it to a world
+        // here if that is the case
+        m_world = world ? const_cast<flecs::world_t *>(ecs_get_world(world))
+            : nullptr;
         if (!id) {
             id = _::cpp_type<T>::id(world);
         }

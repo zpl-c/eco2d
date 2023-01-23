@@ -269,7 +269,12 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM_TICKED(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position, !components.BlockHarvest);
     ECS_SYSTEM_TICKED(ecs, ProduceItems, EcsPostUpdate, components.ItemContainer, components.Producer, components.Position, components.Device);
     ECS_SYSTEM_TICKED_EX(ecs, PushItemsOnNodes, EcsPostUpdate, 20, components.ItemContainer, components.Position, components.Device, components.ItemRouter);
-    ECS_SYSTEM_TICKED(ecs, BuildBlueprints, EcsPostUpdate, components.Blueprint, components.Device, components.Position);
+	ECS_SYSTEM_TICKED(ecs, BuildBlueprints, EcsPostUpdate, components.Blueprint, components.Device, components.Position);
+	
+	ECS_SYSTEM_TICKED(ecs, CreatureCheckNeeds, EcsPostUpdate, components.Creature);
+	ECS_SYSTEM_TICKED(ecs, CreatureSeekFood, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksFood, !components.SeeksCompanion);
+	ECS_SYSTEM_TICKED(ecs, CreatureSeekCompanion, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksCompanion, !components.SeeksFood);
+	ECS_SYSTEM(ecs, CreatureRoamAround, EcsPostUpdate, components.Velocity, components.Creature, !components.SeeksFood, !components.SeeksCompanion);
     
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
     

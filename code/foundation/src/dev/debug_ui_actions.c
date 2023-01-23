@@ -3,6 +3,8 @@
 #include "models/items.h"
 #include "net/network.h"
 
+#include "models/entity.h"
+
 void
 ActExitGame(void) {
     game_request_close();
@@ -230,8 +232,7 @@ ActSpawnDemoNPCs(void) {
     if (zpl_array_count(demo_npcs) >= 100000) return;
 
     for (uint32_t i = 0; i < 1000; i++) {
-        uint64_t e = entity_spawn(EKIND_DEMO_NPC);
-        ecs_add(world_ecs(), e, DemoNPC);
+        uint64_t e = entity_spawn_id(ASSET_CREATURE);
         Position *pos = ecs_get_mut(world_ecs(), e, Position);
         pos->x=(float)(rand() % world_dim());
         pos->y=(float)(rand() % world_dim());

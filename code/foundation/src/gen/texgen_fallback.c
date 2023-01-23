@@ -27,7 +27,9 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
         case ASSET_IRON_PLATES: return LoadTexEco("iron_plate");
         case ASSET_SCREWS: return LoadTexEco("screws");
         case ASSET_LOG: return LoadTexEco("log");
-        case ASSET_PLANK: return LoadTexEco("plank");
+		case ASSET_PLANK: return LoadTexEco("plank");
+		case ASSET_CREATURE: return GenColorEco(YELLOW);
+		case ASSET_CREATURE_FOOD: return GenColorEco(GREEN);
         
         // NOTE(zaklaus): blocks
         case ASSET_FENCE: return LoadTexEco("fence");

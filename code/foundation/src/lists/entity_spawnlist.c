@@ -5,6 +5,7 @@
 #include "models/prefabs/craftbench.h"
 #include "models/prefabs/splitter.h"
 #include "models/prefabs/assembler.h"
+#include "models/prefabs/creature.h"
 
 static struct {
     asset_id id;
@@ -17,6 +18,7 @@ static struct {
     { .id = ASSET_SPLITTER, .proc = splitter_spawn },
     { .id = ASSET_ASSEMBLER, .proc = assembler_spawn },
     { .id = ASSET_BLUEPRINT, .proc_udata = blueprint_spawn_udata },
+	{ .id = ASSET_CREATURE, .proc = creature_spawn },
 };
 
 #define MAX_ENTITY_SPAWNDEFS ((sizeof(entity_spawnlist))/(sizeof(entity_spawnlist[0])))

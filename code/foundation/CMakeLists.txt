@@ -24,6 +24,7 @@ add_library(eco2d-foundation STATIC
     src/models/prefabs/splitter.c
     src/models/prefabs/craftbench.c
     src/models/prefabs/assembler.c
+    src/models/prefabs/creature.c
 
     src/pkt/packet.c
 

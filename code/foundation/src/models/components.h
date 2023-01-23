@@ -185,27 +185,44 @@ typedef struct {
 
 typedef struct {char _unused;} DemoNPC;
 
-extern ECS_COMPONENT_DECLARE(Vector2D);
-extern ECS_COMPONENT_DECLARE(Position);
-extern ECS_COMPONENT_DECLARE(Velocity);
-extern ECS_COMPONENT_DECLARE(Chunk);
-extern ECS_COMPONENT_DECLARE(Drawable);
-extern ECS_COMPONENT_DECLARE(Input);
-extern ECS_COMPONENT_DECLARE(ClientInfo);
-extern ECS_COMPONENT_DECLARE(Health);
-extern ECS_COMPONENT_DECLARE(Classify);
-extern ECS_COMPONENT_DECLARE(Vehicle);
-extern ECS_COMPONENT_DECLARE(IsInVehicle);
-extern ECS_COMPONENT_DECLARE(Item);
-extern ECS_COMPONENT_DECLARE(BlockHarvest);
-extern ECS_COMPONENT_DECLARE(Inventory);
-extern ECS_COMPONENT_DECLARE(ItemContainer);
-extern ECS_COMPONENT_DECLARE(Producer);
-extern ECS_COMPONENT_DECLARE(EnergySource);
-extern ECS_COMPONENT_DECLARE(ItemRouter);
-extern ECS_COMPONENT_DECLARE(Device);
-extern ECS_COMPONENT_DECLARE(Blueprint);
-extern ECS_COMPONENT_DECLARE(DemoNPC);
-extern ECS_COMPONENT_DECLARE(StreamInfo);
+typedef struct {
+	int16_t hunger_satisfied;
+	int16_t mating_satisfied;
+	int16_t life_remaining;
+} Creature;
+
+typedef struct { char _unused; } SeeksFood;
+typedef struct { char _unused; } SeeksCompanion;
+
+#define _COMPS\
+	X(Vector2D)\
+	X(Position)\
+	X(Velocity)\
+	X(Chunk)\
+	X(Drawable)\
+	X(Input)\
+	X(ClientInfo)\
+	X(Health)\
+	X(Classify)\
+	X(Vehicle)\
+	X(IsInVehicle)\
+	X(Item)\
+	X(BlockHarvest)\
+	X(Inventory)\
+	X(ItemContainer)\
+	X(Producer)\
+	X(EnergySource)\
+	X(ItemRouter)\
+	X(Device)\
+	X(Blueprint)\
+	X(DemoNPC)\
+	X(Creature)\
+	X(SeeksFood)\
+	X(SeeksCompanion)\
+	X(StreamInfo)
+
+#define X(comp) extern ECS_COMPONENT_DECLARE(comp);
+	_COMPS
+#undef X
 
 void ComponentsImport(ecs_world_t *ecs);

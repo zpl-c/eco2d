@@ -56,7 +56,7 @@ void ProduceItems(ecs_iter_t *it) {
             entity_wake(it->entities[i]);
         }
 
-		producer[i].process_ticks_left = zpl_max(producer[i].process_ticks_left-1, 0) ;
+		TICK_VAR(producer[i].process_ticks_left);
     }
 }
 
