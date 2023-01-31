@@ -14,7 +14,9 @@ static profiler profilers[] = {
     { .id = PROF_RENDER, .name = "render" },
     { .id = PROF_UPDATE_SYSTEMS, .name = "update systems" },
     { .id = PROF_ENTITY_LERP, .name = "entity lerp" },
-    { .id = PROF_INTEGRATE_POS, .name = "entity movement" },
+	{ .id = PROF_INTEGRATE_POS, .name = "entity movement" },
+	{ .id = PROF_PHYS_BLOCK_COLS, .name = "block collisions" },
+	{ .id = PROF_PHYS_BODY_COLS, .name = "body collisions" },
     { .id = PROF_RENDER_PUSH_AND_SORT_ENTRIES, .name = "push&sort entries" },
 };
 

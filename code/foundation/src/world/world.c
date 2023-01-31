@@ -12,7 +12,6 @@
 #include "core/game.h"
 #include "models/entity.h"
 #include "models/crafting.h"
-#include "ferox.h"
 
 #include "packets/pkt_send_librg_update.h"
 
@@ -25,7 +24,6 @@ ZPL_TABLE(static, world_component_cache, world_component_cache_, zpl_uintptr); /
 static world_data world = {0};
 static world_snapshot streamer_snapshot;
 static world_component_cache component_cache;
-frWorld *phys_world = 0;
 
 entity_view *world_build_entity_view(int64_t e) {
     entity_view *cached_ev = world_snapshot_get(&streamer_snapshot, e);
@@ -296,18 +294,6 @@ void world_free_worldgen_data(void) {
     world.outer_data = NULL;
 }
 
-static inline
-void world_init_physics(void) {
-	const Rectangle bounds = {
-		.x = -0.05f * frNumberPixelsToMeters(world_dim()),
-		.y = -0.05f * frNumberPixelsToMeters(world_dim()),
-		.width = 1.1f * frNumberPixelsToMeters(world_dim()),
-		.height = 1.1f * frNumberPixelsToMeters(world_dim())
-	};
-
-	phys_world = frCreateWorld((Vector2) { 0.0f, 0.0f }, bounds);
-}
-
 int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world.is_paused = false;
     world.seed = seed;
@@ -324,7 +310,6 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
     world_init_mapping();
     world_chunk_setup_grid();
     world_free_worldgen_data();
-	world_init_physics();
     
     zpl_printf("[INFO] Created a new server world\n");
     
@@ -345,9 +330,7 @@ int32_t world_destroy(void) {
     world_component_cache_destroy(&component_cache);
     zpl_memset(&world, 0, sizeof(world));
 
-	frReleaseWorld(phys_world);
-
-    zpl_printf("[INFO] World was destroyed.\n");
+     zpl_printf("[INFO] World was destroyed.\n");
     return WORLD_ERROR_NONE;
 }
 

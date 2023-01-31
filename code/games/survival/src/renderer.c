@@ -1,6 +1,5 @@
 static Camera2D render_camera;
 static float zoom_overlay_tran = 0.0f;
-#include "ferox.h"
 
 #define CAM_OVERLAY_ZOOM_LEVEL 0.15f
 #define ALPHA(x) ColorAlpha(x, data->tran_time)
@@ -132,16 +131,7 @@ void renderer_draw(void) {
     BeginMode2D(render_camera);
 
     game_world_view_render_world();
-
 	
-#if 0
-	if (game_get_kind() == GAMEKIND_SINGLE) {
-		extern frWorld *phys_world;
-		frDrawSpatialHash(frGetWorldSpatialHash(phys_world), 0.75f, GRAY);
-	}
-#endif
-
-
     EndMode2D();
 }
 

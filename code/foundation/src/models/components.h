@@ -36,40 +36,23 @@ typedef struct {
 } Drawable;
 
 typedef Vector2D Position;
-typedef struct {
-	float x;
-	float y;
-	float m;
-} Velocity;
+typedef Vector2D Velocity;
 
 enum {
 	PHYS_CIRCLE,
-	PHYS_RECT
+	PHYS_AABB,
 };
 
-typedef struct { 
+#define INFINITE_MASS -1.0f
+
+typedef struct {
 	uint8_t kind;
 	union {
 		struct {
 			float r;
 		} circle;
-
-		struct {
-			float w;
-			float h;
-		} rect;
-	};
-
-	float density;
-	float static_friction;
-	float dynamic_friction;
-	
-	// flags
-	uint8_t inf_inertia:4;
-	uint8_t inf_mass:4;
-
-	// internals
-	uintptr_t body_ptr;
+ 	};
+	float mass;
 } PhysicsBody;
 
 typedef struct {

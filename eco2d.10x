@@ -40,6 +40,8 @@
 			<Define>_WIN64</Define>
 			<Define>RAYLIB_NUKLEAR_IMPLEMENTATION</Define>
 			<Define>NK_IMPLEMENTATION</Define>
+			<Define>TINYC2_IMPL</Define>
+			<Define>CUTE_C2_IMPLEMENTATION</Define>
 		</Defines>
 		<ConfigProperties>
 			<ConfigAndPlatform>

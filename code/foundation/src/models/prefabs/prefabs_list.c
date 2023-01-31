@@ -125,13 +125,7 @@ uint64_t mob_spawn(void) {
 	hp->max_hp = hp->hp = 100.0f;
 
 	ecs_add(world_ecs(), e, Mob);
-	ecs_set(world_ecs(), e, PhysicsBody, {
-	        .kind = PHYS_CIRCLE,
-	        .circle.r = 1.5f,
-	        .density = 0.25f,
-	        .static_friction = 0.35f,
-	        .dynamic_friction = 0.15f
-	});
+	ecs_set(world_ecs(), e, PhysicsBody, { .kind = PHYS_AABB, .mass = 1.0f });
 
 	return (uint64_t)e;
 }

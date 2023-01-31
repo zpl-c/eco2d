@@ -7,13 +7,19 @@
 #include "dev/debug_draw.h"
 #include "core/game.h"
 #include "core/rules.h"
-#include "ferox.h"
 
-extern frWorld *phys_world;
+ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
+#define CUTE_C2_IMPLEMENTATION
+#include "tinyc2.h"
+ZPL_DIAGNOSTIC_POP
 
 #define PHY_BLOCK_COLLISION 1
 #define PHY_WALK_DRAG 4.23f
 #define PHY_LOOKAHEAD(x) (zpl_sign(x)*16.0f)
+
+ecs_query_t *ecs_rigidbodies;
+
+#define ECO2D_TICK_RATE (1.0f/20.f)
 
 #include "modules/system_onfoot.c"
 #include "modules/system_demo.c"
@@ -33,6 +39,177 @@ static inline bool physics_check_aabb(float a1x, float a2x, float a1y, float a2y
     return (a1x < b2x && a2x > b1x && a1y < b2y && a2y > b1y);
 }
 
+
+void BlockCollisions(ecs_iter_t *it) {
+	profile(PROF_PHYS_BLOCK_COLS) {
+		Position *p = ecs_field(it, Position, 1);
+		Velocity *v = ecs_field(it, Velocity, 2);
+        
+		for (int i = 0; i < it->count; i++) {
+			if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
+				continue;
+			}
+
+			//if (zpl_abs(v[i].x) >= 0.0001f || zpl_abs(v[i].y) >= 0.0001f)
+			{
+				// NOTE(zaklaus): world bounds
+				{
+					float w = (float)world_dim();
+					p[i].x = zpl_clamp(p[i].x, 0, w-1);
+					p[i].y = zpl_clamp(p[i].y, 0, w-1);
+				}
+                
+#if PHY_BLOCK_COLLISION==1
+				// NOTE(zaklaus): X axis
+				{
+					world_block_lookup lookup = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y);
+					uint32_t flags = blocks_get_flags(lookup.bid);
+					float bounce = blocks_get_bounce(lookup.bid);
+					if (flags & BLOCK_FLAG_COLLISION && physics_check_aabb(p[i].x-WORLD_BLOCK_SIZE/4, p[i].x+WORLD_BLOCK_SIZE/4, p[i].y-0.5f, p[i].y+0.5f, lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2)) {
+#if 1
+						{
+							debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4 + PHY_LOOKAHEAD(v[i].x), p[i].y-0.5f};
+							debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4 + PHY_LOOKAHEAD(v[i].x), p[i].y+0.5f};
+							debug_push_rect(a, b, 0xFF0000FF);
+						}
+#endif
+						v[i].x = physics_correction(lookup.ox, v[i].x, bounce, WORLD_BLOCK_SIZE/2);
+					}
+				}
+                
+				// NOTE(zaklaus): Y axis
+				{
+					world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y+PHY_LOOKAHEAD(v[i].y));
+					uint32_t flags = blocks_get_flags(lookup.bid);
+					float bounce = blocks_get_bounce(lookup.bid);
+#if 0
+					{
+						debug_v2 a = {lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2};
+						debug_v2 b = {lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2};
+						debug_push_rect(a, b, 0xFFFFFFFF);
+					}
+#endif
+					if (flags & BLOCK_FLAG_COLLISION && physics_check_aabb(p[i].x-WORLD_BLOCK_SIZE/4, p[i].x+WORLD_BLOCK_SIZE/4, p[i].y-0.5f, p[i].y+0.5f, lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2)) {
+#if 1
+						{
+							debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4, p[i].y-0.5f + PHY_LOOKAHEAD(v[i].y)};
+							debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4, p[i].y+0.5f + PHY_LOOKAHEAD(v[i].y)};
+							debug_push_rect(a, b, 0xFF0000FF);
+						}
+#endif
+						v[i].y = physics_correction(lookup.oy, v[i].y, bounce, WORLD_BLOCK_SIZE/4);
+					}
+				}
+#endif
+			}
+		}
+	}
+}
+
+void BodyCollisions(ecs_iter_t *it) {
+	Position *p = ecs_field(it, Position, 1);
+	Velocity *v = ecs_field(it, Velocity, 2);
+	PhysicsBody *b = ecs_field(it, PhysicsBody, 3);
+
+	profile(PROF_PHYS_BODY_COLS) {
+		for (int i = 0; i < it->count; i++) {
+			if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
+				continue;
+			}
+
+#if 0
+			{
+				debug_v2 a = {p[i].x - WORLD_BLOCK_SIZE/2, p[i].y - WORLD_BLOCK_SIZE/2};
+				debug_v2 b = {p[i].x + WORLD_BLOCK_SIZE/2, p[i].y + WORLD_BLOCK_SIZE/2};
+				debug_push_rect(a, b, 0xFFFFFFFF);
+			}
+#endif
+
+			ecs_iter_t it2 = ecs_query_iter(it->world, ecs_rigidbodies);
+
+			while (ecs_query_next(&it2)) {
+				for (int j = 0; j < it2.count; j++) {
+					if (it->entities[i] == it2.entities[j]) continue;
+
+					Position *p2 = ecs_field(&it2, Position, 1);
+					Velocity *v2 = ecs_field(&it2, Velocity, 2);
+					PhysicsBody *b2 = ecs_field(&it2, PhysicsBody, 3);
+
+					float p_x = p[i].x;
+					float p_y = p[i].y;
+					float p2_x = p2[j].x /*+ v2[j].x*/;
+					float p2_y = p2[j].y /*+ v2[j].y*/;
+	
+					c2AABB box_a = {
+						.min = { p_x - WORLD_BLOCK_SIZE / 2, p_y - WORLD_BLOCK_SIZE / 2 },
+						.max = { p_x + WORLD_BLOCK_SIZE / 2, p_y + WORLD_BLOCK_SIZE / 2 },
+					};
+	
+					c2AABB box_b = {
+						.min = { p2_x - WORLD_BLOCK_SIZE / 2, p2_y - WORLD_BLOCK_SIZE / 2 },
+						.max = { p2_x + WORLD_BLOCK_SIZE / 2, p2_y + WORLD_BLOCK_SIZE / 2 },
+					};
+
+					// do a basic sweep first
+					{
+						float r1x = (box_a.max.x-box_a.min.x);
+						float r1y = (box_a.max.y-box_a.min.y);
+						float r1 = (r1x*r1x + r1y*r1y)*.5f;
+
+						float r2x = (box_b.max.x-box_b.min.x);
+						float r2y = (box_b.max.y-box_b.min.y);
+						float r2 = (r2x*r2x + r2y*r2y)*.5f;
+
+						float dx = (p2_x-p_x);
+						float dy = (p2_y-p_y);
+						float d = (dx*dx + dy*dy);
+
+						if (d > r1 && d > r2)
+							continue;
+					}
+
+					c2Circle circle_a = { 
+						.p = { p_x, p_y },
+						.r = b[i].circle.r,
+					};
+
+					c2Circle circle_b = {
+						.p = { p2_x, p2_y },
+						.r = b2[j].circle.r,
+					};
+
+					const void *shapes_a[] = { &circle_a, &box_a };
+					const void *shapes_b[] = { &circle_b, &box_b };
+					
+					c2Manifold m = { 0 };
+					c2Collide(shapes_a[b[i].kind], 0, b[i].kind, shapes_b[b2[j].kind], 0, b2[j].kind, &m);
+
+					c2v n = m.n;
+	
+					for (int k = 0; k < m.count; k++) {
+						float d = m.depths[k];
+#if 0
+						{
+							c2v pos = m.contact_points[k];
+							debug_v2 a = { pos.x, pos.y };
+							debug_v2 b = { pos.x + n.x*d, pos.y + n.y*d };
+							debug_push_line(a, b, 0xF77FFFFF);
+						}
+#endif
+						
+						float m1 = b2[j].mass == INFINITE_MASS ? b[i].mass : b2[j].mass;
+						float m2 = b[i].mass == INFINITE_MASS ? (ZPL_F32_MAX-1.0f) : b[i].mass;
+						float mass_ratio = m1 / m2;
+
+						v[i].x -= n.x*d*mass_ratio;
+						v[i].y -= n.y*d*mass_ratio;
+					}
+				}
+			}
+		}
+	}
+}
+
 void IntegratePositions(ecs_iter_t *it) {
     profile(PROF_INTEGRATE_POS) {
         Position *p = ecs_field(it, Position, 1);
@@ -43,60 +220,7 @@ void IntegratePositions(ecs_iter_t *it) {
                 continue;
             }
 
-            //if (zpl_abs(v[i].x) >= 0.0001f || zpl_abs(v[i].y) >= 0.0001f)
-            {
-                // NOTE(zaklaus): world bounds
-                {
-                    float w = (float)world_dim();
-                    p[i].x = zpl_clamp(p[i].x, 0, w-1);
-                    p[i].y = zpl_clamp(p[i].y, 0, w-1);
-                }
-                
-#if PHY_BLOCK_COLLISION==1
-                // NOTE(zaklaus): X axis
-                {
-                    world_block_lookup lookup = world_block_from_realpos(p[i].x+PHY_LOOKAHEAD(v[i].x), p[i].y);
-                    uint32_t flags = blocks_get_flags(lookup.bid);
-                    float bounce = blocks_get_bounce(lookup.bid);
-                    if (flags & BLOCK_FLAG_COLLISION && physics_check_aabb(p[i].x-WORLD_BLOCK_SIZE/4, p[i].x+WORLD_BLOCK_SIZE/4, p[i].y-0.5f, p[i].y+0.5f, lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2)) {
-#if 1
-                        {
-                            debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4 + PHY_LOOKAHEAD(v[i].x), p[i].y-0.5f};
-                            debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4 + PHY_LOOKAHEAD(v[i].x), p[i].y+0.5f};
-                            debug_push_rect(a, b, 0xFF0000FF);
-                        }
-#endif
-                        v[i].x = physics_correction(lookup.ox, v[i].x, bounce, WORLD_BLOCK_SIZE/2);
-                    }
-                }
-                
-                // NOTE(zaklaus): Y axis
-                {
-                    world_block_lookup lookup = world_block_from_realpos(p[i].x, p[i].y+PHY_LOOKAHEAD(v[i].y));
-                    uint32_t flags = blocks_get_flags(lookup.bid);
-                    float bounce = blocks_get_bounce(lookup.bid);
-#if 0
-                    {
-                        debug_v2 a = {lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2};
-                        debug_v2 b = {lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2};
-                        debug_push_rect(a, b, 0xFFFFFFFF);
-                    }
-#endif
-                    if (flags & BLOCK_FLAG_COLLISION && physics_check_aabb(p[i].x-WORLD_BLOCK_SIZE/4, p[i].x+WORLD_BLOCK_SIZE/4, p[i].y-0.5f, p[i].y+0.5f, lookup.aox-WORLD_BLOCK_SIZE/2, lookup.aox+WORLD_BLOCK_SIZE/2, lookup.aoy-WORLD_BLOCK_SIZE/2, lookup.aoy+WORLD_BLOCK_SIZE/2)) {
-#if 1
-                        {
-                            debug_v2 a = {p[i].x-WORLD_BLOCK_SIZE/4, p[i].y-0.5f + PHY_LOOKAHEAD(v[i].y)};
-                            debug_v2 b = {p[i].x+WORLD_BLOCK_SIZE/4, p[i].y+0.5f + PHY_LOOKAHEAD(v[i].y)};
-                            debug_push_rect(a, b, 0xFF0000FF);
-                        }
-#endif
-                        v[i].y = physics_correction(lookup.oy, v[i].y, bounce, WORLD_BLOCK_SIZE/4);
-                    }
-                }
-#endif
-                
-                entity_set_position(it->entities[i], p[i].x+v[i].x*safe_dt(it), p[i].y+v[i].y*safe_dt(it));
-            }
+			entity_set_position(it->entities[i], p[i].x+v[i].x*safe_dt(it), p[i].y+v[i].y*safe_dt(it));
             
             {
                 debug_v2 a = {p[i].x, p[i].y};
@@ -232,86 +356,6 @@ void PlayerClosestInteractable(ecs_iter_t *it){
     }
 }
 
-void PhysOnCreateBody(ecs_iter_t *it) {
-	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
-	Position *p = ecs_field(it, Position, 2);
-
-	for (int i = 0; i < it->count; i++) {
-		const frMaterial mat = {
-			.density = pb[i].density,
-			.staticFriction = pb[i].static_friction,
-			.dynamicFriction = pb[i].dynamic_friction,
-		};
-
-		frShape *shape = 0;
-		if (pb[i].kind == PHYS_CIRCLE) {
-			shape = frCreateCircle(mat, pb[i].circle.r);
-		} else {
-			shape = frCreateRectangle(mat, pb[i].rect.w, pb[i].rect.h);
-		}
-
-		frBodyFlags flags = 0x0;
-		if (pb[i].inf_inertia) flags |= FR_FLAG_INFINITE_INERTIA;
-		if (pb[i].inf_mass) flags |= FR_FLAG_INFINITE_MASS;
-		frBody *body = frCreateBodyFromShape(FR_BODY_DYNAMIC, flags, frVec2PixelsToMeters((Vector2){p[i].x, p[i].y}), shape);
-		frAddToWorld(phys_world, body);
-		pb[i].body_ptr = (uintptr_t)body;
-	}
-}
-
-void PhysOnRemoveBody(ecs_iter_t *it) {
-	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
-
-	for (int i = 0; i < it->count; i++) {
-		frBody *body = (frBody*)pb[i].body_ptr;
-		frRemoveFromWorld(phys_world, body);
-		frShape *shape = frGetBodyShape(body);
-		frReleaseBody(body);
-		frReleaseShape(shape);
-	}
-}
-
-void PhysSetVelocity(ecs_iter_t *it) {
-	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
-	Velocity *v = ecs_field(it, Velocity, 2);
-
-	for (int i = 0; i < it->count; i++) {
-		frBody *body = (frBody*)pb[i].body_ptr;
-		frSetBodyVelocity(body, (Vector2) { v[i].x, v[i].y });
-	}
-}
-
-void PhysUpdatePosition(ecs_iter_t *it) {
-	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
-	Position *p = ecs_field(it, Position, 2);
-	Velocity *v = ecs_field(it, Velocity, 3);
-
-	for (int i = 0; i < it->count; i++) {
-		frBody *body = (frBody*)pb[i].body_ptr;
-		Vector2 pos = frVec2MetersToPixels(frGetBodyPosition(body));
-		p[i].x = pos.x;
-		p[i].y = pos.y;
-		Vector2 vel = frVec2MetersToPixels(frGetBodyVelocity(body));
-		v[i].x = vel.x;
-		v[i].y = vel.y;
-	}
-}
-
-void PhysResetPosition(ecs_iter_t *it) {
-	Position *p = ecs_field(it, Position, 1);
-
-	for (int i = 0; i < it->count; i++) {
-		const PhysicsBody *pb = ecs_get(it->world, it->entities[i], PhysicsBody);
-		if (!pb) continue; 
-		frBody *body = (frBody*)pb->body_ptr;
-		frSetBodyPosition(body, (Vector2){p[i].x, p[i].y});
-	}
-}
-
-void PhysSimulateWorld(ecs_iter_t *it) {
-	frSimulateWorld(phys_world, it->delta_time);
-}
-
 void EnableWorldEdit(ecs_iter_t *it) {
     world_set_stage(it->world);
 }
@@ -320,8 +364,6 @@ void DisableWorldEdit(ecs_iter_t *it) {
     (void)it;
     world_set_stage(NULL);
 }
-
-#define ECO2D_TICK_RATE (1.0f/20.f)
 
 #define ECS_SYSTEM_TICKED(world, id, stage, ...)\
 ECS_SYSTEM(world, id, stage, __VA_ARGS__);\
@@ -337,6 +379,8 @@ void SystemsImport(ecs_world_t *ecs) {
     
     ecs_entity_t timer = ecs_set_interval(ecs, 0, ECO2D_TICK_RATE);
 
+	ecs_rigidbodies = ecs_query_new(ecs, "components.Position, components.Velocity, components.PhysicsBody");
+
 	ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.DemoNPC);
@@ -349,10 +393,9 @@ void SystemsImport(ecs_world_t *ecs) {
 
 	ECS_OBSERVER(ecs, OnHealthChangePutDelay, EcsOnAdd, components.HealthDecreased);
     
-	ECS_SYSTEM(ecs, PhysSetVelocity, EcsOnValidate, components.PhysicsBody, components.Velocity);
-	ECS_SYSTEM(ecs, PhysSimulateWorld, EcsOnValidate);
-	ECS_SYSTEM(ecs, PhysUpdatePosition, EcsOnValidate, components.PhysicsBody, components.Position, components.Velocity);
-	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity, !components.PhysicsBody);
+	ECS_SYSTEM(ecs, BodyCollisions, EcsOnUpdate, components.Position, components.Velocity, components.PhysicsBody);
+	ECS_SYSTEM(ecs, BlockCollisions, EcsOnValidate, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
     
     ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, LeaveVehicle, EcsPostUpdate, components.Input, components.IsInVehicle, components.Velocity);
@@ -384,12 +427,7 @@ void SystemsImport(ecs_world_t *ecs) {
     
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
     ECS_SYSTEM(ecs, ThrowItemsOut, EcsUnSet, components.ItemContainer, components.Position);
-
-	// Physics hooks
-	ECS_OBSERVER(ecs, PhysOnCreateBody, EcsOnSet, components.PhysicsBody, components.Position);
-	ECS_OBSERVER(ecs, PhysOnRemoveBody, EcsUnSet, components.PhysicsBody);
-	ECS_OBSERVER(ecs, PhysResetPosition, EcsOnSet, components.Position);
-    
+	
     ECS_SYSTEM(ecs, DisableWorldEdit, EcsPostUpdate);
     
 }
