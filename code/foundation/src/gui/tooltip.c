@@ -60,6 +60,7 @@ void tooltip_register_defaults(void) {
 	tooltip_register( (tooltip) { .name = "ASSET_IRON_ORE", .content = "Natural resource that can be smelted in ASSET_FURNACE." } );
 	tooltip_register( (tooltip) { .name = "ASSET_IRON_INGOT", .content = "Used as a building material. It is smelted from ASSET_IRON_ORE." } );
 	tooltip_register( (tooltip) { .name = "ASSET_SCREWS", .content = "Used as a building material. It is crafted from ASSET_IRON_PLATES." } );
+	tooltip_register( (tooltip) { .name = "ASSET_MOB", .content = "Enemy hunting player down." } );
 	tooltip_register( (tooltip) { .name = "craft", .content = "Crafting is the process of constructing tools, items, and blocks." } );
 	tooltip_register( (tooltip) { .name = "smelt", .content = "Smelting is a process of applying heat to ore, to extract a base metal. It is a form of extractive metallurgy. It is used to extract many metals from their ores, including silver, iron, copper, and other base metals." } );
 }
@@ -89,6 +90,8 @@ tooltip *tooltip_find_desc(const char *name) {
 }
 
 const char *tooltip_find_desc_contents(const char *name) {
+	if (!tooltips) return 0;
+
 	for (zpl_isize i = 0; i < zpl_array_count(tooltips); ++i) {
 		tooltip *tp = (tooltips + i);
 

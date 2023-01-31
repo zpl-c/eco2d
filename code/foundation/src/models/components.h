@@ -36,7 +36,41 @@ typedef struct {
 } Drawable;
 
 typedef Vector2D Position;
-typedef Vector2D Velocity;
+typedef struct {
+	float x;
+	float y;
+	float m;
+} Velocity;
+
+enum {
+	PHYS_CIRCLE,
+	PHYS_RECT
+};
+
+typedef struct { 
+	uint8_t kind;
+	union {
+		struct {
+			float r;
+		} circle;
+
+		struct {
+			float w;
+			float h;
+		} rect;
+	};
+
+	float density;
+	float static_friction;
+	float dynamic_friction;
+	
+	// flags
+	uint8_t inf_inertia:4;
+	uint8_t inf_mass:4;
+
+	// internals
+	uintptr_t body_ptr;
+} PhysicsBody;
 
 typedef struct {
     float x;
@@ -81,11 +115,19 @@ typedef struct {
 typedef struct {
     float hp;
     float max_hp;
-    
-    //NOTE(zaklaus): Intentionally global, to allow for creative use of damage combos
-    float pain_time;
-    float heal_time;
 } Health;
+
+typedef struct {
+	float amt; 
+} HealthRegen;
+
+typedef struct {
+	uint8_t delay;
+} HealDelay;
+
+typedef struct {
+	uint8_t _unused;
+} HealthDecreased;
 
 typedef struct {
     uint16_t id;
@@ -194,15 +236,34 @@ typedef struct {
 typedef struct { char _unused; } SeeksFood;
 typedef struct { char _unused; } SeeksCompanion;
 
+// survival comps
+typedef struct { 
+	uint8_t atk_delay;
+} Mob;
+typedef struct { 
+	uint64_t plr; 
+} MobHuntPlayer;
+
+typedef struct { 
+	char _unused; 
+} MobMelee;
+
 #define _COMPS\
 	X(Vector2D)\
 	X(Position)\
 	X(Velocity)\
+	X(PhysicsBody)\
 	X(Chunk)\
 	X(Drawable)\
 	X(Input)\
 	X(ClientInfo)\
 	X(Health)\
+	X(HealthRegen)\
+	X(HealDelay)\
+	X(HealthDecreased)\
+	X(Mob)\
+	X(MobHuntPlayer)\
+	X(MobMelee)\
 	X(Classify)\
 	X(Vehicle)\
 	X(IsInVehicle)\

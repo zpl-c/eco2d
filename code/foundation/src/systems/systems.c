@@ -7,6 +7,9 @@
 #include "dev/debug_draw.h"
 #include "core/game.h"
 #include "core/rules.h"
+#include "ferox.h"
+
+extern frWorld *phys_world;
 
 #define PHY_BLOCK_COLLISION 1
 #define PHY_WALK_DRAG 4.23f
@@ -19,6 +22,7 @@
 #include "modules/system_logistics.c"
 #include "modules/system_producer.c"
 #include "modules/system_blueprint.c"
+#include "modules/system_mob.c"
 
 static inline float physics_correction(float x, float vx, float bounce, float dim) {
     float r = (((zpl_max(0.0f, dim - zpl_abs(x))*zpl_sign(x)))*dim);
@@ -38,6 +42,7 @@ void IntegratePositions(ecs_iter_t *it) {
             if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
                 continue;
             }
+
             //if (zpl_abs(v[i].x) >= 0.0001f || zpl_abs(v[i].y) >= 0.0001f)
             {
                 // NOTE(zaklaus): world bounds
@@ -108,7 +113,6 @@ void IntegratePositions(ecs_iter_t *it) {
     }
 }
 
-#define HAZARD_BLOCK_TIME 1.0f
 #define HAZARD_BLOCK_DMG 5.0f
 
 void HurtOnHazardBlock(ecs_iter_t *it) {
@@ -116,38 +120,48 @@ void HurtOnHazardBlock(ecs_iter_t *it) {
     Health *h = ecs_field(it, Health, 2);
     
     for (int i = 0; i < it->count; i++) {
-        if (h->pain_time < 0.0f) {
-            h->pain_time = HAZARD_BLOCK_TIME;
-            world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
-            if (blocks_get_flags(l.bid) & BLOCK_FLAG_HAZARD) {
-                h->hp -= HAZARD_BLOCK_DMG;
-                h->hp = zpl_max(0.0f, h->hp);
-            }
-        }
+		world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
+		if (blocks_get_flags(l.bid) & BLOCK_FLAG_HAZARD) {
+			h->hp -= HAZARD_BLOCK_DMG;
+			h->hp = zpl_max(0.0f, h->hp);
+			ecs_add(it->world, it->entities[i], HealthDecreased);
+		}
     }
 }
 
-#define HP_REGEN_TIME 2.0f
-#define HP_REGEN_PAIN_COOLDOWN 5.0f
-#define HP_REGEN_RECOVERY 15.0f
+//#define HP_REGEN_PAIN_COOLDOWN 5.0f
 
 void RegenerateHP(ecs_iter_t *it) {
-    Health *h = ecs_field(it, Health, 1);
+	Health *h = ecs_field(it, Health, 1);
+	HealthRegen *r = ecs_field(it, HealthRegen, 2);
     
     for (int i = 0; i < it->count; i++) {
-        if (h[i].pain_time < 0.0f) {
-            if (h[i].heal_time < 0.0f && h[i].hp < h[i].max_hp) {
-                h[i].heal_time = HP_REGEN_TIME;
-                h[i].hp += HP_REGEN_RECOVERY;
-                h[i].hp = zpl_min(h[i].max_hp, h[i].hp);
-                entity_wake(it->entities[i]);
-            } else {
-                h[i].heal_time -= safe_dt(it);
-            }
-        } else {
-            h[i].pain_time -= safe_dt(it);
-        }
+		// TODO delay regen on hurt
+		if (h[i].hp < h[i].max_hp) {
+			h[i].hp += r->amt;
+			h[i].hp = zpl_min(h[i].max_hp, h[i].hp);
+			entity_wake(it->entities[i]);
+		}
     }
+}
+
+void OnHealthChangePutDelay(ecs_iter_t *it) {
+	for (int i = 0; i < it->count; i++) {
+		ecs_set(it->world, it->entities[i], HealDelay, { .delay = 10 });
+		ecs_remove(it->world, it->entities[i], HealthDecreased);
+	}
+}
+
+void TickDownHealDelay(ecs_iter_t *it) {
+	HealDelay *h = ecs_field(it, HealDelay, 1);
+    
+	for (int i = 0; i < it->count; i++) {
+		--h[i].delay;
+
+		if (h[i].delay == 0) {
+			ecs_remove(it->world, it->entities[i], HealDelay);
+		}
+	}
 }
 
 void ResetActivators(ecs_iter_t *it) {
@@ -218,6 +232,86 @@ void PlayerClosestInteractable(ecs_iter_t *it){
     }
 }
 
+void PhysOnCreateBody(ecs_iter_t *it) {
+	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
+	Position *p = ecs_field(it, Position, 2);
+
+	for (int i = 0; i < it->count; i++) {
+		const frMaterial mat = {
+			.density = pb[i].density,
+			.staticFriction = pb[i].static_friction,
+			.dynamicFriction = pb[i].dynamic_friction,
+		};
+
+		frShape *shape = 0;
+		if (pb[i].kind == PHYS_CIRCLE) {
+			shape = frCreateCircle(mat, pb[i].circle.r);
+		} else {
+			shape = frCreateRectangle(mat, pb[i].rect.w, pb[i].rect.h);
+		}
+
+		frBodyFlags flags = 0x0;
+		if (pb[i].inf_inertia) flags |= FR_FLAG_INFINITE_INERTIA;
+		if (pb[i].inf_mass) flags |= FR_FLAG_INFINITE_MASS;
+		frBody *body = frCreateBodyFromShape(FR_BODY_DYNAMIC, flags, frVec2PixelsToMeters((Vector2){p[i].x, p[i].y}), shape);
+		frAddToWorld(phys_world, body);
+		pb[i].body_ptr = (uintptr_t)body;
+	}
+}
+
+void PhysOnRemoveBody(ecs_iter_t *it) {
+	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
+
+	for (int i = 0; i < it->count; i++) {
+		frBody *body = (frBody*)pb[i].body_ptr;
+		frRemoveFromWorld(phys_world, body);
+		frShape *shape = frGetBodyShape(body);
+		frReleaseBody(body);
+		frReleaseShape(shape);
+	}
+}
+
+void PhysSetVelocity(ecs_iter_t *it) {
+	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
+	Velocity *v = ecs_field(it, Velocity, 2);
+
+	for (int i = 0; i < it->count; i++) {
+		frBody *body = (frBody*)pb[i].body_ptr;
+		frSetBodyVelocity(body, (Vector2) { v[i].x, v[i].y });
+	}
+}
+
+void PhysUpdatePosition(ecs_iter_t *it) {
+	PhysicsBody *pb = ecs_field(it, PhysicsBody, 1);
+	Position *p = ecs_field(it, Position, 2);
+	Velocity *v = ecs_field(it, Velocity, 3);
+
+	for (int i = 0; i < it->count; i++) {
+		frBody *body = (frBody*)pb[i].body_ptr;
+		Vector2 pos = frVec2MetersToPixels(frGetBodyPosition(body));
+		p[i].x = pos.x;
+		p[i].y = pos.y;
+		Vector2 vel = frVec2MetersToPixels(frGetBodyVelocity(body));
+		v[i].x = vel.x;
+		v[i].y = vel.y;
+	}
+}
+
+void PhysResetPosition(ecs_iter_t *it) {
+	Position *p = ecs_field(it, Position, 1);
+
+	for (int i = 0; i < it->count; i++) {
+		const PhysicsBody *pb = ecs_get(it->world, it->entities[i], PhysicsBody);
+		if (!pb) continue; 
+		frBody *body = (frBody*)pb->body_ptr;
+		frSetBodyPosition(body, (Vector2){p[i].x, p[i].y});
+	}
+}
+
+void PhysSimulateWorld(ecs_iter_t *it) {
+	frSimulateWorld(phys_world, it->delta_time);
+}
+
 void EnableWorldEdit(ecs_iter_t *it) {
     world_set_stage(it->world);
 }
@@ -242,17 +336,23 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     
     ecs_entity_t timer = ecs_set_interval(ecs, 0, ECO2D_TICK_RATE);
-    
-    ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
+
+	ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
     ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.DemoNPC);
     
     ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
-    ECS_SYSTEM_TICKED(ecs, HurtOnHazardBlock, EcsOnUpdate, components.Position, components.Health);
-    ECS_SYSTEM_TICKED(ecs, RegenerateHP, EcsOnUpdate, components.Health);
+	ECS_SYSTEM_TICKED_EX(ecs, HurtOnHazardBlock, EcsOnUpdate, 20.0f, components.Position, components.Health);
+	ECS_SYSTEM_TICKED_EX(ecs, RegenerateHP, EcsOnUpdate, 40.0f, components.Health, components.HealthRegen, !components.HealDelay);
+	ECS_SYSTEM_TICKED_EX(ecs, TickDownHealDelay, EcsOnUpdate, 20.0f, components.HealDelay);
     ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
+
+	ECS_OBSERVER(ecs, OnHealthChangePutDelay, EcsOnAdd, components.HealthDecreased);
     
-    ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, PhysSetVelocity, EcsOnValidate, components.PhysicsBody, components.Velocity);
+	ECS_SYSTEM(ecs, PhysSimulateWorld, EcsOnValidate);
+	ECS_SYSTEM(ecs, PhysUpdatePosition, EcsOnValidate, components.PhysicsBody, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity, !components.PhysicsBody);
     
     ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, LeaveVehicle, EcsPostUpdate, components.Input, components.IsInVehicle, components.Velocity);
@@ -275,11 +375,20 @@ void SystemsImport(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED(ecs, CreatureSeekFood, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksFood, !components.SeeksCompanion);
 	ECS_SYSTEM_TICKED(ecs, CreatureSeekCompanion, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksCompanion, !components.SeeksFood);
 	ECS_SYSTEM(ecs, CreatureRoamAround, EcsPostUpdate, components.Velocity, components.Creature, !components.SeeksFood, !components.SeeksCompanion);
+
+	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
+	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
+	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
     
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
     
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
     ECS_SYSTEM(ecs, ThrowItemsOut, EcsUnSet, components.ItemContainer, components.Position);
+
+	// Physics hooks
+	ECS_OBSERVER(ecs, PhysOnCreateBody, EcsOnSet, components.PhysicsBody, components.Position);
+	ECS_OBSERVER(ecs, PhysOnRemoveBody, EcsUnSet, components.PhysicsBody);
+	ECS_OBSERVER(ecs, PhysResetPosition, EcsOnSet, components.Position);
     
     ECS_SYSTEM(ecs, DisableWorldEdit, EcsPostUpdate);
     

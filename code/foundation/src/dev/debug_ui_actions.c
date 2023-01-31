@@ -55,6 +55,32 @@ ActSpawnSelItem(void) {
 }
 
 void
+ActSpawnMobs(void) {
+	ecs_entity_t plr = camera_get().ent_id;
+	Position const* origin = ecs_get(world_ecs(), plr, Position);
+
+	const uint32_t w = 12*WORLD_BLOCK_SIZE;
+	const uint32_t h = 12*WORLD_BLOCK_SIZE;
+	uint32_t x = (uint32_t)origin->x - w/2;
+	uint32_t y = (uint32_t)origin->y - h/2;
+
+	for (uint32_t cy=y; cy<y+h; cy+=WORLD_BLOCK_SIZE) {
+		for (uint32_t cx=x; cx<x+w; cx+=WORLD_BLOCK_SIZE) {
+			if (cx < 0 || cx >= world_dim()) continue;
+			if (cy < 0 || cy >= world_dim()) continue;
+
+			if ((cy == y || cy == (y + h-WORLD_BLOCK_SIZE)) ||
+				(cx == x || cx == (x + w-WORLD_BLOCK_SIZE))) {
+				ecs_entity_t e = entity_spawn_id(ASSET_MOB);
+				entity_set_position(e, (float)cx, (float)cy);
+
+				ecs_add(world_ecs(), e, MobMelee);
+			}
+		}
+	}
+}
+
+void
 ActSpawnCirclingDriver(void) {
     ecs_entity_t plr = camera_get().ent_id;
     ecs_entity_t ve = vehicle_spawn(EVEH_CAR);

@@ -56,6 +56,9 @@ Texture2D texgen_build_sprite_fallback(asset_id id) {
         case ASSET_CRAFTBENCH: return LoadTexEco("craftbench");
         case ASSET_SPLITTER: return LoadTexEco("item_splitter");
         case ASSET_ASSEMBLER: return LoadTexEco("assembler");
+
+		// Mobs
+		case ASSET_MOB: return LoadTexEco("enemy1");
         
         default: break;
     }

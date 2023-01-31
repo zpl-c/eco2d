@@ -45,6 +45,6 @@ add_library(eco2d-foundation STATIC
 
 target_compile_definitions(eco2d-foundation PRIVATE CLIENT)
 include_directories(src ../modules ../../art/gen)
-target_link_libraries(eco2d-foundation raylib raylib_nuklear cwpack flecs-bundle vendors-bundle)
+target_link_libraries(eco2d-foundation raylib raylib_nuklear ferox cwpack flecs-bundle vendors-bundle)
 
 link_system_libs(eco2d-foundation)

@@ -3,6 +3,7 @@
 #include "librg.h"
 #include "pkt/packet.h"
 #include "flecs.h"
+
 #include "world/blocks.h"
 
 #define WORLD_ERROR_NONE                +0x0000
@@ -62,6 +63,7 @@ int32_t world_write(pkt_header *pkt, void *udata);
 uint32_t world_buf(block_id const **ptr, uint32_t *width);
 uint32_t world_seed(void);
 ecs_world_t *world_ecs(void);
+ecs_query_t *world_ecs_player(void);
 ecs_query_t *world_ecs_clientinfo(void);
 void world_set_stage(ecs_world_t *ecs);
 librg_world *world_tracker(void);

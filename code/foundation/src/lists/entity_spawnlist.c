@@ -12,6 +12,7 @@ static struct {
     { .id = ASSET_ASSEMBLER, .proc = assembler_spawn },
     { .id = ASSET_BLUEPRINT, .proc_udata = blueprint_spawn_udata },
 	{ .id = ASSET_CREATURE, .proc = creature_spawn },
+	{ .id = ASSET_MOB, .proc = mob_spawn },
 };
 
 #define MAX_ENTITY_SPAWNDEFS ((sizeof(entity_spawnlist))/(sizeof(entity_spawnlist[0])))

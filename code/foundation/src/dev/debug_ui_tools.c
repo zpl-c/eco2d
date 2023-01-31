@@ -23,6 +23,14 @@ void ToolAssetInspector(void) {
 						tooltip_show_cursor(asset_names[i]);
 					}
 
+					if (nk_button_label(dev_ui, "spawn at me")) {
+						uint64_t e = entity_spawn_id(i);
+						ecs_entity_t plr = camera_get().ent_id;
+
+						Position const* origin = ecs_get(world_ecs(), plr, Position);
+						entity_set_position(e, origin->x, origin->y);
+					}
+
 					// draw help text
 					if (nk_tree_push_id(dev_ui, NK_TREE_NODE, "description", NK_MINIMIZED, i)) {
 						{

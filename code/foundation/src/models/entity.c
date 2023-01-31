@@ -19,7 +19,7 @@ uint64_t entity_spawn(uint16_t class_id) {
 
     if (class_id != EKIND_SERVER) {
         librg_entity_track(world_tracker(), e);
-        ecs_set(world_ecs(), e, Velocity, {0});
+        ecs_set(world_ecs(), e, Velocity, {.x = 0, .y = 0, .m = 500.0f});
         entity_set_position(e, (float)(rand() % world_dim()), (float)(rand() % world_dim()));
 
         librg_entity_owner_set(world_tracker(), e, (int64_t)e);
@@ -70,6 +70,7 @@ void entity_despawn(uint64_t ent_id) {
 }
 
 void entity_set_position(uint64_t ent_id, float x, float y) {
+	ecs_set(world_ecs(), ent_id, Position, {x, y});
     Position *p = ecs_get_mut_ex(world_ecs(), ent_id, Position);
     p->x = x;
     p->y = y;
