@@ -23,6 +23,9 @@ void game_input();
 void game_update();
 void game_render();
 
+void game_player_joined(uint64_t ent);
+void game_player_departed(uint64_t ent);
+
 //~ Called from platform.c
 void game_draw_ui();
 

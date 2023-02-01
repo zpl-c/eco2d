@@ -32,6 +32,7 @@ static asset assets[] = {
     ASSET_TEX(ASSET_BLUEPRINT),
     ASSET_TEX(ASSET_BLUEPRINT_DEMO_HOUSE),
 	ASSET_TEX(ASSET_MOB),
+	ASSET_TEX(ASSET_PLAYER),
     
     // NOTE(zaklaus): blocks
     ASSET_TEX(ASSET_FENCE),

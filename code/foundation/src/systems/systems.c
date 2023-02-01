@@ -14,12 +14,12 @@ ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
 ZPL_DIAGNOSTIC_POP
 
 #define PHY_BLOCK_COLLISION 1
+#define PHY_C2_BLOCK_COLLISION 0
 #define PHY_WALK_DRAG 4.23f
 #define PHY_LOOKAHEAD(x) (zpl_sign(x)*16.0f)
 
-ecs_query_t *ecs_rigidbodies;
-
-#define ECO2D_TICK_RATE (1.0f/20.f)
+ecs_query_t *ecs_rigidbodies = 0;
+ecs_entity_t ecs_timer = 0;
 
 #include "modules/system_onfoot.c"
 #include "modules/system_demo.c"
@@ -28,7 +28,6 @@ ecs_query_t *ecs_rigidbodies;
 #include "modules/system_logistics.c"
 #include "modules/system_producer.c"
 #include "modules/system_blueprint.c"
-#include "modules/system_mob.c"
 
 static inline float physics_correction(float x, float vx, float bounce, float dim) {
     float r = (((zpl_max(0.0f, dim - zpl_abs(x))*zpl_sign(x)))*dim);
@@ -39,6 +38,23 @@ static inline bool physics_check_aabb(float a1x, float a2x, float a1y, float a2y
     return (a1x < b2x && a2x > b1x && a1y < b2y && a2y > b1y);
 }
 
+static inline bool BlockCollisionIslandTest(Position *p, librg_chunk ch_p) {
+	// collect islands
+	collision_island islands[16];
+	uint8_t num_islands = world_chunk_collision_islands(ch_p, islands);
+	for (uint8_t i = 0; i < num_islands; i++) {
+#if 1
+		{
+			zpl_printf("px %f py %f minx %f miny %f\n", p->x, p->y, islands[i].minx, islands[i].miny);
+			debug_v2 a = {islands[i].minx, islands[i].miny};
+			debug_v2 b = {islands[i].maxx+WORLD_BLOCK_SIZE, islands[i].maxy+WORLD_BLOCK_SIZE};
+			debug_push_rect(a, b, 0xFFFFFFFF);
+		}
+#endif		
+	}
+
+	return 0;
+}
 
 void BlockCollisions(ecs_iter_t *it) {
 	profile(PROF_PHYS_BLOCK_COLS) {
@@ -58,6 +74,16 @@ void BlockCollisions(ecs_iter_t *it) {
 					p[i].x = zpl_clamp(p[i].x, 0, w-1);
 					p[i].y = zpl_clamp(p[i].y, 0, w-1);
 				}
+
+#if PHY_C2_BLOCK_COLLISION==1
+				// collision islands
+				{
+					librg_chunk chunk_id = librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0);
+
+					if (BlockCollisionIslandTest((p+i), chunk_id))
+						continue;
+				}
+#endif
                 
 #if PHY_BLOCK_COLLISION==1
 				// NOTE(zaklaus): X axis
@@ -141,25 +167,25 @@ void BodyCollisions(ecs_iter_t *it) {
 					float p2_y = p2[j].y /*+ v2[j].y*/;
 	
 					c2AABB box_a = {
-						.min = { p_x - WORLD_BLOCK_SIZE / 2, p_y - WORLD_BLOCK_SIZE / 2 },
-						.max = { p_x + WORLD_BLOCK_SIZE / 2, p_y + WORLD_BLOCK_SIZE / 2 },
+						.min = { p_x - WORLD_BLOCK_SIZE / 2, p_y - WORLD_BLOCK_SIZE / 4 },
+						.max = { p_x + WORLD_BLOCK_SIZE / 2, p_y + WORLD_BLOCK_SIZE / 4 },
 					};
 	
 					c2AABB box_b = {
-						.min = { p2_x - WORLD_BLOCK_SIZE / 2, p2_y - WORLD_BLOCK_SIZE / 2 },
-						.max = { p2_x + WORLD_BLOCK_SIZE / 2, p2_y + WORLD_BLOCK_SIZE / 2 },
+						.min = { p2_x - WORLD_BLOCK_SIZE / 2, p2_y - WORLD_BLOCK_SIZE / 4 },
+						.max = { p2_x + WORLD_BLOCK_SIZE / 2, p2_y + WORLD_BLOCK_SIZE / 4 },
 					};
 
 					// do a basic sweep first
+					float r1x = (box_a.max.x-box_a.min.x);
+					float r1y = (box_a.max.y-box_a.min.y);
+					float r1 = (r1x*r1x + r1y*r1y)*.5f;
+
+					float r2x = (box_b.max.x-box_b.min.x);
+					float r2y = (box_b.max.y-box_b.min.y);
+					float r2 = (r2x*r2x + r2y*r2y)*.5f;
+
 					{
-						float r1x = (box_a.max.x-box_a.min.x);
-						float r1y = (box_a.max.y-box_a.min.y);
-						float r1 = (r1x*r1x + r1y*r1y)*.5f;
-
-						float r2x = (box_b.max.x-box_b.min.x);
-						float r2y = (box_b.max.y-box_b.min.y);
-						float r2 = (r2x*r2x + r2y*r2y)*.5f;
-
 						float dx = (p2_x-p_x);
 						float dy = (p2_y-p_y);
 						float d = (dx*dx + dy*dy);
@@ -170,12 +196,12 @@ void BodyCollisions(ecs_iter_t *it) {
 
 					c2Circle circle_a = { 
 						.p = { p_x, p_y },
-						.r = b[i].circle.r,
+						.r = r1/2.f,
 					};
 
 					c2Circle circle_b = {
 						.p = { p2_x, p2_y },
-						.r = b2[j].circle.r,
+						.r = r2/2.f,
 					};
 
 					const void *shapes_a[] = { &circle_a, &box_a };
@@ -365,19 +391,10 @@ void DisableWorldEdit(ecs_iter_t *it) {
     world_set_stage(NULL);
 }
 
-#define ECS_SYSTEM_TICKED(world, id, stage, ...)\
-ECS_SYSTEM(world, id, stage, __VA_ARGS__);\
-ecs_set_tick_source(world, id, timer);
-
-#define ECS_SYSTEM_TICKED_EX(world, id, stage, time, ...)\
-ECS_SYSTEM(world, id, stage, __VA_ARGS__);\
-ecs_entity_t timer_##id = ecs_set_interval(ecs, 0, ECO2D_TICK_RATE*time);\
-ecs_set_tick_source(world, id, timer_##id);
-
 void SystemsImport(ecs_world_t *ecs) {
     ECS_MODULE(ecs, Systems);
     
-    ecs_entity_t timer = ecs_set_interval(ecs, 0, ECO2D_TICK_RATE);
+    ecs_timer = ecs_set_interval(ecs, 0, ECO2D_TICK_RATE);
 
 	ecs_rigidbodies = ecs_query_new(ecs, "components.Position, components.Velocity, components.PhysicsBody");
 
@@ -418,11 +435,7 @@ void SystemsImport(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED(ecs, CreatureSeekFood, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksFood, !components.SeeksCompanion);
 	ECS_SYSTEM_TICKED(ecs, CreatureSeekCompanion, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksCompanion, !components.SeeksFood);
 	ECS_SYSTEM(ecs, CreatureRoamAround, EcsPostUpdate, components.Velocity, components.Creature, !components.SeeksFood, !components.SeeksCompanion);
-
-	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
-	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
-	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
-    
+	
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
     
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);

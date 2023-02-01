@@ -30,6 +30,11 @@ typedef WORLD_PKT_READER(world_pkt_reader_proc);
 typedef WORLD_PKT_WRITER(world_pkt_writer_proc);
 
 typedef struct {
+	float minx, miny;
+	float maxx, maxy;
+} collision_island;
+
+typedef struct {
     bool is_paused;
     block_id *data;
     block_id *outer_data;
@@ -40,6 +45,8 @@ typedef struct {
     block_id **block_mapping;
     block_id **outer_block_mapping;
     uint16_t dim;
+	uint8_t *islands_count;
+	collision_island *islands;
     float tracker_update[3];
     uint8_t active_layer_id;
     ecs_world_t *ecs;
@@ -78,6 +85,8 @@ uint16_t world_chunk_size(void);
 uint16_t world_chunk_amount(void);
 uint16_t world_dim(void);
 ecs_entity_t world_chunk_mapping(librg_chunk id);
+void world_rebuild_chunk_islands(librg_chunk chunk_id);
+uint8_t world_chunk_collision_islands(librg_chunk id, collision_island *islands);
 
 typedef struct {
     uint16_t id;

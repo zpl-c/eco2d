@@ -16,6 +16,10 @@
 
 #include "platform/arch.h"
 
+ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
+#include "tinyc2.h"
+ZPL_DIAGNOSTIC_POP
+
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
 #define DEFAULT_WORLD_SIZE 5 /* amount of chunks within a world (single axis) */
@@ -32,6 +36,15 @@
 	- basic projectile pooling (flecs)
 	- somewhat believable world gen, small hamlets with cols, etc
 */
+
+#include "system_mob.c"
+
+void mob_systems(ecs_world_t *ecs) {
+	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
+	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
+	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
+	ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
+}
 
 int main(int argc, char** argv) {
     zpl_opts opts={0};
@@ -84,6 +97,10 @@ int main(int argc, char** argv) {
     sighandler_register();
     game_init(host, port, play_mode, 1, seed, chunk_size, world_size, 0);
 
+	{
+		mob_systems(world_ecs());
+	}
+
     game_run();
 
     game_shutdown();
@@ -93,3 +110,7 @@ int main(int argc, char** argv) {
     zpl_opts_free(&opts);
     return 0;
 }
+
+//------------------------------------------------------------------------
+void game_player_joined(uint64_t ent) {}
+void game_player_departed(uint64_t ent) {}

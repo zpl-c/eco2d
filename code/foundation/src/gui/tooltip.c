@@ -139,7 +139,6 @@ void tooltip_clear(void) {
 
 inline void tooltip_draw_contents(tooltip *desc) {
 	if (!desc) return;
-
 	nk_layout_row_dynamic(game_ui, 0, 1); 
 	nk_label_wrap(game_ui, desc->content);
 }

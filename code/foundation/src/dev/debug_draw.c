@@ -3,7 +3,7 @@
 
 static debug_draw_queue draw_queue = {0};
 
-#if !defined(_DEBUG) && 1 
+#if !defined(_DEBUG) && 1
 static bool draw_is_enabled = false;
 #else
 static bool draw_is_enabled = true;

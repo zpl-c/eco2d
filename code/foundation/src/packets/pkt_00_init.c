@@ -31,6 +31,8 @@ int32_t pkt_00_init_handler(pkt_header *header) {
 
     entity_set_position(ent_id, world_dim()/2.0f + rand()%15*15.0f, world_dim()/2.0f + rand()%15*15.0f);
 
+	game_player_joined(ent_id);
+
     zpl_printf("[INFO] initializing player entity id: %d with view id: %d for peer id: %d...\n", ent_id, table.view_id, peer_id);
     ecs_set(world_ecs(), ent_id, ClientInfo, {.peer = peer_id, .view_id = header->view_id, .active = false });
     pkt_01_welcome_send(world_seed(), peer_id, header->view_id, ent_id, world_chunk_size(), world_chunk_amount());

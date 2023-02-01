@@ -12,6 +12,7 @@ Texture2D texgen_build_anim(asset_id id, int64_t counter) {
 
 Texture2D texgen_build_sprite(asset_id id) {
     switch (id) {
+		case ASSET_PLAYER: return LoadTexEco("player");
         default: return texgen_build_sprite_fallback(id); break;
     }
 }

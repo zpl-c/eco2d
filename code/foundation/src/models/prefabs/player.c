@@ -6,6 +6,8 @@
 #include "models/entity.h"
 #include "models/components.h"
 
+#include "core/game.h"
+
 #define PLAYER_MAX_HP 100.0f
 
 uint64_t player_spawn(char *name) {
@@ -30,5 +32,6 @@ uint64_t player_spawn(char *name) {
 }
 
 void player_despawn(uint64_t ent_id) {
+	game_player_departed(ent_id);
     entity_despawn(ent_id);
 }

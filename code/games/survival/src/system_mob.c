@@ -27,6 +27,10 @@ void MobDetectPlayers(ecs_iter_t *it) {
 	}
 }
 
+void MobDetectPlayers1(ecs_iter_t *it) {
+	MobDetectPlayers(it);
+}
+
 #define MOB_MOVEMENT_SPEED 300.0f
 
 void MobMovement(ecs_iter_t *it) {
@@ -50,7 +54,7 @@ void MobMovement(ecs_iter_t *it) {
 }
 
 #define MOB_MELEE_DIST 4000.0f
-#define MOB_MELEE_DMG 5.0f
+#define MOB_MELEE_DMG 1.5f
 #define MOB_ATK_DELAY 10 
 
 void MobMeleeAtk(ecs_iter_t *it) {
@@ -73,7 +77,7 @@ void MobMeleeAtk(ecs_iter_t *it) {
 			Health *hp = ecs_get_mut_ex(it->world, m->plr, Health);
 			hp->hp = zpl_max(hp->hp-MOB_MELEE_DMG, 0.0f);
 			ecs_add(it->world, m->plr, HealthDecreased);
-			mob[i].atk_delay = MOB_ATK_DELAY;
 		}
+		mob[i].atk_delay = MOB_ATK_DELAY;
 	}
 }

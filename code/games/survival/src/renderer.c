@@ -88,18 +88,19 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             float x = data->x;
             float y = data->y;
             float health = (data->hp / data->max_hp);
-            DrawNametag("Player", key, data, x, y);
-            DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
+            DrawNametag("Player", key, data, x, y-16);
+			DrawTextureRec(GetSpriteTexture2D(assets_find(ASSET_PLAYER)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
+			//DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
 
-            if (data->has_items && !data->inside_vehicle) {
-                float ix = data->x;
-                float iy = data->y;
-                if (data->items[data->selected_item].quantity > 0) {
-                    asset_id it_kind = data->items[data->selected_item].kind;
-                    uint32_t qty = data->items[data->selected_item].quantity;
-                    DrawTexturePro(GetSpriteTexture2D(assets_find(it_kind)), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
-                }
-            }
+            //if (data->has_items && !data->inside_vehicle) {
+            //    float ix = data->x;
+            //    float iy = data->y;
+            //    if (data->items[data->selected_item].quantity > 0) {
+            //        asset_id it_kind = data->items[data->selected_item].kind;
+            //        uint32_t qty = data->items[data->selected_item].quantity;
+            //        DrawTexturePro(GetSpriteTexture2D(assets_find(it_kind)), ASSET_SRC_RECT(), ((Rectangle){ix, iy, 32, 32}), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+            //    }
+            //}
         }break;
         case EKIND_ITEM: {
             float x = data->x - 32.f;
