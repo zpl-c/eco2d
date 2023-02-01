@@ -54,7 +54,7 @@ void CreatureSeekFood(ecs_iter_t *it) {
 
 	for (int i = 0; i < it->count; i++) {
 		size_t ents_count;
-		uint64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
+		int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
 
 		float closest_ent_dist = ZPL_F32_MAX;
 		uint64_t closest_ent = 0;
@@ -110,7 +110,7 @@ void CreatureSeekCompanion(ecs_iter_t *it) {
 
 	for (int i = 0; i < it->count; i++) {
 		size_t ents_count;
-		uint64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
+		int64_t *ents = world_chunk_query_entities(it->entities[i], &ents_count, 2);
 
 		float closest_ent_dist = ZPL_F32_MAX;
 		uint64_t closest_ent = 0;
