@@ -112,7 +112,6 @@ void debug_draw_spritesheet() {
         if (!loaded) {
             nuclear_image = TextureToNuklear(main_sprite_sheet.texture);
 			max_frames = nuclear_image.w*nuclear_image.h / (32*32);
-			zpl_printf("pica %d\n", max_frames);
 			loaded = true;
         }
 
