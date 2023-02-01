@@ -91,6 +91,44 @@ void platform_input() {
     }
 }
 
+void debug_draw_spritesheet() {
+    if (nk_begin(game_ui, "Spritesheet debug", nk_rect(660, 100, 240, 800),
+	             NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE| NK_WINDOW_TITLE))
+	{
+        nk_layout_row_dynamic(game_ui, 0, 1);
+
+        static int spritesheet_frame_id = 0;
+        if(nk_button_label(game_ui, "Prev")){
+            spritesheet_frame_id-=10;
+        }
+        
+        if(nk_button_label(game_ui, "Next")){
+            spritesheet_frame_id+=10;
+        }
+
+        static bool loaded = false; 
+        static struct nk_image nuclear_image;
+        if (!loaded) {
+            nuclear_image = TextureToNuklear(main_sprite_sheet.texture);
+        }
+        
+        nk_layout_row_static(game_ui, 32, 32, 6);
+        for(size_t i = 0; i < 10; i++) {
+            int frame = spritesheet_frame_id + i;
+            float ox = (frame % main_sprite_sheet.framesWide) * main_sprite_sheet.frameSize.x;
+            float oy = (int)(frame / main_sprite_sheet.framesWide) * main_sprite_sheet.frameSize.y;
+            nuclear_image.region[0] = (nk_short)ox;
+            nuclear_image.region[1] = (nk_short)oy;
+            nuclear_image.region[2] = 32;
+            nuclear_image.region[3] = 32;
+            nk_image(game_ui, nuclear_image);
+            nk_labelf(game_ui, NK_TEXT_ALIGN_LEFT, "%d", frame);
+        }
+
+		nk_end(game_ui);
+	}
+}
+
 void platform_render() {
     platform_resize_window();
 
@@ -120,6 +158,7 @@ void platform_render() {
 		renderer_debug_draw();
 
         debug_draw();
+        debug_draw_spritesheet();
 		notification_draw();
 		game_draw_ui();
     }

@@ -542,6 +542,11 @@ DrawNuklear(struct nk_context * ctx)
                 Rectangle dest = {(float)i->x * scale, (float)i->y * scale, (float)i->w * scale, (float)i->h * scale};
                 Vector2 origin = {0, 0};
                 Color tint = ColorFromNuklear(i->col);
+
+                if(i->img.region[0] || i->img.region[1] || i->img.region[2] || i->img.region[3]) {
+                    source = (Rectangle){(float)i->img.region[0], (float)i->img.region[1], (float)i->img.region[2], (float)i->img.region[3]};
+                }
+                
                 DrawTexturePro(texture, source, dest, origin, 0, tint);
             } break;
 

@@ -43,7 +43,7 @@ void mob_systems(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
 	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
 	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
-	ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
+	//ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
 }
 
 int main(int argc, char** argv) {
