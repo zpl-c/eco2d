@@ -201,7 +201,7 @@ void world_setup_pkt_handlers(world_pkt_reader_proc* reader_proc, world_pkt_writ
 }
 
 void world_rebuild_chunk_islands(librg_chunk chunk_id) {
-    uint16_t ch_x, ch_y;
+    int16_t ch_x, ch_y;
     librg_chunk_to_chunkpos(world.tracker, chunk_id, &ch_x, &ch_y, NULL);
     float wp_x = (float)ch_x * world_dim(), wp_y = (float)ch_y * world_dim();
 
