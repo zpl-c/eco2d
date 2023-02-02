@@ -48,7 +48,7 @@ entity_view* world_build_entity_view(int64_t e) {
 		view.vx = vel->x;
 		view.vy = vel->y;
 	}
-
+    
 	const Rotation* rot = ecs_get(world_ecs(), e, Rotation);
 	if (rot) {
 		view.angle = rot->angle;

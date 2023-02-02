@@ -61,7 +61,7 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
 		case EKIND_WEAPON: {
 			float x = data->x;
 			float y = data->y;
-			DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, 0.0f, 2.0f, WHITE);
+			DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, data->angle, 2.0f, WHITE);
 		} break;
         case EKIND_DEVICE:{
             float x = data->x - 32.f;
