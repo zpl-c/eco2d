@@ -47,7 +47,6 @@ pkt_desc pkt_entity_view_desc[] = {
 
     { PKT_HALF(entity_view, progress_value) },
 
-	{ PKT_KEEP_IF(entity_view, kind, EKIND_SPRITE, 2) },
 	{ PKT_UINT(entity_view, spritesheet) },
 	{ PKT_UINT(entity_view, frame) },
 

@@ -143,8 +143,16 @@ typedef struct {
 } Item;
 
 typedef struct {
-	int spritesheet;
-	int frame;
+	union {
+		struct {
+			uint32_t spritesheet;
+			uint32_t frame;
+		};
+		struct {
+			uint32_t sprite_id;
+			uint32_t sprite_data;
+		};
+	};
 } Sprite;
 
 typedef struct {

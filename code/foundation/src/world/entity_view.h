@@ -82,8 +82,16 @@ typedef struct entity_view {
     float progress_value;
 
 	// sprite index
-	int spritesheet;
-	int frame;
+	union {
+		struct {
+			uint32_t spritesheet;
+			uint32_t frame;
+		};
+		struct {
+			uint32_t sprite_id;
+			uint32_t sprite_data;
+		};
+	};
     
     // NOTE(zaklaus): inventory
     uint8_t has_items;
