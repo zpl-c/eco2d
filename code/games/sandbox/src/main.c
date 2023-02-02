@@ -84,7 +84,3 @@ int main(int argc, char** argv) {
     zpl_opts_free(&opts);
     return 0;
 }
-
-//------------------------------------------------------------------------
-void game_player_joined(uint64_t ent) {}
-void game_player_departed(uint64_t ent) {}

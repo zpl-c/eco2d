@@ -4,6 +4,7 @@ add_executable(survival
     src/worldgen.c
     src/texgen.c
     src/rules.c
+	src/game.c
 )
 
 target_compile_definitions(minimal PRIVATE CLIENT)

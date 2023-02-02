@@ -4,6 +4,7 @@ add_executable(eco2d
     src/worldgen.c
     src/texgen.c
     src/rules.c
+	src/game.c
 )
 
 target_compile_definitions(eco2d PRIVATE CLIENT)

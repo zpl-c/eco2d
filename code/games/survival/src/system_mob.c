@@ -28,7 +28,7 @@ void MobDetectPlayers(ecs_iter_t *it) {
 }
 
 void MobDetectPlayers1(ecs_iter_t *it) {
-	MobDetectPlayers(it);
+	
 }
 
 #define MOB_MOVEMENT_SPEED 300.0f

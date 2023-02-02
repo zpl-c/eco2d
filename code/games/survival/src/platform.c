@@ -34,8 +34,6 @@ ZPL_DIAGNOSTIC_POP
 void platform_init() {
     platform_create_window("horde survival game");
     renderer_init();
-
-	notification_push("test1", "Hello World!");
 }
 
 void platform_shutdown() {

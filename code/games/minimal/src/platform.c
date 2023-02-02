@@ -22,6 +22,7 @@ ZPL_DIAGNOSTIC_POP
 #include "platform/arch.h"
 
 #include "gui/tooltip.c"
+#include "gui/notifications.c"
 
 #include "renderer.c"
 

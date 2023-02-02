@@ -228,14 +228,14 @@ game_kind game_get_kind(void) {
     return game_mode;
 }
 
-void game_input() {
+void game_core_input() {
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_input();
 		UpdateNuklear(game_ui);
     }
 }
 
-void game_update() {
+void game_core_update() {
     static double last_update = 0.0f;
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_tick();
@@ -257,7 +257,7 @@ void game_update() {
     last_update = get_cached_time();
 }
 
-void game_render() {
+void game_core_render() {
     if (game_mode != GAMEKIND_HEADLESS) {
         platform_render();
     }

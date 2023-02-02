@@ -19,12 +19,17 @@ float game_time();
 game_kind game_get_kind(void);
 
 //~ NOTE(zaklaus): game events
+// Implemented by games
 void game_input();
 void game_update();
 void game_render();
-
 void game_player_joined(uint64_t ent);
 void game_player_departed(uint64_t ent);
+
+// base methods called from games
+void game_core_input();
+void game_core_update();
+void game_core_render();
 
 //~ Called from platform.c
 void game_draw_ui();

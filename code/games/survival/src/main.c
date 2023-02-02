@@ -2,6 +2,7 @@
 #include "zpl.h"
 #include "platform/system.h"
 #include "core/game.h"
+#include "game.h"
 #include "models/entity.h"
 #include "world/entity_view.h"
 #include "utils/options.h"
@@ -37,14 +38,6 @@ ZPL_DIAGNOSTIC_POP
 	- somewhat believable world gen, small hamlets with cols, etc
 */
 
-#include "system_mob.c"
-
-void mob_systems(ecs_world_t *ecs) {
-	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
-	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
-	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
-	//ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
-}
 
 int main(int argc, char** argv) {
     zpl_opts opts={0};
@@ -96,11 +89,7 @@ int main(int argc, char** argv) {
 
     sighandler_register();
     game_init(host, port, play_mode, 1, seed, chunk_size, world_size, 0);
-
-	{
-		mob_systems(world_ecs());
-	}
-
+	game_setup_ecs();
     game_run();
 
     game_shutdown();
@@ -110,7 +99,3 @@ int main(int argc, char** argv) {
     zpl_opts_free(&opts);
     return 0;
 }
-
-//------------------------------------------------------------------------
-void game_player_joined(uint64_t ent) {}
-void game_player_departed(uint64_t ent) {}
