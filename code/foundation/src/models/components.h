@@ -124,6 +124,10 @@ typedef struct {
 } HealthDecreased;
 
 typedef struct {
+    uint8_t amount;
+} Damage;
+
+typedef struct {
     uint16_t id;
 } Classify;
 
@@ -283,6 +287,7 @@ typedef struct {
 	X(HealthRegen)\
 	X(HealDelay)\
 	X(HealthDecreased)\
+    X(Damage)\
 	X(Mob)\
 	X(MobHuntPlayer)\
 	X(MobMelee)\

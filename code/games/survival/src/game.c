@@ -8,6 +8,8 @@
 
 #include "gui/notifications.h"
 
+static ecs_query_t *ecs_mobpos_query = NULL;
+
 // custom systems
 #include "system_mob.c"
 #include "system_weapon.c"
@@ -18,9 +20,10 @@ void mob_systems(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
 	
 	//NOTE(DavoSK): weapons
+	ecs_mobpos_query = ecs_query_new(world_ecs(), "components.Mob, components.Position");
 	ECS_SYSTEM_TICKED(ecs, WeaponKnifeMechanic, EcsPostUpdate, components.WeaponKnife, components.Position, components.Input);
+	ECS_SYSTEM_TICKED(ecs, WeaponProjectileHit, EcsPostUpdate, components.WeaponProjectile, components.Position, components.Rotation);
 	ECS_SYSTEM_TICKED(ecs, WeaponProjectileExpire, EcsPostUpdate, components.WeaponProjectile, components.Position);
-	
 	//ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
 }
 
