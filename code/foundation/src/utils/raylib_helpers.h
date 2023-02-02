@@ -252,3 +252,48 @@ void DrawRectangleLinesEco(float posX, float posY, float width, float height, Co
     rlVertex2f(posX + 1, posY + 1);
     rlEnd();
 }
+
+//------------------------------------------------------------------------
+// SPRITESHEET
+//------------------------------------------------------------------------
+
+extern float platform_frametime();
+
+typedef struct {
+	Texture2D texture;
+	Vector2 frameSize;
+	int framesPerRow;
+	Vector2 origin;
+} SpriteSheet;
+
+typedef struct {
+	SpriteSheet *spritesheet;
+	int start;
+	int numFrames;
+	float tickDelay; // in seconds
+
+	int frame; // output
+
+	// transient data
+	float nextTickTime;
+} SpriteAnimation;
+
+static inline
+void DrawSpriteEco(SpriteSheet* sprite, int frame, float x, float y, float ang, float scale, Color c) {
+	float ox = (frame % sprite->framesPerRow) * sprite->frameSize.x;
+	float oy = (int)(frame / sprite->framesPerRow) * sprite->frameSize.y;
+	DrawTexturePro(sprite->texture, (Rectangle){ox, oy, sprite->frameSize.x,sprite->frameSize.y}, 
+		(Rectangle){x, y, sprite->frameSize.x * scale, sprite->frameSize.y * scale}, 
+		(Vector2){sprite->origin.x * scale, sprite->origin.y * scale}, ang, c);
+}
+
+static inline
+int TickSpriteAnimation(SpriteAnimation *anim) {
+	if (anim->nextTickTime < platform_frametime()) {
+		anim->nextTickTime = platform_frametime() + anim->tickDelay;
+
+		anim->frame = anim->start + (anim->frame + 1) % anim->numFrames;
+	}
+
+	return anim->frame;
+}
