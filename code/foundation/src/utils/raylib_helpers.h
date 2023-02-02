@@ -289,11 +289,12 @@ void DrawSpriteEco(SpriteSheet* sprite, int frame, float x, float y, float ang, 
 
 static inline
 int TickSpriteAnimation(SpriteAnimation *anim) {
-	if (anim->nextTickTime < platform_frametime()) {
-		anim->nextTickTime = platform_frametime() + anim->tickDelay;
+	if (anim->nextTickTime < 0.0f) {
+		anim->nextTickTime = anim->tickDelay;
 
 		anim->frame = anim->start + (anim->frame + 1) % anim->numFrames;
 	}
+	anim->nextTickTime -= platform_frametime();
 
 	return anim->frame;
 }

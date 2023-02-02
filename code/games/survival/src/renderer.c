@@ -3,6 +3,9 @@ static float zoom_overlay_tran = 0.0f;
 
 static SpriteSheet main_sprite_sheet = { 0 }; 
 static struct nk_image main_sprite_sheet_nk = { 0 };
+static SpriteAnimation test_player_anim = { 0 };
+
+#define SURVIVAL_ANIM_DELAY (0.5f)
 
 #define CAM_OVERLAY_ZOOM_LEVEL 0.15f
 #define ALPHA(x) ColorAlpha(x, data->tran_time)
@@ -94,7 +97,7 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             DrawNametag("Player", key, data, x, y-16);
 			//DrawTextureRec(GetSpriteTexture2D(assets_find(ASSET_PLAYER)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
 			//DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
-            DrawSpriteEco(&main_sprite_sheet, 129, x, y, 0.0f, 2.0f, WHITE);
+            DrawSpriteEco(test_player_anim.spritesheet, TickSpriteAnimation(&test_player_anim), x, y, 0.0f, 2.0f, WHITE);
 
             //if (data->has_items && !data->inside_vehicle) {
             //    float ix = data->x;
@@ -170,6 +173,11 @@ void renderer_init(void) {
     main_sprite_sheet.origin = (Vector2){ 16, 16 };
 
 	main_sprite_sheet_nk = TextureToNuklear(main_sprite_sheet.texture);
+
+	test_player_anim.spritesheet = &main_sprite_sheet;
+	test_player_anim.start = 135;
+	test_player_anim.numFrames = 5;
+	test_player_anim.tickDelay = SURVIVAL_ANIM_DELAY;
 }
 
 void renderer_shutdown(void) {
