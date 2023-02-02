@@ -252,6 +252,11 @@ typedef struct {
     uint8_t spawn_delay;
 } WeaponKnife;
 
+typedef struct {
+    uint8_t damage;
+    float origin_x, origin_y;
+} WeaponProjectile;
+
 #define _COMPS\
 	X(Vector2D)\
 	X(Position)\
@@ -270,6 +275,7 @@ typedef struct {
 	X(MobHuntPlayer)\
 	X(MobMelee)\
     X(WeaponKnife)\
+    X(WeaponProjectile)\
 	X(Classify)\
 	X(Vehicle)\
 	X(IsInVehicle)\
