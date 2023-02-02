@@ -57,6 +57,12 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             Color color = data->veh_kind == 0 ? RED : data->veh_kind == 1 ? GREEN : BLUE;
             DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(color, data->tran_time));
         }break;
+		case EKIND_SPRITE:
+		case EKIND_WEAPON: {
+			float x = data->x;
+			float y = data->y;
+			DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, 0.0f, 2.0f, WHITE);
+		} break;
         case EKIND_DEVICE:{
             float x = data->x - 32.f;
             float y = data->y - 32.f;

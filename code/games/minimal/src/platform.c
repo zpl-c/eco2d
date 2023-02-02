@@ -102,6 +102,7 @@ void platform_render() {
         }
 
         debug_draw();
+		notification_draw();
 		game_draw_ui();
     }
     EndDrawing();

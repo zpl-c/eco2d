@@ -8,6 +8,8 @@
 #include "core/game.h"
 #include "core/rules.h"
 
+#include "packets/pkt_send_notif.h"
+
 ZPL_DIAGNOSTIC_PUSH_WARNLEVEL(0)
 #define CUTE_C2_IMPLEMENTATION
 #include "tinyc2.h"
@@ -22,6 +24,7 @@ ecs_query_t *ecs_rigidbodies = 0;
 ecs_entity_t ecs_timer = 0;
 
 #include "modules/system_onfoot.c"
+#include "modules/system_health.c"
 #include "modules/system_demo.c"
 #include "modules/system_vehicle.c"
 #include "modules/system_items.c"
@@ -263,57 +266,6 @@ void IntegratePositions(ecs_iter_t *it) {
     }
 }
 
-#define HAZARD_BLOCK_DMG 5.0f
-
-void HurtOnHazardBlock(ecs_iter_t *it) {
-    Position *p = ecs_field(it, Position, 1);
-    Health *h = ecs_field(it, Health, 2);
-    
-    for (int i = 0; i < it->count; i++) {
-		world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
-		if (blocks_get_flags(l.bid) & BLOCK_FLAG_HAZARD) {
-			h->hp -= HAZARD_BLOCK_DMG;
-			h->hp = zpl_max(0.0f, h->hp);
-			ecs_add(it->world, it->entities[i], HealthDecreased);
-		}
-    }
-}
-
-//#define HP_REGEN_PAIN_COOLDOWN 5.0f
-
-void RegenerateHP(ecs_iter_t *it) {
-	Health *h = ecs_field(it, Health, 1);
-	HealthRegen *r = ecs_field(it, HealthRegen, 2);
-    
-    for (int i = 0; i < it->count; i++) {
-		// TODO delay regen on hurt
-		if (h[i].hp < h[i].max_hp) {
-			h[i].hp += r->amt;
-			h[i].hp = zpl_min(h[i].max_hp, h[i].hp);
-			entity_wake(it->entities[i]);
-		}
-    }
-}
-
-void OnHealthChangePutDelay(ecs_iter_t *it) {
-	for (int i = 0; i < it->count; i++) {
-		ecs_set(it->world, it->entities[i], HealDelay, { .delay = 10 });
-		ecs_remove(it->world, it->entities[i], HealthDecreased);
-	}
-}
-
-void TickDownHealDelay(ecs_iter_t *it) {
-	HealDelay *h = ecs_field(it, HealDelay, 1);
-    
-	for (int i = 0; i < it->count; i++) {
-		--h[i].delay;
-
-		if (h[i].delay == 0) {
-			ecs_remove(it->world, it->entities[i], HealDelay);
-		}
-	}
-}
-
 void ResetActivators(ecs_iter_t *it) {
     Input *in = ecs_field(it, Input, 1);
     
@@ -399,25 +351,29 @@ void SystemsImport(ecs_world_t *ecs) {
 	ecs_rigidbodies = ecs_query_new(ecs, "components.Position, components.Velocity, components.PhysicsBody");
 
 	ECS_SYSTEM(ecs, EnableWorldEdit, EcsOnLoad);
-    ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
-    ECS_SYSTEM(ecs, DemoNPCMoveAround, EcsOnLoad, components.Velocity, components.DemoNPC);
     
-    ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
+	// health
 	ECS_SYSTEM_TICKED_EX(ecs, HurtOnHazardBlock, EcsOnUpdate, 20.0f, components.Position, components.Health);
 	ECS_SYSTEM_TICKED_EX(ecs, RegenerateHP, EcsOnUpdate, 40.0f, components.Health, components.HealthRegen, !components.HealDelay);
 	ECS_SYSTEM_TICKED_EX(ecs, TickDownHealDelay, EcsOnUpdate, 20.0f, components.HealDelay);
-    ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
-
 	ECS_OBSERVER(ecs, OnHealthChangePutDelay, EcsOnAdd, components.HealthDecreased);
+	ECS_OBSERVER(ecs, OnHealthChangeCheckDead, EcsOnAdd, components.HealthDecreased);
+	ECS_OBSERVER(ecs, OnDead, EcsOnAdd, components.Dead);
     
+	// collisions and movement physics
+	ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
 	ECS_SYSTEM(ecs, BodyCollisions, EcsOnUpdate, components.Position, components.Velocity, components.PhysicsBody);
 	ECS_SYSTEM(ecs, BlockCollisions, EcsOnValidate, components.Position, components.Velocity);
 	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
     
+	// vehicles
     ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);
     ECS_SYSTEM(ecs, LeaveVehicle, EcsPostUpdate, components.Input, components.IsInVehicle, components.Velocity);
     
-    ECS_SYSTEM(ecs, PlayerClosestInteractable, EcsPostUpdate, components.Input);
+	// player interaction
+	ECS_SYSTEM(ecs, MovementImpulse, EcsOnLoad, components.Input, components.Velocity, components.Position, !components.IsInVehicle);
+	ECS_SYSTEM(ecs, PlayerClosestInteractable, EcsPostUpdate, components.Input);
     ECS_SYSTEM(ecs, PickItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, DropItem, EcsPostUpdate, components.Input, components.Position, components.Inventory, !components.IsInVehicle);
     ECS_SYSTEM(ecs, SwapItems, EcsPostUpdate, components.Input, components.Inventory);
@@ -426,18 +382,22 @@ void SystemsImport(ecs_world_t *ecs) {
     ECS_SYSTEM(ecs, CraftItem, EcsPostUpdate, components.Input, !components.IsInVehicle);
     ECS_SYSTEM(ecs, InspectContainers, EcsPostUpdate, components.Input, !components.IsInVehicle);
     
+	// logistics and production
     ECS_SYSTEM_TICKED(ecs, HarvestIntoContainers, EcsPostUpdate, components.ItemContainer, components.Position, !components.BlockHarvest);
     ECS_SYSTEM_TICKED(ecs, ProduceItems, EcsPostUpdate, components.ItemContainer, components.Producer, components.Position, components.Device);
     ECS_SYSTEM_TICKED_EX(ecs, PushItemsOnNodes, EcsPostUpdate, 20, components.ItemContainer, components.Position, components.Device, components.ItemRouter);
 	ECS_SYSTEM_TICKED(ecs, BuildBlueprints, EcsPostUpdate, components.Blueprint, components.Device, components.Position);
 	
+	// demo creature sim
 	ECS_SYSTEM_TICKED(ecs, CreatureCheckNeeds, EcsPostUpdate, components.Creature);
 	ECS_SYSTEM_TICKED(ecs, CreatureSeekFood, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksFood, !components.SeeksCompanion);
 	ECS_SYSTEM_TICKED(ecs, CreatureSeekCompanion, EcsPostUpdate, components.Creature, components.Position, components.Velocity, components.SeeksCompanion, !components.SeeksFood);
 	ECS_SYSTEM(ecs, CreatureRoamAround, EcsPostUpdate, components.Velocity, components.Creature, !components.SeeksFood, !components.SeeksCompanion);
 	
+	// player input reset
     ECS_SYSTEM(ecs, ResetActivators, EcsPostUpdate, components.Input);
     
+	// cleanup systems
     ECS_SYSTEM(ecs, ClearVehicle, EcsUnSet, components.Vehicle);
     ECS_SYSTEM(ecs, ThrowItemsOut, EcsUnSet, components.ItemContainer, components.Position);
 	

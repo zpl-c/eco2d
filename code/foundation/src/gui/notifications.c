@@ -1,23 +1,30 @@
 #define MAX_NOTIFICATIONS_ON_SCREEN 5
 
 typedef struct {
-	const char *title;
-	const char *text;
+	zpl_string title;
+	zpl_string text;
 } notification;
 
 static notification *notifications = 0;
 
 static bool show_notification_list = 0;
 
-void notification_push(const char* title, const char* text) {
+void notification_push(const char* title1, const char* text1) {
 	if (!notifications) {
 		zpl_array_init(notifications, zpl_heap());
 	}
+
+	zpl_string title = zpl_string_make(zpl_heap(), title1);
+	zpl_string text = zpl_string_make(zpl_heap(), text1);
 
 	zpl_array_append(notifications, ((notification) { title, text }));
 }
 
 void notification_clear(void) {
+	for (zpl_isize i = 0; i < zpl_array_count(notifications); i++) {
+		zpl_string_free(notifications[i].title);
+		zpl_string_free(notifications[i].text);
+	}
 	zpl_array_clear(notifications);
 }
 
@@ -53,6 +60,8 @@ void notification_draw(void) {
 					nk_label_wrap(game_ui, notif->text);
 
 					if (nk_button_label(game_ui, "OK")) {
+						zpl_string_free(notifications[i].title);
+						zpl_string_free(notifications[i].text);
 						zpl_array_remove_at(notifications, i);
 					}
 					nk_tree_pop(game_ui);
@@ -77,6 +86,8 @@ void notification_draw(void) {
 								nk_label_wrap(game_ui, notif->text);
 
 								if (nk_button_label(game_ui, "OK")) {
+									zpl_string_free(notifications[i].title);
+									zpl_string_free(notifications[i].text);
 									zpl_array_remove_at(notifications, i); --i; 
 								}
 							}

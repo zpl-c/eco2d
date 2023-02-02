@@ -98,17 +98,6 @@ void platform_render() {
         game_world_view_active_entity_map(do_entity_fadeinout);
     }
 
-	// HACK run once when player is dead
-	{
-		static char done = 0;
-		camera cam = camera_get();
-		entity_view *e = game_world_view_active_get_entity(cam.ent_id);
-		if (e && e->hp <= 0.0f && !done) {
-			done = 1;
-			notification_push("DEAD", "YOU ARE DEAD!"); 
-		}
-	}
-
     assets_frame();
 
     BeginDrawing();

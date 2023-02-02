@@ -100,6 +100,8 @@ typedef struct {
     float max_hp;
 } Health;
 
+typedef struct { char _unused; } Dead;
+
 typedef struct {
 	float amt; 
 } HealthRegen;
@@ -139,6 +141,11 @@ typedef struct {
     float merger_time;
     float durability; // 1.0 - 0.0 (0.0 = broken), we can only ever merge items of the same durability
 } Item;
+
+typedef struct {
+	int spritesheet;
+	int frame;
+} Sprite;
 
 typedef struct {
     char _unused;
@@ -247,6 +254,7 @@ typedef struct {
 	X(Input)\
 	X(ClientInfo)\
 	X(Health)\
+	X(Dead)\
 	X(HealthRegen)\
 	X(HealDelay)\
 	X(HealthDecreased)\
@@ -270,6 +278,7 @@ typedef struct {
 	X(Creature)\
 	X(SeeksFood)\
 	X(SeeksCompanion)\
+	X(Sprite)\
 	X(StreamInfo)
 
 #define X(comp) extern ECS_COMPONENT_DECLARE(comp);

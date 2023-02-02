@@ -76,6 +76,12 @@ entity_view* world_build_entity_view(int64_t e) {
         view.is_producer = ecs_get(world_ecs(), e, Producer) != 0;
     }
 
+	if (ecs_get(world_ecs(), e, Sprite)) {
+		Sprite const* spr = ecs_get(world_ecs(), e, Sprite);
+		view.spritesheet = spr->spritesheet;
+		view.frame = spr->frame;
+	}
+
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
 
     Inventory* inv = 0;
