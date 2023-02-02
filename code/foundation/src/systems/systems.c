@@ -361,10 +361,10 @@ void SystemsImport(ecs_world_t *ecs) {
 	ECS_OBSERVER(ecs, OnDead, EcsOnAdd, components.Dead);
     
 	// collisions and movement physics
-	ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, ApplyWorldDragOnVelocity, EcsOnUpdate, components.Position, components.Velocity, !components.InAir, !components.TriggerOnly);
 	ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
-	ECS_SYSTEM(ecs, BodyCollisions, EcsOnUpdate, components.Position, components.Velocity, components.PhysicsBody);
-	ECS_SYSTEM(ecs, BlockCollisions, EcsOnValidate, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, BodyCollisions, EcsOnUpdate, components.Position, components.Velocity, components.PhysicsBody, !components.TriggerOnly);
+	ECS_SYSTEM(ecs, BlockCollisions, EcsOnValidate, components.Position, components.Velocity, !components.TriggerOnly);
 	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
     
 	// vehicles
