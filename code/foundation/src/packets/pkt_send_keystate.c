@@ -63,7 +63,7 @@ int32_t pkt_send_keystate_handler(pkt_header *header) {
         i->y = zpl_clamp(table.y, -1.0f, 1.0f);
         i->mx = table.mx;
         i->my = table.my;
-		if (i->x != 0.0f && i->y != 0.0f) {
+		if (i->x != 0.0f || i->y != 0.0f) {
 			i->hx = i->x;
 			i->hy = i->y;
 		}
