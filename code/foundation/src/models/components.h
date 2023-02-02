@@ -100,6 +100,8 @@ typedef struct {
     float max_hp;
 } Health;
 
+typedef struct { char _unused; } Dead;
+
 typedef struct {
 	float amt; 
 } HealthRegen;
@@ -241,6 +243,7 @@ typedef struct {
 	X(Input)\
 	X(ClientInfo)\
 	X(Health)\
+	X(Dead)\
 	X(HealthRegen)\
 	X(HealDelay)\
 	X(HealthDecreased)\

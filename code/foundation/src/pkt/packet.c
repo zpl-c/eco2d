@@ -8,6 +8,7 @@
 #include "packets/pkt_01_welcome.h"
 #include "packets/pkt_send_keystate.h"
 #include "packets/pkt_send_librg_update.h"
+#include "packets/pkt_send_notif.h"
 #include "packets/pkt_switch_viewer.h"
 
 #define PKT_HEADER_ELEMENTS 3
@@ -18,7 +19,8 @@ pkt_handler pkt_handlers[] = {
     {.id = MSG_ID_LIBRG_UPDATE, .handler = pkt_send_librg_update_handler},
     {.id = MSG_ID_SEND_KEYSTATE, .handler = pkt_send_keystate_handler},
     {.id = MSG_ID_SEND_BLOCKPOS, .handler = pkt_send_blockpos_handler},
-    {.id = MSG_ID_SWITCH_VIEWER, .handler = pkt_switch_viewer_handler},
+	{.id = MSG_ID_SWITCH_VIEWER, .handler = pkt_switch_viewer_handler},
+	{.id = MSG_ID_SEND_NOTIFICATION, .handler = pkt_send_notification_handler},
 };
 
 uint8_t pkt_buffer[PKT_BUFSIZ];
