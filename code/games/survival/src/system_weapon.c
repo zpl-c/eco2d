@@ -38,16 +38,16 @@ void WeaponKnifeMechanic(ecs_iter_t *it) {
                 .y=input[i].hy*WEAPON_PROJECTILE_SPEED*-1
             });
 
-            Position *dest = ecs_get_mut(world_ecs(), e, Position);
-            const float offset = get_rand_between(-WEAPON_PROJECTILE_POS_OFFSET, WEAPON_PROJECTILE_POS_OFFSET);
-            dest->x=pos[i].x;
-            dest->y=pos[i].y;
+            zpl_vec2 input_vec = {
+                .x = input[i].hy,
+                .y = input[i].hx
+            };
 
-            if(zpl_abs(input[i].hx) > 0)
-                dest->y += offset;
-        
-            if(zpl_abs(input[i].hy) > 0)
-                dest->x += offset;        
+            zpl_vec2 pos_offset;
+            zpl_vec2_mul(&pos_offset, input_vec, get_rand_between(-WEAPON_PROJECTILE_POS_OFFSET, WEAPON_PROJECTILE_POS_OFFSET));     
+            Position *dest = ecs_get_mut(world_ecs(), e, Position);
+            dest->x = pos[i].x + pos_offset.x;
+            dest->y = pos[i].y + pos_offset.y;       
         }
 
 		weapon[i].spawn_delay = WEAPON_KNIFE_SPAWN_DELAY;
