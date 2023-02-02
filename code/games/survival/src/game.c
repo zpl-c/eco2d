@@ -10,11 +10,13 @@
 
 // custom systems
 #include "system_mob.c"
+#include "system_weapon.c"
 
 void mob_systems(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
 	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
 	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
+	ECS_SYSTEM_TICKED(ecs, WeaponKnifeMechanic, EcsPostUpdate, components.WeaponKnife, components.Position, components.Input);
 	//ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
 }
 
@@ -36,6 +38,14 @@ void game_setup_ecs() {
 
 void game_player_joined(uint64_t ent) {
 	notification_push("test1", "Hello World!");
+
+	//NOTE(DavoSK): add weapon component for testing
+	ecs_world_t* world = world_ecs();
+	ecs_set(world, (ecs_entity_t)ent, WeaponKnife, {
+		.projectile_count = 1,
+		.damage = 10,
+		.spawn_delay = WEAPON_KNIFE_SPAWN_DELAY
+	});
 }
 
 void game_player_departed(uint64_t ent) {

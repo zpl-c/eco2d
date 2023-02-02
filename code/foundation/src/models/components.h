@@ -228,8 +228,14 @@ typedef struct {
 } MobHuntPlayer;
 
 typedef struct { 
-	char _unused; 
+    char _unused; 
 } MobMelee;
+
+typedef struct {
+    uint16_t projectile_count;
+    uint8_t damage;
+    uint8_t spawn_delay;
+} WeaponKnife;
 
 #define _COMPS\
 	X(Vector2D)\
@@ -247,6 +253,7 @@ typedef struct {
 	X(Mob)\
 	X(MobHuntPlayer)\
 	X(MobMelee)\
+    X(WeaponKnife)\
 	X(Classify)\
 	X(Vehicle)\
 	X(IsInVehicle)\
