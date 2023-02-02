@@ -103,7 +103,7 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             DrawNametag("Player", key, data, x, y-16);
 			//DrawTextureRec(GetSpriteTexture2D(assets_find(ASSET_PLAYER)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
 			//DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
-            DrawSpriteEco(test_player_anim.spritesheet, TickSpriteAnimation(&test_player_anim), x, y, 0.0f, 2.0f, WHITE);
+			DrawSpriteEco(test_player_anim.spritesheet, TickSpriteAnimation(&test_player_anim), x, y, 0.0f, 2.0f, WHITE);
 
             //if (data->has_items && !data->inside_vehicle) {
             //    float ix = data->x;

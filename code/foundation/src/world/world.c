@@ -87,6 +87,14 @@ entity_view* world_build_entity_view(int64_t e) {
 		view.frame = spr->frame;
 	}
 
+	{
+		const Input* in = ecs_get(world_ecs(), e, Input);
+		if (in) {
+			view.hx = in->hx;
+			view.hy = in->hy;
+		}
+	}
+
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
 
     Inventory* inv = 0;
