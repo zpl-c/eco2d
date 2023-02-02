@@ -46,7 +46,7 @@ void game_player_joined(uint64_t ent) {
 	//NOTE(DavoSK): add weapon component for testing
 	ecs_world_t* world = world_ecs();
 	ecs_set(world, (ecs_entity_t)ent, WeaponKnife, {
-		.projectile_count = 1,
+		.projectile_count = 10,
 		.damage = 10,
 		.spawn_delay = WEAPON_KNIFE_SPAWN_DELAY
 	});

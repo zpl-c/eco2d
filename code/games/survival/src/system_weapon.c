@@ -1,10 +1,11 @@
 #define WEAPON_KNIFE_SPAWN_DELAY 20
-#define WEAPON_PROJECTILE_POS_OFFSET 3.2f
+#define WEAPON_PROJECTILE_POS_OFFSET 10.0f
 #define WEAPON_PROJECTILE_SPEED 500.0f
 #define WEAPON_PROJECTILE_RANGE_LIFETIME 800.0f
 
 //TODO(DavoSK): move to helpers, add srand
 float get_rand_between(float min, float max) {
+    srand (time ( NULL));
     float scale = rand() / (float) RAND_MAX; /* [0, 1.0] */
     return min + scale * ( max - min );      /* [min, max] */
 }
@@ -37,7 +38,8 @@ void WeaponKnifeMechanic(ecs_iter_t *it) {
 
             Position *dest = ecs_get_mut(world_ecs(), e, Position);
             dest->x=pos[i].x;
-            dest->y=pos[i].y+get_rand_between(-WEAPON_PROJECTILE_POS_OFFSET, WEAPON_PROJECTILE_POS_OFFSET);
+            dest->y=pos[i].y+(float)rand()/(float)(RAND_MAX/WEAPON_PROJECTILE_POS_OFFSET);
+            zpl_printf("offset: %f, %d\n", (float)rand()/(float)(RAND_MAX/WEAPON_PROJECTILE_POS_OFFSET), weapon[i].projectile_count);
         }
 
 		weapon[i].spawn_delay = WEAPON_KNIFE_SPAWN_DELAY;
