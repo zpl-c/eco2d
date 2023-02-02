@@ -69,6 +69,12 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             Color color = data->veh_kind == 0 ? RED : data->veh_kind == 1 ? GREEN : BLUE;
             DrawRectanglePro((Rectangle){x,y,w,h}, (Vector2){w/2.0f,h/2.0f}, zpl_to_degrees(data->heading), ColorAlpha(color, data->tran_time));
         }break;
+		case EKIND_SPRITE:
+		case EKIND_WEAPON: {
+			float x = data->x - 32.f;
+			float y = data->y - 32.f;
+			DrawTexturePro(GetSpriteTexture2D(assets_find(data->asset)), ASSET_SRC_RECT(), ASSET_DST_RECT(x,y), (Vector2){0.5f,0.5f}, 0.0f, ALPHA(WHITE));
+		} break;
         case EKIND_DEVICE:{
             float x = data->x - 32.f;
             float y = data->y - 32.f;

@@ -13,6 +13,8 @@
 	X(EKIND_PLAYER)\
 	X(EKIND_ITEM)\
 	X(EKIND_DEVICE)\
+	X(EKIND_SPRITE)\
+	X(EKIND_WEAPON)\
 	X(EKIND_VEHICLE)\
 	X(EKIND_DEMO_NPC)\
 	X(EKIND_MONSTER)\
@@ -78,6 +80,10 @@ typedef struct entity_view {
     bool is_producer;
     uint32_t progress_active;
     float progress_value;
+
+	// sprite index
+	int spritesheet;
+	int frame;
     
     // NOTE(zaklaus): inventory
     uint8_t has_items;

@@ -66,11 +66,10 @@ void TickDownHealDelay(ecs_iter_t *it) {
 	HealDelay *h = ecs_field(it, HealDelay, 1);
     
 	for (int i = 0; i < it->count; i++) {
-		--h[i].delay;
+		TICK_VAR(h[i].delay);
 
 		if (h[i].delay == 0) {
 			ecs_remove(it->world, it->entities[i], HealDelay);
 		}
 	}
 }
-

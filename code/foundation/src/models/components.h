@@ -143,6 +143,11 @@ typedef struct {
 } Item;
 
 typedef struct {
+	int spritesheet;
+	int frame;
+} Sprite;
+
+typedef struct {
     char _unused;
 } BlockHarvest;
 
@@ -266,6 +271,7 @@ typedef struct {
 	X(Creature)\
 	X(SeeksFood)\
 	X(SeeksCompanion)\
+	X(Sprite)\
 	X(StreamInfo)
 
 #define X(comp) extern ECS_COMPONENT_DECLARE(comp);
