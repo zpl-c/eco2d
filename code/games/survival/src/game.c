@@ -20,6 +20,7 @@ void mob_systems(ecs_world_t *ecs) {
 	//NOTE(DavoSK): weapons
 	ECS_SYSTEM_TICKED(ecs, WeaponKnifeMechanic, EcsPostUpdate, components.WeaponKnife, components.Position, components.Input);
 	ECS_SYSTEM_TICKED(ecs, WeaponProjectileExpire, EcsPostUpdate, components.WeaponProjectile, components.Position);
+	
 	//ECS_OBSERVER(ecs, MobDetectPlayers1, EcsOnAdd, components.Mob);
 }
 
