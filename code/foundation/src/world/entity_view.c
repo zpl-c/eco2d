@@ -16,6 +16,7 @@ pkt_desc pkt_entity_view_desc[] = {
     { PKT_UINT(entity_view, flag) },
     { PKT_HALF(entity_view, x) },
     { PKT_HALF(entity_view, y) },
+    { PKT_HALF(entity_view, angle) },
     
     { PKT_KEEP_IF(entity_view, blocks_used, 0, 2) }, // NOTE(zaklaus): skip velocity for chunks
     { PKT_HALF(entity_view, vx) },

@@ -42,12 +42,17 @@ entity_view* world_build_entity_view(int64_t e) {
         view.y = pos->y;
     }
 
-    const Velocity* vel = ecs_get(world_ecs(), e, Velocity);
-    if (vel) {
-        view.flag |= EFLAG_INTERP;
-        view.vx = vel->x;
-        view.vy = vel->y;
-    }
+	const Velocity* vel = ecs_get(world_ecs(), e, Velocity);
+	if (vel) {
+		view.flag |= EFLAG_INTERP;
+		view.vx = vel->x;
+		view.vy = vel->y;
+	}
+
+	const Rotation* rot = ecs_get(world_ecs(), e, Rotation);
+	if (rot) {
+		view.angle = rot->angle;
+	}
 
     const Health* health = ecs_get(world_ecs(), e, Health);
     if (health) {

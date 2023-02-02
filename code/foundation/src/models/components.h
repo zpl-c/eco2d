@@ -41,6 +41,10 @@ typedef Vector2D Velocity;
 typedef struct { char _unused; } InAir;
 typedef struct { char _unused; } TriggerOnly;
 
+typedef struct {
+	float angle;
+} Rotation;
+
 enum {
 	PHYS_CIRCLE,
 	PHYS_AABB,
@@ -254,6 +258,7 @@ typedef struct {
 	X(Position)\
 	X(Velocity)\
 	X(InAir)\
+	X(Rotation)\
 	X(TriggerOnly)\
 	X(PhysicsBody)\
 	X(Chunk)\

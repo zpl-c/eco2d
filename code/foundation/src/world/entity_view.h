@@ -53,6 +53,7 @@ typedef struct entity_view {
     float vy;
     float tx;
     float ty;
+	float angle;
     
     float hp;
     float max_hp;
