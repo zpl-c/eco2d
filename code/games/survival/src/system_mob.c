@@ -53,8 +53,8 @@ void MobMovement(ecs_iter_t *it) {
 	}
 }
 
-#define MOB_MELEE_DIST 4000.0f
-#define MOB_MELEE_DMG 1.5f
+#define MOB_MELEE_DIST 8000.0f
+#define MOB_MELEE_DMG 8.5f
 #define MOB_ATK_DELAY 10 
 
 void MobMeleeAtk(ecs_iter_t *it) {
@@ -76,8 +76,8 @@ void MobMeleeAtk(ecs_iter_t *it) {
 		if (range < MOB_MELEE_DIST) {
 			Health *health = ecs_get_mut_ex(it->world, m->plr, Health);
 			health->dmg += MOB_MELEE_DMG;
+			mob[i].atk_delay = MOB_ATK_DELAY;
 		}
-		mob[i].atk_delay = MOB_ATK_DELAY;
 	}
 }
 

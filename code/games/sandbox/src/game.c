@@ -14,7 +14,8 @@ void game_render() {
 
 
 void game_player_joined(uint64_t ent) {
-
+	ecs_set(world_ecs(), ent, Inventory, {0});
+	ecs_set(world_ecs(), ent, HealthRegen, {15.f});
 }
 
 void game_player_departed(uint64_t ent) {
