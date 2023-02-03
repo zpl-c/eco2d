@@ -20,3 +20,7 @@ void game_player_joined(uint64_t ent) {
 void game_player_departed(uint64_t ent) {
 
 }
+
+void game_client_receive_code(pkt_send_code data) {
+
+}

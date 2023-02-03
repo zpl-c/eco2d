@@ -84,5 +84,10 @@ void MobMeleeAtk(ecs_iter_t *it) {
 void MobOnDead(ecs_iter_t *it) {
 	for (int i = 0; i < it->count; i++) {
 		entity_despawn(it->entities[i]);
+
+		pkt_code_send(0, 0, (pkt_send_code){
+			.code = SURV_CODE_SHOW_NOTIF,
+			.data = "mob died"
+		});
 	}
 }

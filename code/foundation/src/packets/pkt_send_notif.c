@@ -3,8 +3,6 @@
 #include "world/world.h"
 #include "core/game.h"
 #include "world/entity_view.h"
-#include "core/camera.h"
-#include "models/prefabs/player.h"
 
 #include "models/components.h"
 #include "systems/systems.h"

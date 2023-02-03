@@ -53,6 +53,7 @@ void OnDead(ecs_iter_t *it) {
 		}
 
 		if (pi) {
+			*pi = (Input) { 0 };
 			pi->is_blocked = 1;
 		}
 	}
