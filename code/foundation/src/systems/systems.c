@@ -356,8 +356,7 @@ void SystemsImport(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED_EX(ecs, HurtOnHazardBlock, EcsOnUpdate, 20.0f, components.Position, components.Health);
 	ECS_SYSTEM_TICKED_EX(ecs, RegenerateHP, EcsOnUpdate, 40.0f, components.Health, components.HealthRegen, !components.HealDelay);
 	ECS_SYSTEM_TICKED_EX(ecs, TickDownHealDelay, EcsOnUpdate, 20.0f, components.HealDelay);
-	ECS_OBSERVER(ecs, OnHealthChangePutDelay, EcsOnAdd, components.HealthDecreased);
-	ECS_OBSERVER(ecs, OnHealthChangeCheckDead, EcsOnAdd, components.HealthDecreased);
+	ECS_SYSTEM_TICKED(ecs, ProcessHealthDamage, EcsPostUpdate, components.Health);
 	ECS_OBSERVER(ecs, OnDead, EcsOnAdd, components.Dead);
     
 	// collisions and movement physics

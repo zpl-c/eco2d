@@ -7,9 +7,7 @@ void HurtOnHazardBlock(ecs_iter_t *it) {
 	for (int i = 0; i < it->count; i++) {
 		world_block_lookup l = world_block_from_realpos(p[i].x, p[i].y);
 		if (blocks_get_flags(l.bid) & BLOCK_FLAG_HAZARD) {
-			h->hp -= HAZARD_BLOCK_DMG;
-			h->hp = zpl_max(0.0f, h->hp);
-			ecs_add(it->world, it->entities[i], HealthDecreased);
+			h[i].dmg += HAZARD_BLOCK_DMG;
 		}
 	}
 }
@@ -30,19 +28,17 @@ void RegenerateHP(ecs_iter_t *it) {
 	}
 }
 
-void OnHealthChangePutDelay(ecs_iter_t *it) {
+void ProcessHealthDamage(ecs_iter_t *it) {
 	for (int i = 0; i < it->count; i++) {
-		ecs_set(it->world, it->entities[i], HealDelay, { .delay = 10 });
-		ecs_remove(it->world, it->entities[i], HealthDecreased);
-	}
-}
+		Health *hp = ecs_get_mut(it->world, it->entities[i], Health);
+		if (hp->dmg > 0.0f) {
+			hp->hp = zpl_max(hp->hp-hp->dmg, 0.0f);
+			hp->dmg = 0.0f;
+			ecs_set(it->world, it->entities[i], HealDelay, { .delay = 10 });
 
-void OnHealthChangeCheckDead(ecs_iter_t *it) {
-	for (int i = 0; i < it->count; i++) {
-		const Health *hp = ecs_get(it->world, it->entities[i], Health);
-
-		if (hp && hp->hp <= 0.0f) {
-			ecs_add(it->world, it->entities[i], Dead);
+			if (hp->hp <= 0.0f) {
+				ecs_add(it->world, it->entities[i], Dead);
+			}
 		}
 	}
 }

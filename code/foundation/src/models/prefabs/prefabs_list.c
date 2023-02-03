@@ -125,6 +125,7 @@ uint64_t mob_spawn(void) {
 	hp->max_hp = hp->hp = 100.0f;
 
 	ecs_add(world_ecs(), e, Mob);
+	ecs_set(world_ecs(), e, Health, { 60, 60, 0 });
 	ecs_set(world_ecs(), e, PhysicsBody, { .kind = PHYS_AABB, .mass = 1.0f });
 
 	return (uint64_t)e;

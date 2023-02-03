@@ -74,10 +74,15 @@ void MobMeleeAtk(ecs_iter_t *it) {
 		float range = (dx*dx + dy*dy);
 
 		if (range < MOB_MELEE_DIST) {
-			Health *hp = ecs_get_mut_ex(it->world, m->plr, Health);
-			hp->hp = zpl_max(hp->hp-MOB_MELEE_DMG, 0.0f);
-			ecs_add(it->world, m->plr, HealthDecreased);
+			Health *health = ecs_get_mut_ex(it->world, m->plr, Health);
+			health->dmg += MOB_MELEE_DMG;
 		}
 		mob[i].atk_delay = MOB_ATK_DELAY;
+	}
+}
+
+void MobOnDead(ecs_iter_t *it) {
+	for (int i = 0; i < it->count; i++) {
+		entity_despawn(it->entities[i]);
 	}
 }

@@ -107,6 +107,9 @@ typedef struct {
 typedef struct {
     float hp;
     float max_hp;
+
+	// acumulated damage
+	float dmg;
 } Health;
 
 typedef struct { char _unused; } Dead;
@@ -118,14 +121,6 @@ typedef struct {
 typedef struct {
 	uint8_t delay;
 } HealDelay;
-
-typedef struct {
-	uint8_t _unused;
-} HealthDecreased;
-
-typedef struct {
-    uint8_t amount;
-} Damage;
 
 typedef struct {
     uint16_t id;
@@ -286,8 +281,6 @@ typedef struct {
 	X(Dead)\
 	X(HealthRegen)\
 	X(HealDelay)\
-	X(HealthDecreased)\
-    X(Damage)\
 	X(Mob)\
 	X(MobHuntPlayer)\
 	X(MobMelee)\
