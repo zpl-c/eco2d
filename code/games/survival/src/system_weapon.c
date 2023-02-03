@@ -6,7 +6,7 @@ ZPL_DIAGNOSTIC_POP
 #define WEAPON_PROJECTILE_POS_OFFSET 200.0f
 #define WEAPON_PROJECTILE_SPEED 500.0f
 #define WEAPON_PROJECTILE_RANGE_LIFETIME 800.0f
-#define WEAPON_HIT_FORCE_PUSH 40.0f
+#define WEAPON_HIT_FORCE_PUSH 400.0f
 
 //TODO(DavoSK): move to helpers, add srand
 float get_rand_between(float min, float max) {
@@ -129,19 +129,13 @@ void WeaponProjectileHit(ecs_iter_t* it) {
 						continue;
 				}
 
-				c2Manifold m = { 0 };
-				c2AABBtoAABBManifold(box_a, box_b, &m);
-				float dd = zpl_sqrt(d2);
 
-                if (m.count > 0) {
+				if (c2AABBtoAABB(box_a, box_b)) {
+					float dd = zpl_sqrt(d2);
 					mob_health[j].dmg += weapon[i].damage;
 
-					for (int k = 0; k < m.count; k++) {
-						float d = m.depths[k];
-
-						mob_velocity[j].x += (dx/dd)*d*WEAPON_HIT_FORCE_PUSH;
-						mob_velocity[j].y += (dy/dd)*d*WEAPON_HIT_FORCE_PUSH;
-					}
+					mob_velocity[j].x += (dx/dd)*WEAPON_HIT_FORCE_PUSH;
+					mob_velocity[j].y += (dy/dd)*WEAPON_HIT_FORCE_PUSH;
                 }
             }
         }
