@@ -25,8 +25,8 @@ int worldgen_in_circle(int x, int y, int radius) {
 static void world_fill_rect(block_id *data, block_id id, uint32_t x, uint32_t y, uint32_t w, uint32_t h, world_block_observer_proc *proc) {
     for (uint32_t cy=y; cy<y+h; cy++) {
         for (uint32_t cx=x; cx<x+w; cx++) {
-            if (cx < 0 || cx >= world->dim) continue;
-            if (cy < 0 || cy >= world->dim) continue;
+            if (cx >= world->dim) continue;
+            if (cy >= world->dim) continue;
             uint32_t i = (cy*world->dim) + cx;
 
             if (proc) {

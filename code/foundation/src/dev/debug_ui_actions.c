@@ -66,8 +66,8 @@ ActSpawnMobs(void) {
 
 	for (uint32_t cy=y; cy<y+h; cy+=WORLD_BLOCK_SIZE) {
 		for (uint32_t cx=x; cx<x+w; cx+=WORLD_BLOCK_SIZE) {
-			if (cx < 0 || cx >= world_dim()) continue;
-			if (cy < 0 || cy >= world_dim()) continue;
+			if (cx >= world_dim()) continue;
+			if (cy >= world_dim()) continue;
 
 			if ((cy == y || cy == (y + h-WORLD_BLOCK_SIZE)) ||
 				(cx == x || cx == (x + w-WORLD_BLOCK_SIZE))) {

@@ -45,7 +45,7 @@ uint16_t craft_get_recipe_id_from_product(asset_id id) {
 }
 
 recipe craft_get_recipe_data(uint16_t i) {
-	ZPL_ASSERT(i >= 0 && i < MAX_RECIPES);
+	ZPL_ASSERT(i < MAX_RECIPES);
 	return recipes[i];
 }
 

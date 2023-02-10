@@ -1,7 +1,7 @@
 #include "input.h"
 #include "raylib.h"
 
-const static input_map maps[] = {
+static const input_map maps[] = {
     {
         "left",
         IN_LEFT,

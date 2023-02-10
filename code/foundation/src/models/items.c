@@ -12,7 +12,7 @@
 #define ITEMS_COUNT (sizeof(items)/sizeof(item_desc))
 
 static inline item_id item_resolve_proxy(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+    ZPL_ASSERT(id < ITEMS_COUNT);
     item_usage usage = items[id].usage;
     if (usage == UKIND_PROXY) {
         return item_find(items[id].proxy.id);
@@ -164,21 +164,21 @@ void item_despawn(uint64_t id) {
 }
 
 uint32_t item_max_quantity(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+    ZPL_ASSERT(id < ITEMS_COUNT);
     return items[id].max_quantity;
 }
 
 item_usage item_get_usage(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+    ZPL_ASSERT(id < ITEMS_COUNT);
     return items[id].usage;
 }
 
 bool item_get_place_directional(item_id id) {
-    ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+    ZPL_ASSERT(id < ITEMS_COUNT);
     return items[id].place.directional;
 }
 
 item_desc item_get_desc(item_id id) {
-	ZPL_ASSERT(id >= 0 && id < ITEMS_COUNT);
+	ZPL_ASSERT(id < ITEMS_COUNT);
 	return items[id];
 }

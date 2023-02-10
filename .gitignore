@@ -1,6 +1,5 @@
 build
-build_rel
-build_web
+build_*
 emsdk
 deploy_web
 run_web

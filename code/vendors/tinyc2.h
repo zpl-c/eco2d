@@ -1094,8 +1094,8 @@ c2TOIResult c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, const
 	if (!bx_ptr) bx = c2xIdentity();
 	else bx = *bx_ptr;
 
-	c2Proxy pA;
-	c2Proxy pB;
+	c2Proxy pA = { 0 };
+	c2Proxy pB = { 0 };
 	c2MakeProxy(A, typeA, &pA);
 	c2MakeProxy(B, typeB, &pB);
 
@@ -1933,7 +1933,7 @@ void c2AABBtoPolyManifold(c2AABB A, const c2Poly* B, const c2x* bx, c2Manifold* 
 // clip a segment to a plane
 static int c2Clip(c2v* seg, c2h h)
 {
-	c2v out[2];
+	c2v out[2] = { 0 };
 	int sp = 0;
 	float d0, d1;
 	if ((d0 = c2Dist(h, seg[0])) < 0) out[sp++] = seg[0];

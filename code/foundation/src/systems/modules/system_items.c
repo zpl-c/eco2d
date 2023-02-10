@@ -28,7 +28,7 @@ void PickItem(ecs_iter_t *it) {
                         uint16_t item_id = item ? item_find(item->kind) : 0;
                         if (!item || (item_id != ASSET_INVALID && (item->kind == drop->kind && item->durability == drop->durability) && item->quantity < item_max_quantity(drop_id))) {
                             if (item) {
-                                uint32_t picked_count = zpl_max(0, drop->quantity);
+                                uint32_t picked_count = zpl_max(0, (int32_t)drop->quantity);
                                 picked_count = zpl_clamp(picked_count, 0, item_max_quantity(drop_id) - item->quantity);
                                 item->quantity += picked_count;
                                 drop->quantity -= picked_count;
@@ -378,7 +378,7 @@ void HarvestIntoContainers(ecs_iter_t *it) {
                         uint16_t item_id = item ? item_find(item->kind) : 0;
                         if (!item || (item_id != ASSET_INVALID && (item->kind == drop->kind && item->durability == drop->durability) && item->quantity < item_max_quantity(drop_id))) {
                             if (item) {
-                                uint32_t picked_count = zpl_max(0, drop->quantity);
+								uint32_t picked_count = zpl_max(0, (int32_t)drop->quantity);
                                 picked_count = zpl_clamp(picked_count, 0, item_max_quantity(drop_id) - item->quantity);
                                 item->quantity += picked_count;
                                 drop->quantity -= picked_count;
