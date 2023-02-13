@@ -1,5 +1,5 @@
 add_executable(minimal
-    src/main.c
+    src/oldmain.c
     src/platform.c
     src/worldgen.c
     src/texgen.c
