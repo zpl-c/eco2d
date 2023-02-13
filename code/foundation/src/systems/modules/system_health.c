@@ -46,7 +46,7 @@ void ProcessHealthDamage(ecs_iter_t *it) {
 void OnDead(ecs_iter_t *it) {
 	for (int i = 0; i < it->count; i++) {
 		const ClientInfo *ci = ecs_get(it->world, it->entities[i], ClientInfo);
-		Input *pi = ecs_get_mut_if_ex(it->world, it->entities[i], Input);
+		Input *pi = ecs_get_mut_if(it->world, it->entities[i], Input);
 
 		if (ci) {
 			pkt_notification_send(0, 0, "Someone died!", zpl_bprintf("Player %d has died!", it->entities[i]));

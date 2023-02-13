@@ -98,7 +98,7 @@ entity_view* world_build_entity_view(int64_t e) {
     view.inside_vehicle = ecs_get(world_ecs(), e, IsInVehicle) != 0 ? true : false;
 
     Inventory* inv = 0;
-    if ((inv = ecs_get_mut_if_ex(world_ecs(), e, Inventory))) {
+    if ((inv = ecs_get_mut_if(world_ecs(), e, Inventory))) {
         view.has_items = true;
 
         for (int i = 0; i < ITEMS_INVENTORY_SIZE; i += 1) {
@@ -114,7 +114,7 @@ entity_view* world_build_entity_view(int64_t e) {
 
             if (world_entity_valid(in->storage_ent)) {
                 ItemContainer* ic = 0;
-                if ((ic = ecs_get_mut_if_ex(world_ecs(), in->storage_ent, ItemContainer))) {
+                if ((ic = ecs_get_mut_if(world_ecs(), in->storage_ent, ItemContainer))) {
                     view.has_storage_items = true;
 
                     for (int i = 0; i < ITEMS_CONTAINER_SIZE; i += 1) {
@@ -732,24 +732,4 @@ int64_t* world_chunk_query_entities(int64_t e, size_t* ents_len, int8_t radius) 
 bool world_entity_valid(ecs_entity_t e) {
     if (!e) return false;
     return ecs_is_alive(world_ecs(), e);
-}
-
-void* world_component_cached(ecs_world_t* world_ecs, ecs_entity_t entity, ecs_id_t id) {
-    if (!component_cache.entries || world.ecs_stage == NULL) {
-        return ecs_get_mut_id(world_ecs, entity, id);
-    }
-
-    static char buffer[256] = { 0 };
-    zpl_snprintf(buffer, 256, "%llu_%llu", entity, id);
-
-    uint64_t uid = zpl_crc64(buffer, zpl_strlen(buffer));
-    zpl_uintptr* value = world_component_cache_get(&component_cache, uid);
-
-    if (!value) {
-        void* the_value = ecs_get_mut_id(world_ecs, entity, id);
-        world_component_cache_set(&component_cache, uid, (zpl_uintptr)the_value);
-        value = world_component_cache_get(&component_cache, uid);
-    }
-
-    return (void*)*value;
 }

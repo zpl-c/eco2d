@@ -65,7 +65,7 @@ void PushItemsOnNodes(ecs_iter_t *it) {
         // We need a way to refer to specific blocks in the world so we can do easy block ID checks
         // and re-build the cache when a change is detected.
         
-        Producer *producer = ecs_get_mut_if_ex(it->world, it->entities[i], Producer);
+        Producer *producer = ecs_get_mut_if(it->world, it->entities[i], Producer);
         
         if (producer) {
             if (producer->push_filter == PRODUCER_PUSH_NONE)
@@ -113,7 +113,7 @@ void PushItemsOnNodes(ecs_iter_t *it) {
                 uint64_t e = item_spawn(item->kind, zpl_min(r->push_qty, item->quantity));
                 entity_set_position(e, p[i].x + push_dx[r[i].counter], p[i].y + push_dy[r[i].counter]);
                 
-                Velocity *e_vel = ecs_get_mut_ex(it->world, e, Velocity);
+                Velocity *e_vel = ecs_get_mut(it->world, e, Velocity);
                 e_vel->x = push_dx[r[i].counter];
                 e_vel->y = push_dy[r[i].counter];
                 

@@ -23,7 +23,7 @@ ZPL_DIAGNOSTIC_POP
 
 #define DEFAULT_WORLD_SEED 302097
 #define DEFAULT_CHUNK_SIZE 16 /* amount of blocks within a chunk (single axis) */
-#define DEFAULT_WORLD_SIZE 5 /* amount of chunks within a world (single axis) */
+#define DEFAULT_WORLD_SIZE 20 /* amount of chunks within a world (single axis) */
 
 /*
 	TODO

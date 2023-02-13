@@ -64,11 +64,11 @@ void CreatureSeekFood(ecs_iter_t *it) {
 		for (size_t j = 0; j < ents_count; j++) {
 			Item *drop = 0;
 			uint64_t ent_id = ents[j];
-			if ((drop = ecs_get_mut_if_ex(it->world, ent_id, Item))) {
+			if ((drop = ecs_get_mut_if(it->world, ent_id, Item))) {
 				if (drop->kind != ASSET_CREATURE_FOOD)
 					continue;
 
-				p2 = ecs_get_mut_ex(it->world, ent_id, Position);
+				p2 = ecs_get_mut(it->world, ent_id, Position);
 				float dx = p2->x - p[i].x;
 				float dy = p2->y - p[i].y;
 				float range = (dx*dx + dy*dy);
@@ -120,7 +120,7 @@ void CreatureSeekCompanion(ecs_iter_t *it) {
 		for (size_t j = 0; j < ents_count; j++) {
 			uint64_t ent_id = ents[j];
 			if (ent_id != it->entities[i] && ecs_get_if(it->world, ent_id, SeeksCompanion)) {
-				p2 = ecs_get_mut_ex(it->world, ent_id, Position);
+				p2 = ecs_get_mut(it->world, ent_id, Position);
 				float dx = p2->x - p[i].x;
 				float dy = p2->y - p[i].y;
 				float range = (dx*dx + dy*dy);

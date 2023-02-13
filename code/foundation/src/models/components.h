@@ -2,19 +2,11 @@
 #include "flecs.h"
 #include "models/assets.h"
 
-#define ecs_get_mut_ex(world, entity, T) \
-(ECS_CAST(T*, ecs_get_mut(world, entity, T)))
-
 #define ecs_get_if(world, entity, T) \
 (world_entity_valid(entity) ? ecs_get(world, entity, T) : NULL)
 
-#define ecs_get_mut_if_ex(world, entity, component) \
+#define ecs_get_mut_if(world, entity, component) \
 (ecs_get_if(world, entity, component) ? ecs_get_mut(world, entity, component) : NULL)
-
-#ifndef ecs_get_mut_if
-#define ecs_get_mut_if(world, entity, component)\
-(ecs_get(world, entity, component) ? ecs_get_mut(world, entity, component) : NULL)
-#endif
 
 #define ITEMS_INVENTORY_SIZE 9
 #define ITEMS_CONTAINER_SIZE 16

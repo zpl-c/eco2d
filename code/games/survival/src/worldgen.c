@@ -55,7 +55,7 @@ int32_t worldgen_build(world_data *wld) {
     // ground
     world_fill_rect(world->data, wall_id, 1, 1, world->dim-2, world->dim-2, NULL);
 
-    int radius = 30;
+    int radius = 90;
 
     // wide boy circle
     world_fill_circle(world->data, dirt_id, world->dim / 2, world->dim / 2, radius, NULL);
@@ -63,7 +63,7 @@ int32_t worldgen_build(world_data *wld) {
     // narrow boy cirlce
     world_fill_circle(world->data, grnd_id, world->dim / 2, world->dim / 2, (uint32_t)(radius * 0.7f), NULL);
 
-	world_fill_circle(world->data, wall_id, world->dim / 2 + 9, world->dim / 2+ 9, (uint32_t)(radius * 0.2f), NULL);
+	world_fill_circle(world->data, wall_id, world->dim / 2 + radius/3, world->dim / 2 + radius/3, (uint32_t)(radius * 0.2f), NULL);
 
     return WORLD_ERROR_NONE;
 }

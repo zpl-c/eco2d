@@ -5,6 +5,7 @@
 		<ExcludeFilter>*.obj,*.lib,*.pch,*.dll,*.pdb,.vs,Debug,Release,x64,obj,*.user,Intermediate,</ExcludeFilter>
 		<SyncFiles>true</SyncFiles>
 		<Recursive>true</Recursive>
+		<ShowEmptyFolders>true</ShowEmptyFolders>
 		<IsVirtual>false</IsVirtual>
 		<IsFolder>false</IsFolder>
 		<BuildCommand>build.bat</BuildCommand>

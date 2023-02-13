@@ -68,7 +68,7 @@ uint64_t craftbench_spawn(void) {
 uint64_t creature_spawn(void) {
 	ecs_entity_t e = entity_spawn(EKIND_DEMO_NPC);
 
-	Creature *c = ecs_get_mut_ex(world_ecs(), e, Creature);
+	Creature *c = ecs_get_mut(world_ecs(), e, Creature);
 	c->hunger_satisfied = 0;
 	c->mating_satisfied = rand() % 1800;
 	c->life_remaining = 500 + rand() % 5200;
@@ -121,7 +121,7 @@ uint64_t storage_spawn(void) {
 uint64_t mob_spawn(void) {
 	ecs_entity_t e = entity_spawn(EKIND_MONSTER);
 
-	Health *hp = ecs_get_mut_ex(world_ecs(), e, Health);
+	Health *hp = ecs_get_mut(world_ecs(), e, Health);
 	hp->max_hp = hp->hp = 100.0f;
 
 	ecs_add(world_ecs(), e, Mob);

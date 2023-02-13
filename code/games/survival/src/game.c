@@ -18,7 +18,7 @@ void mob_systems(ecs_world_t *ecs) {
 	ECS_SYSTEM_TICKED_EX(ecs, MobDetectPlayers, EcsPostUpdate, 100.0f, components.Position, components.Mob);
 	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer);
 	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee);
-	
+
 	//NOTE(DavoSK): weapons
 	ecs_mobpos_query = ecs_query_new(world_ecs(), "components.Mob, components.Position, components.Health, components.Velocity");
 	ECS_SYSTEM_TICKED(ecs, WeaponKnifeMechanic, EcsPostUpdate, components.WeaponKnife, components.Position, components.Input, !components.Dead);

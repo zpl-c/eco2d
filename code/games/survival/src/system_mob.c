@@ -74,7 +74,7 @@ void MobMeleeAtk(ecs_iter_t *it) {
 		float range = (dx*dx + dy*dy);
 
 		if (range < MOB_MELEE_DIST) {
-			Health *health = ecs_get_mut_ex(it->world, m->plr, Health);
+			Health *health = ecs_get_mut(it->world, m->plr, Health);
 			health->dmg += MOB_MELEE_DMG;
 			mob[i].atk_delay = MOB_ATK_DELAY;
 		}

@@ -81,7 +81,7 @@ item_id item_find_no_proxy(asset_id kind) {
 
 Item *item_get_data(uint64_t ent) {
     if (!world_entity_valid(ent)) return NULL;
-    return ecs_get_mut_if_ex(world_ecs(), ent, Item);
+    return ecs_get_mut_if(world_ecs(), ent, Item);
 }
 
 const Item *item_get_data_const(uint64_t ent) {

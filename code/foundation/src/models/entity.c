@@ -71,7 +71,7 @@ void entity_despawn(uint64_t ent_id) {
 
 void entity_set_position(uint64_t ent_id, float x, float y) {
 	ecs_set(world_ecs(), ent_id, Position, {x, y});
-    Position *p = ecs_get_mut_ex(world_ecs(), ent_id, Position);
+    Position *p = ecs_get_mut(world_ecs(), ent_id, Position);
     p->x = x;
     p->y = y;
     librg_entity_chunk_set(world_tracker(), ent_id, librg_chunk_from_realpos(world_tracker(), x, y, 0));
@@ -79,7 +79,7 @@ void entity_set_position(uint64_t ent_id, float x, float y) {
 }
 
 void entity_wake(uint64_t ent_id) {
-    StreamInfo *si = ecs_get_mut_ex(world_ecs(), ent_id, StreamInfo);
+    StreamInfo *si = ecs_get_mut(world_ecs(), ent_id, StreamInfo);
     si->tick_delay = 0.0f;
     si->last_update = 0.0f;
 }
@@ -110,6 +110,6 @@ void entity_update_action_timers() {
 }
 
 bool entity_can_stream(uint64_t ent_id) {
-    StreamInfo *si = ecs_get_mut_ex(world_ecs(), ent_id, StreamInfo);
+    StreamInfo *si = ecs_get_mut(world_ecs(), ent_id, StreamInfo);
     return (si->last_update < get_cached_time());
 }
