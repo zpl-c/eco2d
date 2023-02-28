@@ -119,6 +119,10 @@ typedef struct {
 } Classify;
 
 typedef struct {
+	uint8_t layer;
+} StreamLayerOverride;
+
+typedef struct {
     uint64_t seats[4];
     
     float force;
@@ -280,6 +284,7 @@ typedef struct {
     X(WeaponProjectile)\
 	X(Classify)\
 	X(Vehicle)\
+	X(StreamLayerOverride)\
 	X(IsInVehicle)\
 	X(Item)\
 	X(BlockHarvest)\

@@ -53,6 +53,7 @@ typedef struct {
     ecs_world_t *ecs_stage;
     ecs_query_t *ecs_update;
     ecs_query_t *ecs_clientinfo;
+	ecs_query_t *ecs_layeroverriden;
     ecs_entity_t *chunk_mapping;
     librg_world *tracker;
     world_pkt_reader_proc *reader_proc;

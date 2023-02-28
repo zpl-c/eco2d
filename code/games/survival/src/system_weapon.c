@@ -33,6 +33,7 @@ void WeaponKnifeMechanic(ecs_iter_t* it) {
                 .origin_x = pos[i].x,
                 .origin_y = pos[i].y
                 });
+			ecs_set(it->world, e, StreamLayerOverride, { .layer = 0 });
 
             ecs_set(it->world, e, Rotation, {
                 .angle = zpl_to_degrees(zpl_arctan2(input[i].hx, input[i].hy))

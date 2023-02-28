@@ -321,6 +321,7 @@ void world_setup_ecs(void) {
     ECS_IMPORT(world.ecs, Systems);
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
     world.ecs_clientinfo = ecs_query_new(world.ecs, "components.ClientInfo");
+	world.ecs_layeroverriden = ecs_query_new(world.ecs, "components.StreamLayerOverride");
 }
 
 static inline
@@ -396,15 +397,45 @@ int32_t world_destroy(void) {
 }
 
 #define WORLD_LIBRG_BUFSIZ 2000000
+#define WORLD_MAX_OVERRIDABLES 8192
 
 static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
     if (world.tracker_update[ticker] > (float)(get_cached_time())) return;
     world.tracker_update[ticker] = (float)(get_cached_time()) + freq;
 
     profile(PROF_WORLD_WRITE) {
+		// move along to standard streaming
         ecs_iter_t it = ecs_query_iter(world_ecs(), world.ecs_update);
         static char buffer[WORLD_LIBRG_BUFSIZ] = { 0 };
         world.active_layer_id = ticker;
+
+		// temporary storage for overridables
+		static struct overridable_pair {
+			uint64_t e;
+			uint8_t state;
+		} overridables[WORLD_MAX_OVERRIDABLES] = { 0 };
+		uint16_t overridables_count = 0;
+
+		// check overridables first
+		{
+			ecs_iter_t it2 = ecs_query_iter(world_ecs(), world.ecs_layeroverriden);
+			while (ecs_query_next(&it2)) {
+				StreamLayerOverride *slo = ecs_field(&it2, StreamLayerOverride, 1);
+
+				for (int j = 0; j < it2.count; j++) {
+					if (overridables_count == WORLD_MAX_OVERRIDABLES)
+						break;
+					if (slo[j].layer == ticker) {
+						overridables[overridables_count] = (struct overridable_pair){
+							.e = it2.entities[j],
+							.state = librg_entity_visibility_global_get(world.tracker, it2.entities[j])
+						};
+						overridables_count++;
+						librg_entity_visibility_global_set(world.tracker, it2.entities[j], LIBRG_VISIBLITY_ALWAYS);
+					}
+				}
+			}
+		}
 
         while (ecs_query_next(&it)) {
             ClientInfo* p = ecs_field(&it, ClientInfo, 1);
@@ -428,13 +459,17 @@ static void world_tracker_update(uint8_t ticker, float freq, uint8_t radius) {
             }
         }
 
+		// revert visibility state for overridables
+		for (uint16_t i = 0; i < overridables_count; i++) {
+			librg_entity_visibility_global_set(world.tracker, overridables[i].e, overridables[i].state);
+		}
+
         world_snapshot_clear(&streamer_snapshot);
     }
 }
 
 int32_t world_update() {
     profile(PROF_UPDATE_SYSTEMS) {
-        world_component_cache_clear(&component_cache);
         ecs_progress(world.ecs, 0.0f);
     }
 
