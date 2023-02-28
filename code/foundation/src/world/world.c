@@ -19,11 +19,9 @@
 #define ECO2D_STREAM_ACTIONFILTER 1
 
 ZPL_TABLE(static, world_snapshot, world_snapshot_, entity_view);
-ZPL_TABLE(static, world_component_cache, world_component_cache_, zpl_uintptr); // TODO(inlife): not use for long
 
 static world_data world = { 0 };
 static world_snapshot streamer_snapshot;
-static world_component_cache component_cache;
 
 entity_view* world_build_entity_view(int64_t e) {
     entity_view* cached_ev = world_snapshot_get(&streamer_snapshot, e);
@@ -333,7 +331,6 @@ void world_init_mapping(void) {
     world.islands_count = zpl_malloc(sizeof(world.islands_count[0]) * zpl_square(world.chunk_amount));
     world.islands = zpl_malloc(sizeof(collision_island) * 16 * zpl_square(world.chunk_amount));
     world_snapshot_init(&streamer_snapshot, zpl_heap());
-    world_component_cache_init(&component_cache, zpl_heap());
 }
 
 static inline
@@ -392,7 +389,6 @@ int32_t world_destroy(void) {
     zpl_mfree(world.islands_count);
     zpl_mfree(world.islands);
     world_snapshot_destroy(&streamer_snapshot);
-    world_component_cache_destroy(&component_cache);
     zpl_memset(&world, 0, sizeof(world));
 
     zpl_printf("[INFO] World was destroyed.\n");
