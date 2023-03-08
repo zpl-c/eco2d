@@ -44,9 +44,9 @@
 * tile - basic thing that makes up the chunks
 * block - 2nd level of things that make up the chunk
 * chunk - entity that contains set of tiles and blocks
-* object - an grid-independant static entity that can exist in the world
-* entity - a dynamic object that can change position within the world
 * item - an entity in the world, that can have a different state when its picked up
+* crafting recipe - a recipe that can be used to craft an item
+* entity - an grid-independant static or dynamic entity that can exist in the world and has some systems controlling it
 
 
 ## Naming
@@ -61,6 +61,16 @@
 * entity
     * objects
     * players
-    * nps
+    * npc
     * vehicles
     * items
+
+
+## Features
+* In-memory lists
+    * assets
+    * items
+    * crafting recepies
+    * prafabs for entities (pipeline for entities)
+* built in server->client RPC
+* 

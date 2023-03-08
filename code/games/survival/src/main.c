@@ -21,6 +21,11 @@ typedef enum efd_asset_type {
     EFD_ASSET_COUNT_TYPES,
 } efd_asset_type;
 
+// define amount of memeory reserved for???
+// custom data within COMMAND (cli->ser) and SNAPSHOT (ser->cli)
+#define EFD_COMMAND_SIZE 64 * 1024
+#define EFD_SNAPSHOT_SIZE 128 * 1024
+
 typedef struct efd_app_desc {
     const char *name;
     int debug_ui;
@@ -116,6 +121,10 @@ enum {
     ASSET_CHEST,
     ASSET_MONSTER,
 
+    ASSET_ITEM_WOOD,
+    ASSET_ITEM_STONE,
+    ASSET_ITEM_IRON,
+
     /* animations */
     ASSET_PLAYER_ANIM = EFD_ASSET(EFD_ASSET_ANIMATION),
 
@@ -145,65 +154,30 @@ void Move(ecs_iter_t *it) {
     }
 }
 
+
 efd_result init() {
-    // register assets
-    {
-        // register textures (tiles)
-        efd_asset_add(ASSET_TILE_DIRT, "assets/tile_dirt.png");
-        efd_asset_add(ASSET_TILE_GRASS, "assets/tilegrass.png");
-        efd_asset_add(ASSET_TILE_STONE, "assets/tilestone.png");
+    // NOTE: control sets could be implemented later on
+    // // register game specific input bindings
+    // // pre-defined bindings and controlsets
+    // efd_controlset_apply(EFD_ACTION_MOVE, EFD_CONTROLSET_WASD | EFD_CONTROLSET_ARROWS | EFD_CONTROLSET_GAMEPAD_LEFT);
+    // efd_controlset_apply(EFD_ACTION_POINT, EFD_CONTROLSET_MOUSE | EFD_CONTROLSET_GAMEPAD_RIGHT);
 
-        // register textures (blocks)
-        efd_asset_add(ASSET_BLOCK_STONE, "assets/block_stone.png");
-        efd_asset_add(ASSET_BLOCK_BRICK, "assets/block_brick.png");
+    // // custom bindings and controlsets
+    // efd_controlset_keyboard(CONTROLSET_ACCELERATE, EFD_KEY_DOWN, EFD_KEY_SHIFT_LEFT | EFD_KEY_SHIFT_RIGHT);
+    // efd_controlset_gamepad(CONTROLSET_ACCELERATE, EFD_GAMEPAD_LEFT_TRIGGER, 0.5f);
+    // efd_controlset_apply(EFD_ACTION_SPRINT, CONTROLSET_ACCERLATE);
 
-        // register textures (entities)
-        efd_asset_add(ASSET_PLAYER, "assets/player.png");
-        efd_asset_add(ASSET_TREE, "assets/tree.png");
-        efd_asset_add(ASSET_CHEST, "assets/chest.png");
-        efd_asset_add(ASSET_MONSTER, "assets/monster.png");
+    // // custom input bindings for custom actions
+    // efd_controlset_register(ACTION_USE);
+    // efd_controlset_keyboard(CONTROLSET_USE, EFD_KEY_DOWN, EFD_KEY_E);
+    // efd_controlset_gamepad(CONTROLSET_USE, EFD_GAMEPAD_BUTTON_A, 0.5f);
+    // efd_controlset_apply(ACTION_USE, CONTROLSET_USE);
 
-        // register animations
-        efd_asset_add(ASSET_PLAYER_ANIM, "assets/player.anim");
+    return 0;
+}
 
-        // register sounds
-        efd_asset_add(ASSET_PLAYER_SOUND, "assets/player.ogg");
-        efd_asset_add(ASSET_TREE_SOUND, "assets/tree.ogg");
-
-        // register fonts
-        efd_asset_add(ASSET_FONT_DEFAULT, "assets/font.ttf");
-    }
-
-    // define world generation rules, load existing world
-    // or set up a custom pipeline to generate a new one
-    // efd_world_load("worlds/default.json");
-
-    // register tooltips
-    efd_tooltip_add("ASSET_TREE", "A tree, it's a tree, what do you expect?");
-    efd_tooltip_add("ASSET_CHEST", "A chest, it's a chest, what do you expect?");
-
-    // 1. define itself
-    // 2. render itself
-    // 3. register types for sedning data
-    // 4. define systems and components
-
-    ECS_SYSTEM(efd_world(), Move, EcsOnUpdate, Position, [in] Velocity);
-
-    // register game specific input bindings
-    // pre-defined bindings and controlsets
-    efd_controlset_apply(EFD_ACTION_MOVE, EFD_CONTROLSET_WASD | EFD_CONTROLSET_ARROWS | EFD_CONTROLSET_GAMEPAD_LEFT);
-    efd_controlset_apply(EFD_ACTION_POINT, EFD_CONTROLSET_MOUSE | EFD_CONTROLSET_GAMEPAD_RIGHT);
-
-    // custom bindings and controlsets
-    efd_controlset_keyboard(CONTROLSET_ACCELERATE, EFD_KEY_DOWN, EFD_KEY_SHIFT_LEFT | EFD_KEY_SHIFT_RIGHT);
-    efd_controlset_gamepad(CONTROLSET_ACCELERATE, EFD_GAMEPAD_LEFT_TRIGGER, 0.5f);
-    efd_controlset_apply(EFD_ACTION_SPRINT, CONTROLSET_ACCERLATE);
-
-    // custom input bindings for custom actions
-    efd_controlset_register(ACTION_USE);
-    efd_controlset_keyboard(CONTROLSET_USE, EFD_KEY_DOWN, EFD_KEY_E);
-    efd_controlset_gamepad(CONTROLSET_USE, EFD_GAMEPAD_BUTTON_A, 0.5f);
-    efd_controlset_apply(ACTION_USE, CONTROLSET_USE);
+efd_result systems(efd_world *w) {
+    ECS_SYSTEM(w, Move, EcsOnUpdate, Position, [in] Velocity);
 
     return 0;
 }
@@ -267,6 +241,7 @@ efd_app_desc efd_main() {
 
         /* primary callbacks */
         .init_cb = init,
+        .system_cb = systems,
         .update_cb = update,
         .render_cb = render,
         .player_join_cb = player_join,
@@ -279,6 +254,93 @@ efd_app_desc efd_main() {
             .item_drop_radius = 15.0f,
             .item_attract_radius = 75.0f,
             .item_attract_force = 0.1f,
+        },
+
+        .assets = {
+            {ASSET_PLAYER, "assets/player.png"},
+            {ASSET_MONSTER, "assets/monster.png"},
+
+            {ASSET_ITEM_WOOD, "assets/item_wood.png"},
+            {ASSET_ITEM_STONE, "assets/item_stone.png"},
+            {ASSET_ITEM_IRON, "assets/item_iron.png"},
+
+            {ASSET_TREE, "assets/tree.png"},
+            {ASSET_CHEST, "assets/chest.png"},
+        },
+
+        .tiles = {
+            {ASSET_EMPTY,       EFD_FLAG_NONE, 'E'},
+            {ASSET_GROUND,      EFD_FLAG_NONE, '.', .drag = 1.0f, .friction = 1.0f},
+            {ASSET_DIRT,        EFD_FLAG_NONE, ',', .drag = 2.1f , .friction = 1.0f},
+            {ASSET_WATER,       EFD_FLAG_NONE, '~', .drag = 0.11f , .friction = 10.0f},
+            {ASSET_LAVA,        EFD_FLAG_HAZARD, '!', .drag = 6.2f , .friction = 40.0f},
+        },
+
+        .blocks = {
+            {ASSET_WALL,        EFD_FLAG_COLLISION, '#', .bounce = 1.0f},
+            {ASSET_HILL,        EFD_FLAG_COLLISION, '^'},
+            {ASSET_HILL_SNOW,   EFD_FLAG_COLLISION, '*'},
+            {ASSET_FENCE,       EFD_FLAG_COLLISION, '[', .bounce = 1.0f},
+            {ASSET_WOOD,        EFD_FLAG_COLLISION, ']', .bounce = 0.0f},
+            {ASSET_TREE,        EFD_FLAG_COLLISION|EFD_FLAG_DESTROY_ON_COLLISION, '@', .bounce = 0.0f},
+            {ASSET_CHEST,       EFD_FLAG_ENTITY, 'C'},
+            {ASSET_FURNACE,     EFD_FLAG_ENTITY, 'F'},
+            {ASSET_TEST_TALL,   EFD_FLAG_COLLISION, '.'},
+
+            {ASSET_BELT_LEFT,   EFD_FLAG_NONE, '@', .velx = -150.0f},
+            {ASSET_BELT_RIGHT,  EFD_FLAG_NONE, '@', .velx = 150.0f},
+            {ASSET_BELT_UP,     EFD_FLAG_NONE, '@', .vely = -150.0f},
+            {ASSET_BELT_DOWN,   EFD_FLAG_NONE, '@', .vely = 150.0f},
+        },
+
+        .items = {
+            {ITEM_WOOD, ASSET_ITEM_WOOD, "Wood", "A piece of wood."},
+            {ITEM_STONE, ASSET_ITEM_STONE, "Stone", "A piece of stone."},
+        },
+
+        .crafting = {
+            {
+                .producer = ASSET_FURNACE,
+                .process_ticks = 20,
+                .reagents = {
+                    { .item = ASSET_IRON_ORE, .qty = 1 },
+                },
+                .products = {
+                    { .item = ASSET_IRON_PLATES, .qty = 4 },
+                },
+            },
+            {
+                .producer = ASSET_CRAFTBENCH,
+                .process_ticks = 40,
+                .reagents = {
+                    { .item = ASSET_IRON_PLATES, .qty = 1 },
+                },
+                .products = {
+                    { .item = ASSET_SCREWS, .qty = 8 },
+                },
+            },
+            {
+                .producer = ASSET_ASSEMBLER,
+                .production_ticks = 120,
+                .reagents = {
+                    { .item = ASSET_FENCE, .qty = 1 },
+                    { .item = ASSET_SCREWS, .qty = 4 },
+                    { .item = ASSET_IRON_PLATES, .qty = 2 },
+                },
+                .products = {
+                    { .item = ASSET_BELT, .qty = 1 },
+                },
+            }
+        },
+
+        .entities = {
+            {ENTITY_TREE, ASSET_TREE, "Tree", "A tree."},
+            {ENTITY_CHEST, ASSET_CHEST, "Chest", "A chest."},
+        },
+
+        .tooltips = {
+            {"ASSET_BLOCK_STONE", "It's a block of stone, what did you expect?"},
+            {"ASSET_BLOCK_BRICK", "It's a block of brick, what did you expect?"},
         },
     };
 }
