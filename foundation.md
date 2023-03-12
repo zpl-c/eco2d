@@ -41,12 +41,12 @@
 * world - a map of chunks within the game world
 * world-view - a representation of the world recreated by the client
 ----------
+* chunk - entity that contains set of tiles and blocks
 * tile - basic thing that makes up the chunks
 * block - 2nd level of things that make up the chunk
-* chunk - entity that contains set of tiles and blocks
-* item - an entity in the world, that can have a different state when its picked up
-* crafting recipe - a recipe that can be used to craft an item
 * entity - an grid-independant static or dynamic entity that can exist in the world and has some systems controlling it
+* item - an entity in the world, that can have a different state when its picked up
+* crafting - a recipe that can be used to craft an item
 
 
 ## Naming
@@ -58,12 +58,14 @@
 * prefix: efd_
 
 ## Objects
-* entity
-    * objects
-    * players
-    * npc
-    * vehicles
-    * items
+    * tile
+    * block
+    * entity
+        * npc
+        * player
+        * vehicle
+    * item
+    * craft
 
 
 ## Features
