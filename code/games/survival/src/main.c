@@ -10,6 +10,7 @@ typedef int efd_app;
 typedef uint16_t efd_entity_type;
 typedef int32_t efd_result;
 typedef void * efd_world;
+typedef int efd_entid;
 
 // define amount of memeory reserved for???
 // custom data within COMMAND (cli->ser) and SNAPSHOT (ser->cli)
@@ -21,45 +22,69 @@ typedef void * efd_world;
 #define EFD_TYPE(id) ((id - 1) >> EFD_TYPE_SHIFT)
 #define EFD_END 0
 
-typedef enum efd_asset_type {
-    EFD_NONE = 0,
-    EFD_TEXTURE,
-    EFD_TEXTURE_ATLAS,
-    EFD_ANIMATION,
-    EFD_SOUND,
-    EFD_FONT,
-    EFD_SHADER,
-} efd_asset_type;
+typedef enum efd_instance_type {
+    EFD_TYPE_NONE = 0,
 
-typedef enum efd_object_type {
-    EFD_TYPE_NONE,
+    /* chunk */
     EFD_TYPE_TILE,
     EFD_TYPE_BLOCK,
-    EFD_TYPE_ENTITY,
-    EFD_TYPE_ITEM,
-    EFD_TYPE_CRAFT,
     EFD_TYPE_CHUNK,
 
-    EFD_TYPE_TYPE_LAST,
-    EFD_TYPE_TYPE_MAX = 0xFFFF,
-} efd_object_type;
+    /* entities */
+    EFD_TYPE_ITEM,
+    EFD_TYPE_OBJECT,
+    EFD_TYPE_DEVICE,
+    EFD_TYPE_VEHICLE,
+    EFD_TYPE_MOB,
+    EFD_TYPE_PLAYER,
+
+    /* other */
+    EFD_TYPE_OTHER,
+
+    /* utils */
+    EFD_TYPE_LAST,
+    EFD_TYPE_MAX = 0xFFFF,
+} efd_instance_type;
 
 typedef enum efd_flags {
     EFD_FLAG_COLLISION = (1 << 1),
     EFD_FLAG_HAZARD = (1 << 2),
     EFD_FLAG_ESSENTIAL = (1 << 3),
     EFD_FLAG_DESTROY_ON_COLLISION = (1 << 4),
-    EFD_FLAG_AI = (1 << 5),
-    EFD_FLAG_PLAYER = (1 << 6),
-    EFD_FLAG_VEHICLE = (1 << 7),
 } efd_flags;
+
+
+// assets
+
+typedef enum efd_asset_type {
+    EFD_NONE = 0,
+    EFD_TEXTURE,
+    EFD_ANIMATION,
+    EFD_SOUND,
+    EFD_FONT,
+    EFD_SHADER,
+} efd_asset_type;
+
+typedef enum efd_asset_flags {
+    EFD_FLAG_ATLAS = (1 << 1),   // texture is an atlas and has multiple frames
+    EFD_FLAG_LOOPED = (1 << 2),  // frames are looped sequentially (requrires EFD_FLAG_ATLAS, can be combined with EFD_FLAG_RANDOM)
+    EFD_FLAG_RANDOM = (1 << 3),  // one of the frames is randomly chosen (requrires EFD_FLAG_ATLAS, can be combined with EFD_FLAG_LOOPED)
+    EFD_FLAG_COMPLEX = (1 << 4), // frames have a complex state system and require a separate asset with EFD_ANIMATION type
+} efd_asset_flags;
 
 typedef struct efd_asset {
     efd_asset_type type;
     int id;
     const char *path;
-    void *data; /* TODO: make a union */
+    int32_t flags;
+    struct {
+        int size_x;
+        int size_y;
+    } atlas;
+    void *data;
 } efd_asset;
+
+// objects
 
 typedef struct efd_tile {
     int id;
@@ -76,33 +101,35 @@ typedef struct efd_block {
     int vely;
 } efd_block;
 
-typedef struct efd_entity {
-    int id;
-    int flags;
-} efd_entity;
-
-typedef struct efd_item {
-    int id;
-    const char *t1;
-    const char *t2;
-} efd_item;
-
-typedef struct efd_craft_item {
+typedef struct efd_item_list {
     int id;
     int qty;
-} efd_craft_item;
+} efd_item_list;
 
 typedef struct efd_craft {
     int producer;
     int ticks;
-    efd_craft_item *input;
-    efd_craft_item *output;
+    efd_item_list *input;
+    efd_item_list *output;
 } efd_craft;
 
 typedef struct efd_tooltip {
     const char *title;
     const char *description;
 } efd_tooltip;
+
+typedef struct efd_entity {
+    int id;
+    int flags;
+    int stack;
+    union {
+        int durability;
+        int health;
+    };
+    efd_result (*spawn_cb)(efd_entid);
+    efd_item_list *drop;
+} efd_entity;
+
 
 typedef struct efd_app_desc {
     const char *name;
@@ -123,8 +150,8 @@ typedef struct efd_app_desc {
     efd_result (*system_cb)();
     efd_result (*update_cb)();
     efd_result (*render_cb)(efd_entity_type type);
-    efd_result (*player_join_cb)(efd_entity player_id);
-    efd_result (*player_leave_cb)(efd_entity player_id);
+    efd_result (*player_join_cb)(efd_entid player_id);
+    efd_result (*player_leave_cb)(efd_entid player_id);
     efd_result (*cleanup_cb)();
 
     struct {
@@ -139,7 +166,6 @@ typedef struct efd_app_desc {
     efd_tile *tiles;
     efd_block *blocks;
     efd_entity *entities;
-    efd_item *items;
     efd_craft *crafting;
     efd_tooltip *tooltips;
 } efd_app_desc;
@@ -155,64 +181,50 @@ enum {
     TILE_WATER,
     TILE_LAVA,
 
-    BLOCK_STONE = EFD_ID(EFD_TYPE_BLOCK),
-    BLOCK_BRICK,
+    BLOCK_AIR = EFD_ID(EFD_TYPE_BLOCK),
+    BLOCK_WOOD,
     BLOCK_HILL,
     BLOCK_HILL_SNOW,
-    BLOCK_FENCE,
-    BLOCK_WOOD,
-    BLOCK_WALL,
+    BLOCK_FENCE_LEFT,
+    BLOCK_FENCE_RIGHT,
+    BLOCK_FENCE_UP,
+    BLOCK_FENCE_DOWN,
+    BLOCK_WALL_LEFT,
+    BLOCK_WALL_RIGHT,
+    BLOCK_WALL_UP,
+    BLOCK_WALL_DOWN,
     BLOCK_BELT_LEFT,
     BLOCK_BELT_RIGHT,
     BLOCK_BELT_UP,
     BLOCK_BELT_DOWN,
 
-    ENTITY_PLAYER = EFD_ID(EFD_TYPE_ENTITY),
-    ENTITY_MONSTER,
-    ENTITY_TRUCK,
-    ENTITY_TREE,
-    ENTITY_CHEST,
+    ENTITY_IRON_ORE = EFD_ID(EFD_TYPE_ITEM),
+    ENTITY_IRON_INGOT,
+    ENTITY_IRON_PLATE,
+    ENTITY_SCREW,
+    ENTITY_BELT,
+
+    ENTITY_FIR_TREE = EFD_ID(EFD_TYPE_OBJECT),
+    ENTITY_OAK_TREE,
+
+    ENTITY_CHEST = EFD_ID(EFD_TYPE_DEVICE),
     ENTITY_FURNACE,
     ENTITY_CRAFTBENCH,
     ENTITY_ASSEMBLER,
 
-    ITEM_IRON_ORE = EFD_ID(EFD_TYPE_ITEM),
-    ITEM_IRON_INGOT,
-    ITEM_IRON_PLATE,
-    ITEM_SCREW,
-    ITEM_BELT,
+    ENTITY_MONSTER = EFD_ID(EFD_TYPE_MOB),
+    ENTITY_RABBIT,
+    ENTITY_BOAR,
+    ENTITY_BIZON,
+    ENTITY_BEAR,
+
+    ENTITY_TRUCK = EFD_ID(EFD_TYPE_VEHICLE),
+    ENTITY_CAR,
+
+    ENTITY_PLAYER = EFD_ID(EFD_TYPE_PLAYER),
 };
 
-// void Move(ecs_iter_t *it) {
-//     // Get fields from system query
-//     Position *p = ecs_field(it, Position, 1);
-//     Velocity *v = ecs_field(it, Velocity, 2);
-
-//     // Iterate matched entities
-//     for (int i = 0; i < it->count, i++) {
-//         p[i].x += v[i].x;
-//         p[i].y += v[i].y;
-//     }
-// }
-
 efd_result init() {
-    // NOTE: control sets could be implemented later on
-    // // register game specific input bindings
-    // // pre-defined bindings and controlsets
-    // efd_controlset_apply(EFD_ACTION_MOVE, EFD_CONTROLSET_WASD | EFD_CONTROLSET_ARROWS | EFD_CONTROLSET_GAMEPAD_LEFT);
-    // efd_controlset_apply(EFD_ACTION_POINT, EFD_CONTROLSET_MOUSE | EFD_CONTROLSET_GAMEPAD_RIGHT);
-
-    // // custom bindings and controlsets
-    // efd_controlset_keyboard(CONTROLSET_ACCELERATE, EFD_KEY_DOWN, EFD_KEY_SHIFT_LEFT | EFD_KEY_SHIFT_RIGHT);
-    // efd_controlset_gamepad(CONTROLSET_ACCELERATE, EFD_GAMEPAD_LEFT_TRIGGER, 0.5f);
-    // efd_controlset_apply(EFD_ACTION_SPRINT, CONTROLSET_ACCERLATE);
-
-    // // custom input bindings for custom actions
-    // efd_controlset_register(ACTION_USE);
-    // efd_controlset_keyboard(CONTROLSET_USE, EFD_KEY_DOWN, EFD_KEY_E);
-    // efd_controlset_gamepad(CONTROLSET_USE, EFD_GAMEPAD_BUTTON_A, 0.5f);
-    // efd_controlset_apply(ACTION_USE, CONTROLSET_USE);
-
     return 0;
 }
 
@@ -228,7 +240,7 @@ efd_result update() {
 
 efd_result render(efd_entity_type type) {
     // switch (type) {
-    //     case EFD_ENTITY_PLAYER:
+    //     case ENTITY_PLAYER:
     //         /* additional/replacable rendering code on top of what EFD provides for built-in types */
     //         efd_render_texture(ENTITY_PLAYER, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -248,16 +260,24 @@ efd_result render(efd_entity_type type) {
     return 0;
 }
 
-efd_result player_join(efd_entity player) {
+efd_result player_join(efd_entid player) {
     // efd_notify_push(player, "Test", "Welcome to the game!", 5.0f);
     return 0;
 }
 
-efd_result player_leave(efd_entity player) {
+efd_result player_leave(efd_entid player) {
     return 0;
 }
 
 efd_result cleanup() {
+    return 0;
+}
+
+efd_result chest_spawn(efd_entid id) {
+    return 0;
+}
+
+efd_result furnace_spawn(efd_entid id) {
     return 0;
 }
 
@@ -297,12 +317,23 @@ efd_app_desc efd_main() {
         },
 
         .assets = (efd_asset[]){
-            {EFD_TEXTURE, ENTITY_TREE, "assets/tree.png"},
+            {EFD_TEXTURE, TILE_GRASS, "assets/grass.png", EFD_FLAG_ATLAS | EFD_FLAG_RANDOM, .atlas = {4, 1}},
+            {EFD_TEXTURE, TILE_DIRT, "assets/dirt.png", EFD_FLAG_ATLAS | EFD_FLAG_RANDOM, .atlas = {4, 1}},
+            {EFD_TEXTURE, TILE_LAVA, "assets/lava.png", EFD_FLAG_ATLAS | EFD_FLAG_LOOPED, .atlas = {4, 1}},
+            {EFD_TEXTURE, TILE_WATER, "assets/water.png", EFD_FLAG_ATLAS | EFD_FLAG_RANDOM | EFD_FLAG_LOOPED, .atlas = {4, 1}},
+
+            {EFD_TEXTURE, ENTITY_OAK_TREE, "assets/tree.png"},
             {EFD_TEXTURE, ENTITY_CHEST, "assets/chest.png"},
             {EFD_TEXTURE, ENTITY_FURNACE, "assets/furnace.png"},
 
-            {EFD_TEXTURE, ENTITY_PLAYER, "assets/player.png"},
+            {EFD_TEXTURE, ENTITY_PLAYER, "assets/player.png", EFD_FLAG_ATLAS | EFD_FLAG_COMPLEX},
             {EFD_TEXTURE, ENTITY_MONSTER, "assets/monster.png"},
+
+            /* animations */
+            {EFD_ANIMATION, ENTITY_PLAYER, "assets/player.anim"},
+
+            /* sounds */
+            {EFD_SOUND, ENTITY_PLAYER, "assets/player.wav"},
 
             {EFD_END},
         },
@@ -318,11 +349,20 @@ efd_app_desc efd_main() {
         },
 
         .blocks = (efd_block[]){
-            {BLOCK_WALL, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_AIR},
             {BLOCK_HILL, EFD_FLAG_COLLISION},
             {BLOCK_HILL_SNOW, EFD_FLAG_COLLISION},
-            {BLOCK_FENCE, EFD_FLAG_COLLISION, .bounce = 1.0f},
             {BLOCK_WOOD, EFD_FLAG_COLLISION, .bounce = 0.0f},
+
+            {BLOCK_WALL_LEFT, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_WALL_RIGHT, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_WALL_UP, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_WALL_DOWN, EFD_FLAG_COLLISION, .bounce = 1.0f},
+
+            {BLOCK_FENCE_LEFT, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_FENCE_RIGHT, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_FENCE_UP, EFD_FLAG_COLLISION, .bounce = 1.0f},
+            {BLOCK_FENCE_DOWN, EFD_FLAG_COLLISION, .bounce = 1.0f},
 
             {BLOCK_BELT_LEFT, .velx = -150.0f},
             {BLOCK_BELT_RIGHT, .velx = 150.0f},
@@ -333,20 +373,22 @@ efd_app_desc efd_main() {
         },
 
         .entities = (efd_entity[]){
-            {ENTITY_TREE, EFD_FLAG_DESTROY_ON_COLLISION},
-            {ENTITY_CHEST},
-            {ENTITY_FURNACE},
+            {ENTITY_IRON_ORE, .stack = 32},
+            {ENTITY_IRON_PLATE, .stack = 32},
+            {ENTITY_SCREW, .stack = 256},
 
-            {ENTITY_PLAYER, EFD_FLAG_PLAYER},
-            {ENTITY_TRUCK, EFD_FLAG_VEHICLE},
-            {ENTITY_MONSTER, EFD_FLAG_AI},
+            {ENTITY_OAK_TREE, EFD_FLAG_DESTROY_ON_COLLISION, .drop = (efd_item_list[]){
+                {ENTITY_SCREW, 1},
+                {EFD_END},
+            }},
 
-            {EFD_END},
-        },
+            {ENTITY_CHEST, .spawn_cb = chest_spawn},
+            {ENTITY_FURNACE, .spawn_cb = furnace_spawn},
 
-        .items = (efd_item[]){
-            // {ITEM_WOOD, "Wood", "A piece of wood."},
-            // {ITEM_STONE, "Stone", "A piece of stone."},
+            {ENTITY_MONSTER, .health = 256},
+            {ENTITY_TRUCK},
+            {ENTITY_PLAYER},
+
             {EFD_END},
         },
 
@@ -354,38 +396,37 @@ efd_app_desc efd_main() {
             {
                 .producer = ENTITY_FURNACE,
                 .ticks = 20,
-                .input = (efd_craft_item[]){
-                    {ITEM_IRON_ORE, 1},
+                .input = (efd_item_list[]){
+                    {ENTITY_IRON_ORE, 1},
                     {EFD_END},
                 },
-                .output = (efd_craft_item[]){
-                    {ITEM_IRON_PLATE, 4},
+                .output = (efd_item_list[]){
+                    {ENTITY_IRON_PLATE, 4},
                     {EFD_END},
                 },
             },
             {
                 .producer = ENTITY_CRAFTBENCH,
                 .ticks = 40,
-                .input = (efd_craft_item[]){
-                    {ITEM_IRON_PLATE, 1},
+                .input = (efd_item_list[]){
+                    {ENTITY_IRON_PLATE, 1},
                     {EFD_END},
                 },
-                .output = (efd_craft_item[]){
-                    {ITEM_SCREW, 8},
+                .output = (efd_item_list[]){
+                    {ENTITY_SCREW, 8},
                     {EFD_END},
                 },
             },
             {
                 .producer = ENTITY_ASSEMBLER,
                 .ticks = 120,
-                .input = (efd_craft_item[]){
-                    {BLOCK_FENCE, 1},
-                    {ITEM_SCREW, 4},
-                    {ITEM_IRON_PLATE, 2},
+                .input = (efd_item_list[]){
+                    {ENTITY_SCREW, 4},
+                    {ENTITY_IRON_PLATE, 2},
                     {EFD_END},
                 },
-                .output = (efd_craft_item[]){
-                    {ITEM_BELT, 1},
+                .output = (efd_item_list[]){
+                    {ENTITY_BELT, 1},
                     {EFD_END},
                 },
             },
@@ -412,8 +453,8 @@ int main(int argc, char **argv) {
     printf("value: %f\n", desc.rules.item_pickup_radius);
     printf("TILE_DIRT: %d\n", TILE_DIRT);
     printf("TILE_GRASS: %d\n", TILE_GRASS);
-    printf("ENTITY_PLAYER: %d\n", ENTITY_PLAYER);
-    printf("ENTITY_CHEST: %d\n", ENTITY_CHEST);
+    printf("ENTITY_PLAYER: %d, is_valid type: %d\n", ENTITY_PLAYER, EFD_TYPE(ENTITY_PLAYER) == EFD_TYPE_PLAYER);
+    printf("ENTITY_CHEST: %d, is_valid type: %d\n", ENTITY_CHEST, EFD_TYPE(ENTITY_CHEST) == EFD_TYPE_DEVICE);
 
     desc.init_cb();
 
