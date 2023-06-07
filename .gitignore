@@ -1,4 +1,5 @@
 build
+build.*
 build_*
 emsdk
 deploy_web
@@ -19,3 +20,5 @@ GTAGS
 pkg
 pkg.zip
 eco2d.zip
+eco2d.sublime-workspace
+

@@ -243,13 +243,23 @@ void IntegratePositions(ecs_iter_t *it) {
     profile(PROF_INTEGRATE_POS) {
         Position *p = ecs_field(it, Position, 1);
         Velocity *v = ecs_field(it, Velocity, 2);
+        StreamInfo *s = ecs_field(it, StreamInfo, 3);
         
         for (int i = 0; i < it->count; i++) {
             if (ecs_get(it->world, it->entities[i], IsInVehicle)) {
                 continue;
             }
 
-			entity_set_position(it->entities[i], p[i].x+v[i].x*safe_dt(it), p[i].y+v[i].y*safe_dt(it));
+            const float safe_dt_val = safe_dt(it);
+
+			// entity_set_position(it->entities[i], p[i].x+v[i].x*safe_dt(it), p[i].y+v[i].y*safe_dt(it));
+			p[i].x += v[i].x*safe_dt_val;
+			p[i].y += v[i].y*safe_dt_val;
+
+			librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
+
+			s[i].tick_delay = 0.0f;
+    		s[i].last_update = 0.0f;
             
             {
                 debug_v2 a = {p[i].x, p[i].y};
@@ -364,7 +374,7 @@ void SystemsImport(ecs_world_t *ecs) {
 	ECS_SYSTEM(ecs, VehicleHandling, EcsOnUpdate, components.Vehicle, components.Position, components.Velocity);
 	ECS_SYSTEM(ecs, BodyCollisions, EcsOnUpdate, components.Position, components.Velocity, components.PhysicsBody, !components.TriggerOnly);
 	ECS_SYSTEM(ecs, BlockCollisions, EcsOnValidate, components.Position, components.Velocity, !components.TriggerOnly);
-	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity);
+	ECS_SYSTEM(ecs, IntegratePositions, EcsOnValidate, components.Position, components.Velocity, components.StreamInfo);
     
 	// vehicles
     ECS_SYSTEM(ecs, EnterVehicle, EcsPostUpdate, components.Input, components.Position, !components.IsInVehicle);

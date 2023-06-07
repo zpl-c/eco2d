@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "eco2d",
+			"cmd": ["build.bat"],
+			"working_dir": "$project_path",
+			"file_regex": "^(.*)\\((\\d+),?(\\d+)?\\)\\s?:\\s([^\n]+)",
+		}
+	],
+}
