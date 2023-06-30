@@ -151,6 +151,7 @@
 #define FLECS_STATS         /**< Access runtime statistics */
 #define FLECS_MONITOR       /**< Track runtime statistics periodically */
 #define FLECS_METRICS       /**< Expose component data as statistics */
+#define FLECS_ALERTS        /**< Monitor conditions for errors */
 #define FLECS_SYSTEM        /**< System support */
 #define FLECS_PIPELINE      /**< Pipeline support */
 #define FLECS_TIMER         /**< Timer support */
@@ -244,6 +245,10 @@
  * Maximum number of query variables per query */
 #define FLECS_VARIABLE_COUNT_MAX (64)
 
+/** \def FLECS_QUERY_SCOPE_NESTING_MAX 
+ * Maximum nesting depth of query scopes */
+#define FLECS_QUERY_SCOPE_NESTING_MAX (8)
+
 /** @} */
 
 /**
@@ -333,10 +338,16 @@ extern "C" {
 #define EcsIdHasOnRemove               (1u << 17) 
 #define EcsIdHasOnSet                  (1u << 18)
 #define EcsIdHasUnSet                  (1u << 19)
+#define EcsIdHasOnTableFill            (1u << 20)
+#define EcsIdHasOnTableEmpty           (1u << 21)
+#define EcsIdHasOnTableCreate          (1u << 22)
+#define EcsIdHasOnTableDelete          (1u << 23)
 #define EcsIdEventMask\
-    (EcsIdHasOnAdd|EcsIdHasOnRemove|EcsIdHasOnSet|EcsIdHasUnSet)
+    (EcsIdHasOnAdd|EcsIdHasOnRemove|EcsIdHasOnSet|EcsIdHasUnSet|\
+        EcsIdHasOnTableFill|EcsIdHasOnTableEmpty|EcsIdHasOnTableCreate|\
+            EcsIdHasOnTableDelete)
 
-#define EcsIdMarkedForDelete            (1u << 30)
+#define EcsIdMarkedForDelete           (1u << 30)
 
 /* Utilities for converting from flags to delete policies and vice versa */
 #define ECS_ID_ON_DELETE(flags) \
@@ -385,7 +396,8 @@ extern "C" {
 #define EcsFilterPopulate              (1u << 9u)  /* Populate data, ignore non-matching fields */
 #define EcsFilterHasCondSet            (1u << 10u) /* Does filter have conditionally set fields */
 #define EcsFilterUnresolvedByName      (1u << 11u) /* Use by-name matching for unresolved entity identifiers */
-
+#define EcsFilterHasPred               (1u << 12u) /* Filter has equality predicates */
+#define EcsFilterHasScopes             (1u << 13u) /* Filter has query scopes */
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Table flags (used by ecs_table_t::flags)
@@ -411,9 +423,13 @@ extern "C" {
 #define EcsTableHasOnRemove            (1u << 17u)
 #define EcsTableHasOnSet               (1u << 18u)
 #define EcsTableHasUnSet               (1u << 19u)
+#define EcsTableHasOnTableFill         (1u << 20u)
+#define EcsTableHasOnTableEmpty        (1u << 21u)
+#define EcsTableHasOnTableCreate       (1u << 22u)
+#define EcsTableHasOnTableDelete       (1u << 23u)
 
-#define EcsTableHasObserved            (1u << 20u)
-#define EcsTableHasTarget              (1u << 21u)
+#define EcsTableHasTraversable         (1u << 25u)
+#define EcsTableHasTarget              (1u << 26u)
 
 #define EcsTableMarkedForDelete        (1u << 30u)
 
@@ -1929,6 +1945,16 @@ void* (*ecs_os_api_thread_join_t)(
 typedef
 ecs_os_thread_id_t (*ecs_os_api_thread_self_t)(void);
 
+/* Tasks */
+typedef
+ecs_os_thread_t (*ecs_os_api_task_new_t)(
+    ecs_os_thread_callback_t callback,
+    void *param);
+
+typedef
+void* (*ecs_os_api_task_join_t)(
+    ecs_os_thread_t thread);
+
 /* Atomic increment / decrement */
 typedef
 int32_t (*ecs_os_api_ainc_t)(
@@ -2045,6 +2071,10 @@ typedef struct ecs_os_api_t {
     ecs_os_api_thread_new_t thread_new_;
     ecs_os_api_thread_join_t thread_join_;
     ecs_os_api_thread_self_t thread_self_;
+
+    /* Tasks */
+    ecs_os_api_thread_new_t task_new_;
+    ecs_os_api_thread_join_t task_join_;
 
     /* Atomic incremenet / decrement */
     ecs_os_api_ainc_t ainc_;
@@ -2228,6 +2258,10 @@ void ecs_os_set_api_defaults(void);
 #define ecs_os_thread_join(thread) ecs_os_api.thread_join_(thread)
 #define ecs_os_thread_self() ecs_os_api.thread_self_()
 
+/* Tasks */
+#define ecs_os_task_new(callback, param) ecs_os_api.task_new_(callback, param)
+#define ecs_os_task_join(thread) ecs_os_api.task_join_(thread)
+
 /* Atomic increment / decrement */
 #define ecs_os_ainc(value) ecs_os_api.ainc_(value)
 #define ecs_os_adec(value) ecs_os_api.adec_(value)
@@ -2331,6 +2365,10 @@ bool ecs_os_has_heap(void);
 /** Are threading functions available? */
 FLECS_API
 bool ecs_os_has_threading(void);
+
+/** Are task functions available? */
+FLECS_API
+bool ecs_os_has_task_support(void);
 
 /** Are time functions available? */
 FLECS_API
@@ -2666,13 +2704,17 @@ typedef enum ecs_oper_kind_t {
 #define EcsTraverseFlags              (EcsUp|EcsDown|EcsTraverseAll|EcsSelf|EcsCascade|EcsParent)
 
 /* Term flags discovered & set during filter creation. */
-#define EcsTermMatchAny    (1 << 0)
-#define EcsTermMatchAnySrc (1 << 1)
-#define EcsTermSrcFirstEq  (1 << 2)
-#define EcsTermSrcSecondEq (1 << 3)
-#define EcsTermTransitive  (1 << 4)
-#define EcsTermReflexive   (1 << 5)
-#define EcsTermIdInherited (1 << 6)
+#define EcsTermMatchAny               (1u << 0)
+#define EcsTermMatchAnySrc            (1u << 1)
+#define EcsTermSrcFirstEq             (1u << 2)
+#define EcsTermSrcSecondEq            (1u << 3)
+#define EcsTermTransitive             (1u << 4)
+#define EcsTermReflexive              (1u << 5)
+#define EcsTermIdInherited            (1u << 6)
+
+/* Term flags used for term iteration */
+#define EcsTermMatchDisabled          (1u << 7)
+#define EcsTermMatchPrefab            (1u << 8)
 
 /** Type that describes a single identifier in a term */
 typedef struct ecs_term_id_t {
@@ -2881,7 +2923,7 @@ typedef struct ecs_data_t ecs_data_t;
 typedef struct ecs_switch_t ecs_switch_t;
 
 /* Cached query table data */
-typedef struct ecs_query_table_node_t ecs_query_table_node_t;
+typedef struct ecs_query_table_match_t ecs_query_table_match_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Non-opaque types
@@ -3012,7 +3054,7 @@ typedef struct ecs_filter_iter_t {
 /** Query-iterator specific data */
 typedef struct ecs_query_iter_t {
     ecs_query_t *query;
-    ecs_query_table_node_t *node, *prev, *last;
+    ecs_query_table_match_t *node, *prev, *last;
     int32_t sparse_smallest;
     int32_t sparse_first;
     int32_t bitset_first;
@@ -3301,8 +3343,8 @@ void _flecs_hashmap_init(
     ecs_compare_action_t compare,
     ecs_allocator_t *allocator);
 
-#define flecs_hashmap_init(hm, K, V, compare, hash, allocator)\
-    _flecs_hashmap_init(hm, ECS_SIZEOF(K), ECS_SIZEOF(V), compare, hash, allocator)
+#define flecs_hashmap_init(hm, K, V, hash, compare, allocator)\
+    _flecs_hashmap_init(hm, ECS_SIZEOF(K), ECS_SIZEOF(V), hash, compare, allocator)
 
 FLECS_DBG_API
 void flecs_hashmap_fini(
@@ -4040,6 +4082,10 @@ FLECS_API extern const ecs_entity_t EcsPredEq;
 FLECS_API extern const ecs_entity_t EcsPredMatch;
 FLECS_API extern const ecs_entity_t EcsPredLookup;
 
+/* Builtin marker entities for opening/closing query scopes */
+FLECS_API extern const ecs_entity_t EcsScopeOpen;
+FLECS_API extern const ecs_entity_t EcsScopeClose;
+
 /** Tag used to indicate query is empty */
 FLECS_API extern const ecs_entity_t EcsEmpty;
 
@@ -4610,6 +4656,10 @@ bool ecs_enable_range_check(
     ecs_world_t *world,
     bool enable);
 
+/** Get the largest issued entity id (not counting generation).
+ * 
+ * @param world The world.
+ */
 FLECS_API
 ecs_entity_t ecs_get_max_id(
     const ecs_world_t *world);
@@ -9719,6 +9769,7 @@ int ecs_app_set_frame_action(
 #endif // FLECS_APP
 
 #endif
+
 #ifdef FLECS_HTTP
 #ifdef FLECS_NO_HTTP
 #error "FLECS_NO_HTTP failed: HTTP is required by other addons"
@@ -9964,6 +10015,7 @@ const char* ecs_http_get_param(
 #endif // FLECS_HTTP
 
 #endif
+
 #ifdef FLECS_REST
 #ifdef FLECS_NO_REST
 #error "FLECS_NO_REST failed: REST is required by other addons"
@@ -10079,6 +10131,7 @@ void FlecsRestImport(
 #endif
 
 #endif
+
 #ifdef FLECS_TIMER
 #ifdef FLECS_NO_TIMER
 #error "FLECS_NO_TIMER failed: TIMER is required by other addons"
@@ -10330,6 +10383,7 @@ void FlecsTimerImport(
 #endif
 
 #endif
+
 #ifdef FLECS_PIPELINE
 #ifdef FLECS_NO_PIPELINE
 #error "FLECS_NO_PIPELINE failed: PIPELINE is required by other addons"
@@ -10517,11 +10571,36 @@ void ecs_run_pipeline(
  * Setting this value to a value higher than 1 will start as many threads and
  * will cause systems to evenly distribute matched entities across threads. The
  * operation may be called multiple times to reconfigure the number of threads
- * used, but never while running a system / pipeline. */
+ * used, but never while running a system / pipeline. 
+ * Calling ecs_set_threads will also end the use of task threads setup with 
+ * ecs_set_task_threads and vice-versa */
 FLECS_API
 void ecs_set_threads(
     ecs_world_t *world,
     int32_t threads);
+
+/** Set number of worker task threads.
+ * ecs_set_task_threads is similar to ecs_set_threads, except threads are treated
+ * as short-lived tasks and will be created and joined around each update of the world. 
+ * Creation and joining of these tasks will use the os_api_t tasks APIs rather than the
+ * the standard thread API functions, although they may be the same if desired.
+ * This function is useful for multithreading world updates using an external
+ * asynchronous job system rather than long running threads by providing the APIs
+ * to create tasks for your job system and then wait on their conclusion. 
+ * The operation may be called multiple times to reconfigure the number of task threads
+ * used, but never while running a system / pipeline. 
+ * Calling ecs_set_task_threads will also end the use of threads setup with 
+ * ecs_set_threads and vice-versa */
+
+FLECS_API
+void ecs_set_task_threads(
+    ecs_world_t *world,
+    int32_t task_threads);
+
+/** Returns true if task thread use have been requested. */
+FLECS_API
+bool ecs_using_task_threads(
+    ecs_world_t *world);
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Module
@@ -10542,6 +10621,7 @@ void FlecsPipelineImport(
 #endif
 
 #endif
+
 #ifdef FLECS_SYSTEM
 #ifdef FLECS_NO_SYSTEM
 #error "FLECS_NO_SYSTEM failed: SYSTEM is required by other addons"
@@ -10840,6 +10920,7 @@ void FlecsSystemImport(
 #endif
 
 #endif
+
 #ifdef FLECS_STATS
 #ifdef FLECS_NO_STATS
 #error "FLECS_NO_STATS failed: STATS is required by other addons"
@@ -11272,6 +11353,7 @@ void ecs_metric_copy(
 #endif
 
 #endif
+
 #ifdef FLECS_METRICS
 #ifdef FLECS_NO_METRICS
 #error "FLECS_NO_METRICS failed: METRICS is required by other addons"
@@ -11287,9 +11369,8 @@ void ecs_metric_copy(
 #ifdef FLECS_METRICS
 
 /**
- * @defgroup c_addons_monitor Monitor
- * @brief  * The metrics module extracts metrics from components and makes them 
- *           available through a unified component interface.
+ * @defgroup c_addons_metrics Metrics
+ * @brief Collect user-defined metrics from ECS data.
  * 
  * \ingroup c_addons
  * @{
@@ -11349,30 +11430,71 @@ typedef struct EcsMetricSource {
 } EcsMetricSource;
 
 typedef struct ecs_metric_desc_t {
-    /* Entity associated with metric */
+    int32_t _canary;
+
+    /** Entity associated with metric */
     ecs_entity_t entity;
     
-    /* Entity associated with member that stores metric value. Must not be set
+    /** Entity associated with member that stores metric value. Must not be set
      * at the same time as id. Cannot be combined with EcsCounterId. */
     ecs_entity_t member;
 
-    /* Tracks whether entities have the specified component id. Must not be set
+    /** Tracks whether entities have the specified component id. Must not be set
      * at the same time as member. */
     ecs_id_t id;
 
-    /* If id is a (R, *) wildcard and relationship R has the OneOf property, the
+    /** If id is a (R, *) wildcard and relationship R has the OneOf property,
      * setting this value to true will track individual targets. 
      * If the kind is EcsCountId and the id is a (R, *) wildcard, this value
      * will create a metric per target. */
     bool targets;
 
-    /* Must be EcsGauge, EcsCounter, EcsCounterIncrement or EcsCounterId */
+    /** Must be EcsGauge, EcsCounter, EcsCounterIncrement or EcsCounterId */
     ecs_entity_t kind;
 
-    /* Description of metric. Will only be set if FLECS_DOC addon is enabled */
+    /** Description of metric. Will only be set if FLECS_DOC addon is enabled */
     const char *brief;
 } ecs_metric_desc_t;
 
+/** Create a new metric.
+ * Metrics are entities that store values measured from a range of different
+ * properties in the ECS storage. Metrics provide a single unified interface to
+ * discovering and reading these values, which can be useful for monitoring
+ * utilities, or for debugging.
+ * 
+ * Examples of properties that can be measured by metrics are:
+ *  - Component member values
+ *  - How long an entity has had a specific component
+ *  - How long an entity has had a specific target for a relationship
+ *  - How many entities have a specific component
+ * 
+ * Metrics can either be created as a "gauge" or "counter". A gauge is a metric
+ * that represents the value of something at a specific point in time, for
+ * example "velocity". A counter metric represents a value that is monotonically
+ * increasing, for example "miles driven".
+ * 
+ * There are three different kinds of counter metric kinds:
+ * - EcsCounter
+ *   When combined with a member, this will store the actual value of the member
+ *   in the metric. This is useful for values that are already counters, such as
+ *   a MilesDriven component.
+ *   This kind creates a metric per entity that has the member/id.
+ * 
+ * - EcsCounterIncrement
+ *   When combined with a member, this will increment the value of the metric by
+ *   the value of the member * delta_time. This is useful for values that are
+ *   not counters, such as a Velocity component.
+ *   This kind creates a metric per entity that has the member.
+ * 
+ * - EcsCounterId
+ *   This metric kind will count the number of entities with a specific 
+ *   (component) id. This kind creates a single metric instance for regular ids,
+ *   and a metric instance per target for wildcard ids when targets is set.
+ * 
+ * @param world The world.
+ * @param desc Metric description.
+ * @return The metric entity.
+ */
 FLECS_API
 ecs_entity_t ecs_metric_init(
     ecs_world_t *world,
@@ -11405,12 +11527,226 @@ void FlecsMetricsImport(
 #endif
 
 #endif
+
+#ifdef FLECS_ALERTS
+#ifdef FLECS_NO_ALERTS
+#error "FLECS_NO_ALERTS failed: ALERTS is required by other addons"
+#endif
+/**
+ * @file addons/alerts.h
+ * @brief Alerts module.
+ *
+ * The alerts module enables applications to register alerts for when certain
+ * conditions are met. Alerts are registered as queries, and automatically
+ * become active when entities match the alert query.
+ */
+
+#ifdef FLECS_ALERTS
+
+/**
+ * @defgroup c_addons_alerts Alerts
+ * @brief Create alerts from monitoring queries.
+ * 
+ * \ingroup c_addons
+ * @{
+ */
+
+#ifndef FLECS_ALERTS_H
+#define FLECS_ALERTS_H
+
+#ifndef FLECS_RULES
+#define FLECS_RULES
+#endif
+
+#ifndef FLECS_PIPELINE
+#define FLECS_PIPELINE
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define ECS_ALERT_MAX_SEVERITY_FILTERS (4)
+
+/* Module id */
+FLECS_API extern ECS_COMPONENT_DECLARE(FlecsAlerts);
+
+/* Module components */
+
+/** Tag added to alert, and used as first element of alert severity pair */
+FLECS_API extern ECS_COMPONENT_DECLARE(EcsAlert);
+FLECS_API extern ECS_COMPONENT_DECLARE(EcsAlertInstance);
+FLECS_API extern ECS_COMPONENT_DECLARE(EcsAlertsActive);
+
+/* Alert severity tags */
+FLECS_API extern ECS_TAG_DECLARE(EcsAlertInfo);
+FLECS_API extern ECS_TAG_DECLARE(EcsAlertWarning);
+FLECS_API extern ECS_TAG_DECLARE(EcsAlertError);
+FLECS_API extern ECS_TAG_DECLARE(EcsAlertCritical);
+
+/** Alert information. Added to each alert instance */
+typedef struct EcsAlertInstance {
+    char *message;
+} EcsAlertInstance;
+
+/** Map with active alerts for entity. */
+typedef struct EcsAlertsActive {
+    ecs_map_t alerts;
+} EcsAlertsActive;
+
+typedef struct ecs_alert_severity_filter_t {
+    ecs_entity_t severity; /* Severity kind */
+    ecs_id_t with;         /* Component to match */
+    const char *var;       /* Variable to match component on. Do not include the
+                            * '$' character. Leave to NULL for $this. */
+    int32_t _var_index;    /* Index of variable in filter (do not set) */
+} ecs_alert_severity_filter_t;
+
+typedef struct ecs_alert_desc_t { 
+    int32_t _canary;
+
+    /** Entity associated with alert */
+    ecs_entity_t entity;
+
+    /** Alert query. An alert will be created for each entity that matches the
+     * specified query. The query must have at least one term that uses the
+     * $this variable (default). */
+    ecs_filter_desc_t filter;
+
+    /** Template for alert message. This string is used to generate the alert
+     * message and may refer to variables in the query result. The format for
+     * the template expressions is as specified by ecs_interpolate_string.
+     * 
+     * Examples:
+     *   "$this has Position but not Velocity"
+     *   "$this has a parent entity $parent without Position"
+     */
+    const char *message;
+
+    /** User friendly name. Will only be set if FLECS_DOC addon is enabled. */
+    const char *doc_name;
+
+    /** Description of alert. Will only be set if FLECS_DOC addon is enabled */
+    const char *brief;
+
+    /** Metric kind. Must be EcsAlertInfo, EcsAlertWarning, EcsAlertError or 
+     * EcsAlertCritical. Defaults to EcsAlertError. */
+    ecs_entity_t severity;
+
+    /** Severity filters can be used to assign different severities to the same
+     * alert. This prevents having to create multiple alerts, and allows 
+     * entities to transition between severities without resetting the 
+     * alert duration (optional). */
+    ecs_alert_severity_filter_t severity_filters[ECS_ALERT_MAX_SEVERITY_FILTERS];
+
+    /** The retain period specifies how long an alert must be inactive before it
+     * is cleared. This makes it easier to track noisy alerts. While an alert is
+     * inactive its duration won't increase. 
+     * When the retain period is 0, the alert will clear immediately after it no
+     * longer matches the alert query. */
+    ecs_ftime_t retain_period;
+
+    /** Alert when member value is out of range. Uses the warning/error ranges
+     * assigned to the member in the MemberRanges component (optional). */
+    ecs_entity_t member;
+
+    /** (Component) id of member to monitor. If left to 0 this will be set to
+     * the parent entity of the member (optional). */
+    ecs_id_t id;
+
+    /** Variable from which to fetch the member (optional). When left to NULL
+     * 'id' will be obtained from $this. */
+    const char *var;
+} ecs_alert_desc_t;
+
+/** Create a new alert.
+ * An alert is a query that is evaluated periodically and creates alert 
+ * instances for each entity that matches the query. Alerts can be used to 
+ * automate detection of errors in an application.
+ * 
+ * Alerts are automatically cleared when a query is no longer true for an alert
+ * instance. At most one alert instance will be created per matched entity.
+ * 
+ * Alert instances have three components:
+ * - AlertInstance: contains the alert message for the instance
+ * - MetricSource: contains the entity that triggered the alert
+ * - MetricValue: contains how long the alert has been active
+ * 
+ * Alerts reuse components from the metrics addon so that alert instances can be
+ * tracked and discovered as metrics. Just like metrics, alert instances are
+ * created as children of the alert.
+ * 
+ * When an entity has active alerts, it will have the EcsAlertsActive component
+ * which contains a map with active alerts for the entity. This component
+ * will be automatically removed once all alerts are cleared for the entity.
+ * 
+ * @param world The world.
+ * @param desc Alert description.
+ * @return The alert entity.
+ */
+FLECS_API
+ecs_entity_t ecs_alert_init(
+    ecs_world_t *world,
+    const ecs_alert_desc_t *desc);
+
+#define ecs_alert(world, ...)\
+    ecs_alert_init(world, &(ecs_alert_desc_t)__VA_ARGS__)
+
+/** Return number of active alerts for entity.
+ * When a valid alert entity is specified for the alert parameter, the operation
+ * will return whether the specified alert is active for the entity. When no
+ * alert is specified, the operation will return the total number of active
+ * alerts for the entity.
+ * 
+ * @param world The world.
+ * @param entity The entity.
+ * @param alert The alert to test for (optional).
+ * @return The number of active alerts for the entity.
+ */
+FLECS_API
+int32_t ecs_get_alert_count(
+    const ecs_world_t *world,
+    ecs_entity_t entity,
+    ecs_entity_t alert);
+
+/** Return alert instance for specified alert.
+ * This operation returns the alert instance for the specified alert. If the
+ * alert is not active for the entity, the operation will return 0.
+ * 
+ * @param world The world.
+ * @param entity The entity.
+ * @param alert The alert to test for.
+ * @return The alert instance for the specified alert.
+ */
+FLECS_API
+ecs_entity_t ecs_get_alert(
+    const ecs_world_t *world,
+    ecs_entity_t entity,
+    ecs_entity_t alert);
+
+/* Module import */
+FLECS_API
+void FlecsAlertsImport(
+    ecs_world_t *world);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+/** @} */
+
+#endif
+
+#endif
+
 #ifdef FLECS_MONITOR
 #ifdef FLECS_NO_MONITOR
 #error "FLECS_NO_MONITOR failed: MONITOR is required by other addons"
 #endif
 /**
- * @file addons/doc.h
+ * @file addons/monitor.h
  * @brief Doc module.
  *
  * The monitor module automatically tracks statistics from the stats addon and
@@ -11444,6 +11780,7 @@ extern "C" {
 
 FLECS_API extern ECS_COMPONENT_DECLARE(FlecsMonitor);
 FLECS_API extern ECS_COMPONENT_DECLARE(EcsWorldStats);
+FLECS_API extern ECS_COMPONENT_DECLARE(EcsWorldSummary);
 FLECS_API extern ECS_COMPONENT_DECLARE(EcsPipelineStats);
 
 FLECS_API extern ecs_entity_t EcsPeriod1s;
@@ -11467,6 +11804,21 @@ typedef struct {
     ecs_pipeline_stats_t stats;
 } EcsPipelineStats;
 
+typedef struct {
+    /* Target FPS */
+    double target_fps;          /**< Target FPS */
+
+    /* Total time */
+    double frame_time_total;    /**< Total time spent processing a frame */
+    double system_time_total;   /**< Total time spent in systems */
+    double merge_time_total;    /**< Total time spent in merges */
+
+    /* Last frame time */
+    double frame_time_last;     /**< Time spent processing a frame */
+    double system_time_last;    /**< Time spent in systems */
+    double merge_time_last;     /**< Time spent in merges */
+} EcsWorldSummary;
+
 /* Module import */
 FLECS_API
 void FlecsMonitorImport(
@@ -11483,6 +11835,7 @@ void FlecsMonitorImport(
 #endif
 
 #endif
+
 #ifdef FLECS_COREDOC
 #ifdef FLECS_NO_COREDOC
 #error "FLECS_NO_COREDOC failed: COREDOC is required by other addons"
@@ -11537,6 +11890,7 @@ void FlecsCoreDocImport(
 #endif
 
 #endif
+
 #ifdef FLECS_DOC
 #ifdef FLECS_NO_DOC
 #error "FLECS_NO_DOC failed: DOC is required by other addons"
@@ -11723,6 +12077,7 @@ void FlecsDocImport(
 #endif
 
 #endif
+
 #ifdef FLECS_JSON
 #ifdef FLECS_NO_JSON
 #error "FLECS_NO_JSON failed: JSON is required by other addons"
@@ -11760,9 +12115,11 @@ extern "C" {
 
 /** Used with ecs_ptr_from_json, ecs_entity_from_json. */
 typedef struct ecs_from_json_desc_t {
-    const char *name; /* Name of expression (used for logging) */
-    const char *expr; /* Full expression (used for logging) */
+    const char *name; /**< Name of expression (used for logging) */
+    const char *expr; /**< Full expression (used for logging) */
 
+    /** Callback that allows for specifying a custom lookup function. The 
+     * default behavior uses ecs_lookup_fullpath */
     ecs_entity_t (*lookup_action)(
         const ecs_world_t*, 
         const char *value, 
@@ -11930,10 +12287,11 @@ typedef struct ecs_entity_to_json_desc_t {
     bool serialize_hidden;     /**< Serialize ids hidden by override */
     bool serialize_values;     /**< Serialize component values */
     bool serialize_type_info;  /**< Serialize type info (requires serialize_values) */
+    bool serialize_alerts;     /**< Serialize active alerts for entity */
 } ecs_entity_to_json_desc_t;
 
 #define ECS_ENTITY_TO_JSON_INIT (ecs_entity_to_json_desc_t){true, false,\
-    false, false, false, false, false, true, false, false, false, false }
+    false, false, false, false, false, true, false, false, false, false, false }
 
 /** Serialize entity into JSON string.
  * This creates a JSON object with the entity's (path) name, which components
@@ -12036,8 +12394,8 @@ int ecs_iter_to_json_buf(
 
 /** Used with ecs_iter_to_json. */
 typedef struct ecs_world_to_json_desc_t {
-    bool serialize_builtin;    /* Exclude flecs modules & contents */
-    bool serialize_modules;    /* Exclude modules & contents */
+    bool serialize_builtin;    /**< Exclude flecs modules & contents */
+    bool serialize_modules;    /**< Exclude modules & contents */
 } ecs_world_to_json_desc_t;
 
 /** Serialize world into JSON string.
@@ -12084,6 +12442,7 @@ int ecs_world_to_json_buf(
 #endif
 
 #endif
+
 #if defined(FLECS_EXPR) || defined(FLECS_META_C)
 #ifndef FLECS_META
 #define FLECS_META
@@ -12439,6 +12798,7 @@ void FlecsUnitsImport(
 #endif
 
 #endif
+
 #ifdef FLECS_META
 #ifdef FLECS_NO_META
 #error "FLECS_NO_META failed: META is required by other addons"
@@ -12553,6 +12913,7 @@ FLECS_API extern const ecs_entity_t ecs_id(EcsPrimitive);
 FLECS_API extern const ecs_entity_t ecs_id(EcsEnum);
 FLECS_API extern const ecs_entity_t ecs_id(EcsBitmask);
 FLECS_API extern const ecs_entity_t ecs_id(EcsMember);
+FLECS_API extern const ecs_entity_t ecs_id(EcsMemberRanges);
 FLECS_API extern const ecs_entity_t ecs_id(EcsStruct);
 FLECS_API extern const ecs_entity_t ecs_id(EcsArray);
 FLECS_API extern const ecs_entity_t ecs_id(EcsVector);
@@ -12581,7 +12942,7 @@ FLECS_API extern const ecs_entity_t ecs_id(ecs_f64_t);
 FLECS_API extern const ecs_entity_t ecs_id(ecs_string_t);
 FLECS_API extern const ecs_entity_t ecs_id(ecs_entity_t);
 
-/** Type kinds supported by reflection type system */
+/** Type kinds supported by meta addon */
 typedef enum ecs_type_kind_t {
     EcsPrimitiveType,
     EcsBitmaskType,
@@ -12602,6 +12963,7 @@ typedef struct EcsMetaType {
     ecs_size_t alignment;  /**< Computed alignment */
 } EcsMetaType;
 
+/** Primitive type kinds supported by meta addon */
 typedef enum ecs_primitive_kind_t {
     EcsBool = 1,
     EcsChar,
@@ -12623,16 +12985,31 @@ typedef enum ecs_primitive_kind_t {
     EcsPrimitiveKindLast = EcsEntity
 } ecs_primitive_kind_t;
 
+/** Component added to primitive types */
 typedef struct EcsPrimitive {
     ecs_primitive_kind_t kind;
 } EcsPrimitive;
 
+/** Component added to member entities */
 typedef struct EcsMember {
     ecs_entity_t type;
     int32_t count;
     ecs_entity_t unit;
     int32_t offset;
 } EcsMember;
+
+/** Type expressing a range for a member value */
+typedef struct ecs_member_value_range_t {
+    double min;
+    double max;
+} ecs_member_value_range_t;
+
+/** Component added to member entities to express valid value ranges */
+typedef struct EcsMemberRanges {
+    ecs_member_value_range_t value;
+    ecs_member_value_range_t warning;
+    ecs_member_value_range_t error;
+} EcsMemberRanges;
 
 /** Element type of members vector in EcsStruct */
 typedef struct ecs_member_t {
@@ -12648,11 +13025,25 @@ typedef struct ecs_member_t {
      * type entity is also a unit */
     ecs_entity_t unit;
 
+    /** Numerical range that specifies which values member can assume. This 
+     * range may be used by UI elements such as a progress bar or slider. The
+     * value of a member should not exceed this range. */
+    ecs_member_value_range_t range;
+
+    /** Numerical range outside of which the value represents an error. This 
+     * range may be used by UI elements to style a value. */
+    ecs_member_value_range_t error_range;
+
+    /** Numerical range outside of which the value represents an warning. This 
+     * range may be used by UI elements to style a value. */
+    ecs_member_value_range_t warning_range;
+
     /** Should not be set by ecs_struct_desc_t */
     ecs_size_t size;
     ecs_entity_t member;
 } ecs_member_t;
 
+/** Component added to struct type entities */
 typedef struct EcsStruct {
     /** Populated from child entities with Member component */
     ecs_vec_t members; /* vector<ecs_member_t> */
@@ -12669,6 +13060,7 @@ typedef struct ecs_enum_constant_t {
     ecs_entity_t constant;
 } ecs_enum_constant_t;
 
+/** Component added to enum type entities */
 typedef struct EcsEnum {
     /** Populated from child entities with Constant component */
     ecs_map_t constants; /* map<i32_t, ecs_enum_constant_t> */
@@ -12685,18 +13077,21 @@ typedef struct ecs_bitmask_constant_t {
     ecs_entity_t constant;
 } ecs_bitmask_constant_t;
 
+/** Component added to bitmask type entities */
 typedef struct EcsBitmask {
     /* Populated from child entities with Constant component */
     ecs_map_t constants; /* map<u32_t, ecs_bitmask_constant_t> */
 } EcsBitmask;
 
+/** Component added to array type entities */
 typedef struct EcsArray {
-    ecs_entity_t type;
-    int32_t count;
+    ecs_entity_t type; /**< Element type */
+    int32_t count;     /**< Number of elements */
 } EcsArray;
 
+/** Component added to vector type entities */
 typedef struct EcsVector {
-    ecs_entity_t type;
+    ecs_entity_t type; /**< Element type */
 } EcsVector;
 
 
@@ -12709,13 +13104,13 @@ typedef struct ecs_serializer_t {
     /* Serialize value */
     int (*value)(
         const struct ecs_serializer_t *ser, /**< Serializer */
-        ecs_entity_t type,            /**< Type of the value to serialize */
-        const void *value);           /**< Pointer to the value to serialize */
+        ecs_entity_t type,                  /**< Type of the value to serialize */
+        const void *value);                 /**< Pointer to the value to serialize */
 
     /* Serialize member */
     int (*member)(
         const struct ecs_serializer_t *ser, /**< Serializer */
-        const char *member);           /**< Member name */
+        const char *member);                /**< Member name */
 
     const ecs_world_t *world;
     void *ctx;
@@ -12906,8 +13301,8 @@ typedef struct ecs_meta_type_op_t {
     const char *name;       /**< Name of value (only used for struct members) */
     int32_t op_count;       /**< Number of operations until next field or end */
     ecs_size_t size;        /**< Size of type of operation */
-    ecs_entity_t type;
-    ecs_entity_t unit;
+    ecs_entity_t type;      /**< Type entity */
+    int32_t member_index;   /**< Index of member in struct */
     ecs_hashmap_t *members; /**< string -> member index (structs only) */
 } ecs_meta_type_op_t;
 
@@ -12931,7 +13326,7 @@ typedef struct ecs_meta_scope_t {
 
     const EcsComponent *comp; /**< Pointer to component, in case size/alignment is needed */
     const EcsOpaque *opaque;  /**< Opaque type interface */ 
-    ecs_vec_t *vector;    /**< Current vector, in case a vector is iterated */
+    ecs_vec_t *vector;        /**< Current vector, in case a vector is iterated */
     ecs_hashmap_t *members;   /**< string -> member index */
     bool is_collection;       /**< Is the scope iterating elements? */
     bool is_inline_array;     /**< Is the scope iterating an inline array? */
@@ -13340,6 +13735,7 @@ void FlecsMetaImport(
 #endif
 
 #endif
+
 #ifdef FLECS_EXPR
 #ifdef FLECS_NO_EXPR
 #error "FLECS_NO_EXPR failed: EXPR is required by other addons"
@@ -13517,7 +13913,7 @@ ecs_expr_var_t* ecs_vars_declare_w_value(
 /** Lookup variable in scope and parent scopes */
 FLECS_API
 ecs_expr_var_t* ecs_vars_lookup(
-    ecs_vars_t *vars,
+    const ecs_vars_t *vars,
     const char *name);
 
 /** Used with ecs_parse_expr. */
@@ -13568,7 +13964,7 @@ char* ecs_ptr_to_expr(
     ecs_entity_t type,
     const void *data);
 
-/** Serialize value into string buffer.
+/** Serialize value into expression buffer.
  * Same as ecs_ptr_to_expr, but serializes to an ecs_strbuf_t instance.
  * 
  * @param world The world.
@@ -13579,6 +13975,39 @@ char* ecs_ptr_to_expr(
  */
 FLECS_API
 int ecs_ptr_to_expr_buf(
+    const ecs_world_t *world,
+    ecs_entity_t type,
+    const void *data,
+    ecs_strbuf_t *buf);
+
+/** Similar as ecs_ptr_to_expr, but serializes values to string. 
+ * Whereas the output of ecs_ptr_to_expr is a valid expression, the output of
+ * ecs_ptr_to_str is a string representation of the value. In most cases the
+ * output of the two operations is the same, but there are some differences:
+ * - Strings are not quoted
+ * 
+ * @param world The world.
+ * @param type The type of the value to serialize.
+ * @param data The value to serialize.
+ * @return String with result, or NULL if failed.
+ */
+FLECS_API
+char* ecs_ptr_to_str(
+    const ecs_world_t *world,
+    ecs_entity_t type,
+    const void *data);
+
+/** Serialize value into string buffer.
+ * Same as ecs_ptr_to_str, but serializes to an ecs_strbuf_t instance.
+ * 
+ * @param world The world.
+ * @param type The type of the value to serialize.
+ * @param data The value to serialize.
+ * @param buf The strbuf to append the string to.
+ * @return Zero if success, non-zero if failed.
+ */
+FLECS_API
+int ecs_ptr_to_str_buf(
     const ecs_world_t *world,
     ecs_entity_t type,
     const void *data,
@@ -13619,6 +14048,62 @@ const char *ecs_parse_expr_token(
     const char *ptr,
     char *token);
 
+/** Evaluate interpolated expressions in string.
+ * This operation evaluates expressions in a string, and replaces them with
+ * their evaluated result. Supported expression formats are:
+ *  - $variable_name
+ *  - {expression}
+ * 
+ * The $, { and } characters can be escaped with a backslash (\).
+ * 
+ * @param world The world.
+ * @param str The string to evaluate.
+ * @param vars The variables to use for evaluation.
+ */
+FLECS_API
+char* ecs_interpolate_string(
+    ecs_world_t *world,
+    const char *str,
+    const ecs_vars_t *vars);
+
+/** Convert iterator to vars 
+ * This operation converts an iterator to a variable array. This allows for
+ * using iterator results in expressions. The operation only converts a 
+ * single result at a time, and does not progress the iterator.
+ * 
+ * Iterator fields with data will be made available as variables with as name
+ * the field index (e.g. "$1"). The operation does not check if reflection data
+ * is registered for a field type. If no reflection data is registered for the
+ * type, using the field variable in expressions will fail.
+ * 
+ * Field variables will only contain single elements, even if the iterator 
+ * returns component arrays. The offset parameter can be used to specify which
+ * element in the component arrays to return. The offset parameter must be
+ * smaller than it->count.
+ * 
+ * The operation will create a variable for query variables that contain a
+ * single entity.
+ * 
+ * The operation will attempt to use existing variables. If a variable does not
+ * yet exist, the operation will create it. If an existing variable exists with
+ * a mismatching type, the operation will fail.
+ * 
+ * Accessing variables after progressing the iterator or after the iterator is
+ * destroyed will result in undefined behavior.
+ * 
+ * If vars contains a variable that is not present in the iterator, the variable
+ * will not be modified.
+ * 
+ * @param it The iterator to convert to variables.
+ * @param vars The variables to write to.
+ * @param offset The offset to the current element.
+ */
+FLECS_API
+void ecs_iter_to_vars(
+    const ecs_iter_t *it,
+    ecs_vars_t *vars,
+    int offset);
+
 /** @} */
 
 #ifdef __cplusplus
@@ -13630,6 +14115,7 @@ const char *ecs_parse_expr_token(
 #endif
 
 #endif
+
 #ifdef FLECS_META_C
 #ifdef FLECS_NO_META_C
 #error "FLECS_NO_META_C failed: META_C is required by other addons"
@@ -13792,6 +14278,7 @@ int ecs_meta_from_desc(
 #endif // FLECS_META_C
 
 #endif
+
 #ifdef FLECS_PLECS
 #ifdef FLECS_NO_PLECS
 #error "FLECS_NO_PLECS failed: PLECS is required by other addons"
@@ -13940,6 +14427,7 @@ void FlecsScriptImport(
 #endif
 
 #endif
+
 #ifdef FLECS_RULES
 #ifdef FLECS_NO_RULES
 #error "FLECS_NO_RULES failed: RULES is required by other addons"
@@ -14179,6 +14667,7 @@ const char* ecs_rule_parse_vars(
 #endif // FLECS_RULES
 
 #endif
+
 #ifdef FLECS_SNAPSHOT
 #ifdef FLECS_NO_SNAPSHOT
 #error "FLECS_NO_SNAPSHOT failed: SNAPSHOT is required by other addons"
@@ -14292,6 +14781,7 @@ void ecs_snapshot_free(
 #endif
 
 #endif
+
 #ifdef FLECS_PARSER
 #ifdef FLECS_NO_PARSER
 #error "FLECS_NO_PARSER failed: PARSER is required by other addons"
@@ -14424,6 +14914,7 @@ char* ecs_parse_term(
 #endif // FLECS_PARSER
 
 #endif
+
 #ifdef FLECS_OS_API_IMPL
 #ifdef FLECS_NO_OS_API_IMPL
 #error "FLECS_NO_OS_API_IMPL failed: OS_API_IMPL is required by other addons"
@@ -14464,6 +14955,7 @@ void ecs_set_os_api_impl(void);
 #endif // FLECS_OS_API_IMPL
 
 #endif
+
 #ifdef FLECS_MODULE
 #ifdef FLECS_NO_MODULE
 #error "FLECS_NO_MODULE failed: MODULE is required by other addons"
@@ -14721,6 +15213,13 @@ int32_t ecs_cpp_reset_count_get(void);
 FLECS_API
 int32_t ecs_cpp_reset_count_inc(void);
 
+#ifdef FLECS_META
+FLECS_API
+const ecs_member_t* ecs_cpp_last_member(
+    const ecs_world_t *world, 
+    ecs_entity_t type);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -14920,6 +15419,10 @@ static const flecs::entity_t DefaultChildComponent = EcsDefaultChildComponent;
 static const flecs::entity_t PredEq = EcsPredEq;
 static const flecs::entity_t PredMatch = EcsPredMatch;
 static const flecs::entity_t PredLookup = EcsPredLookup;
+
+/* Builtin marker entities for query scopes */
+static const flecs::entity_t ScopeOpen = EcsScopeOpen;
+static const flecs::entity_t ScopeClose = EcsScopeClose;
 
 /** @} */
 
@@ -16482,6 +16985,7 @@ using Primitive = EcsPrimitive;
 using Enum = EcsEnum;
 using Bitmask = EcsBitmask;
 using Member = EcsMember;
+using MemberRanges = EcsMemberRanges;
 using Struct = EcsStruct;
 using Array = EcsArray;
 using Vector = EcsVector;
@@ -17407,6 +17911,48 @@ struct metrics {
 
     metrics(flecs::world& world);
 };
+
+}
+
+#endif
+#ifdef FLECS_ALERTS
+/**
+ * @file addons/cpp/mixins/alerts/decl.hpp
+ * @brief Alert declarations.
+ */
+
+#pragma once
+
+namespace flecs {
+
+/**
+ * @defgroup cpp_addons_alerts Alerts
+ * @brief Alert implementation.
+ * 
+ * \ingroup cpp_addons
+ * @{
+ */
+
+/** Module */
+struct alerts {
+    using AlertsActive = EcsAlertsActive;
+    using Instance = EcsAlertInstance;
+
+    struct Alert { };
+    struct Info { };
+    struct Warning { };
+    struct Error { };
+
+    alerts(flecs::world& world);
+};
+
+template <typename ... Components>
+struct alert;
+
+template <typename ... Components>
+struct alert_builder;
+
+/** @} */
 
 }
 
@@ -18940,6 +19486,13 @@ struct world {
      */
     void remove(flecs::entity_t first, flecs::entity_t second) const;
 
+    /** Iterate entities in root of world 
+     * Accepts a callback with the following signature:
+     *  void(*)(flecs::entity e);
+     */
+    template <typename Func>
+    void children(Func&& f) const;
+
     /** Get singleton entity for type.
      */
     template <typename T>
@@ -19621,6 +20174,16 @@ void set_threads(int32_t threads) const;
  */
 int32_t get_threads() const;
 
+/** Set number of task threads.
+ * @see ecs_set_task_threads
+ */
+void set_task_threads(int32_t task_threads) const;
+
+/** Returns true if task thread use has been requested.
+ * @see ecs_using_task_threads
+ */
+bool using_task_threads() const;
+
 /** @} */
 
 #   endif
@@ -19910,6 +20473,17 @@ flecs::app_builder app() {
  */
 template <typename... Args>
 flecs::metric_builder metric(Args &&... args) const;
+
+#   endif
+#   ifdef FLECS_ALERTS
+
+/** Create alert.
+ * 
+ * \ingroup cpp_addons_alerts
+ * \memberof flecs::world
+ */
+template <typename... Comps, typename... Args>
+flecs::alert_builder<Comps...> alert(Args &&... args) const;
 
 #   endif
 
@@ -20622,6 +21196,14 @@ struct entity_view : public id {
      */
     template <typename Func>
     void children(flecs::entity_t rel, Func&& func) const {
+        /* When the entity is a wildcard, this would attempt to query for all
+         * entities with (ChildOf, *) or (ChildOf, _) instead of querying for
+         * the children of the wildcard entity. */
+        if (m_id == flecs::Wildcard || m_id == flecs::Any) {
+            /* This is correct, wildcard entities don't have children */
+            return;
+        }
+
         flecs::world world(m_world);
 
         ecs_term_t terms[2];
@@ -20630,18 +21212,20 @@ struct entity_view : public id {
         f.term_count = 2;
 
         ecs_filter_desc_t desc = {};
-        desc.terms[0].id = ecs_pair(rel, m_id);
+        desc.terms[0].first.id = rel;
+        desc.terms[0].second.id = m_id;
+        desc.terms[0].second.flags = EcsIsEntity;
         desc.terms[1].id = flecs::Prefab;
         desc.terms[1].oper = EcsOptional;
         desc.storage = &f;
-        ecs_filter_init(m_world, &desc);
+        if (ecs_filter_init(m_world, &desc) != nullptr) {
+            ecs_iter_t it = ecs_filter_iter(m_world, &f);
+            while (ecs_filter_next(&it)) {
+                _::each_invoker<Func>(FLECS_MOV(func)).invoke(&it);
+            }
 
-        ecs_iter_t it = ecs_filter_iter(m_world, &f);
-        while (ecs_filter_next(&it)) {
-            _::each_invoker<Func>(FLECS_MOV(func)).invoke(&it);
+            ecs_filter_fini(&f);
         }
-
-        ecs_filter_fini(&f);
     }
 
     /** Iterate children for entity.
@@ -21198,6 +21782,22 @@ const char* doc_link() {
 
 const char* doc_color() {
     return ecs_doc_get_color(m_world, m_id);
+}
+
+#   endif
+#   ifdef FLECS_ALERTS
+/**
+ * @file addons/cpp/mixins/alerts/entity_view.inl
+ * @brief Alerts entity mixin.
+ */
+
+/** Return number of alerts for entity.
+ * 
+ * \memberof flecs::entity_view
+ * \ingroup cpp_addons_alerts
+ */
+int32_t alert_count(flecs::entity_t alert = 0) const {
+    return ecs_get_alert_count(m_world, m_id, alert);
 }
 
 #   endif
@@ -22152,6 +22752,11 @@ struct entity_builder : entity_view {
         func();
         ecs_set_scope(this->m_world, prev);
         return to_base();
+    }
+
+    /** Return world scoped to entity */
+    scoped_world scope() const {
+        return scoped_world(m_world, m_id);
     }
 
     /* Set the entity name.
@@ -24107,6 +24712,55 @@ untyped_component& bit(const char *name, uint32_t value) {
     return *this;
 }
 
+/** Add member value range */
+untyped_component& range(double min, double max) {
+    const flecs::member_t *m = ecs_cpp_last_member(m_world, m_id);
+    if (!m) {
+        return *this;
+    }
+
+    flecs::world w(m_world);
+    flecs::entity me = w.entity(m->member);
+    flecs::MemberRanges *mr = me.get_mut<flecs::MemberRanges>();
+    mr->value.min = min;
+    mr->value.max = max;
+    me.modified<flecs::MemberRanges>();
+    return *this;
+}
+
+/** Add member warning range */
+untyped_component& warning_range(double min, double max) {
+    const flecs::member_t *m = ecs_cpp_last_member(m_world, m_id);
+    if (!m) {
+        return *this;
+    }
+
+    flecs::world w(m_world);
+    flecs::entity me = w.entity(m->member);
+    flecs::MemberRanges *mr = me.get_mut<flecs::MemberRanges>();
+    mr->warning.min = min;
+    mr->warning.max = max;
+    me.modified<flecs::MemberRanges>();
+    return *this;
+}
+
+/** Add member error range */
+untyped_component& error_range(double min, double max) {
+    const flecs::member_t *m = ecs_cpp_last_member(m_world, m_id);
+    if (!m) {
+        return *this;
+    }
+
+    flecs::world w(m_world);
+    flecs::entity me = w.entity(m->member);
+    flecs::MemberRanges *mr = me.get_mut<flecs::MemberRanges>();
+    mr->error.min = min;
+    mr->error.max = max;
+    me.modified<flecs::MemberRanges>();
+    return *this;
+}
+
+
 /** @} */
 
 #   endif
@@ -25997,6 +26651,15 @@ struct filter_builder_i : term_builder_i<Base> {
         return this->term<First, Second>().read();
     }
 
+    /* Scope_open/scope_close shorthand notation. */
+    Base& scope_open() {
+        return this->with(flecs::ScopeOpen).entity(0);
+    }
+
+    Base& scope_close() {
+        return this->with(flecs::ScopeClose).entity(0);
+    }
+
     /* Term notation for more complex query features */
 
     Base& term() {
@@ -27737,6 +28400,14 @@ inline int32_t world::get_threads() const {
     return ecs_get_stage_count(m_world);
 }
 
+inline void world::set_task_threads(int32_t task_threads) const {
+    ecs_set_task_threads(m_world, task_threads);
+}
+
+inline bool world::using_task_threads() const {
+    return ecs_using_task_threads(m_world);
+}
+
 }
 
 #endif
@@ -28647,27 +29318,20 @@ inline flecs::metric_builder world::metric(Args &&... args) const {
 }
 
 template <typename Kind>
-inline untyped_component& untyped_component::metric(flecs::entity_t parent, const char *brief, const char *metric_name) {
+inline untyped_component& untyped_component::metric(
+    flecs::entity_t parent, 
+    const char *brief, 
+    const char *metric_name) 
+{
     flecs::world w(m_world);
-    flecs::entity e = w.entity(m_id);
-    const flecs::Struct *s = e.get<flecs::Struct>();
-    if (!s) {
-        flecs::log::err("can't register metric, component '%s' is not a struct",    
-            e.path().c_str());
+    flecs::entity e(m_world, m_id);
+
+    const flecs::member_t *m = ecs_cpp_last_member(w, e);
+    if (!m) {
         return *this;
     }
 
-    ecs_member_t *m = ecs_vec_get_t(&s->members, ecs_member_t, 
-        ecs_vec_count(&s->members) - 1);
-    ecs_assert(m != NULL, ECS_INTERNAL_ERROR, NULL);
-
-    flecs::entity me = e.lookup(m->name);
-    if (!me) {
-        flecs::log::err("can't find member '%s' in component '%s' for metric",    
-            m->name, e.path().c_str());
-        return *this;
-    }
-
+    flecs::entity me = w.entity(m->member);
     flecs::entity metric_entity = me;
     if (parent) {
         const char *component_name = e.name();
@@ -28688,6 +29352,256 @@ inline untyped_component& untyped_component::metric(flecs::entity_t parent, cons
     w.metric(metric_entity).member(me).kind<Kind>().brief(brief);
 
     return *this;
+}
+
+}
+
+#endif
+#ifdef FLECS_ALERTS
+/**
+ * @file addons/cpp/mixins/alerts/impl.hpp
+ * @brief Alerts module implementation.
+ */
+
+#pragma once
+
+/**
+ * @file addons/cpp/mixins/alerts/builder.hpp
+ * @brief Alert builder.
+ */
+
+#pragma once
+
+/**
+ * @file addons/cpp/mixins/alerts/builder_i.hpp
+ * @brief Alert builder interface.
+ */
+
+#pragma once
+
+
+namespace flecs {
+
+/** Alert builder interface.
+ * 
+ * \ingroup cpp_addons_alerts
+ */
+template<typename Base, typename ... Components>
+struct alert_builder_i : filter_builder_i<Base, Components ...> {
+private:
+    using BaseClass = filter_builder_i<Base, Components ...>;
+    
+public:
+    alert_builder_i()
+        : BaseClass(nullptr)
+        , m_desc(nullptr) { }
+
+    alert_builder_i(ecs_alert_desc_t *desc, int32_t term_index = 0) 
+        : BaseClass(&desc->filter, term_index)
+        , m_desc(desc) { }
+
+    /** Alert message.
+     *
+     * @see ecs_alert_desc_t::message
+     */      
+    Base& message(const char *message) {
+        m_desc->message = message;
+        return *this;
+    }
+
+    /** Set brief description for alert.
+     * 
+     * @see ecs_alert_desc_t::brief
+     */
+    Base& brief(const char *brief) {
+        m_desc->brief = brief;
+        return *this;
+    }
+
+    /** Set doc name for alert.
+     * 
+     * @see ecs_alert_desc_t::doc_name
+     */
+    Base& doc_name(const char *doc_name) {
+        m_desc->doc_name = doc_name;
+        return *this;
+    }
+
+    /** Set severity of alert (default is Error) 
+     * 
+     * @see ecs_alert_desc_t::severity
+     */
+    Base& severity(flecs::entity_t kind) {
+        m_desc->severity = kind;
+        return *this;
+    }
+
+    /* Set retain period of alert. 
+     * 
+     * @see ecs_alert_desc_t::retain_period
+     */
+    Base& retain_period(ecs_ftime_t period) {
+        m_desc->retain_period = period;
+        return *this;
+    }
+
+    /** Set severity of alert (default is Error) 
+     * 
+     * @see ecs_alert_desc_t::severity
+     */
+    template <typename Severity>
+    Base& severity() {
+        return severity(_::cpp_type<Severity>::id(world_v()));
+    }
+
+    /** Add severity filter */
+    Base& severity_filter(flecs::entity_t kind, flecs::id_t with, const char *var = nullptr) {
+        ecs_assert(severity_filter_count < ECS_ALERT_MAX_SEVERITY_FILTERS, 
+            ECS_INVALID_PARAMETER, "Maxium number of severity filters reached");
+
+        ecs_alert_severity_filter_t *filter = 
+            &m_desc->severity_filters[severity_filter_count ++];
+
+        filter->severity = kind;
+        filter->with = with;
+        filter->var = var;
+        return *this;
+    }
+
+    /** Add severity filter */
+    template <typename Severity>
+    Base& severity_filter(flecs::id_t with, const char *var = nullptr) {
+        return severity_filter(_::cpp_type<Severity>::id(world_v()), with, var);
+    }
+
+    /** Add severity filter */
+    template <typename Severity, typename T, if_not_t< is_enum<T>::value > = 0>
+    Base& severity_filter(const char *var = nullptr) {
+        return severity_filter(_::cpp_type<Severity>::id(world_v()), 
+            _::cpp_type<T>::id(world_v()), var);
+    }
+
+    /** Add severity filter */
+    template <typename Severity, typename T, if_t< is_enum<T>::value > = 0 >
+    Base& severity_filter(T with, const char *var = nullptr) {
+        flecs::world w(world_v());
+        flecs::entity constant = w.to_entity<T>(with);
+        return severity_filter(_::cpp_type<Severity>::id(world_v()), 
+            w.pair<T>(constant), var);
+    }
+
+    /** Set member to create an alert for out of range values */
+    Base& member(flecs::entity_t m) {
+        m_desc->member = m;
+        return *this;
+    }
+
+    /** Set (component) id for member (optional). If .member() is set and id
+     * is not set, the id will default to the member parent. */
+    Base& id(flecs::id_t id) {
+        m_desc->id = id;
+        return *this;
+    }
+
+    /** Set member to create an alert for out of range values */
+    template <typename T>
+    Base& member(const char *m, const char *v = nullptr) {
+        flecs::entity_t id = _::cpp_type<T>::id(world_v());
+        flecs::entity_t mid = ecs_lookup_path_w_sep(
+            world_v(), id, m, "::", "::", false);
+        ecs_assert(m != 0, ECS_INVALID_PARAMETER, NULL);
+        m_desc->var = v;
+        return this->member(mid);
+    }
+
+    /** Set source variable for member (optional, defaults to $this) */
+    Base& var(const char *v) {
+        m_desc->var = v;
+        return *this;
+    }
+
+protected:
+    virtual flecs::world_t* world_v() = 0;
+
+private:
+    operator Base&() {
+        return *static_cast<Base*>(this);
+    }
+
+    ecs_alert_desc_t *m_desc;
+    int32_t severity_filter_count = 0;
+};
+
+}
+
+
+namespace flecs {
+namespace _ {
+    template <typename ... Components>
+    using alert_builder_base = builder<
+        alert, ecs_alert_desc_t, alert_builder<Components...>, 
+        alert_builder_i, Components ...>;
+}
+
+/** Alert builder.
+ * 
+ * \ingroup cpp_addons_alerts
+ */
+template <typename ... Components>
+struct alert_builder final : _::alert_builder_base<Components...> {
+    alert_builder(flecs::world_t* world, const char *name = nullptr)
+        : _::alert_builder_base<Components...>(world)
+    {
+        _::sig<Components...>(world).populate(this);
+        if (name != nullptr) {
+            ecs_entity_desc_t entity_desc = {};
+            entity_desc.name = name;
+            entity_desc.sep = "::",
+            entity_desc.root_sep = "::",
+            this->m_desc.entity = ecs_entity_init(world, &entity_desc);
+        }
+    }
+};
+
+}
+
+
+namespace flecs {
+
+template <typename ... Components>
+struct alert final : entity
+{
+    using entity::entity;
+
+    explicit alert() {
+        m_id = 0;
+        m_world = nullptr;
+    }
+
+    explicit alert(flecs::world_t *world, ecs_alert_desc_t *desc) 
+    {
+        m_world = world;
+        m_id = ecs_alert_init(world, desc);
+
+        if (desc->filter.terms_buffer) {
+            ecs_os_free(desc->filter.terms_buffer);
+        }
+    }
+};
+
+inline alerts::alerts(flecs::world& world) {
+    /* Import C module  */
+    FlecsAlertsImport(world);
+
+    world.entity<alerts::Alert>("::flecs::alerts::Alert");
+    world.entity<alerts::Info>("::flecs::alerts::Info");
+    world.entity<alerts::Warning>("::flecs::alerts::Warning");
+    world.entity<alerts::Error>("::flecs::alerts::Error");
+}
+
+template <typename... Comps, typename... Args>
+inline flecs::alert_builder<Comps...> world::alert(Args &&... args) const {
+    return flecs::alert_builder<Comps...>(m_world, FLECS_FWD(args)...);
 }
 
 }
@@ -28793,10 +29707,6 @@ namespace flecs
 {
 
 inline void world::init_builtin_components() {
-    component<Component>("flecs::core::Component");
-    component<Identifier>("flecs::core::Identifier");
-    component<Poly>("flecs::core::Poly");
-
 #   ifdef FLECS_SYSTEM
     _::system_init(*this);
 #   endif
@@ -28977,6 +29887,11 @@ inline void world::remove(flecs::entity_t second) const {
 inline void world::remove(flecs::entity_t first, flecs::entity_t second) const {
     flecs::entity e(m_world, first);
     e.remove(first, second);
+}
+
+template <typename Func>
+inline void world::children(Func&& f) const {
+    this->entity(0).children(FLECS_FWD(f));
 }
 
 template <typename T>
