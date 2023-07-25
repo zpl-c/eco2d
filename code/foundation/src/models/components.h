@@ -241,6 +241,7 @@ typedef struct { char _unused; } SeeksCompanion;
 // survival comps
 typedef struct { 
 	uint8_t atk_delay;
+    uint16_t despawn_timer;
 } Mob;
 typedef struct { 
 	uint64_t plr; 

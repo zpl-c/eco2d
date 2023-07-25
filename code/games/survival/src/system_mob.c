@@ -56,6 +56,7 @@ void MobMovement(ecs_iter_t *it) {
 #define MOB_MELEE_DIST 8000.0f
 #define MOB_MELEE_DMG 8.5f
 #define MOB_ATK_DELAY 10 
+#define MOB_DESPAWN_TIMER 20*60*5
 
 void MobMeleeAtk(ecs_iter_t *it) {
 	Position *p = ecs_field(it, Position, 1);
@@ -82,12 +83,36 @@ void MobMeleeAtk(ecs_iter_t *it) {
 }
 
 void MobOnDead(ecs_iter_t *it) {
+	Mob *mob = ecs_field(it, Mob, 1);
+	Sprite *spr = ecs_field(it, Sprite, 2);
+	Velocity *v = ecs_field(it, Velocity, 3);
+
 	for (int i = 0; i < it->count; i++) {
-		entity_despawn(it->entities[i]);
+		mob[i].despawn_timer = MOB_DESPAWN_TIMER;
+		spr[i].frame = 3 + (rand()%5);
+		v[i] = (Velocity){0.0f, 0.0f};
+		ecs_remove(it->world, it->entities[i], PhysicsBody);
 
 		pkt_code_send(0, 0, (pkt_send_code){
 			.code = SURV_CODE_SHOW_NOTIF,
 			.data = "mob died"
 		});
 	}
+}
+
+void MobDespawnDead(ecs_iter_t *it) {
+	Mob *mob = ecs_field(it, Mob, 1);
+
+	for (int i = 0; i < it->count; i++) {
+		if (mob[i].despawn_timer > 0) {
+			TICK_VAR(mob[i].despawn_timer);
+			continue;
+		}
+
+		entity_despawn(it->entities[i]);
+	}
+}
+
+void MobSpawner(ecs_iter_t *it) {
+	
 }

@@ -88,10 +88,12 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
 			float x = data->x;
 			float y = data->y;
 			//DrawCircleEco(x, y, size, ColorAlpha(PINK, data->tran_time));
-			DrawTextureRec(GetSpriteTexture2D(assets_find(ASSET_MOB)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
+			// DrawTextureRec(GetSpriteTexture2D(assets_find(data->frame)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
+            DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, 0.0f, 2.0f, WHITE);
+
 			float health = (data->hp / data->max_hp);
 
-			if (health < 1.0f) {
+			if (health > 0.0f && health < 1.0f) {
 				DrawRectangleEco(x-32, y-48, 64, 8, ColorAlpha(BLACK, data->tran_time));
 				DrawRectangleEco(x-32, y-48, 64*health, 8, ColorAlpha(RED, data->tran_time));
 			}

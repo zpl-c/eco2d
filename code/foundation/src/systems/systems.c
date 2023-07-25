@@ -46,7 +46,7 @@ static inline bool BlockCollisionIslandTest(Position *p, librg_chunk ch_p) {
 	collision_island islands[16];
 	uint8_t num_islands = world_chunk_collision_islands(ch_p, islands);
 	for (uint8_t i = 0; i < num_islands; i++) {
-#if 1
+#if 0
 		{
 			zpl_printf("px %f py %f minx %f miny %f\n", p->x, p->y, islands[i].minx, islands[i].miny);
 			debug_v2 a = {islands[i].minx, islands[i].miny};
