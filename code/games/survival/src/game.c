@@ -8,7 +8,12 @@
 
 #include "gui/notifications.h"
 
+float get_rand_between(float min, float max) {
+    return ((float)rand() / (float)RAND_MAX) * (max - min) + min;
+}
+
 static ecs_query_t *ecs_mobpos_query = NULL;
+static ecs_query_t *ecs_pawn_query = NULL;
 
 // custom systems
 #include "system_mob.c"
@@ -19,9 +24,11 @@ void mob_systems(ecs_world_t *ecs) {
 	ECS_SYSTEM(ecs, MobMovement, EcsPostUpdate, components.Velocity, components.Position, components.MobHuntPlayer, !components.Dead);
 	ECS_SYSTEM_TICKED(ecs, MobMeleeAtk, EcsPostUpdate, components.Position, components.Mob, components.MobHuntPlayer, components.MobMelee, !components.Dead);
 	ECS_SYSTEM_TICKED(ecs, MobDespawnDead, EcsPostUpdate, components.Mob, components.Dead);
+	ECS_SYSTEM_TICKED(ecs, MobSpawner, EcsPostUpdate, components.Input, components.Position);
 
 	//NOTE(DavoSK): weapons
 	ecs_mobpos_query = ecs_query_new(world_ecs(), "components.Mob, components.Position, components.Health, components.Velocity, !components.Dead");
+	ecs_pawn_query = ecs_query_new(world_ecs(), "components.Position, components.Health, components.Velocity, !components.Dead");
 	ECS_SYSTEM_TICKED(ecs, WeaponKnifeMechanic, EcsPostUpdate, components.WeaponKnife, components.Position, components.Input, !components.Dead);
 	ECS_SYSTEM_TICKED(ecs, WeaponProjectileHit, EcsPostUpdate, components.WeaponProjectile, components.Position, components.Rotation);
 	ECS_SYSTEM_TICKED(ecs, WeaponProjectileExpire, EcsPostUpdate, components.WeaponProjectile, components.Position);

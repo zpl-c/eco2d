@@ -8,11 +8,6 @@ ZPL_DIAGNOSTIC_POP
 #define WEAPON_PROJECTILE_RANGE_LIFETIME 800.0f
 #define WEAPON_HIT_FORCE_PUSH 400.0f
 
-//TODO(DavoSK): move to helpers, add srand
-float get_rand_between(float min, float max) {
-    return ((float)rand() / (float)RAND_MAX) * (max - min) + min;
-}
-
 void WeaponKnifeMechanic(ecs_iter_t* it) {
     WeaponKnife* weapon = ecs_field(it, WeaponKnife, 1);
     const Position* pos = ecs_field(it, Position, 2);
@@ -31,7 +26,8 @@ void WeaponKnifeMechanic(ecs_iter_t* it) {
             ecs_set(it->world, e, WeaponProjectile, {
                 .damage = weapon[i].damage,
                 .origin_x = pos[i].x,
-                .origin_y = pos[i].y
+                .origin_y = pos[i].y,
+                .owner = it->entities[i]
                 });
 			ecs_set(it->world, e, StreamLayerOverride, { .layer = 0 });
 
@@ -90,18 +86,20 @@ void WeaponProjectileHit(ecs_iter_t* it) {
     const Rotation* rot = ecs_field(it, Rotation, 3);
 
     for (int i = 0; i < it->count; i++) {
-        ecs_iter_t it2 = ecs_query_iter(it->world, ecs_mobpos_query);
+        ecs_iter_t it2 = ecs_query_iter(it->world, ecs_pawn_query);
         while (ecs_query_next(&it2)) {
-            Mob* mob = ecs_field(&it2, Mob, 1);
-            Position* mob_pos = ecs_field(&it2, Position, 2);
-			Health *mob_health = ecs_field(&it2, Health, 3);
-			Velocity *mob_velocity = ecs_field(&it2, Velocity, 4);
+            Position* pawn_pos = ecs_field(&it2, Position, 1);
+			Health *pawn_health = ecs_field(&it2, Health, 2);
+			Velocity *pawn_velocity = ecs_field(&it2, Velocity, 3);
 
             for (int j = 0; j < it2.count; j++) {
+                if (weapon[i].owner == it2.entities[j]) 
+                    continue;
+
                 float p_x = pos[i].x;
                 float p_y = pos[i].y;
-                float p2_x = mob_pos[j].x /*+ v2[j].x*/;
-                float p2_y = mob_pos[j].y /*+ v2[j].y*/;
+                float p2_x = pawn_pos[j].x /*+ v2[j].x*/;
+                float p2_y = pawn_pos[j].y /*+ v2[j].y*/;
 
                 c2AABB box_a = {
 					.min = { p_x - WORLD_BLOCK_SIZE / 4 , p_y - WORLD_BLOCK_SIZE / 4 },
@@ -133,10 +131,10 @@ void WeaponProjectileHit(ecs_iter_t* it) {
 
 				if (c2AABBtoAABB(box_a, box_b)) {
 					float dd = zpl_sqrt(d2);
-					mob_health[j].dmg += weapon[i].damage;
+					pawn_health[j].dmg += weapon[i].damage;
 
-					mob_velocity[j].x += (dx/dd)*WEAPON_HIT_FORCE_PUSH;
-					mob_velocity[j].y += (dy/dd)*WEAPON_HIT_FORCE_PUSH;
+					pawn_velocity[j].x += (dx/dd)*WEAPON_HIT_FORCE_PUSH;
+					pawn_velocity[j].y += (dy/dd)*WEAPON_HIT_FORCE_PUSH;
                 }
             }
         }

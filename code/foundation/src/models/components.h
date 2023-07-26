@@ -260,6 +260,7 @@ typedef struct {
 typedef struct {
     uint8_t damage;
     float origin_x, origin_y;
+    ecs_entity_t owner;
 } WeaponProjectile;
 
 #define _COMPS\
