@@ -10,5 +10,5 @@ copy ..\build_web\survival.* pkg
 copy ..\build_web\survival.html pkg\index.html
 
 IF NOT "%1"=="SKIP_DEPLOY" (
-	butler push pkg zaklaus/zplsurvival:html-latest
+	butler push pkg zaklaus/chimera:html-latest
 )
