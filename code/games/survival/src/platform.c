@@ -109,6 +109,7 @@ void platform_render() {
 
         debug_draw();
 
+#if defined(_DEBUG)
 		if (nk_begin(game_ui, "Spritesheet Viewer", nk_rect(460, 100, 800, 600),
 		             NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE))
 		{
@@ -117,6 +118,7 @@ void platform_render() {
 		}
 
 		notification_draw();
+#endif
 		game_draw_ui();
     }
     EndDrawing();

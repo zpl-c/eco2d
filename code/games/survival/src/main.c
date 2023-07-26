@@ -27,14 +27,14 @@ ZPL_DIAGNOSTIC_POP
 
 /*
 	TODO
-	- monster spawner
-	- the longer we survive, the more and stronger enemies we spawn
+	+ monster spawner
+	+ the longer we survive, the more and stronger enemies we spawn
 	- player grows HP by leveling up
 	- XP increases by killing mobs
 	- player can pick an "ability" upon reaching level milestones
 	- abilities: armor/shield, TODO ...
-	- enemies damage player when close to him in ticks (damage effects, ...)
-	- basic projectile pooling (flecs)
+	+ enemies damage player when close to him in ticks (damage effects, ...)
+	+ basic projectile pooling (flecs)
 	- somewhat believable world gen, small hamlets with cols, etc
 */
 

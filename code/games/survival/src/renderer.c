@@ -23,7 +23,9 @@ void DrawNametag(const char* name, uint64_t key, entity_view *data, float x, flo
     const char *title = TextFormat("%s %llu", name, key);
     float title_w = MeasureTextEco(title, font_size, font_spacing);
     DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-font_size-fixed_title_offset, title_w+title_bg_offset, font_size, ColorAlpha(BLACK, data->tran_time));
-    DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
+    if (health > 0.0f && health <= 1.0f) {
+        DrawRectangleEco(x-title_w/2.f-title_bg_offset/2.f, y-size-fixed_title_offset, title_w*health+title_bg_offset, font_size*0.2f, ColorAlpha(RED, data->tran_time));
+    }
     DrawTextEco(title, x-title_w/2.f, y-size-font_size-fixed_title_offset, font_size, ColorAlpha(RAYWHITE, data->tran_time), font_spacing);
 }
 
@@ -46,7 +48,8 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
                 tex.texture.height *= (int32_t)scale;
                 DrawTextureRec(tex.texture, (Rectangle){0, 0, size, -size}, (Vector2){x, y}, ColorAlpha(WHITE, data->tran_time));
             } else {
-                DrawTextureRec(GetBlockImage(entry->blk_id), ASSET_SRC_RECT(), (Vector2){entry->x-(WORLD_BLOCK_SIZE/2), entry->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
+                Texture2D tex = GetBlockImage(entry->blk_id);
+                DrawTextureRec(tex, ASSET_SRC_RECT_TEX(tex.width, tex.height), (Vector2){entry->x-tex.width/2.0f, entry->y-(tex.height-WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
             }
         }break;
         case EKIND_VEHICLE: {
@@ -87,9 +90,7 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
 		case EKIND_MONSTER: {
 			float x = data->x;
 			float y = data->y;
-			//DrawCircleEco(x, y, size, ColorAlpha(PINK, data->tran_time));
-			// DrawTextureRec(GetSpriteTexture2D(assets_find(data->frame)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
-            DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, 0.0f, 2.0f, WHITE);
+            DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, 0.0f, 2.0f, ColorAlpha(WHITE, data->tran_time));
 
 			float health = (data->hp / data->max_hp);
 
@@ -105,7 +106,11 @@ void renderer_draw_entry(uint64_t key, entity_view *data, game_world_render_entr
             DrawNametag("Player", key, data, x, y-16);
 			//DrawTextureRec(GetSpriteTexture2D(assets_find(ASSET_PLAYER)), ASSET_SRC_RECT(), (Vector2){data->x-(WORLD_BLOCK_SIZE/2), data->y-(WORLD_BLOCK_SIZE/2)}, ColorAlpha(WHITE, data->tran_time));
 			//DrawCircleEco(x, y, size, ColorAlpha(YELLOW, data->tran_time));
-			DrawSpriteEco(test_player_anim.spritesheet, TickSpriteAnimation(&test_player_anim), x, y, 0.0f, 2.0f, WHITE);
+
+            if (data->spritesheet == 69)
+                DrawSpriteEco(&main_sprite_sheet, data->frame, x, y, 0.0f, 2.0f, ColorAlpha(WHITE, data->tran_time));
+            else
+    			DrawSpriteEco(test_player_anim.spritesheet, TickSpriteAnimation(&test_player_anim), x, y, 0.0f, 2.0f, WHITE);
 
             //if (data->has_items && !data->inside_vehicle) {
             //    float ix = data->x;

@@ -320,6 +320,7 @@ void world_setup_ecs(void) {
     ECS_IMPORT(world.ecs, Components);
     ECS_IMPORT(world.ecs, Systems);
     world.ecs_update = ecs_query_new(world.ecs, "components.ClientInfo, components.Position");
+    world.ecs_alive_player = ecs_query_new(world.ecs, "components.ClientInfo, components.Position, !components.Dead");
     world.ecs_clientinfo = ecs_query_new(world.ecs, "components.ClientInfo");
 	world.ecs_layeroverriden = ecs_query_new(world.ecs, "components.StreamLayerOverride");
 }
@@ -529,6 +530,10 @@ ecs_world_t* world_ecs() {
 
 ecs_query_t* world_ecs_player(void) {
     return world.ecs_update;
+}
+
+ecs_query_t* world_ecs_alive_player(void) {
+    return world.ecs_alive_player;
 }
 
 ecs_query_t* world_ecs_clientinfo(void) {

@@ -50,6 +50,7 @@ void OnDead(ecs_iter_t *it) {
 
 		if (ci) {
 			pkt_notification_send(0, 0, "Someone died!", zpl_bprintf("Player %d has died!", it->entities[i]));
+			game_player_died(it->entities[i]);
 		}
 
 		if (pi) {

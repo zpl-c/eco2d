@@ -107,6 +107,10 @@ typedef struct {
 typedef struct { char _unused; } Dead;
 
 typedef struct {
+    uint16_t timer;
+} Respawn;
+
+typedef struct {
 	float amt; 
 } HealthRegen;
 
@@ -277,6 +281,7 @@ typedef struct {
 	X(ClientInfo)\
 	X(Health)\
 	X(Dead)\
+    X(Respawn)\
 	X(HealthRegen)\
 	X(HealDelay)\
 	X(Mob)\

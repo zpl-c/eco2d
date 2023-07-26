@@ -110,6 +110,14 @@ void VehicleHandling(ecs_iter_t *it) {
                 car->steer = zpl_lerp(car->steer, 0.0f, safe_dt(it)*game_rules.vehicle_steer_revert);
                 car->steer += (in->x * game_rules.vehicle_steer * steer_mod)*safe_dt(it);
                 car->steer = zpl_clamp(car->steer, -60.0f, 60.0f);
+
+                // if (in->x != 0) {
+                //     // Add a sideways velocity to the car. This will make the car move sideways,
+                //     // giving the appearance of a drift. The actual amount of sideways velocity
+                //     // will need to be fine-tuned.
+                //     v[i].x += in->x * steer_mod * -zpl_sin(car->heading) * car->force;
+                //     v[i].y += in->x * steer_mod * zpl_cos(car->heading) * car->force;
+                // }
             }
         }
         

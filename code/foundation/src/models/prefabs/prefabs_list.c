@@ -121,9 +121,6 @@ uint64_t storage_spawn(void) {
 uint64_t mob_spawn(void) {
 	ecs_entity_t e = entity_spawn(EKIND_MONSTER);
 
-	Health *hp = ecs_get_mut(world_ecs(), e, Health);
-	hp->max_hp = hp->hp = 100.0f;
-
 	ecs_add(world_ecs(), e, Mob);
 	ecs_set(world_ecs(), e, Health, { 60, 60, 0 });
 	ecs_set(world_ecs(), e, PhysicsBody, { .kind = PHYS_AABB, .mass = 1.0f });

@@ -1,8 +1,8 @@
 #define MOB_SPAWN_DELAY (uint16_t)(20*1.5f)
 #define MOB_SPAWN_PERCENTAGE_FROM_MAX 0.05f
 #define MOB_INITIAL_MAX 50
-#define MOB_GROWTH_FACTOR 5.0f
-#define MOB_GROWTH_CONTROL 50.0f
+#define MOB_GROWTH_FACTOR 0.65f
+#define MOB_GROWTH_CONTROL 1.17f
 #define MOB_SPAWN_DIST 12*WORLD_BLOCK_SIZE;
 #define MOB_MAX_SPAWN_TRIES 5
 
@@ -12,8 +12,7 @@ static uint16_t mob_spawn_timer = MOB_SPAWN_DELAY;
 static int16_t player_spawn_counter = -1;
 
 void recalc_max_mobs() {
-	max_mobs = (uint64_t)zpl_round(MOB_INITIAL_MAX + MOB_GROWTH_FACTOR * zpl_exp((float)mob_kills / MOB_GROWTH_CONTROL));
-	zpl_printf("Max mobs: %d\n", max_mobs);
+	max_mobs = (uint64_t)(MOB_INITIAL_MAX + MOB_GROWTH_FACTOR * zpl_pow((float)mob_kills, MOB_GROWTH_CONTROL));
 }
 
 void MobDetectPlayers(ecs_iter_t *it) {
@@ -23,7 +22,7 @@ void MobDetectPlayers(ecs_iter_t *it) {
 		float closest_ent_dist = ZPL_F32_MAX;
 		uint64_t closest_ent = 0;
 
-		ecs_iter_t pit = ecs_query_iter(world_ecs(), world_ecs_player());
+		ecs_iter_t pit = ecs_query_iter(world_ecs(), world_ecs_alive_player());
 
 		while (ecs_query_next(&pit)) {
 			Position *p2 = ecs_field(&pit, Position, 2);
@@ -54,6 +53,10 @@ void MobMovement(ecs_iter_t *it) {
 
 	for (int i = 0; i < it->count; i++) {
 		const Position *p2 = ecs_get(it->world, m->plr, Position);
+		if (p2 == NULL) {
+			ecs_remove(it->world, it->entities[i], MobHuntPlayer);
+			continue;
+		}
 		zpl_vec2 pos1 = { .x = p[i].x, .y = p[i].y };
 		zpl_vec2 pos2 = { .x = p2->x, .y = p2->y };
 		zpl_vec2 dir;
@@ -71,6 +74,7 @@ void MobMovement(ecs_iter_t *it) {
 #define MOB_MELEE_DMG 8.5f
 #define MOB_ATK_DELAY 10 
 #define MOB_DESPAWN_TIMER 20*60*5
+#define MOB_HIT_FORCE_PUSH 250.0f
 
 void MobMeleeAtk(ecs_iter_t *it) {
 	Position *p = ecs_field(it, Position, 1);
@@ -83,15 +87,25 @@ void MobMeleeAtk(ecs_iter_t *it) {
 			continue;
 		}
 
+		if (ecs_get(it->world, m->plr, Dead)) {
+			ecs_remove(it->world, it->entities[i], MobHuntPlayer);
+			continue;
+		}
+
 		const Position *p2 = ecs_get(it->world, m->plr, Position);
+		Velocity *v2 = ecs_get_mut(it->world, m->plr, Velocity);
+
 		float dx = p2->x - p[i].x;
 		float dy = p2->y - p[i].y;
 		float range = (dx*dx + dy*dy);
 
 		if (range < MOB_MELEE_DIST) {
+			float dd = zpl_sqrt(range);
 			Health *health = ecs_get_mut(it->world, m->plr, Health);
 			health->dmg += MOB_MELEE_DMG;
 			mob[i].atk_delay = MOB_ATK_DELAY;
+			v2->x += (dx/dd)*MOB_HIT_FORCE_PUSH;
+			v2->y += (dy/dd)*MOB_HIT_FORCE_PUSH;
 		}
 	}
 }
