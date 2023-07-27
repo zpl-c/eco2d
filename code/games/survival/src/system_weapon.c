@@ -135,6 +135,7 @@ void WeaponProjectileHit(ecs_iter_t* it) {
 
 					pawn_velocity[j].x += (dx/dd)*WEAPON_HIT_FORCE_PUSH;
 					pawn_velocity[j].y += (dy/dd)*WEAPON_HIT_FORCE_PUSH;
+                    entity_despawn(it->entities[i]);
                 }
             }
         }

@@ -1,18 +1,19 @@
 #define MOB_SPAWN_DELAY (uint16_t)(20*1.5f)
 #define MOB_SPAWN_PERCENTAGE_FROM_MAX 0.05f
 #define MOB_INITIAL_MAX 50
+#define MOB_HARD_CAP 5000
 #define MOB_GROWTH_FACTOR 0.65f
 #define MOB_GROWTH_CONTROL 1.17f
-#define MOB_SPAWN_DIST 12*WORLD_BLOCK_SIZE;
+#define MOB_SPAWN_DIST 22*WORLD_BLOCK_SIZE;
 #define MOB_MAX_SPAWN_TRIES 5
 
+uint64_t mob_kills = 0;
 static uint64_t max_mobs = MOB_INITIAL_MAX;
-static uint64_t mob_kills = 0;
 static uint16_t mob_spawn_timer = MOB_SPAWN_DELAY;
 static int16_t player_spawn_counter = -1;
 
 void recalc_max_mobs() {
-	max_mobs = (uint64_t)(MOB_INITIAL_MAX + MOB_GROWTH_FACTOR * zpl_pow((float)mob_kills, MOB_GROWTH_CONTROL));
+	max_mobs = zpl_min(MOB_HARD_CAP, (uint64_t)(MOB_INITIAL_MAX + MOB_GROWTH_FACTOR * zpl_pow((float)mob_kills, MOB_GROWTH_CONTROL)));
 }
 
 void MobDetectPlayers(ecs_iter_t *it) {

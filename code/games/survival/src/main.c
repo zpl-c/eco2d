@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
     zpl_opts_add(&opts, "p", "preview-map", "draw world preview", ZPL_OPTS_FLAG);
     zpl_opts_add(&opts, "s", "seed", "world seed", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "r", "random-seed", "generate random world seed", ZPL_OPTS_FLAG);
+    zpl_opts_add(&opts, "ed", "enable-dash", "enables flecs dash", ZPL_OPTS_FLAG);
     //zpl_opts_add(&opts, "cs", "chunk-size", "amount of blocks within a chunk (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "ws", "world-size", "amount of chunks within a world (single axis)", ZPL_OPTS_INT);
     zpl_opts_add(&opts, "ip", "host", "host IP address", ZPL_OPTS_STRING);
@@ -64,6 +65,7 @@ int main(int argc, char** argv) {
 
     int8_t is_viewer_only = zpl_opts_has_arg(&opts, "viewer-only");
     int8_t is_server_only = zpl_opts_has_arg(&opts, "server-only");
+    int8_t is_dash_enabled = zpl_opts_has_arg(&opts, "enable-dash");
     int32_t seed = (int32_t)zpl_opts_integer(&opts, "seed", DEFAULT_WORLD_SEED);
     uint16_t world_size = (uint16_t)zpl_opts_integer(&opts, "world-size", DEFAULT_WORLD_SIZE);
     uint16_t chunk_size = DEFAULT_CHUNK_SIZE; //zpl_opts_integer(&opts, "chunk-size", DEFAULT_CHUNK_SIZE);
@@ -88,7 +90,7 @@ int main(int argc, char** argv) {
     }
 
     sighandler_register();
-    game_init(host, port, play_mode, 1, seed, chunk_size, world_size, 0);
+    game_init(host, port, play_mode, 1, seed, chunk_size, world_size, is_dash_enabled);
 	game_setup_ecs();
     game_run();
 

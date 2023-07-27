@@ -292,6 +292,7 @@ void world_chunk_setup_grid(void) {
 static inline
 void world_configure_tracker(void) {
     world.tracker = librg_world_create();
+    world.collision_grid = librg_world_create();
 
     ZPL_ASSERT_MSG(world.tracker, "[ERROR] An error occurred while trying to create a server world.");
 
@@ -303,6 +304,13 @@ void world_configure_tracker(void) {
     librg_event_set(world.tracker, LIBRG_WRITE_CREATE, tracker_write_create);
     librg_event_set(world.tracker, LIBRG_WRITE_REMOVE, tracker_write_remove);
     librg_event_set(world.tracker, LIBRG_WRITE_UPDATE, tracker_write_update);
+
+    /* config our collision grid */
+    uint16_t chks = world.chunk_size / 2;
+    uint16_t chkm = world.chunk_amount * 2;
+    librg_config_chunksize_set(world.collision_grid, WORLD_BLOCK_SIZE * chks, WORLD_BLOCK_SIZE * chks, 1);
+    librg_config_chunkamount_set(world.collision_grid, chkm, chkm, 0);
+    librg_config_chunkoffset_set(world.collision_grid, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG, LIBRG_OFFSET_BEG);
 }
 
 static inline
@@ -379,6 +387,7 @@ int32_t world_init(int32_t seed, uint16_t chunk_size, uint16_t chunk_amount) {
 }
 
 int32_t world_destroy(void) {
+    librg_world_destroy(world.collision_grid);
     librg_world_destroy(world.tracker);
     ecs_fini(world.ecs);
     zpl_mfree(world.chunk_mapping);
@@ -546,6 +555,10 @@ void world_set_stage(ecs_world_t* ecs) {
 
 librg_world* world_tracker() {
     return world.tracker;
+}
+
+librg_world* world_collision_grid() {
+    return world.collision_grid;
 }
 
 void world_pause(void) {

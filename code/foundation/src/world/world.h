@@ -56,7 +56,7 @@ typedef struct {
     ecs_query_t *ecs_clientinfo;
 	ecs_query_t *ecs_layeroverriden;
     ecs_entity_t *chunk_mapping;
-    librg_world *tracker;
+    librg_world *tracker, *collision_grid;
     world_pkt_reader_proc *reader_proc;
     world_pkt_writer_proc *writer_proc;
 } world_data;
@@ -77,6 +77,7 @@ ecs_query_t *world_ecs_alive_player(void);
 ecs_query_t *world_ecs_clientinfo(void);
 void world_set_stage(ecs_world_t *ecs);
 librg_world *world_tracker(void);
+librg_world *world_collision_grid(void);
 
 // NOTE(zaklaus): World simulation time control
 void world_pause(void);

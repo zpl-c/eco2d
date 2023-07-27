@@ -135,6 +135,8 @@ void BlockCollisions(ecs_iter_t *it) {
 	}
 }
 
+#define MAX_PHYSBODY_CHECKS 512
+
 void BodyCollisions(ecs_iter_t *it) {
 	Position *p = ecs_field(it, Position, 1);
 	Velocity *v = ecs_field(it, Velocity, 2);
@@ -154,85 +156,90 @@ void BodyCollisions(ecs_iter_t *it) {
 			}
 #endif
 
-			ecs_iter_t it2 = ecs_query_iter(it->world, ecs_rigidbodies);
+			size_t ents_count = MAX_PHYSBODY_CHECKS;
+			static int64_t ents[MAX_PHYSBODY_CHECKS] = {0};
+			librg_chunk chk = librg_entity_chunk_get(world_collision_grid(), it->entities[i]);
+			librg_world_fetch_chunk(world_collision_grid(), chk, ents, &ents_count);
 
-			while (ecs_query_next(&it2)) {
-				for (int j = 0; j < it2.count; j++) {
-					if (it->entities[i] == it2.entities[j]) continue;
+			for (size_t j = 0; j < ents_count; j++) {
+				uint64_t ent_id = (uint64_t)ents[j];
+				if (it->entities[i] == ent_id) continue;
+				if (!ecs_get(it->world, ent_id, PhysicsBody)) continue;
+				if ( ecs_get(it->world, ent_id, TriggerOnly)) continue;
+				if ( ecs_get(it->world, ent_id, IsInVehicle)) continue;
 
-					Position *p2 = ecs_field(&it2, Position, 1);
-					Velocity *v2 = ecs_field(&it2, Velocity, 2);
-					PhysicsBody *b2 = ecs_field(&it2, PhysicsBody, 3);
+				Position *p2 = ecs_get_mut(it->world, ent_id, Position);
+				Velocity *v2 = ecs_get_mut(it->world, ent_id, Velocity);
+				PhysicsBody *b2 = ecs_get_mut(it->world, ent_id, PhysicsBody);
 
-					float p_x = p[i].x;
-					float p_y = p[i].y;
-					float p2_x = p2[j].x /*+ v2[j].x*/;
-					float p2_y = p2[j].y /*+ v2[j].y*/;
-	
-					c2AABB box_a = {
-						.min = { p_x - WORLD_BLOCK_SIZE / 2, p_y - WORLD_BLOCK_SIZE / 4 },
-						.max = { p_x + WORLD_BLOCK_SIZE / 2, p_y + WORLD_BLOCK_SIZE / 4 },
-					};
-	
-					c2AABB box_b = {
-						.min = { p2_x - WORLD_BLOCK_SIZE / 2, p2_y - WORLD_BLOCK_SIZE / 4 },
-						.max = { p2_x + WORLD_BLOCK_SIZE / 2, p2_y + WORLD_BLOCK_SIZE / 4 },
-					};
+				float p_x = p[i].x;
+				float p_y = p[i].y;
+				float p2_x = p2->x /*+ v2->x*/;
+				float p2_y = p2->y /*+ v2->y*/;
 
-					// do a basic sweep first
-					float r1x = (box_a.max.x-box_a.min.x);
-					float r1y = (box_a.max.y-box_a.min.y);
-					float r1 = (r1x*r1x + r1y*r1y)*.5f;
+				c2AABB box_a = {
+					.min = { p_x - WORLD_BLOCK_SIZE / 2, p_y - WORLD_BLOCK_SIZE / 4 },
+					.max = { p_x + WORLD_BLOCK_SIZE / 2, p_y + WORLD_BLOCK_SIZE / 4 },
+				};
 
-					float r2x = (box_b.max.x-box_b.min.x);
-					float r2y = (box_b.max.y-box_b.min.y);
-					float r2 = (r2x*r2x + r2y*r2y)*.5f;
+				c2AABB box_b = {
+					.min = { p2_x - WORLD_BLOCK_SIZE / 2, p2_y - WORLD_BLOCK_SIZE / 4 },
+					.max = { p2_x + WORLD_BLOCK_SIZE / 2, p2_y + WORLD_BLOCK_SIZE / 4 },
+				};
 
-					{
-						float dx = (p2_x-p_x);
-						float dy = (p2_y-p_y);
-						float d = (dx*dx + dy*dy);
+				// do a basic sweep first
+				float r1x = (box_a.max.x-box_a.min.x);
+				float r1y = (box_a.max.y-box_a.min.y);
+				float r1 = (r1x*r1x + r1y*r1y)*.5f;
 
-						if (d > r1 && d > r2)
-							continue;
-					}
+				float r2x = (box_b.max.x-box_b.min.x);
+				float r2y = (box_b.max.y-box_b.min.y);
+				float r2 = (r2x*r2x + r2y*r2y)*.5f;
 
-					c2Circle circle_a = { 
-						.p = { p_x, p_y },
-						.r = r1/2.f,
-					};
+				{
+					float dx = (p2_x-p_x);
+					float dy = (p2_y-p_y);
+					float d = (dx*dx + dy*dy);
 
-					c2Circle circle_b = {
-						.p = { p2_x, p2_y },
-						.r = r2/2.f,
-					};
+					if (d > r1 && d > r2)
+						continue;
+				}
 
-					const void *shapes_a[] = { &circle_a, &box_a };
-					const void *shapes_b[] = { &circle_b, &box_b };
-					
-					c2Manifold m = { 0 };
-					c2Collide(shapes_a[b[i].kind], 0, b[i].kind, shapes_b[b2[j].kind], 0, b2[j].kind, &m);
+				c2Circle circle_a = { 
+					.p = { p_x, p_y },
+					.r = r1/2.f,
+				};
 
-					c2v n = m.n;
-	
-					for (int k = 0; k < m.count; k++) {
-						float d = m.depths[k];
+				c2Circle circle_b = {
+					.p = { p2_x, p2_y },
+					.r = r2/2.f,
+				};
+
+				const void *shapes_a[] = { &circle_a, &box_a };
+				const void *shapes_b[] = { &circle_b, &box_b };
+				
+				c2Manifold m = { 0 };
+				c2Collide(shapes_a[b[i].kind], 0, b[i].kind, shapes_b[b2->kind], 0, b2->kind, &m);
+
+				c2v n = m.n;
+
+				for (int k = 0; k < m.count; k++) {
+					float d = m.depths[k];
 #if 0
-						{
-							c2v pos = m.contact_points[k];
-							debug_v2 a = { pos.x, pos.y };
-							debug_v2 b = { pos.x + n.x*d, pos.y + n.y*d };
-							debug_push_line(a, b, 0xF77FFFFF);
-						}
-#endif
-						
-						float m1 = b2[j].mass == INFINITE_MASS ? b[i].mass : b2[j].mass;
-						float m2 = b[i].mass == INFINITE_MASS ? (ZPL_F32_MAX-1.0f) : b[i].mass;
-						float mass_ratio = m1 / m2;
-
-						v[i].x -= n.x*d*mass_ratio;
-						v[i].y -= n.y*d*mass_ratio;
+					{
+						c2v pos = m.contact_points[k];
+						debug_v2 a = { pos.x, pos.y };
+						debug_v2 b = { pos.x + n.x*d, pos.y + n.y*d };
+						debug_push_line(a, b, 0xF77FFFFF);
 					}
+#endif
+					
+					float m1 = b2->mass == INFINITE_MASS ? b[i].mass : b2->mass;
+					float m2 = b[i].mass == INFINITE_MASS ? (ZPL_F32_MAX-1.0f) : b[i].mass;
+					float mass_ratio = m1 / m2;
+
+					v[i].x -= n.x*d*mass_ratio;
+					v[i].y -= n.y*d*mass_ratio;
 				}
 			}
 		}
@@ -257,6 +264,7 @@ void IntegratePositions(ecs_iter_t *it) {
 			p[i].y += v[i].y*safe_dt_val;
 
 			librg_entity_chunk_set(world_tracker(), it->entities[i], librg_chunk_from_realpos(world_tracker(), p[i].x, p[i].y, 0));
+			librg_entity_chunk_set(world_collision_grid(), it->entities[i], librg_chunk_from_realpos(world_collision_grid(), p[i].x, p[i].y, 0));
 
 			s[i].tick_delay = 0.0f;
     		s[i].last_update = 0.0f;

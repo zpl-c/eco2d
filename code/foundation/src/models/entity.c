@@ -19,10 +19,12 @@ uint64_t entity_spawn(uint16_t class_id) {
 
     if (class_id != EKIND_SERVER) {
         librg_entity_track(world_tracker(), e);
+        librg_entity_track(world_collision_grid(), e);
 		ecs_set(world_ecs(), e, Velocity, { 0 });
         entity_set_position(e, (float)(rand() % world_dim()), (float)(rand() % world_dim()));
 
         librg_entity_owner_set(world_tracker(), e, (int64_t)e);
+        librg_entity_owner_set(world_collision_grid(), e, (int64_t)e);
     }
 
     return (uint64_t)e;
@@ -59,6 +61,7 @@ bool entity_spawn_provided(uint16_t id) {
 
 void entity_batch_despawn(uint64_t *ids, size_t num_ids) {
     for (size_t i = 0; i < num_ids; i++ ) {
+        librg_entity_untrack(world_collision_grid(), ids[i]);
         librg_entity_untrack(world_tracker(), ids[i]);
         ecs_delete(world_ecs(), ids[i]);
     }
@@ -66,6 +69,7 @@ void entity_batch_despawn(uint64_t *ids, size_t num_ids) {
 
 void entity_despawn(uint64_t ent_id) {
     librg_entity_untrack(world_tracker(), ent_id);
+    librg_entity_untrack(world_collision_grid(), ent_id);
     ecs_delete(world_ecs(), ent_id);
 }
 
@@ -75,6 +79,7 @@ void entity_set_position(uint64_t ent_id, float x, float y) {
     p->x = x;
     p->y = y;
     librg_entity_chunk_set(world_tracker(), ent_id, librg_chunk_from_realpos(world_tracker(), x, y, 0));
+    librg_entity_chunk_set(world_collision_grid(), ent_id, librg_chunk_from_realpos(world_collision_grid(), x, y, 0));
     entity_wake(ent_id);
 }
 

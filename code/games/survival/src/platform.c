@@ -90,6 +90,9 @@ void platform_input() {
     }
 }
 
+void recalc_max_mobs();
+extern uint64_t mob_kills;
+
 void platform_render() {
     platform_resize_window();
 
@@ -117,8 +120,26 @@ void platform_render() {
 			nk_end(game_ui);
 		}
 
+
 		notification_draw();
+
+        if (nk_begin(game_ui, "Debug stuff", nk_rect(400, 10, 220, 140),
+                     NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_TITLE))
+        {
+            nk_layout_row_dynamic(game_ui, 0, 1);
+            if (nk_button_label(game_ui, "max_mobs hack")) {
+                mob_kills = 2000;
+                recalc_max_mobs();
+            }
+            if (nk_button_label(game_ui, "big hp")) {
+                ecs_entity_t plr = camera_get().ent_id;
+                Health *hp = ecs_get_mut(world_ecs(), plr, Health);
+                hp->hp = hp->max_hp = 999999;
+            }
+            nk_end(game_ui);
+        }
 #endif
+
 		game_draw_ui();
     }
     EndDrawing();
