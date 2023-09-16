@@ -1,6 +1,6 @@
-<div align="center">
-    <a href="https://zaklaus.itch.io/eco2d"><img src="https://user-images.githubusercontent.com/2182108/111983468-d5593e80-8b12-11eb-9c59-8c78ecc0504e.png" alt="eco2d" /></a>
-</div>
+<h1>
+    eco2d
+</h1>
 
 <br />
 
@@ -23,7 +23,7 @@
 </div>
 
 # Introduction
-zpl.eco2d is a small framework/game engine made out of curiosity. It attempts to bridge several libraries to create a playable sandbox with ease of extensibility and with performance in mind. The goal is not to make a generic 2D game engine but to build a game prototype that anyone can use to build various experiments.
+eco2d is a experimental set of games made out of curiosity. It attempts to bridge several libraries to create a playable sandbox with ease of extensibility and with performance in mind. The goal is not to make a generic 2D game engine but to build a game prototype that anyone can use to build various experiments.
 
 The game runs on top of [raylib](https://raylib.com/) technologies and makes use of the [zpl](https://zpl.pw/) ecosystem alongside the **cwpack** library for data serialization. The game logic and lifecycle are maintained using [flecs](https://github.com/SanderMertens/flecs/) library and its suite of tools that help us improve the development efficiency.
 
@@ -31,7 +31,7 @@ It was built with networked game sessions in mind from the ground up and therefo
 * Networked game (UDP) - networked sessions benefit from the use of [enet](https://github.com/zpl-c/enet/) library.
 * Local Only sessions - Data is streamed via local buffers.
 
-In both cases, the game engine does not differentiate between these two options and makes the concept of Server <>client infrastructure entirely abstract. As a result, gameplay logic is only tied to living entities, where the entity might represent a networked client / local controller.
+In both cases, the game engine does not differentiate between these two options and makes the concept of Server<>client infrastructure entirely abstract. As a result, gameplay logic is only tied to living entities, where the entity might represent a networked client / local controller.
 
 All data is transferred via packets fully automated by our serialization rule system, which uses the **cwpack** library in the background.
 
@@ -90,7 +90,7 @@ build\eco2d.exe -?
 ```
 
 # License
-zpl.eco2d code is licensed under the BSD 3-Clause license, as seen [here](LICENSE).
+eco2d code is licensed under the BSD 3-Clause license, as seen [here](LICENSE).
 
 Assets under the **art** folder are released into [Public Domain](https://creativecommons.org/share-your-work/public-domain/cc0/) unless otherwise stated.
 
