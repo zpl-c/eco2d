@@ -38,13 +38,13 @@ bool db_init() {
 
     if (new_db) {
         zpl_printf("[INFO] Creating new database...\n");
-        db_exec_file("art/queries/tables.sql");
+        db_exec_file("art/queries/eco2d/tables.sql");
         assets_db_init();
 
-        db_exec_file("art/queries/resources.sql");
-        db_exec_file("art/queries/blocks.sql");
-        db_exec_file("art/queries/recipes.sql");
-        db_exec_file("art/queries/items.sql");
+        db_exec_file("art/queries/eco2d/resources.sql");
+        db_exec_file("art/queries/eco2d/blocks.sql");
+        db_exec_file("art/queries/eco2d/recipes.sql");
+        db_exec_file("art/queries/eco2d/items.sql");
     }
 
     // initialise models db
