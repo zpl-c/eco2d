@@ -16,7 +16,9 @@
 --     UDATA_ENERGY_SOURCE,
 -- } item_attachment;
 
-INSERT INTO items (kind, usage, attachment, max_quantity, place_kind, directional, proxy_id, place_item_id, producer, energy_level, blueprint_w, blueprint_h, blueprint_plan) VALUES
+INSERT INTO items (kind, usage, attachment, max_quantity, place_kind, directional, 
+                   proxy_id, place_item_id, producer, energy_level, blueprint_w, blueprint_h, blueprint_plan)
+VALUES
 (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (asset('FENCE'), 5, 0, 64, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (asset('COAL'), 5, 1, 64, NULL, NULL, NULL, NULL, asset('FURNACE'), 15.0, NULL, NULL, NULL),
@@ -40,5 +42,5 @@ INSERT INTO items (kind, usage, attachment, max_quantity, place_kind, directiona
 (asset('SCREWS'), 5, 0, 64, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (asset('LOG'), 5, 0, 64, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (asset('PLANK'), 5, 0, 64, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(asset('CREATURE_FOOD'), 5, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 -- (asset('BLUEPRINT_DEMO_HOUSE'), 3, 0, 1, NULL, NULL, NULL, asset('BLUEPRINT'), NULL, NULL, 4, 4, ''),
+(asset('CREATURE_FOOD'), 5, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
