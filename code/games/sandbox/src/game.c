@@ -1,5 +1,13 @@
 #include "core/game.h"
 
+void game_init(bool new_db) {
+
+}
+
+void game_init_ecs() {
+
+}
+
 void game_input() {
 	game_core_input();
 }
@@ -11,7 +19,6 @@ void game_update() {
 void game_render() {
 	game_core_render();
 }
-
 
 void game_player_joined(uint64_t ent) {
 	ecs_set(world_ecs(), ent, Inventory, {0});

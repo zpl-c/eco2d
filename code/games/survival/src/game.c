@@ -83,6 +83,10 @@ void mob_systems(ecs_world_t *ecs) {
 	ECS_OBSERVER(ecs, MobOnDead, EcsOnAdd, components.Mob, components.Sprite, components.Velocity, components.Dead);
 }
 
+void game_init(bool new_db) {
+
+}
+
 void game_input() {
 	game_core_input();
 }
@@ -95,7 +99,7 @@ void game_render() {
 	game_core_render();
 }
 
-void game_setup_ecs() {
+void game_init_ecs() {
 	mob_systems(world_ecs());
 }
 

@@ -2,7 +2,7 @@
 #include "platform/system.h"
 #include "zpl.h"
 
-void db_init();
+bool db_init();
 void db_shutdown();
 
 // raw query data getters

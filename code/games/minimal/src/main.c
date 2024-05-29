@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     }
 
     sighandler_register();
-    game_init(host, port, play_mode, 1, seed, chunk_size, world_size, 0);
+    game_setup(host, port, play_mode, 1, seed, chunk_size, world_size, 0);
 
     game_run();
 

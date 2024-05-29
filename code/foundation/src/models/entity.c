@@ -8,8 +8,45 @@
 #include "systems/systems.h"
 #include "zpl.h"
 
+typedef struct {
+    asset_id id;
+    uint64_t (*proc)();
+    uint64_t (*proc_udata)(void*);
+} spawndef;
+
+static spawndef *entity_spawnlist;
+
+void entity_add_spawndef(uint16_t id, uint64_t (*proc)()) {
+    spawndef def={0};
+    def.id = id;
+    def.proc = proc;
+    zpl_array_append(entity_spawnlist, def);
+}
+
+void entity_add_spawndef_data(uint16_t id, uint64_t (*proc)(void*)) {
+    spawndef def={0};
+    def.id = id;
+    def.proc_udata = proc;
+    zpl_array_append(entity_spawnlist, def);
+}
+
 // NOTE(zaklaus): bring in entity spawnlist
-#include "lists/entity_spawnlist.c"
+// #include "lists/entity_spawnlist.c"
+#include "models/prefabs/prefabs_list.c"
+#define MAX_ENTITY_SPAWNDEFS ((size_t)zpl_array_count(entity_spawnlist))
+
+void entity_default_spawnlist(void) {
+    zpl_array_init(entity_spawnlist, zpl_heap());
+
+    entity_add_spawndef(ASSET_CHEST, storage_spawn);
+    entity_add_spawndef(ASSET_FURNACE, furnace_spawn);
+    entity_add_spawndef(ASSET_CRAFTBENCH, craftbench_spawn);
+    entity_add_spawndef(ASSET_SPLITTER, splitter_spawn);
+    entity_add_spawndef(ASSET_ASSEMBLER, assembler_spawn);
+	entity_add_spawndef(ASSET_CREATURE, creature_spawn);
+	entity_add_spawndef(ASSET_MOB, mob_spawn);
+    entity_add_spawndef_data(ASSET_BLUEPRINT, blueprint_spawn_udata);
+}
 
 uint64_t entity_spawn(uint16_t class_id) {
     ecs_entity_t e = ecs_new(world_ecs(), 0);

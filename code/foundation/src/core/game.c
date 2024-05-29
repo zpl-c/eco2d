@@ -134,11 +134,12 @@ float game_time() {
     return (float)get_cached_time();
 }
 
-void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
+void game_setup(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
     game_mode = play_mode;
     game_should_close = false;
 
-    db_init();
+    entity_default_spawnlist();
+    game_init(db_init());
     
 #ifndef _DEBUG
     const char *host_ip = "lab.zakto.pw";
@@ -181,6 +182,8 @@ void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_
             //ecs_set_target_fps(world_ecs(), 60);
         }
     }
+
+    game_init_ecs();
     
     if (game_mode == GAMEKIND_SINGLE) {
         for (uint32_t i = 0; i < num_viewers; i++) {

@@ -90,8 +90,7 @@ int main(int argc, char** argv) {
     }
 
     sighandler_register();
-    game_init(host, port, play_mode, 1, seed, chunk_size, world_size, is_dash_enabled);
-	game_setup_ecs();
+    game_setup(host, port, play_mode, 1, seed, chunk_size, world_size, is_dash_enabled);
     game_run();
 
     game_shutdown();

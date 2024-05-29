@@ -28,7 +28,7 @@ void sql_asset(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
     sqlite3_result_null(ctx);
 }
 
-void db_init() {
+bool db_init() {
     bool new_db = !zpl_fs_exists(ECO2D_DB);
     sqlite3_open(ECO2D_DB, &db);
     assert(db && "Failed to open database.");
@@ -37,7 +37,7 @@ void db_init() {
     sqlite3_create_function(db, "asset", 1, SQLITE_UTF8, NULL, sql_asset, NULL, NULL);
 
     if (new_db) {
-        zpl_printf("[INFO] Creating new database.\n");
+        zpl_printf("[INFO] Creating new database...\n");
         db_exec_file("art/queries/tables.sql");
         assets_db_init();
 
@@ -48,10 +48,12 @@ void db_init() {
     }
 
     // initialise models db
-    assets_db();
-    blocks_db();
-    craft_db();
-    item_db();
+    zpl_printf("[INFO] Loading models from database...\n");
+    assets_db(); zpl_printf("[INFO] Assets loaded.\n");
+    blocks_db(); zpl_printf("[INFO] Blocks loaded.\n");
+    craft_db(); zpl_printf("[INFO] Recipes loaded.\n");
+    item_db(); zpl_printf("[INFO] Items loaded.\n");
+    return new_db;
 }
 
 void db_shutdown() {

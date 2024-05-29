@@ -1,5 +1,13 @@
 #include "core/game.h"
 
+void game_init(bool new_db) {
+
+}
+
+void game_init_ecs() {
+
+}
+
 void game_input() {
 	game_core_input();
 }
