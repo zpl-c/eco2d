@@ -51,8 +51,9 @@ typedef enum {
 #define X(idx) idx,
     _ASSETS
 #undef X
-    
-    MAX_ASSETS
+    MAX_INTERNAL_ASSETS,
+    NEXT_FREE_ASSET = MAX_INTERNAL_ASSETS,
+    MAX_ASSETS = 255
 } asset_id;
 
 extern const char *asset_names[];

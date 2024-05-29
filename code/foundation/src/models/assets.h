@@ -1,7 +1,7 @@
 #pragma once
 #include "platform/system.h"
 
-#include "lists/assets_ids.h"
+#include "assets_ids.h"
 
 typedef enum {
     AKIND_TEXTURE,
@@ -13,6 +13,7 @@ typedef enum {
 
 void assets_db_init(void);
 void assets_db(void);
+void assets_new(const char *name);
 int32_t assets_setup(void);
 int32_t assets_frame(void);
 void assets_destroy(void);

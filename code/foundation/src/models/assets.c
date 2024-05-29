@@ -1,8 +1,8 @@
 #include "models/assets.h"
-#include "lists/assets_ids.h"
 #include "raylib.h"
 #include "gen/texgen.h"
 #include "models/database.h"
+#include <stdint.h>
 
 //#define ASSETS_COUNT (sizeof(assets)/sizeof(asset))
 
@@ -30,10 +30,19 @@ static double assets_frame_next_draw = 0.0;
 
 #include <time.h>
 
+static uint16_t asset_counter;
+
+void assets_new(const char *name) {
+    assert(asset_counter < MAX_ASSETS);
+    db_exec(zpl_bprintf("INSERT INTO assets (id, name) VALUES (%d, '%s');", asset_counter++, name));
+}
+
 void assets_db_init(void) {
-    for (uint16_t i=0; i<MAX_ASSETS; i++) {
-        db_exec(zpl_bprintf("INSERT INTO assets (id, name) VALUES (%d, '%s');", i, asset_names[i]+6));
+    for (uint16_t i=0; i<MAX_INTERNAL_ASSETS; i++) {
+        assets_new(asset_names[i]+6);
     }
+
+    asset_counter = NEXT_FREE_ASSET;
 }
 
 void assets_db(void) {
