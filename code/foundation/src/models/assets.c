@@ -1,8 +1,10 @@
 #include "models/assets.h"
+#include "lists/assets_ids.h"
 #include "raylib.h"
 #include "gen/texgen.h"
+#include "models/database.h"
 
-#define ASSETS_COUNT (sizeof(assets)/sizeof(asset))
+//#define ASSETS_COUNT (sizeof(assets)/sizeof(asset))
 
 typedef struct {
     asset_id id;
@@ -16,7 +18,10 @@ typedef struct {
     // NOTE(zaklaus): metadata
 } asset;
 
-#include "lists/assets_list.c"
+//#include "lists/assets_list.c"
+static asset *assets;
+
+#define ASSETS_COUNT (zpl_array_count(assets))
 
 #define ASSET_FRAME_RENDER_MS (1.0/1.0)
 #define ASSET_FRAME_SKIP 4
@@ -24,6 +29,24 @@ static int64_t assets_frame_counter = 1;
 static double assets_frame_next_draw = 0.0;
 
 #include <time.h>
+
+void assets_db_init(void) {
+    for (uint16_t i=0; i<MAX_ASSETS; i++) {
+        db_exec(zpl_bprintf("INSERT INTO assets (id, name) VALUES (%d, '%s');", i, asset_names[i]+6));
+    }
+}
+
+void assets_db(void) {
+    zpl_array_init(assets, zpl_heap());
+    db_push("SELECT * FROM resources;");
+    for (size_t i=0, end=db_rows(); i<end; i++) {
+        asset a={0};
+        a.id = db_int("asset", i);
+        a.kind = db_int("kind", i);
+        zpl_array_append(assets, a);
+    }
+    db_pop();
+}
 
 int32_t assets_setup(void) {
     for (uint32_t i=0; i<ASSETS_COUNT; i++) {

@@ -1,13 +1,16 @@
-#define ZPL_NANO
+#include "models/assets.h"
 #include "zpl.h"
+#define ZPL_NANO
+#include "platform/system.h"
 #include "world/world.h"
 #include "world/blocks.h"
 #include "raylib.h"
 #include "gen/texgen.h"
 #include "world/world_view.h"
+#include "models/database.h"
 #include "perlin.h"
 
-#define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
+//#define BLOCKS_COUNT (sizeof(blocks)/sizeof(block))
 #define WORLD_TEXTURE_BLOCK_SCALE 0.5f
 
 ZPL_TABLE(static, blocks__chunk_tbl, blocks__chunk_tbl_, RenderTexture2D);
@@ -34,7 +37,26 @@ typedef struct {
     block_id slot;
 } block;
 
-#include "lists/blocks_list.c"
+//#include "lists/blocks_list.c"
+static block *blocks;
+#define BLOCKS_COUNT (zpl_array_count(blocks))
+
+void blocks_db() {
+    zpl_array_init(blocks, zpl_heap());
+    db_push("SELECT * FROM blocks;");
+    for (size_t i=0, end=db_rows(); i<end; i++) {
+        block blk={0};
+        blk.kind = db_int("kind", i);
+        blk.flags = db_int("flags", i);
+        blk.drag = db_flt("drag", i);
+        blk.friction = db_flt("friction", i);
+        blk.bounce = db_flt("bounce", i);
+        blk.velx = db_flt("velx", i);
+        blk.vely = db_flt("vely", i);
+        zpl_array_append(blocks, blk);
+    }
+    db_pop();
+}
 
 int32_t blocks_setup(void) {
     for (block_id i=0; i<BLOCKS_COUNT; i++) {

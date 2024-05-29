@@ -3,6 +3,7 @@
 #include "platform/platform.h"
 #include "world/world.h"
 #include "pkt/packet.h"
+#include "models/database.h"
 #include "platform/signal_handling.h"
 #include "net/network.h"
 #include "models/entity.h"
@@ -136,6 +137,8 @@ float game_time() {
 void game_init(const char *ip, uint16_t port, game_kind play_mode, uint32_t num_viewers, int32_t seed, uint16_t chunk_size, uint16_t chunk_amount, int8_t is_dash_enabled) {
     game_mode = play_mode;
     game_should_close = false;
+
+    db_init();
     
 #ifndef _DEBUG
     const char *host_ip = "lab.zakto.pw";
@@ -191,6 +194,7 @@ int8_t game_is_networked() {
 }
 
 void game_shutdown() {
+    db_shutdown();
     
     if (game_mode == GAMEKIND_CLIENT) {
         network_client_disconnect();
@@ -213,7 +217,6 @@ void game_shutdown() {
         //platform_shutdown();
 		UnloadNuklear(game_ui);
 	}
-
 }
 
 uint8_t game_is_running() {

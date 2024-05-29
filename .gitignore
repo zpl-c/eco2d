@@ -20,5 +20,7 @@ GTAGS
 pkg
 pkg.zip
 eco2d.zip
+eco2d.db
 eco2d.sublime-workspace
 
+.cache

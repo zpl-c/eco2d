@@ -1,7 +1,36 @@
 #include "crafting.h"
 #include "models/items.h"
+#include "models/database.h"
 
-#include "lists/crafting_list.c"
+//#include "lists/crafting_list.c"
+static recipe *recipes;
+#define MAX_RECIPES (zpl_array_count(recipes))
+
+void craft_db(void) {
+    zpl_array_init(recipes, zpl_heap());
+    db_push("SELECT * FROM recipes;");
+    for (size_t i=0, end=db_rows(); i<end; i++) {
+        recipe r={0};
+        r.product = db_int("product", i);
+        r.product_qty = db_int("product_qty", i);
+        r.process_ticks = db_int("process_ticks", i);
+        r.producer = db_int("producer", i);
+        zpl_array_init(r.reagents, zpl_heap());
+        db_push(zpl_bprintf("SELECT * FROM recipe_reagents WHERE recipe_id=%d;", i+1));
+        for (size_t j=0, j_end=db_rows(); j<j_end; j++) {
+            reagent rea={0};
+            size_t reagent_id = db_int("reagent_id", j);
+            db_push(zpl_bprintf("SELECT * FROM reagents WHERE id=%d;", reagent_id));
+                rea.id = db_int("asset_id", 0);
+                rea.qty = db_int("qty", 0);
+            db_pop();
+            zpl_array_append(r.reagents, rea);
+        }
+        db_pop();
+        zpl_array_append(recipes, r);
+    }
+    db_pop();
+}
 
 uint32_t craft__find_num_recipes_by_reagent(asset_id producer, asset_id id) {
     uint32_t num_recipes=0;

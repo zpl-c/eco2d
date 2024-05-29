@@ -17,6 +17,8 @@ typedef struct {
 	reagent *reagents;
 } recipe;
 
+void craft_db(void);
+
 // NOTE(zaklaus): resolves recipe dependencies and consumes reagents
 // to enqueue a production of a new item.
 // TODO(zaklaus): "items" is assumed to come from ItemContainer component.

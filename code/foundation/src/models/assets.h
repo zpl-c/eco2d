@@ -11,6 +11,8 @@ typedef enum {
     FORCE_AKIND_UINT8 = UINT8_MAX
 } asset_kind;
 
+void assets_db_init(void);
+void assets_db(void);
 int32_t assets_setup(void);
 int32_t assets_frame(void);
 void assets_destroy(void);

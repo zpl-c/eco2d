@@ -65,6 +65,8 @@ typedef struct {
 
 typedef uint16_t item_id;
 
+void item_db(void);
+
 // NOTE(zaklaus): item drops
 void item_show(uint64_t ent, bool show);
 

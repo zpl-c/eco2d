@@ -156,8 +156,8 @@
 #define LIBRG_H
 
 #define LIBRG_VERSION_MAJOR 7
-#define LIBRG_VERSION_MINOR 1
-#define LIBRG_VERSION_PATCH 1
+#define LIBRG_VERSION_MINOR 3
+#define LIBRG_VERSION_PATCH 0
 #define LIBRG_VERSION_PRE ""
 
 // file: librg_hedley.h
@@ -20707,6 +20707,13 @@ LIBRG_BEGIN_C_DECLS
 #error "LIBRG_WORLDWRITE_MAXQUERY must have value less than 65535"
 #endif
 
+/* enables the increased data-buffer size for world packing */
+#ifdef LIBRG_ENABLE_EXTENDED_EVENTBUFFER
+#define LIBRG_WORLDWRITE_DATATYPE uint32_t
+#else
+#define LIBRG_WORLDWRITE_DATATYPE uint16_t
+#endif
+
 // =======================================================================//
 // !
 // ! Internal data structures
@@ -21223,6 +21230,16 @@ int8_t librg_entity_foreign(librg_world *world, int64_t entity_id) {
     return entity->flag_foreign == LIBRG_TRUE;
 }
 
+int8_t librg_entity_owned(librg_world *world, int64_t entity_id) {
+    LIBRG_ASSERT(world); if (!world) return LIBRG_FALSE;
+    librg_world_t *wld = (librg_world_t *)world;
+
+    librg_entity_t *entity = librg_table_ent_get(&wld->entity_map, entity_id);
+    if (entity == NULL) return LIBRG_FALSE;
+
+    return entity->owner_id != LIBRG_OWNER_INVALID;
+}
+
 int32_t librg_entity_count(librg_world *world) {
     LIBRG_ASSERT(world); if (!world) return LIBRG_WORLD_INVALID;
     librg_world_t *wld = (librg_world_t *)world;
@@ -21457,11 +21474,6 @@ int8_t librg_entity_visibility_owner_set(librg_world *world, int64_t entity_id, 
     librg_entity_t *entity = librg_table_ent_get(&wld->entity_map, entity_id);
     if (entity == NULL) return LIBRG_ENTITY_UNTRACKED;
 
-    /* prevent setting visibility, for your own entity, it will be always visible */
-    if (entity->owner_id == owner_id) {
-        return LIBRG_ENTITY_VISIBILITY_IGNORED;
-    }
-
     if (!entity->flag_visbility_owner_enabled) {
         entity->flag_visbility_owner_enabled = LIBRG_TRUE;
         librg_table_i8_init(&entity->owner_visibility_map, wld->allocator);
@@ -21561,7 +21573,8 @@ int32_t librg_world_fetch_chunkarray(librg_world *world, const librg_chunk *chun
 }
 
 int32_t librg_world_fetch_owner(librg_world *world, int64_t owner_id, int64_t *entity_ids, size_t *entity_amount) {
-    return librg_world_fetch_ownerarray(world, (int64_t[]){owner_id}, 1, entity_ids, entity_amount);
+    int64_t owner_ids[1]; owner_ids[0] = owner_id;
+    return librg_world_fetch_ownerarray(world, owner_ids, 1, entity_ids, entity_amount);
 }
 
 int32_t librg_world_fetch_ownerarray(librg_world *world, const int64_t *owner_ids, size_t owner_amount, int64_t *entity_ids, size_t *entity_amount) {
@@ -21636,7 +21649,11 @@ int32_t librg_world_query(librg_world *world, int64_t owner_id, uint8_t chunk_ra
         librg_entity_t *entity = librg_table_ent_get(&wld->entity_map, entity_id);
 
         /* allways add self-owned entities */
-        librg_push_entity(entity_id);
+        int8_t vis_owner = librg_entity_visibility_owner_get(world, entity_id, owner_id);
+        if (vis_owner != LIBRG_VISIBLITY_NEVER) {
+            /* prevent from being included */
+            librg_push_entity(entity_id);
+        }
 
         /* immidiately skip, if entity was not placed correctly */
         if (entity->chunks[0] == LIBRG_CHUNK_INVALID) continue;
@@ -21739,11 +21756,21 @@ LIBRG_BEGIN_C_DECLS
 // !
 // =======================================================================//
 
+/* size of the segment */
+#define LIBRG_SEGMENT_SIZE 8
+
+/* size of the segment value */
+#ifdef LIBRG_ENABLE_EXTENDED_EVENTBUFFER
+#define LIBRG_SEGVAL_SIZE 14
+#else
+#define LIBRG_SEGVAL_SIZE 12
+#endif
+
 LIBRG_PRAGMA(pack(push, 1));
 typedef struct {
     uint64_t id;
     uint16_t token;
-    uint16_t size;
+    LIBRG_WORLDWRITE_DATATYPE size;
 } librg_segval_t;
 
 typedef struct {
@@ -21754,8 +21781,8 @@ typedef struct {
 } librg_segment_t;
 LIBRG_PRAGMA(pack(pop));
 
-LIBRG_STATIC_ASSERT(sizeof(librg_segval_t) == 12, "packed librg_segval_t should have a valid size");
-LIBRG_STATIC_ASSERT(sizeof(librg_segment_t) == 8, "packed librg_segment_t should have a valid size");
+LIBRG_STATIC_ASSERT(sizeof(librg_segval_t) == LIBRG_SEGVAL_SIZE, "packed librg_segval_t should have a valid size");
+LIBRG_STATIC_ASSERT(sizeof(librg_segment_t) == LIBRG_SEGMENT_SIZE, "packed librg_segment_t should have a valid size");
 
 // =======================================================================//
 // !
@@ -21861,6 +21888,19 @@ librg_lbl_ww:
                 /* call event handlers */
                 if (wld->handlers[action_id]) {
                     data_size = (int32_t)wld->handlers[action_id](world, (librg_event*)&evt);
+
+                    /* if data size is bigger than the limit, we will notify user about that */
+                    if (data_size > ZPL_I32_MAX) {
+                        ZPL_PANIC("librg: the data size returned by the event handler is too big for the event. \
+                            Ensure that you are not returning more than %d bytes.", ZPL_I32_MAX);
+                    }
+
+                    #ifndef LIBRG_ENABLE_EXTENDED_EVENTBUFFER
+                    if (data_size > (int32_t)ZPL_U16_MAX) {
+                        ZPL_PANIC("librg: the data size returned by the event handler is bigger than the event buffer size. \
+                            Ensure that you are not returning more than %d bytes.", evt.size);
+                    }
+                    #endif
                 }
 
                 /* if user returned < 0, we consider that event rejected */

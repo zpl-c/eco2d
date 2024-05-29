@@ -7,8 +7,9 @@ add_library(eco2d-foundation STATIC
 
     src/platform/signal_handling.c
     src/platform/profiler.c
-	src/platform/input.c
+	  src/platform/input.c
 
+    src/models/database.c
     src/models/assets.c
     src/models/components.c
     src/models/items.c

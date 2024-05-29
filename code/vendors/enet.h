@@ -43,7 +43,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 6
+#define ENET_VERSION_PATCH 10
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -72,8 +72,10 @@
     #endif
 
     #ifndef ENET_NO_PRAGMA_LINK
+    #ifndef  __GNUC__
     #pragma comment(lib, "ws2_32.lib")
     #pragma comment(lib, "winmm.lib")
+    #endif
     #endif
 
     #if _MSC_VER >= 1910
@@ -252,6 +254,7 @@ extern "C" {
     extern void *enet_malloc(size_t);
     extern void enet_free(void *);
     extern ENetPacket* enet_packet_create(const void*,size_t,enet_uint32);
+    extern ENetPacket* enet_packet_resize(ENetPacket*, size_t);
     extern ENetPacket* enet_packet_copy(ENetPacket*);
     extern void enet_packet_destroy(ENetPacket*);
 
@@ -611,7 +614,7 @@ extern "C" {
         ENET_HOST_RECEIVE_BUFFER_SIZE          = 256 * 1024,
         ENET_HOST_SEND_BUFFER_SIZE             = 256 * 1024,
         ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL  = 1000,
-        ENET_HOST_DEFAULT_MTU                  = 1400,
+        ENET_HOST_DEFAULT_MTU                  = 1392,
         ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE  = 32 * 1024 * 1024,
         ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
 
@@ -984,12 +987,12 @@ extern "C" {
     ENET_API void       enet_host_destroy(ENetHost *);
     ENET_API ENetPeer * enet_host_connect(ENetHost *, const ENetAddress *, size_t, enet_uint32);
     ENET_API int        enet_host_check_events(ENetHost *, ENetEvent *);
-    ENET_API int        enet_host_service(ENetHost *, ENetEvent *, enet_uint32);    
+    ENET_API int        enet_host_service(ENetHost *, ENetEvent *, enet_uint32);
     ENET_API int        enet_host_send_raw(ENetHost *, const ENetAddress *, enet_uint8 *, size_t);
     ENET_API int        enet_host_send_raw_ex(ENetHost *host, const ENetAddress* address, enet_uint8* data, size_t skipBytes, size_t bytesToSend);
     ENET_API void       enet_host_set_intercept(ENetHost *, const ENetInterceptCallback);
     ENET_API void       enet_host_flush(ENetHost *);
-    ENET_API void       enet_host_broadcast(ENetHost *, enet_uint8, ENetPacket *);    
+    ENET_API void       enet_host_broadcast(ENetHost *, enet_uint8, ENetPacket *);
     ENET_API void       enet_host_compress(ENetHost *, const ENetCompressor *);
     ENET_API void       enet_host_channel_limit(ENetHost *, size_t);
     ENET_API void       enet_host_bandwidth_limit(ENetHost *, enet_uint32, enet_uint32);
@@ -1387,6 +1390,35 @@ extern "C" {
         packet->userData     = NULL;
 
         return packet;
+    }
+
+    /** Attempts to resize the data in the packet to length specified in the
+        dataLength parameter
+        @param packet packet to resize
+        @param dataLength new size for the packet data
+        @returns new packet pointer on success, NULL on failure
+    */
+    ENetPacket* enet_packet_resize(ENetPacket * packet, size_t dataLength)
+    {
+        ENetPacket *newPacket = NULL;
+
+        if (dataLength <= packet->dataLength || (packet->flags & ENET_PACKET_FLAG_NO_ALLOCATE))
+        {
+           packet->dataLength = dataLength;
+
+           return packet;
+        }
+
+        newPacket = (ENetPacket *)enet_malloc(sizeof (ENetPacket) + dataLength);
+        if (newPacket == NULL)
+          return NULL;
+
+        memcpy(newPacket, packet, sizeof(ENetPacket) + packet->dataLength);
+        newPacket->data = (enet_uint8 *)newPacket + sizeof(ENetPacket);
+        newPacket->dataLength = dataLength;
+        enet_free(packet);
+
+        return newPacket;
     }
 
     ENetPacket *enet_packet_create_offset(const void *data, size_t dataLength, size_t dataOffset, enet_uint32 flags) {
@@ -4630,7 +4662,7 @@ extern "C" {
         }
     }
 
-    /** Sends raw data to specified address. Useful when you want to send unconnected data using host's socket.         
+    /** Sends raw data to specified address. Useful when you want to send unconnected data using host's socket.
      *  @param host host sending data
      *  @param address destination address
      *  @param data data pointer

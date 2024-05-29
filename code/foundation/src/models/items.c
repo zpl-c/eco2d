@@ -3,13 +3,69 @@
 #include "world/entity_view.h"
 #include "world/world.h"
 #include "world/blocks.h"
+#include "models/database.h"
 
 #include "models/components.h"
 
 #include "zpl.h"
 
-#include "lists/items_list.c"
-#define ITEMS_COUNT (sizeof(items)/sizeof(item_desc))
+//#include "lists/items_list.c"
+static item_desc *items;
+#define ITEMS_COUNT (zpl_array_count(items))
+
+void item_db(void) {
+    zpl_array_init(items, zpl_heap());
+    db_push("SELECT * FROM items;");
+    for (size_t i = 0, end = db_rows(); i < end; i++) {
+        item_desc item = {0};
+        item.kind = db_int("kind", i);
+        item.usage = db_int("usage", i);
+        item.attachment = db_int("attachment", i);
+        item.max_quantity = db_int("max_quantity", i);
+        item.has_storage = db_int("has_storage", i);
+
+        switch (item.usage) {
+            case UKIND_PLACE:
+            case UKIND_PLACE_ITEM:
+            case UKIND_PLACE_ITEM_DATA:
+                item.place.kind = db_int("place_kind", i);
+                item.place.directional = db_int("directional", i);
+                item.place_item.id = db_int("place_item_id", i);
+                break;
+            case UKIND_PROXY:
+                item.proxy.id = db_int("proxy_id", i);
+                break;
+            default:
+                break;
+        }
+
+        switch (item.attachment) {
+            case UDATA_ENERGY_SOURCE:
+                item.energy_source.producer = db_int("producer", i);
+                item.energy_source.energy_level = db_flt("energy_level", i);
+                break;
+            default:
+                break;
+        }
+
+        // Handle blueprint data if present
+        // if (item.usage == UKIND_PLACE_ITEM_DATA) {
+        //     item.blueprint.w = db_int("blueprint_w", i);
+        //     item.blueprint.h = db_int("blueprint_h", i);
+        //     const char *plan_str = db_str("blueprint_plan", i);
+        //     
+        //     // Convert the plan string to an array of asset_id
+        //     size_t plan_len = strlen(plan_str);
+        //     item.blueprint.plan = malloc(plan_len * sizeof(asset_id));
+        //     for (size_t j = 0; j < plan_len; j++) {
+        //         item.blueprint.plan[j] = plan_str[j]; // Assuming plan_str is a string of asset_id
+        //     }
+        // }
+
+        zpl_array_append(items, item);
+    }
+    db_pop();
+}
 
 static inline item_id item_resolve_proxy(item_id id) {
     ZPL_ASSERT(id < ITEMS_COUNT);

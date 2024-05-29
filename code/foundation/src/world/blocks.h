@@ -12,6 +12,7 @@ typedef enum {
 
 typedef uint16_t block_id;
 
+void blocks_db(void);
 int32_t blocks_setup(void);
 void blocks_destroy(void);
 

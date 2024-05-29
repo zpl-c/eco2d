@@ -8,6 +8,7 @@
 
 #define ZPL_NANO
 #define ZPL_ENABLE_MATH
+#define ZPL_ENABLE_PARSER
 #include "zpl.h"
 
 float get_cached_time(void);
