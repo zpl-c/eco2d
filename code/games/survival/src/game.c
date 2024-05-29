@@ -83,8 +83,23 @@ void mob_systems(ecs_world_t *ecs) {
 	ECS_OBSERVER(ecs, MobOnDead, EcsOnAdd, components.Mob, components.Sprite, components.Velocity, components.Dead);
 }
 
-void game_init(bool new_db) {
+uint64_t mob_spawn(void) {
+	ecs_entity_t e = entity_spawn(EKIND_MONSTER);
 
+	ecs_add(world_ecs(), e, Mob);
+	ecs_set(world_ecs(), e, Health, { 60, 60, 0 });
+	ecs_set(world_ecs(), e, PhysicsBody, { .kind = PHYS_AABB, .mass = 1.0f });
+    ecs_set(world_ecs(), e, Sprite, { .frame = 101 + (rand()%3) });
+
+	return (uint64_t)e;
+}
+
+void game_init(bool new_db) {
+    if (new_db) {
+        assets_new("MOB");
+    }
+
+	entity_add_spawndef(ASSET_MOB, mob_spawn);
 }
 
 void game_input() {

@@ -163,7 +163,6 @@ static debug_item items[] = {
                         .is_collapsed = false
                     }
                 },
-				{ .kind = DITEM_BUTTON, .name = "spawn mobs", .on_click = ActSpawnMobs },
 				{ .kind = DITEM_BUTTON, .name = "spawn car", .on_click = ActSpawnCar },
                 { .kind = DITEM_BUTTON, .name = "place ice rink", .on_click = ActPlaceIceRink },
                 { .kind = DITEM_BUTTON, .name = "erase world changes", .on_click = ActEraseWorldChanges },

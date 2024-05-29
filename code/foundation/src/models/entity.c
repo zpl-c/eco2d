@@ -44,7 +44,6 @@ void entity_default_spawnlist(void) {
     entity_add_spawndef(ASSET_SPLITTER, splitter_spawn);
     entity_add_spawndef(ASSET_ASSEMBLER, assembler_spawn);
 	entity_add_spawndef(ASSET_CREATURE, creature_spawn);
-	entity_add_spawndef(ASSET_MOB, mob_spawn);
     entity_add_spawndef_data(ASSET_BLUEPRINT, blueprint_spawn_udata);
 }
 
